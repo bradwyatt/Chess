@@ -1,6 +1,6 @@
 """
 Chess created by Brad Wyatt
-Python 3.4.4.4
+Python 2.7.13
 
 To-Do:
 Castling (can't do it through check)
@@ -9,16 +9,13 @@ Check
 Checkmate
 Reset button for reset the board
 Customized Turns for black and white
-Restriction: Pawns cant be dragged to last rank or first rank
-Restriction: Only one king
 """
 import pygame, random, sys, ast, os
 from pygame.constants import RLEACCEL
 from pygame.locals import *
-import tkinter as tk
-from tkinter.colorchooser import askcolor
-from tkinter import *
-from tkinter.filedialog import *
+import Tkinter as tk
+from tkColorChooser import askcolor
+from tkFileDialog import *
 from ast import literal_eval
 
 #Tk box for color
@@ -628,8 +625,12 @@ class StartObjects(pygame.sprite.Sprite):
             self.image = images["sprBlackKing"]
         self.rect = self.image.get_rect()
         startsprites.add(self)
+        self.coordinate = ['z', 0]  # Starts as this
     def update(self):
         global mousePos
+        for grid in room.gridList:
+            if self.rect.colliderect(grid):
+                self.coordinate = grid.coordinate
         if(self.classname == "whitepawn"):
             if dragging.whitePawn:
                 start.blankBox.rect.topleft = startPos['whitePawn'] #Replaces in Menu
@@ -661,7 +662,7 @@ class StartObjects(pygame.sprite.Sprite):
             else:
                 start.whiteQueen.rect.topleft = startPos['whiteQueen']
         elif(self.classname == "whiteking"):
-            if dragging.whiteKing:
+            if dragging.whiteKing and len(placed.whiteKingList) == 0:
                 start.blankBox.rect.topleft = startPos['whiteKing'] #Replaces in Menu
                 start.whiteKing.rect.topleft = mousePos[0]-(self.image.get_width()/2), mousePos[1]-(self.image.get_height()/2)
             else:
@@ -697,7 +698,7 @@ class StartObjects(pygame.sprite.Sprite):
             else:
                 start.blackQueen.rect.topleft = startPos['blackQueen']
         elif(self.classname == "blackking"):
-            if dragging.blackKing:
+            if dragging.blackKing and len(placed.blackKingList) == 0:
                 start.blankBox.rect.topleft = startPos['blackKing'] #Replaces in Menu
                 start.blackKing.rect.topleft = mousePos[0]-(self.image.get_width()/2), mousePos[1]-(self.image.get_height()/2)
             else:
@@ -733,8 +734,11 @@ class PlacedObjects(pygame.sprite.Sprite):
             self.image = images["sprBlackKing"]
         self.rect = self.image.get_rect()
         placedsprites.add(self)
+        self.coordinate = ['z', 0]  # Starts as this
     def update(self):
-        pass
+        for grid in room.gridList:
+            if self.rect.colliderect(grid):
+                self.coordinate = grid.coordinate
         
 class PlayBishop(pygame.sprite.Sprite):
     def __init__(self, col):
@@ -1415,236 +1419,240 @@ coor6Text = arialFont.render("6", 1, (0,0,0))
 coor7Text= arialFont.render("7", 1, (0,0,0))
 coor8Text = arialFont.render("8", 1, (0,0,0))
 #Main
-while RUNNING:
-    clock.tick(60)
-    mousePos = pygame.mouse.get_pos()
-    if MENUON == 0: # Initiate room
-        room = Room()
-        MENUON = 1 # No initiation
-    if MENUON == 2: # Info screen
-        InfoScreen(screen)
-    # GRID OCCUPIED
-    try:
-        for grid in range(0,len(room.gridList)):
-            for colorPieces in play.totalPlayList:
-                for pieceList in colorPieces:
-                    for piece in pieceList:
-                        if piece.rect.topleft == room.gridList[grid].rect.topleft:
-                            room.gridList[grid].occupied = 1
-                            grid += 1
-                        else:
-                            room.gridList[grid].occupied = 0
-    except IndexError:
-        pass
-
-    for event in pygame.event.get():
-        if event.type == QUIT:
-            RUNNING = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == K_ESCAPE:
-                MENUON = 1 #Getting out of menus
-        if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and mousePos[0] > XGRIDRANGE[1]: #DRAG (only for menu and inanimate buttons at top)
-            if playSwitchButton.playSwitch is None: #Checks if in Editing Mode
-                #BUTTONS
-                if colorButton.rect.collidepoint(mousePos):
-                    colorButton.getColor()
-                if saveFileButton.rect.collidepoint(mousePos):
-                    saveFile()
-                if loadFileButton.rect.collidepoint(mousePos):
-                    loadFile()
-                #DRAG OBJECTS
-                if start.whitePawn.rect.collidepoint(mousePos):
-                    draggingFunction()
-                    dragging.whitePawn = not None
-                if start.whiteBishop.rect.collidepoint(mousePos):
-                    draggingFunction()
-                    dragging.whiteBishop = not None
-                if start.whiteKnight.rect.collidepoint(mousePos):
-                    draggingFunction()
-                    dragging.whiteKnight = not None
-                if start.whiteRook.rect.collidepoint(mousePos):
-                    draggingFunction()
-                    dragging.whiteRook = not None
-                if start.whiteQueen.rect.collidepoint(mousePos):
-                    draggingFunction()
-                    dragging.whiteQueen = not None
-                if start.whiteKing.rect.collidepoint(mousePos):
-                    draggingFunction()
-                    dragging.whiteKing = not None
-                if start.blackPawn.rect.collidepoint(mousePos):
-                    draggingFunction()
-                    dragging.blackPawn = not None
-                if start.blackBishop.rect.collidepoint(mousePos):
-                    draggingFunction()
-                    dragging.blackBishop = not None
-                if start.blackKnight.rect.collidepoint(mousePos):
-                    draggingFunction()
-                    dragging.blackKnight = not None
-                if start.blackRook.rect.collidepoint(mousePos):
-                    draggingFunction()
-                    dragging.blackRook = not None
-                if start.blackQueen.rect.collidepoint(mousePos):
-                    draggingFunction()
-                    dragging.blackQueen = not None
-                if start.blackKing.rect.collidepoint(mousePos):
-                    draggingFunction()
-                    dragging.blackKing = not None
-        # LEFT CLICK
-        elif (event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and
-              mousePos[0] > XGRIDRANGE[0] and mousePos[0] < XGRIDRANGE[1] and
-              mousePos[1] > YGRIDRANGE[0] and mousePos[1] < YGRIDRANGE[1]): #placedObject placed on location of mouse release
-
-            def dragToPlaced(drag, piece, placedList):
-                if pygame.mouse.get_pressed()[0] and drag is not None:
-                    removeObject() #Remove what is already there
-                    placedobj = PlacedObjects(piece)
-                    placedobj.rect.topleft = snapToGrid(mousePos)
-                    placedsprites.add(placedobj)
-                    placedList.append(placedobj)
-
-            dragToPlaced(dragging.whitePawn, "whitepawn", placed.whitePawnList)
-            dragToPlaced(dragging.whiteBishop, "whitebishop", placed.whiteBishopList)
-            dragToPlaced(dragging.whiteKnight, "whiteknight", placed.whiteKnightList)
-            dragToPlaced(dragging.whiteRook, "whiterook", placed.whiteRookList)
-            dragToPlaced(dragging.whiteQueen, "whitequeen", placed.whiteQueenList)
-            dragToPlaced(dragging.whiteKing, "whiteking", placed.whiteKingList)
-            dragToPlaced(dragging.blackPawn, "blackpawn", placed.blackPawnList)
-            dragToPlaced(dragging.blackBishop, "blackbishop", placed.blackBishopList)
-            dragToPlaced(dragging.blackKnight, "blackknight", placed.blackKnightList)
-            dragToPlaced(dragging.blackRook, "blackrook", placed.blackRookList)
-            dragToPlaced(dragging.blackQueen, "blackqueen", placed.blackQueenList)
-            dragToPlaced(dragging.blackKing, "blackking", placed.blackKingList)
-            # Moves piece
-            for grid in room.gridList:
+if __name__ == '__main__':
+    while RUNNING:
+        clock.tick(60)
+        mousePos = pygame.mouse.get_pos()
+        if MENUON == 0: # Initiate room
+            room = Room()
+            MENUON = 1 # No initiation
+        if MENUON == 2: # Info screen
+            InfoScreen(screen)
+        # GRID OCCUPIED
+        try:
+            for grid in range(0,len(room.gridList)):
                 for colorPieces in play.totalPlayList:
                     for pieceList in colorPieces:
                         for piece in pieceList:
-                            if (grid.rect.collidepoint(mousePos) and grid.highlighted==1):
-                                if(piece.select == 1):
-                                    piece.rect.topleft = grid.rect.topleft
-                                    print(grid.coordinate)
-                                    if(WHOSETURN == "white"):
-                                        WHOSETURN = "black"
-                                    elif(WHOSETURN == "black"):
-                                        WHOSETURN = "white"
-
-            clickedPiece = None
-            # HIGHLIGHTS PIECE YOU CLICK ON
-            for colorPieces in play.totalPlayList:
-                for pieceList in colorPieces:
-                    for piece in pieceList:
-                        if (piece.rect.collidepoint(mousePos) and piece.select == 0 and WHOSETURN == piece.color):
-                            clickedPiece = piece
-                        else:
-                            piece.noHighlight()
-                            clearGrid()
-
-            if clickedPiece is not None:
-                # Just do this last, since we know only one piece will be selected
-                clickedPiece.highlight()
-                clickedPiece.projected()
+                            if piece.rect.topleft == room.gridList[grid].rect.topleft:
+                                room.gridList[grid].occupied = 1
+                                grid += 1
+                            else:
+                                room.gridList[grid].occupied = 0
+        except IndexError:
+            pass
+    
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                RUNNING = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == K_ESCAPE:
+                    MENUON = 1 #Getting out of menus
+            if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and mousePos[0] > XGRIDRANGE[1]: #DRAG (only for menu and inanimate buttons at top)
+                if playSwitchButton.playSwitch is None: #Checks if in Editing Mode
+                    #BUTTONS
+                    if colorButton.rect.collidepoint(mousePos):
+                        colorButton.getColor()
+                    if saveFileButton.rect.collidepoint(mousePos):
+                        saveFile()
+                    if loadFileButton.rect.collidepoint(mousePos):
+                        loadFile()
+                    #DRAG OBJECTS
+                    if start.whitePawn.rect.collidepoint(mousePos):
+                        draggingFunction()
+                        dragging.whitePawn = not None
+                    if start.whiteBishop.rect.collidepoint(mousePos):
+                        draggingFunction()
+                        dragging.whiteBishop = not None
+                    if start.whiteKnight.rect.collidepoint(mousePos):
+                        draggingFunction()
+                        dragging.whiteKnight = not None
+                    if start.whiteRook.rect.collidepoint(mousePos):
+                        draggingFunction()
+                        dragging.whiteRook = not None
+                    if start.whiteQueen.rect.collidepoint(mousePos):
+                        draggingFunction()
+                        dragging.whiteQueen = not None
+                    if start.whiteKing.rect.collidepoint(mousePos):
+                        draggingFunction()
+                        dragging.whiteKing = not None
+                    if start.blackPawn.rect.collidepoint(mousePos):
+                        draggingFunction()
+                        dragging.blackPawn = not None
+                    if start.blackBishop.rect.collidepoint(mousePos):
+                        draggingFunction()
+                        dragging.blackBishop = not None
+                    if start.blackKnight.rect.collidepoint(mousePos):
+                        draggingFunction()
+                        dragging.blackKnight = not None
+                    if start.blackRook.rect.collidepoint(mousePos):
+                        draggingFunction()
+                        dragging.blackRook = not None
+                    if start.blackQueen.rect.collidepoint(mousePos):
+                        draggingFunction()
+                        dragging.blackQueen = not None
+                    if start.blackKing.rect.collidepoint(mousePos):
+                        draggingFunction()
+                        dragging.blackKing = not None
+            # LEFT CLICK
+            elif (event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and
+                  mousePos[0] > XGRIDRANGE[0] and mousePos[0] < XGRIDRANGE[1] and
+                  mousePos[1] > YGRIDRANGE[0] and mousePos[1] < YGRIDRANGE[1] and
+                  start.whitePawn.coordinate[1] != 1 and start.whitePawn.coordinate[1] != 8): #placedObject placed on location of mouse release AND white pawn not put on first or last row
+    
+                def dragToPlaced(drag, piece, placedList):
+                    if pygame.mouse.get_pressed()[0] and drag is not None:
+                        removeObject() #Remove what is already there
+                        placedobj = PlacedObjects(piece)
+                        placedobj.rect.topleft = snapToGrid(mousePos)
+                        placedsprites.add(placedobj)
+                        placedList.append(placedobj)
+    
+                dragToPlaced(dragging.whitePawn, "whitepawn", placed.whitePawnList)
+                dragToPlaced(dragging.whiteBishop, "whitebishop", placed.whiteBishopList)
+                dragToPlaced(dragging.whiteKnight, "whiteknight", placed.whiteKnightList)
+                dragToPlaced(dragging.whiteRook, "whiterook", placed.whiteRookList)
+                dragToPlaced(dragging.whiteQueen, "whitequeen", placed.whiteQueenList)
+                if len(placed.whiteKingList) == 0:
+                    dragToPlaced(dragging.whiteKing, "whiteking", placed.whiteKingList)
+                dragToPlaced(dragging.blackPawn, "blackpawn", placed.blackPawnList)
+                dragToPlaced(dragging.blackBishop, "blackbishop", placed.blackBishopList)
+                dragToPlaced(dragging.blackKnight, "blackknight", placed.blackKnightList)
+                dragToPlaced(dragging.blackRook, "blackrook", placed.blackRookList)
+                dragToPlaced(dragging.blackQueen, "blackqueen", placed.blackQueenList)
+                if len(placed.blackKingList) == 0:
+                    dragToPlaced(dragging.blackKing, "blackking", placed.blackKingList)
+                # Moves piece
+                for grid in room.gridList:
+                    for colorPieces in play.totalPlayList:
+                        for pieceList in colorPieces:
+                            for piece in pieceList:
+                                if (grid.rect.collidepoint(mousePos) and grid.highlighted==1):
+                                    if(piece.select == 1):
+                                        piece.rect.topleft = grid.rect.topleft
+                                        print(grid.coordinate)
+                                        if(WHOSETURN == "white"):
+                                            WHOSETURN = "black"
+                                        elif(WHOSETURN == "black"):
+                                            WHOSETURN = "white"
+    
                 clickedPiece = None
-
-        if event.type == pygame.MOUSEBUTTONUP: #Release Drag
-            #LEFT CLICK PLAY BUTTON
-            if playSwitchButton.rect.collidepoint(mousePos) and playSwitchButton.playSwitch is None: 
-                if playSwitchButton.playSwitch is None: #Makes clicking play again unclickable
-                    print("Play Mode Activated")
-                    playSwitchButton.playSwitch = not None #Switches to Play Mode
-
-                    def placedToPlay(placedList, playList, playClass, col):
-                        if placedList is not None:
-                            for i in range(0, len(placedList)):
-                                playList.append(playClass(col)) #Adds to list same amount of PlayWhitePawns as PlaceWhitePawns
-                                playList[i].rect.topleft = placedList[i].rect.topleft #Each PlayWhitePawn in respective PlacedWhitePawn location
-
-                    placedToPlay(placed.whitePawnList, play.whitePawnList, PlayPawn, col="white")
-                    placedToPlay(placed.whiteBishopList, play.whiteBishopList, PlayBishop, col="white")
-                    placedToPlay(placed.whiteKnightList, play.whiteKnightList, PlayKnight, col="white")
-                    placedToPlay(placed.whiteRookList, play.whiteRookList, PlayRook, col="white")
-                    placedToPlay(placed.whiteQueenList, play.whiteQueenList, PlayQueen, col="white")
-                    placedToPlay(placed.whiteKingList, play.whiteKingList, PlayKing, col="white")
-                    placedToPlay(placed.blackPawnList, play.blackPawnList, PlayPawn, col="black")
-                    placedToPlay(placed.blackBishopList, play.blackBishopList, PlayBishop, col="black")
-                    placedToPlay(placed.blackKnightList, play.blackKnightList, PlayKnight, col="black")
-                    placedToPlay(placed.blackRookList, play.blackRookList, PlayRook, col="black")
-                    placedToPlay(placed.blackQueenList, play.blackQueenList, PlayQueen, col="black")
-                    placedToPlay(placed.blackKingList, play.blackKingList, PlayKing, col="black")
-            # LEFT CLICK STOP BUTTON
-            elif playSwitchButton.rect.collidepoint(mousePos) and playSwitchButton.playSwitch is not None:
-                if playSwitchButton.playSwitch is not None: #Makes sure you are not in editing mode to enter editing mode
-                    print("Editing Mode Activated")
-                    playSwitchButton.playSwitch = None
-                    #All Play objects removed
-                    play.PlayNone()
-                room.restart()
-            if restartButton.rect.collidepoint(mousePos):
-                pass
-            if infoButton.rect.collidepoint(mousePos):
-                MENUON = 2
-            if clearButton.rect.collidepoint(mousePos):
+                # HIGHLIGHTS PIECE YOU CLICK ON
+                for colorPieces in play.totalPlayList:
+                    for pieceList in colorPieces:
+                        for piece in pieceList:
+                            if (piece.rect.collidepoint(mousePos) and piece.select == 0 and WHOSETURN == piece.color):
+                                clickedPiece = piece
+                            else:
+                                piece.noHighlight()
+                                clearGrid()
+    
+                if clickedPiece is not None:
+                    # Just do this last, since we know only one piece will be selected
+                    clickedPiece.highlight()
+                    clickedPiece.projected()
+                    clickedPiece = None
+    
+            if event.type == pygame.MOUSEBUTTONUP: #Release Drag
+                #LEFT CLICK PLAY BUTTON
+                if playSwitchButton.rect.collidepoint(mousePos) and playSwitchButton.playSwitch is None: 
+                    if playSwitchButton.playSwitch is None: #Makes clicking play again unclickable
+                        print("Play Mode Activated")
+                        playSwitchButton.playSwitch = not None #Switches to Play Mode
+    
+                        def placedToPlay(placedList, playList, playClass, col):
+                            if placedList is not None:
+                                for i in range(0, len(placedList)):
+                                    playList.append(playClass(col)) #Adds to list same amount of PlayWhitePawns as PlaceWhitePawns
+                                    playList[i].rect.topleft = placedList[i].rect.topleft #Each PlayWhitePawn in respective PlacedWhitePawn location
+    
+                        placedToPlay(placed.whitePawnList, play.whitePawnList, PlayPawn, col="white")
+                        placedToPlay(placed.whiteBishopList, play.whiteBishopList, PlayBishop, col="white")
+                        placedToPlay(placed.whiteKnightList, play.whiteKnightList, PlayKnight, col="white")
+                        placedToPlay(placed.whiteRookList, play.whiteRookList, PlayRook, col="white")
+                        placedToPlay(placed.whiteQueenList, play.whiteQueenList, PlayQueen, col="white")
+                        placedToPlay(placed.whiteKingList, play.whiteKingList, PlayKing, col="white")
+                        placedToPlay(placed.blackPawnList, play.blackPawnList, PlayPawn, col="black")
+                        placedToPlay(placed.blackBishopList, play.blackBishopList, PlayBishop, col="black")
+                        placedToPlay(placed.blackKnightList, play.blackKnightList, PlayKnight, col="black")
+                        placedToPlay(placed.blackRookList, play.blackRookList, PlayRook, col="black")
+                        placedToPlay(placed.blackQueenList, play.blackQueenList, PlayQueen, col="black")
+                        placedToPlay(placed.blackKingList, play.blackKingList, PlayKing, col="black")
+                # LEFT CLICK STOP BUTTON
+                elif playSwitchButton.rect.collidepoint(mousePos) and playSwitchButton.playSwitch is not None:
+                    if playSwitchButton.playSwitch is not None: #Makes sure you are not in editing mode to enter editing mode
+                        print("Editing Mode Activated")
+                        playSwitchButton.playSwitch = None
+                        #All Play objects removed
+                        play.PlayNone()
+                    room.restart()
+                if restartButton.rect.collidepoint(mousePos):
+                    pass
+                if infoButton.rect.collidepoint(mousePos):
+                    MENUON = 2
+                if clearButton.rect.collidepoint(mousePos):
+                    if playSwitchButton.playSwitch is None: #Editing mode
+                        draggingFunction()
+                        def placedToRemove(placedList):
+                            for placed in placedList:
+                                placedsprites.remove(placed)
+                            placedList = []
+                            return placedList
+                        placed.whitePawnList = placedToRemove(placed.whitePawnList)
+                        placed.whiteBishopList = placedToRemove(placed.whiteBishopList)
+                        placed.whiteKnightList = placedToRemove(placed.whiteKnightList)
+                        placed.whiteRookList = placedToRemove(placed.whiteRookList)
+                        placed.whiteQueenList = placedToRemove(placed.whiteQueenList)
+                        placed.whiteKingList = placedToRemove(placed.whiteKingList)
+                        placed.blackPawnList = placedToRemove(placed.blackPawnList)
+                        placed.blackBishopList = placedToRemove(placed.blackBishopList)
+                        placed.blackKnightList = placedToRemove(placed.blackKnightList)
+                        placed.blackRookList = placedToRemove(placed.blackRookList)
+                        placed.blackQueenList = placedToRemove(placed.blackQueenList)
+                        placed.blackKingList = placedToRemove(placed.blackKingList)
+            if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[2]: #Right click on obj, destroy
                 if playSwitchButton.playSwitch is None: #Editing mode
                     draggingFunction()
-                    def placedToRemove(placedList):
-                        for placed in placedList:
-                            placedsprites.remove(placed)
-                        placedList = []
-                        return placedList
-                    placed.whitePawnList = placedToRemove(placed.whitePawnList)
-                    placed.whiteBishopList = placedToRemove(placed.whiteBishopList)
-                    placed.whiteKnightList = placedToRemove(placed.whiteKnightList)
-                    placed.whiteRookList = placedToRemove(placed.whiteRookList)
-                    placed.whiteQueenList = placedToRemove(placed.whiteQueenList)
-                    placed.whiteKingList = placedToRemove(placed.whiteKingList)
-                    placed.blackPawnList = placedToRemove(placed.blackPawnList)
-                    placed.blackBishopList = placedToRemove(placed.blackBishopList)
-                    placed.blackKnightList = placedToRemove(placed.blackKnightList)
-                    placed.blackRookList = placedToRemove(placed.blackRookList)
-                    placed.blackQueenList = placedToRemove(placed.blackQueenList)
-                    placed.blackKingList = placedToRemove(placed.blackKingList)
-        if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[2]: #Right click on obj, destroy
-            if playSwitchButton.playSwitch is None: #Editing mode
-                draggingFunction()
-                removeObject()
-        # MIDDLE MOUSE DEBUGGER
-        if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[1]:
-            for grid in room.gridList:
-                if grid.rect.collidepoint(mousePos):
-                    print(grid.occWhiteOrBlack)
-        #PLAYER MOVEMENTS
-        if(playSwitchButton.playSwitch is not None):
+                    removeObject()
+            # MIDDLE MOUSE DEBUGGER
+            if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[1]:
+                for grid in room.gridList:
+                    if grid.rect.collidepoint(mousePos):
+                        print(grid.occWhiteOrBlack)
+            #PLAYER MOVEMENTS
+            if(playSwitchButton.playSwitch is not None):
+                pass
+        if(playSwitchButton.playSwitch is not None): #ALL GAME ACTIONS
             pass
-    if(playSwitchButton.playSwitch is not None): #ALL GAME ACTIONS
-        pass
-
-    #FOR DEBUGGING PURPOSES, PUT TEST CODE BELOW
-
-    #Update all sprites
-    gridsprites.update()
-    startsprites.update()
-    placedsprites.update()
-    playsprites.update()
-    screen.fill(COLORKEY)
-    if(playSwitchButton.playSwitch is None): #Only draw placed sprites in editing mode
-        gridsprites.draw(screen)
-        startsprites.draw(screen)
-        placedsprites.draw(screen)
-    elif(playSwitchButton.playSwitch is not None): #Only draw play sprites in play mode
-        gridsprites.draw(screen)
-        playsprites.draw(screen)
-    # Board Coordinates Drawing
-    coorLetterTextList = [coorAText, coorBText, coorCText, coorDText, coorEText, coorFText, coorGText, coorHText]
-    for text in range(0,len(coorLetterTextList)):
-        screen.blit(coorLetterTextList[text], (XGRIDRANGE[0]+XGRIDRANGE[2]/3+(XGRIDRANGE[2]*text),YGRIDRANGE[0]-(YGRIDRANGE[2]*0.75)))
-        screen.blit(coorLetterTextList[text], (XGRIDRANGE[0]+XGRIDRANGE[2]/3+(XGRIDRANGE[2]*text),YGRIDRANGE[1]+(YGRIDRANGE[2]*0.25)))
-    coorNumberTextList = [coor8Text, coor7Text, coor6Text, coor5Text, coor4Text, coor3Text, coor2Text, coor1Text]
-    for text in range(0,len(coorNumberTextList)):
-        screen.blit(coorNumberTextList[text], (XGRIDRANGE[0]-XGRIDRANGE[2]/2,YGRIDRANGE[0]+YGRIDRANGE[2]/4+(YGRIDRANGE[2]*text)))
-        screen.blit(coorNumberTextList[text], (XGRIDRANGE[1]+XGRIDRANGE[2]/3,YGRIDRANGE[0]+YGRIDRANGE[2]/4+(YGRIDRANGE[2]*text)))
-    if(playSwitchButton.playSwitch is not None):
-        whoseTurnText = arialFont.render(WHOSETURN + "'s move to turn", 1, (0,0,0))
-        pinCheckText = arialFont.render(CHECKTEXT, 1, (0,0,0))
-        screen.blit(whoseTurnText, (XGRIDRANGE[1]+XGRIDRANGE[2],SCREENHEIGHT/2))
-        screen.blit(pinCheckText, (XGRIDRANGE[1]+XGRIDRANGE[2],200))
-    pygame.display.flip()
-    pygame.display.update()
+    
+        #FOR DEBUGGING PURPOSES, PUT TEST CODE BELOW
+    
+        #Update all sprites
+        gridsprites.update()
+        startsprites.update()
+        placedsprites.update()
+        playsprites.update()
+        screen.fill(COLORKEY)
+        if(playSwitchButton.playSwitch is None): #Only draw placed sprites in editing mode
+            gridsprites.draw(screen)
+            startsprites.draw(screen)
+            placedsprites.draw(screen)
+        elif(playSwitchButton.playSwitch is not None): #Only draw play sprites in play mode
+            gridsprites.draw(screen)
+            playsprites.draw(screen)
+        # Board Coordinates Drawing
+        coorLetterTextList = [coorAText, coorBText, coorCText, coorDText, coorEText, coorFText, coorGText, coorHText]
+        for text in range(0,len(coorLetterTextList)):
+            screen.blit(coorLetterTextList[text], (XGRIDRANGE[0]+XGRIDRANGE[2]/3+(XGRIDRANGE[2]*text),YGRIDRANGE[0]-(YGRIDRANGE[2]*0.75)))
+            screen.blit(coorLetterTextList[text], (XGRIDRANGE[0]+XGRIDRANGE[2]/3+(XGRIDRANGE[2]*text),YGRIDRANGE[1]+(YGRIDRANGE[2]*0.25)))
+        coorNumberTextList = [coor8Text, coor7Text, coor6Text, coor5Text, coor4Text, coor3Text, coor2Text, coor1Text]
+        for text in range(0,len(coorNumberTextList)):
+            screen.blit(coorNumberTextList[text], (XGRIDRANGE[0]-XGRIDRANGE[2]/2,YGRIDRANGE[0]+YGRIDRANGE[2]/4+(YGRIDRANGE[2]*text)))
+            screen.blit(coorNumberTextList[text], (XGRIDRANGE[1]+XGRIDRANGE[2]/3,YGRIDRANGE[0]+YGRIDRANGE[2]/4+(YGRIDRANGE[2]*text)))
+        if(playSwitchButton.playSwitch is not None):
+            whoseTurnText = arialFont.render(WHOSETURN + "'s move to turn", 1, (0,0,0))
+            pinCheckText = arialFont.render(CHECKTEXT, 1, (0,0,0))
+            screen.blit(whoseTurnText, (XGRIDRANGE[1]+XGRIDRANGE[2],SCREENHEIGHT/2))
+            screen.blit(pinCheckText, (XGRIDRANGE[1]+XGRIDRANGE[2],200))
+        pygame.display.flip()
+        pygame.display.update()
