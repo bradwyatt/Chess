@@ -3,7 +3,7 @@ Chess created by Brad Wyatt
 Python 2.7.13
 
 To-Do:
-Castling (can't do it through check)
+Castling (can't do it through check) --> Need to be aware of left and right rook (if they moved or not)
 En Passant
 Check
 Checkmate
@@ -13,9 +13,9 @@ Customized Turns for black and white
 import pygame, random, sys, ast, os
 from pygame.constants import RLEACCEL
 from pygame.locals import *
-import Tkinter as tk
-from tkColorChooser import askcolor
-from tkFileDialog import *
+import tkinter as tk
+from tkinter.colorchooser import askcolor
+from tkinter.filedialog import *
 from ast import literal_eval
 
 #Tk box for color
@@ -38,9 +38,10 @@ TAKENPIECEYBLACK = TAKENPIECECOORDS[3]
 CHECKTEXT = ""
 
 #Grouping Images and Sounds
-startPos = {'whitePawn': (480, 390), 'whiteBishop':(480, 340), 'whiteKnight':(480, 290), 'whiteRook':(480, 240),
-    'whiteQueen':(480, 190), 'whiteKing':(480, 140), 'blackPawn': (540, 390), 'blackBishop':(540, 340), 'blackKnight':(540, 290),
-        'blackRook':(540, 240), 'blackQueen':(540, 190), 'blackKing':(540, 140)}
+startPos = {'whitePawn': (480, 390), 'whiteBishop':(480, 340), 'whiteKnight':(480, 290),
+            'whiteRook':(480, 240), 'whiteQueen':(480, 190), 'whiteKing':(480, 140),
+            'blackPawn': (540, 390), 'blackBishop':(540, 340), 'blackKnight':(540, 290),
+            'blackRook':(540, 240), 'blackQueen':(540, 190), 'blackKing':(540, 140)}
 images = {}
 sounds = {}
 gridsprites = pygame.sprite.Group()
@@ -254,7 +255,7 @@ def bishopProjected(piece, col):
         elif(piecesInWay == 1 and kingCounter == 1):
             CHECKTEXT = "Check"
             raise
-        elif(kingCounter == 0 or piecesInWay > 2): # Either no pin, or too many pieces in the way of a potential pin
+        elif(kingCounter == 50 or piecesInWay > 2): # Either no pin, or too many pieces in the way of a potential pin
             deactivatePiece(grid.coordinate, False)
             CHECKTEXT = ""
         else:
@@ -338,13 +339,13 @@ def bishopProjected(piece, col):
 # ProjectedRookPath
 def rookProjected(piece, col):
     global CHECKTEXT
-    piecesInWay = 0 #Pieces between the bishop and the enemy King
+    piecesInWay = 0 #Pieces between the rook and the enemy King
     kingCounter = 0 #Checks to see if there's a king in a direction
     try:
         for i in range(1,8): #West
             for grid in room.gridList:
                 if ord(grid.coordinate[0]) == ord(piece.coordinate[0])-i and grid.coordinate[1] == piece.coordinate[1]:
-                    if(grid.occupied == 1): #Counts pieces that are in bishops projected range
+                    if(grid.occupied == 1): #Counts pieces that are in rook's projected range
                         if(kingCounter < 1): #Ignoring pieces that are past the king
                             piecesInWay += 1
                             if(grid.occWhiteOrBlack != col):
@@ -352,7 +353,7 @@ def rookProjected(piece, col):
                                     kingCounter += 1
                                 else:
                                     deactivatePiece(grid.coordinate, True)
-                    grid.image = images["sprHighlight2"]
+                    #grid.image = images["sprHighlight2"]
         if(piecesInWay == 2 and kingCounter == 1): #2 Pieces in way, includes 1 king
             CHECKTEXT = "Pinned"
             raise
@@ -376,7 +377,8 @@ def rookProjected(piece, col):
                                     kingCounter += 1
                                 else:
                                     deactivatePiece(grid.coordinate, True)
-                    grid.image = images["sprHighlight2"]
+                    #grid.image = images["sprHighlight2"]
+
         if(piecesInWay == 2 and kingCounter == 1):
             CHECKTEXT = "Pinned"
             raise
@@ -400,7 +402,7 @@ def rookProjected(piece, col):
                                     kingCounter += 1
                                 else:
                                     deactivatePiece(grid.coordinate, True)
-                    grid.image = images["sprHighlight2"]
+                    #grid.image = images["sprHighlight2"]
         if(piecesInWay == 2 and kingCounter == 1):
             CHECKTEXT = "Pinned"
             raise
@@ -424,7 +426,7 @@ def rookProjected(piece, col):
                                     kingCounter += 1
                                 else:
                                     deactivatePiece(grid.coordinate, True)
-                    grid.image = images["sprHighlight2"]
+                    #grid.image = images["sprHighlight2"]
         if(piecesInWay == 2 and kingCounter == 1):
             CHECKTEXT = "Pinned"
             raise
@@ -834,8 +836,10 @@ class PlayRook(pygame.sprite.Sprite):
         self.color = col
         if(self.color == "white"):
             self.image = images["sprWhiteRook"]
+            self.ranknum = 1
         elif(self.color == "black"):
             self.image = images["sprBlackRook"]
+            self.ranknum = 8
         self.rect = self.image.get_rect()
         playsprites.add(self)
         self.coordinate = ['z', 0] #blank coordinate, will change once it updates
@@ -849,6 +853,23 @@ class PlayRook(pygame.sprite.Sprite):
             playsprites.remove(self)
         if(self.select == 0): # Projected Spaces Attacked
             rookProjected(self, self.color)
+    def moveSquare(self, coordinateParameter, castle=False):
+        if castle == False:
+            for grid in room.gridList:
+                if grid.coordinate == coordinate:
+                    self.rect.topleft = grid.rect.topleft
+        if castle == True and self.coordinate == ['h', self.ranknum]:
+            if play.whiteKingList[0].rightCastleAbility == 1 and play.whiteKingList[0].coordinate == ['g', 1]:
+                for grid in room.gridList:
+                    if grid.coordinate == ['f', self.ranknum]:
+                        self.rect.topleft = grid.rect.topleft
+                        self.coordinate = grid.coordinate
+        if castle == True and self.coordinate == ['a', self.ranknum]:
+            if play.whiteKingList[0].leftCastleAbility == 1 and play.whiteKingList[0].coordinate == ['c', 1]:
+                for grid in room.gridList:
+                    if grid.coordinate == ['d', self.ranknum]:
+                        self.rect.topleft = grid.rect.topleft
+                        self.coordinate = grid.coordinate
     def highlight(self):
         if(self.color == "white"):
             self.image = images["sprWhiteRookHighlighted"]
@@ -913,12 +934,56 @@ class PlayKing(pygame.sprite.Sprite):
         playsprites.add(self)
         self.coordinate = ['z', 0] #blank coordinate, will change once it updates
         self.select = 0
+        self.leftCastleAbility = 0
+        self.rightCastleAbility = 0
+        self.rightClearWay = [0, 0]
+        self.leftClearWay = [0, 0, 0]
     def update(self):
         for grid in room.gridList:
             if self.rect.colliderect(grid):
                 self.coordinate = grid.coordinate
+        if(self.leftCastleAbility == 2 or self.rightCastleAbility == 2):
+            self.leftCastleAbility = 2
+            self.rightCastleAbility = 2
+        elif((self.color == "white" and self.coordinate == ['e', 1]) or (self.color == "black" and self.coordinate == ['e', 8])):
+            self.castleCheck(self.color)
         if(playSwitchButton.playSwitch is None):
             playsprites.remove(self)
+    def castleCheck(self, color):
+        if color == "white":
+            rookList = play.whiteRookList
+            ranknum = 1
+        elif color == "black":
+            rookList = play.blackRookList
+            ranknum = 8
+        for rook in rookList:
+            if(rook.coordinate == ['h', ranknum]):
+                self.rightClearWay = [0, 0]
+                for i in range(0, len(room.gridList)):
+                    if(room.gridList[i].coordinate == ['f', ranknum] and room.gridList[i].occupied == 0):
+                        self.rightClearWay[0] = 1
+                for i in range(0, len(room.gridList)):
+                    if(room.gridList[i].coordinate == ['g', ranknum] and room.gridList[i].occupied == 0):
+                        self.rightClearWay[1] = 1
+                if(self.rightClearWay == [1, 1]):
+                    self.rightCastleAbility = 1
+                else:
+                    self.rightCastleAbility = 0
+            if(rook.coordinate == ['a', ranknum]):
+                leftClearWay = [0, 0, 0]
+                for i in range(0, len(room.gridList)):
+                    if(room.gridList[i].coordinate == ['b', ranknum] and room.gridList[i].occupied == 0):
+                        self.leftClearWay[0] = 1
+                for i in range(0, len(room.gridList)):
+                    if(room.gridList[i].coordinate == ['c', ranknum] and room.gridList[i].occupied == 0):
+                        self.leftClearWay[1] = 1
+                for i in range(0, len(room.gridList)):
+                    if(room.gridList[i].coordinate == ['d', ranknum] and room.gridList[i].occupied == 0):
+                        self.leftClearWay[2] = 1
+                if(self.leftClearWay == [1, 1, 1]):
+                    self.leftCastleAbility = 1
+                else:
+                    self.leftCastleAbility = 0
     def highlight(self):
         if(self.color == "white"):
             self.image = images["sprWhiteKingHighlighted"]
@@ -944,6 +1009,12 @@ class PlayKing(pygame.sprite.Sprite):
                 grid.highlight()
             if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]+1 and (grid.occupied == 0 or grid.occWhiteOrBlack != self.color):
                 grid.highlight()
+            if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and grid.coordinate[1] == self.coordinate[1] and (grid.occupied == 0 or grid.occWhiteOrBlack != self.color) and
+                self.rightCastleAbility == 1 and (self.coordinate[1] == 1 or self.coordinate[1]==8)):
+                    grid.highlight()
+            if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-2 and grid.coordinate[1] == self.coordinate[1] and (grid.occupied == 0 or grid.occWhiteOrBlack != self.color) and
+                self.leftCastleAbility == 1 and (self.coordinate[1] == 1 or self.coordinate[1]==8)):
+                    grid.highlight()
     def noHighlight(self):
         if(self.color == "white"):
             self.image = images["sprWhiteKing"]
@@ -1498,7 +1569,8 @@ if __name__ == '__main__':
             elif (event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and
                   mousePos[0] > XGRIDRANGE[0] and mousePos[0] < XGRIDRANGE[1] and
                   mousePos[1] > YGRIDRANGE[0] and mousePos[1] < YGRIDRANGE[1] and
-                  start.whitePawn.coordinate[1] != 1 and start.whitePawn.coordinate[1] != 8): #placedObject placed on location of mouse release AND white pawn not put on first or last row
+                  start.whitePawn.coordinate[1] != 1 and start.whitePawn.coordinate[1] != 8 and
+                  start.blackPawn.coordinate[1] != 1 and start.blackPawn.coordinate[1] != 8): #placedObject placed on location of mouse release AND white pawn not put on first or last row
     
                 def dragToPlaced(drag, piece, placedList):
                     if pygame.mouse.get_pressed()[0] and drag is not None:
@@ -1530,11 +1602,20 @@ if __name__ == '__main__':
                                 if (grid.rect.collidepoint(mousePos) and grid.highlighted==1):
                                     if(piece.select == 1):
                                         piece.rect.topleft = grid.rect.topleft
-                                        print(grid.coordinate)
+                                        if piece == play.whiteKingList[0]:
+                                            play.whiteKingList[0].coordinate = grid.coordinate
+                                            for whiteRook in play.whiteRookList:
+                                                if grid.coordinate == ['g', 1]:
+                                                    whiteRook.moveSquare(['f', 1], True)
+                                                elif grid.coordinate == ['c', 1]:
+                                                    whiteRook.moveSquare(['d', 1], True)
+                                            piece.leftCastleAbility = 2
+                                            piece.rightCastleAbility = 2
                                         if(WHOSETURN == "white"):
                                             WHOSETURN = "black"
                                         elif(WHOSETURN == "black"):
                                             WHOSETURN = "white"
+
     
                 clickedPiece = None
                 # HIGHLIGHTS PIECE YOU CLICK ON
@@ -1565,7 +1646,10 @@ if __name__ == '__main__':
                                 for i in range(0, len(placedList)):
                                     playList.append(playClass(col)) #Adds to list same amount of PlayWhitePawns as PlaceWhitePawns
                                     playList[i].rect.topleft = placedList[i].rect.topleft #Each PlayWhitePawn in respective PlacedWhitePawn location
-    
+                                    for grid in room.gridList:
+                                        if playList[i].rect.colliderect(grid):
+                                            playList[i].coordinate = grid.coordinate
+                                    
                         placedToPlay(placed.whitePawnList, play.whitePawnList, PlayPawn, col="white")
                         placedToPlay(placed.whiteBishopList, play.whiteBishopList, PlayBishop, col="white")
                         placedToPlay(placed.whiteKnightList, play.whiteKnightList, PlayKnight, col="white")
@@ -1618,7 +1702,7 @@ if __name__ == '__main__':
             if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[1]:
                 for grid in room.gridList:
                     if grid.rect.collidepoint(mousePos):
-                        print(grid.occWhiteOrBlack)
+                        print(grid.coordinate)
             #PLAYER MOVEMENTS
             if(playSwitchButton.playSwitch is not None):
                 pass
