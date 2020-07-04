@@ -62,7 +62,7 @@ def load_image(file, name, transparent, alpha):
     if transparent:
         colorkey = new_image.get_at((0,0))
         new_image.set_colorkey(colorkey, RLEACCEL)
-    images[name] = newImage
+    images[name] = new_image
 
 def snap_to_grid(pos, screen_width, screen_height):
     best_num_x, best_num_y = 0, 48 # Y is 48 so it doesn't go above the menu
@@ -75,9 +75,12 @@ def snap_to_grid(pos, screen_width, screen_height):
     return (best_num_x, best_num_y)
              
 def remove_placed_object(PLACED_SPRITES, mousepos):
-    for placed_item_list in (placed.white_pawn_list, placed.white_bishop_list, placed.white_knight_list, placed.white_rook_list,
-                             placed.white_queen_list, placed.white_king_list, placed.black_pawn_list, placed.black_pawn_list, placed.black_bishop_list,
-                             placed.black_knight_list, placed.black_rook_list, placed.black_queen_list, placed.black_king_list):
+    for placed_item_list in (PlacedPawn.white_pawn_list, PlacedBishop.white_bishop_list,
+                             PlacedKnight.white_knight_list, PlacedRook.white_rook_list,
+                             PlacedQueen.white_queen_list, PlacedKing.white_king_list,
+                             PlacedPawn.black_pawn_list, PlacedBishop.black_bishop_list,
+                             PlacedKnight.black_knight_list, PlacedRook.black_rook_list,
+                             PlacedQueen.black_queen_list, PlacedKing.black_king_list):
         for placed_item in placed_item_list:
             if placed_item.rect.collidepoint(mousepos):
                 PLACED_SPRITES.remove(placed_item)
@@ -90,29 +93,29 @@ def load_file(PLACED_SPRITES, colorkey):
     loaded_file = open_file.read()
     loaded_dict = literal_eval(loaded_file)
             
-    for play_white_pawn in Playwhite_pawn.white_pawn_list:
+    for play_white_pawn in PlayPawn.white_pawn_list:
         play_white_pawn.destroy()
-    for play_white_bishop in PlayWhiteBishop.white_bishop_list:
+    for play_white_bishop in PlayBishop.white_bishop_list:
         play_white_bishop.destroy()
-    for play_white_knight in PlayWhiteKnight.white_knight_list:
+    for play_white_knight in PlayKnight.white_knight_list:
         play_white_knight.destroy()
-    for play_white_rook in PlayWhiteRook.white_rook_list:
+    for play_white_rook in PlayRook.white_rook_list:
         play_white_rook.destroy()
-    for play_white_queen in PlayWhiteQueen.white_queen_list:
+    for play_white_queen in PlayQueen.white_queen_list:
         play_white_queen.destroy()
-    for play_white_king in PlayWhiteKing.white_king_list:
+    for play_white_king in PlayKing.white_king_list:
         play_white_king.destroy()
-    for play_black_pawn in PlayBlackPawn.black_pawn_list:
+    for play_black_pawn in PlayPawn.black_pawn_list:
         play_black_pawn.destroy()
-    for play_black_bishop in PlayBlackBishop.black_bishop_list:
+    for play_black_bishop in PlayBishop.black_bishop_list:
         play_black_bishop.destroy()
-    for play_black_knight in PlayBlackKnight.black_knight_list:
+    for play_black_knight in PlayKnight.black_knight_list:
         play_black_knight.destroy()
-    for play_black_rook in PlayBlackRook.black_rook_list:
+    for play_black_rook in PlayRook.black_rook_list:
         play_black_rook.destroy()
-    for play_black_queen in PlayBlackQueen.black_queen_list:
+    for play_black_queen in PlayQueen.black_queen_list:
         play_black_queen.destroy()
-    for play_black_king in PlayBlackKing.black_king_list:
+    for play_black_king in PlayKing.black_king_list:
         play_black_king.destroy()
     open_file.close()
     
@@ -584,80 +587,80 @@ class StartObjects(pygame.sprite.Sprite):
         START_SPRITES.add(self)
         self.coordinate = ['z', 0]  # Starts as this
     def update(self):
-        global mousePos
+        global mouse_pos
         for grid in room.gridList:
             if self.rect.colliderect(grid):
                 self.coordinate = grid.coordinate
         if(self.classname == "white_pawn"):
             if dragging.white_pawn:
                 start.blankBox.rect.topleft = start_pos['white_pawn'] #Replaces in Menu
-                start.white_pawn.rect.topleft = mousePos[0]-(self.image.get_width()/2), mousePos[1]-(self.image.get_height()/2)
+                start.white_pawn.rect.topleft = mouse_pos[0]-(self.image.get_width()/2), mouse_pos[1]-(self.image.get_height()/2)
             else:
                 start.white_pawn.rect.topleft = start_pos['white_pawn']
         elif(self.classname == "whitebishop"):
             if dragging.whiteBishop:
                 start.blankBox.rect.topleft = start_pos['whiteBishop'] #Replaces in Menu
-                start.whiteBishop.rect.topleft = mousePos[0]-(self.image.get_width()/2), mousePos[1]-(self.image.get_height()/2)
+                start.whiteBishop.rect.topleft = mouse_pos[0]-(self.image.get_width()/2), mouse_pos[1]-(self.image.get_height()/2)
             else:
                 start.whiteBishop.rect.topleft = start_pos['whiteBishop']
         elif(self.classname == "whiteknight"):
             if dragging.whiteKnight:
                 start.blankBox.rect.topleft = start_pos['whiteKnight'] #Replaces in Menu
-                start.whiteKnight.rect.topleft = mousePos[0]-(self.image.get_width()/2), mousePos[1]-(self.image.get_height()/2)
+                start.whiteKnight.rect.topleft = mouse_pos[0]-(self.image.get_width()/2), mouse_pos[1]-(self.image.get_height()/2)
             else:
                 start.whiteKnight.rect.topleft = start_pos['whiteKnight']
         elif(self.classname == "whiterook"):
             if dragging.whiteRook:
                 start.blankBox.rect.topleft = start_pos['whiteRook'] #Replaces in Menu
-                start.whiteRook.rect.topleft = mousePos[0]-(self.image.get_width()/2), mousePos[1]-(self.image.get_height()/2)
+                start.whiteRook.rect.topleft = mouse_pos[0]-(self.image.get_width()/2), mouse_pos[1]-(self.image.get_height()/2)
             else:
                 start.whiteRook.rect.topleft = start_pos['whiteRook']
         elif(self.classname == "whitequeen"):
             if dragging.whiteQueen:
                 start.blankBox.rect.topleft = start_pos['whiteQueen'] #Replaces in Menu
-                start.whiteQueen.rect.topleft = mousePos[0]-(self.image.get_width()/2), mousePos[1]-(self.image.get_height()/2)
+                start.whiteQueen.rect.topleft = mouse_pos[0]-(self.image.get_width()/2), mouse_pos[1]-(self.image.get_height()/2)
             else:
                 start.whiteQueen.rect.topleft = start_pos['whiteQueen']
         elif(self.classname == "whiteking"):
             if dragging.whiteKing and len(placed.white_king_list) == 0:
                 start.blankBox.rect.topleft = start_pos['whiteKing'] #Replaces in Menu
-                start.whiteKing.rect.topleft = mousePos[0]-(self.image.get_width()/2), mousePos[1]-(self.image.get_height()/2)
+                start.whiteKing.rect.topleft = mouse_pos[0]-(self.image.get_width()/2), mouse_pos[1]-(self.image.get_height()/2)
             else:
                 start.whiteKing.rect.topleft = start_pos['whiteKing']
         elif(self.classname == "blackpawn"):
             if dragging.blackPawn:
                 start.blankBox.rect.topleft = start_pos['blackPawn'] #Replaces in Menu
-                start.blackPawn.rect.topleft = mousePos[0]-(self.image.get_width()/2), mousePos[1]-(self.image.get_height()/2)
+                start.blackPawn.rect.topleft = mouse_pos[0]-(self.image.get_width()/2), mouse_pos[1]-(self.image.get_height()/2)
             else:
                 start.blackPawn.rect.topleft = start_pos['blackPawn']
         elif(self.classname == "blackbishop"):
             if dragging.blackBishop:
                 start.blankBox.rect.topleft = start_pos['blackBishop'] #Replaces in Menu
-                start.blackBishop.rect.topleft = mousePos[0]-(self.image.get_width()/2), mousePos[1]-(self.image.get_height()/2)
+                start.blackBishop.rect.topleft = mouse_pos[0]-(self.image.get_width()/2), mouse_pos[1]-(self.image.get_height()/2)
             else:
                 start.blackBishop.rect.topleft = start_pos['blackBishop']
         elif(self.classname == "blackknight"):
             if dragging.blackKnight:
                 start.blankBox.rect.topleft = start_pos['blackKnight'] #Replaces in Menu
-                start.blackKnight.rect.topleft = mousePos[0]-(self.image.get_width()/2), mousePos[1]-(self.image.get_height()/2)
+                start.blackKnight.rect.topleft = mouse_pos[0]-(self.image.get_width()/2), mouse_pos[1]-(self.image.get_height()/2)
             else:
                 start.blackKnight.rect.topleft = start_pos['blackKnight']
         elif(self.classname == "blackrook"):
             if dragging.blackRook:
                 start.blankBox.rect.topleft = start_pos['blackRook'] #Replaces in Menu
-                start.blackRook.rect.topleft = mousePos[0]-(self.image.get_width()/2), mousePos[1]-(self.image.get_height()/2)
+                start.blackRook.rect.topleft = mouse_pos[0]-(self.image.get_width()/2), mouse_pos[1]-(self.image.get_height()/2)
             else:
                 start.blackRook.rect.topleft = start_pos['blackRook']
         elif(self.classname == "blackqueen"):
             if dragging.blackQueen:
                 start.blankBox.rect.topleft = start_pos['blackQueen'] #Replaces in Menu
-                start.blackQueen.rect.topleft = mousePos[0]-(self.image.get_width()/2), mousePos[1]-(self.image.get_height()/2)
+                start.blackQueen.rect.topleft = mouse_pos[0]-(self.image.get_width()/2), mouse_pos[1]-(self.image.get_height()/2)
             else:
                 start.blackQueen.rect.topleft = start_pos['blackQueen']
         elif(self.classname == "blackking"):
             if dragging.blackKing and len(placed.black_king_list) == 0:
                 start.blankBox.rect.topleft = start_pos['blackKing'] #Replaces in Menu
-                start.blackKing.rect.topleft = mousePos[0]-(self.image.get_width()/2), mousePos[1]-(self.image.get_height()/2)
+                start.blackKing.rect.topleft = mouse_pos[0]-(self.image.get_width()/2), mouse_pos[1]-(self.image.get_height()/2)
             else:
                 start.blackKing.rect.topleft = start_pos['blackKing']
                 
@@ -698,6 +701,8 @@ class PlacedObjects(pygame.sprite.Sprite):
                 self.coordinate = grid.coordinate
         
 class PlayBishop(pygame.sprite.Sprite):
+    white_bishop_list = []
+    black_bishop_list = []
     def __init__(self, col):
         pygame.sprite.Sprite.__init__(self)
         self.color = col
@@ -735,6 +740,8 @@ class PlayBishop(pygame.sprite.Sprite):
         self.select = 0
         
 class PlayKnight(pygame.sprite.Sprite):
+    white_knight_list = []
+    black_knight_list = []
     def __init__(self, col):
         pygame.sprite.Sprite.__init__(self)
         self.color = col
@@ -786,6 +793,8 @@ class PlayKnight(pygame.sprite.Sprite):
         self.select = 0
         
 class PlayRook(pygame.sprite.Sprite):
+    white_rook_list = []
+    black_rook_list = []
     def __init__(self, col):
         pygame.sprite.Sprite.__init__(self)
         self.color = col
@@ -843,6 +852,8 @@ class PlayRook(pygame.sprite.Sprite):
         self.select = 0
 
 class PlayQueen(pygame.sprite.Sprite):
+    white_queen_list = []
+    black_queen_list = []
     def __init__(self, col):
         pygame.sprite.Sprite.__init__(self)
         self.color = col
@@ -878,6 +889,8 @@ class PlayQueen(pygame.sprite.Sprite):
         self.select = 0
 
 class PlayKing(pygame.sprite.Sprite):
+    white_king_list = []
+    black_king_list = []
     def __init__(self, col):
         pygame.sprite.Sprite.__init__(self)
         self.color = col
@@ -901,10 +914,10 @@ class PlayKing(pygame.sprite.Sprite):
             self.leftCastleAbility = 2
             self.right_castle_ability = 2
         elif((self.color == "white" and self.coordinate == ['e', 1]) or (self.color == "black" and self.coordinate == ['e', 8])):
-            self.castleCheck(self.color)
+            self.castle_check(self.color)
         if(playSwitchButton.playSwitch is None):
             PLAY_SPRITES.remove(self)
-    def castleCheck(self, color):
+    def castle_check(self, color):
         if color == "white":
             rookList = play.white_rook_list
             ranknum = 1
@@ -941,9 +954,9 @@ class PlayKing(pygame.sprite.Sprite):
                     self.leftCastleAbility = 0
     def highlight(self):
         if(self.color == "white"):
-            self.image = images["sprWhiteKingHighlighted"]
+            self.image = images["SPR_WHITE_KING_HIGHLIGHTED"]
         elif(self.color == "black"):
-            self.image = images["sprBlackKingHighlighted"]
+            self.image = images["SPR_BLACK_KING_HIGHLIGHTED"]
         self.select = 1
     def projected(self):
         # Try and Except for each direction
@@ -978,6 +991,8 @@ class PlayKing(pygame.sprite.Sprite):
         self.select = 0
         
 class PlayPawn(pygame.sprite.Sprite):
+    white_pawn_list = []
+    black_pawn_list = []
     def __init__(self, col):
         pygame.sprite.Sprite.__init__(self)
         self.color = col
@@ -1097,8 +1112,8 @@ class Grid(pygame.sprite.Sprite):
                 if(self.coordinate == piece.coordinate and self.occ_white_or_black == ""): # Resets the White Or Black Check if not occupied at all
                     self.occ_white_or_black = col
                 elif(self.coordinate == piece.coordinate and self.occ_white_or_black == notcol): #Was Black/White Before (Meaning Prior Piece gets Moved)
-                    for colorPieces in play.total_play_list:
-                        for pieceList in colorPieces:
+                    for color_pieces in play.total_play_list:
+                        for pieceList in color_pieces:
                             for piece in pieceList:
                                 if (self.coordinate == piece.coordinate and piece.color == notcol):
                                     if(piece.color == "white"):
@@ -1342,6 +1357,60 @@ def restart(self):
         grid.no_highlight()
         grid.occupied = 0
             
+# Returns the tuples of each objects' positions within all classes
+def get_dict_rect_positions():
+    total_placed_list = {'white_pawn': PlacedPawn.white_pawn_list, 'white_bishop': PlacedBishop.white_bishop_list, 
+                         'white_knight': PlacedKnight.white_knight_list, 'white_rook': PlacedRook.white_rook_list,
+                         'white_queen': PlacedQueen.white_queen_list, 'white_king': PlacedKing.white_king_list,
+                         'black_pawn': PlacedPawn.black_pawn_list, 'black_bishop': PlacedBishop.black_bishop_list,
+                         'black_knight': PlacedKnight.black_knight_list, 'black_rook': PlacedRook.black_rook_list,
+                         'black_queen': PlacedQueen.black_queen_list, 'black_king': PlacedKing.black_king_list}
+    get_rect_for_all_obj = dict.fromkeys(total_placed_list, list)
+    for item_key, item_list in total_placed_list.items():
+        item_list_in_name = []
+        for item_rect in item_list:
+            item_list_in_name.append(item_rect.rect.topleft)
+        get_rect_for_all_obj[item_key] = item_list_in_name
+    return get_rect_for_all_obj
+
+def remove_all_placed():
+    for spr_list in [PlacedPawn.white_pawn_list, PlacedBishop.white_bishop_list,
+                     PlacedKnight.white_knight_list, PlacedQueen.white_queen_list, 
+                     PlacedKing.white_king_list, PlacedPawn.black_pawn_list,
+                     PlacedBishop.black_bishop_list, PlacedKnight.black_knight_list, 
+                     PlacedQueen.black_queen_list, PlacedKing.black_king_list]:
+        for obj in spr_list:
+            obj.kill()
+    PlacedPlayer.player_list = []
+    PlacedWall.wall_list = []
+    PlacedFlyer.flyer_list = []
+    PlacedReverseWall.reverse_wall_list = []
+    PlacedSpring.spring_list = []
+    PlacedSmilyRobot.smily_robot_list = []
+    PlacedDoor.door_list = []
+    PlacedDiamonds.diamonds_list = []
+    PlacedStickyBlock.sticky_block_list = []
+    PlacedFallSpikes.fall_spikes_list = []
+    PlacedStandSpikes.stand_spikes_list = []
+
+def remove_all_play():
+    for spr_list in [PlayPlayer.player_list, PlayWall.wall_list, PlayFlyer.flyer_list,
+                     PlayReverseWall.reverse_wall_list, PlaySpring.spring_list, PlaySmilyRobot.smily_robot_list,
+                     PlayDoor.door_list, PlayDiamonds.diamonds_list, PlayStickyBlock.sticky_block_list,
+                     PlayFallSpikes.fall_spikes_list, PlayStandSpikes.stand_spikes_list]:
+        for obj in spr_list:
+            obj.kill()
+    PlayPlayer.player_list = []
+    PlayWall.wall_list = []
+    PlayFlyer.flyer_list = []
+    PlayReverseWall.reverse_wall_list = []
+    PlaySpring.spring_list = []
+    PlaySmilyRobot.smily_robot_list = []
+    PlayDoor.door_list = []
+    PlayDiamonds.diamonds_list = []
+    PlayStickyBlock.sticky_block_list = []
+    PlayFallSpikes.fall_spikes_list = []
+    PlayStandSpikes.stand_spikes_list = []
 
 
 def main():
@@ -1456,7 +1525,7 @@ def main():
     
     while True:
         clock.tick(60)
-        mousePos = pygame.mouse.get_pos()
+        mouse_pos = pygame.mouse.get_pos()
         if MENUON == 0: # Initiate room
             room = Room()
             MENUON = 1 # No initiation
@@ -1465,8 +1534,8 @@ def main():
         # GRID OCCUPIED
         try:
             for grid in range(0,len(room.gridList)):
-                for colorPieces in play.total_play_list:
-                    for pieceList in colorPieces:
+                for color_pieces in play.total_play_list:
+                    for pieceList in color_pieces:
                         for piece in pieceList:
                             if piece.rect.topleft == room.gridList[grid].rect.topleft:
                                 room.gridList[grid].occupied = 1
@@ -1483,87 +1552,87 @@ def main():
             if event.type == pygame.KEYDOWN:
                 if event.key == K_ESCAPE:
                     MENUON = 1 #Getting out of menus
-            if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and mousePos[0] > XGRIDRANGE[1]: #DRAG (only for menu and inanimate buttons at top)
+            if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and mouse_pos[0] > XGRIDRANGE[1]: #DRAG (only for menu and inanimate buttons at top)
                 if playSwitchButton.playSwitch is None: #Checks if in Editing Mode
                     #BUTTONS
-                    if colorButton.rect.collidepoint(mousePos):
+                    if colorButton.rect.collidepoint(mouse_pos):
                         colorButton.getColor()
-                    if saveFileButton.rect.collidepoint(mousePos):
+                    if saveFileButton.rect.collidepoint(mouse_pos):
                         saveFile()
-                    if loadFileButton.rect.collidepoint(mousePos):
+                    if loadFileButton.rect.collidepoint(mouse_pos):
                         loadFile()
                     #DRAG OBJECTS
-                    if start.white_pawn.rect.collidepoint(mousePos):
-                        draggingFunction()
+                    if start.white_pawn.rect.collidepoint(mouse_pos):
+                        dragging_function()
                         dragging.white_pawn = not None
-                    if start.whiteBishop.rect.collidepoint(mousePos):
-                        draggingFunction()
-                        dragging.whiteBishop = not None
-                    if start.whiteKnight.rect.collidepoint(mousePos):
-                        draggingFunction()
-                        dragging.whiteKnight = not None
-                    if start.whiteRook.rect.collidepoint(mousePos):
-                        draggingFunction()
+                    if start.white_bishop.rect.collidepoint(mouse_pos):
+                        dragging_function()
+                        dragging.white_bishop = not None
+                    if start.whiteKnight.rect.collidepoint(mouse_pos):
+                        dragging_function()
+                        dragging.white_knight = not None
+                    if start.white_rook.rect.collidepoint(mouse_pos):
+                        dragging_function()
                         dragging.whiteRook = not None
-                    if start.whiteQueen.rect.collidepoint(mousePos):
-                        draggingFunction()
+                    if start.whiteQueen.rect.collidepoint(mouse_pos):
+                        dragging_function()
                         dragging.whiteQueen = not None
-                    if start.whiteKing.rect.collidepoint(mousePos):
-                        draggingFunction()
+                    if start.whiteKing.rect.collidepoint(mouse_pos):
+                        dragging_function()
                         dragging.whiteKing = not None
-                    if start.blackPawn.rect.collidepoint(mousePos):
-                        draggingFunction()
+                    if start.blackPawn.rect.collidepoint(mouse_pos):
+                        dragging_function()
                         dragging.blackPawn = not None
-                    if start.blackBishop.rect.collidepoint(mousePos):
-                        draggingFunction()
+                    if start.blackBishop.rect.collidepoint(mouse_pos):
+                        dragging_function()
                         dragging.blackBishop = not None
-                    if start.blackKnight.rect.collidepoint(mousePos):
-                        draggingFunction()
+                    if start.blackKnight.rect.collidepoint(mouse_pos):
+                        dragging_function()
                         dragging.blackKnight = not None
-                    if start.blackRook.rect.collidepoint(mousePos):
-                        draggingFunction()
+                    if start.blackRook.rect.collidepoint(mouse_pos):
+                        dragging_function()
                         dragging.blackRook = not None
-                    if start.blackQueen.rect.collidepoint(mousePos):
-                        draggingFunction()
+                    if start.blackQueen.rect.collidepoint(mouse_pos):
+                        dragging_function()
                         dragging.blackQueen = not None
-                    if start.blackKing.rect.collidepoint(mousePos):
-                        draggingFunction()
+                    if start.blackKing.rect.collidepoint(mouse_pos):
+                        dragging_function()
                         dragging.blackKing = not None
             # LEFT CLICK
             elif (event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and
-                  mousePos[0] > XGRIDRANGE[0] and mousePos[0] < XGRIDRANGE[1] and
-                  mousePos[1] > YGRIDRANGE[0] and mousePos[1] < YGRIDRANGE[1] and
+                  mouse_pos[0] > XGRIDRANGE[0] and mouse_pos[0] < XGRIDRANGE[1] and
+                  mouse_pos[1] > YGRIDRANGE[0] and mouse_pos[1] < YGRIDRANGE[1] and
                   start.white_pawn.coordinate[1] != 1 and start.white_pawn.coordinate[1] != 8 and
-                  start.blackPawn.coordinate[1] != 1 and start.blackPawn.coordinate[1] != 8): #placedObject placed on location of mouse release AND white pawn not put on first or last row
+                  start.black_pawn.coordinate[1] != 1 and start.black_pawn.coordinate[1] != 8): #placedObject placed on location of mouse release AND white pawn not put on first or last row
     
-                def dragToPlaced(drag, piece, placedList):
+                def drag_to_placed(drag, piece, placed_list):
                     if pygame.mouse.get_pressed()[0] and drag is not None:
-                        removeObject() #Remove what is already there
+                        remove_object() #Remove what is already there
                         placedobj = PlacedObjects(piece)
-                        placedobj.rect.topleft = snapToGrid(mousePos)
+                        placedobj.rect.topleft = snap_to_grid(mouse_pos)
                         PLACED_SPRITES.add(placedobj)
-                        placedList.append(placedobj)
+                        placed_list.append(placedobj)
     
-                dragToPlaced(dragging.white_pawn, "white_pawn", placed.white_pawn_list)
-                dragToPlaced(dragging.whiteBishop, "whitebishop", placed.white_bishop_list)
-                dragToPlaced(dragging.whiteKnight, "whiteknight", placed.white_knight_list)
-                dragToPlaced(dragging.whiteRook, "whiterook", placed.white_rook_list)
-                dragToPlaced(dragging.whiteQueen, "whitequeen", placed.white_queen_list)
+                drag_to_placed(dragging.white_pawn, "white_pawn", placed.white_pawn_list)
+                drag_to_placed(dragging.white_bishop, "whitebishop", placed.white_bishop_list)
+                drag_to_placed(dragging.white_knight, "whiteknight", placed.white_knight_list)
+                drag_to_placed(dragging.white_rook, "whiterook", placed.white_rook_list)
+                drag_to_placed(dragging.white_queen, "whitequeen", placed.white_queen_list)
                 if len(placed.white_king_list) == 0:
-                    dragToPlaced(dragging.whiteKing, "whiteking", placed.white_king_list)
-                dragToPlaced(dragging.blackPawn, "blackpawn", placed.black_pawn_list)
-                dragToPlaced(dragging.blackBishop, "blackbishop", placed.black_bishop_list)
-                dragToPlaced(dragging.blackKnight, "blackknight", placed.black_knight_list)
-                dragToPlaced(dragging.blackRook, "blackrook", placed.black_rook_list)
-                dragToPlaced(dragging.blackQueen, "blackqueen", placed.black_queen_list)
+                    drag_to_placed(dragging.white_king, "whiteking", placed.white_king_list)
+                drag_to_placed(dragging.black_pawn, "blackpawn", placed.black_pawn_list)
+                drag_to_placed(dragging.black_bishop, "blackbishop", placed.black_bishop_list)
+                drag_to_placed(dragging.black_knight, "blackknight", placed.black_knight_list)
+                drag_to_placed(dragging.black_rook, "blackrook", placed.black_rook_list)
+                drag_to_placed(dragging.black_queen, "blackqueen", placed.black_queen_list)
                 if len(placed.black_king_list) == 0:
-                    dragToPlaced(dragging.blackKing, "blackking", placed.black_king_list)
+                    drag_to_placed(dragging.black_king, "blackking", placed.black_king_list)
                 # Moves piece
                 for grid in room.gridList:
-                    for colorPieces in play.total_play_list:
-                        for pieceList in colorPieces:
+                    for color_pieces in play.total_play_list:
+                        for pieceList in color_pieces:
                             for piece in pieceList:
-                                if (grid.rect.collidepoint(mousePos) and grid.highlighted==1):
+                                if (grid.rect.collidepoint(mouse_pos) and grid.highlighted==1):
                                     if(piece.select == 1):
                                         piece.rect.topleft = grid.rect.topleft
                                         if piece == play.white_king_list[0]:
@@ -1581,91 +1650,91 @@ def main():
                                             WHOSETURN = 1
 
     
-                clickedPiece = None
+                clicked_piece = None
                 # HIGHLIGHTS PIECE YOU CLICK ON
-                for colorPieces in play.total_play_list:
-                    for pieceList in colorPieces:
+                for color_pieces in play.total_play_list:
+                    for pieceList in color_pieces:
                         for piece in pieceList:
-                            if (piece.rect.collidepoint(mousePos) and piece.select == 0 and WHOSETURN == piece.color):
-                                clickedPiece = piece
+                            if (piece.rect.collidepoint(mouse_pos) and piece.select == 0 and WHOSETURN == piece.color):
+                                clicked_piece = piece
                             else:
                                 piece.no_highlight()
                                 clearGrid()
     
-                if clickedPiece is not None:
+                if clicked_piece is not None:
                     # Just do this last, since we know only one piece will be selected
-                    clickedPiece.highlight()
-                    clickedPiece.projected()
-                    clickedPiece = None
+                    clicked_piece.highlight()
+                    clicked_piece.projected()
+                    clicked_piece = None
     
             if event.type == pygame.MOUSEBUTTONUP: #Release Drag
                 #LEFT CLICK PLAY BUTTON
-                if playSwitchButton.rect.collidepoint(mousePos) and playSwitchButton.playSwitch is None: 
+                if playSwitchButton.rect.collidepoint(mouse_pos) and playSwitchButton.playSwitch is None: 
                     if playSwitchButton.playSwitch is None: #Makes clicking play again unclickable
                         print("Play Mode Activated")
                         playSwitchButton.playSwitch = not None #Switches to Play Mode
     
-                        def placedToPlay(placedList, playList, playClass, col):
-                            if placedList is not None:
-                                for i in range(0, len(placedList)):
+                        def placed_to_play(placed_list, playList, playClass, col):
+                            if placed_list is not None:
+                                for i in range(0, len(placed_list)):
                                     playList.append(playClass(col)) #Adds to list same amount of Playwhite_pawns as Placewhite_pawns
-                                    playList[i].rect.topleft = placedList[i].rect.topleft #Each Playwhite_pawn in respective Placedwhite_pawn location
+                                    playList[i].rect.topleft = placed_list[i].rect.topleft #Each Playwhite_pawn in respective Placedwhite_pawn location
                                     for grid in room.gridList:
                                         if playList[i].rect.colliderect(grid):
                                             playList[i].coordinate = grid.coordinate
                                     
-                        placedToPlay(placed.white_pawn_list, play.white_pawn_list, PlayPawn, col="white")
-                        placedToPlay(placed.white_bishop_list, play.white_bishop_list, PlayBishop, col="white")
-                        placedToPlay(placed.white_knight_list, play.white_knight_list, PlayKnight, col="white")
-                        placedToPlay(placed.white_rook_list, play.white_rook_list, PlayRook, col="white")
-                        placedToPlay(placed.white_queen_list, play.white_queen_list, PlayQueen, col="white")
-                        placedToPlay(placed.white_king_list, play.white_king_list, PlayKing, col="white")
-                        placedToPlay(placed.black_pawn_list, play.black_pawn_list, PlayPawn, col="black")
-                        placedToPlay(placed.black_bishop_list, play.black_bishop_list, PlayBishop, col="black")
-                        placedToPlay(placed.black_knight_list, play.black_knight_list, PlayKnight, col="black")
-                        placedToPlay(placed.black_rook_list, play.black_rook_list, PlayRook, col="black")
-                        placedToPlay(placed.black_queen_list, play.black_queen_list, PlayQueen, col="black")
-                        placedToPlay(placed.black_king_list, play.black_king_list, PlayKing, col="black")
+                        placed_to_play(placed.white_pawn_list, play.white_pawn_list, PlayPawn, col="white")
+                        placed_to_play(placed.white_bishop_list, play.white_bishop_list, PlayBishop, col="white")
+                        placed_to_play(placed.white_knight_list, play.white_knight_list, PlayKnight, col="white")
+                        placed_to_play(placed.white_rook_list, play.white_rook_list, PlayRook, col="white")
+                        placed_to_play(placed.white_queen_list, play.white_queen_list, PlayQueen, col="white")
+                        placed_to_play(placed.white_king_list, play.white_king_list, PlayKing, col="white")
+                        placed_to_play(placed.black_pawn_list, play.black_pawn_list, PlayPawn, col="black")
+                        placed_to_play(placed.black_bishop_list, play.black_bishop_list, PlayBishop, col="black")
+                        placed_to_play(placed.black_knight_list, play.black_knight_list, PlayKnight, col="black")
+                        placed_to_play(placed.black_rook_list, play.black_rook_list, PlayRook, col="black")
+                        placed_to_play(placed.black_queen_list, play.black_queen_list, PlayQueen, col="black")
+                        placed_to_play(placed.black_king_list, play.black_king_list, PlayKing, col="black")
                 # LEFT CLICK STOP BUTTON
-                elif playSwitchButton.rect.collidepoint(mousePos) and playSwitchButton.playSwitch is not None:
+                elif playSwitchButton.rect.collidepoint(mouse_pos) and playSwitchButton.playSwitch is not None:
                     if playSwitchButton.playSwitch is not None: #Makes sure you are not in editing mode to enter editing mode
                         print("Editing Mode Activated")
                         playSwitchButton.playSwitch = None
                         #All Play objects removed
                         play.PlayNone()
                     room.restart()
-                if restartButton.rect.collidepoint(mousePos):
+                if RESTART_BUTTON.rect.collidepoint(mouse_pos):
                     pass
-                if infoButton.rect.collidepoint(mousePos):
+                if infoButton.rect.collidepoint(mouse_pos):
                     MENUON = 2
-                if clearButton.rect.collidepoint(mousePos):
+                if clearButton.rect.collidepoint(mouse_pos):
                     if playSwitchButton.playSwitch is None: #Editing mode
-                        draggingFunction()
-                        def placedToRemove(placedList):
-                            for placed in placedList:
+                        dragging_function()
+                        def placed_to_remove(placed_list):
+                            for placed in placed_list:
                                 PLACED_SPRITES.remove(placed)
-                            placedList = []
-                            return placedList
-                        placed.white_pawn_list = placedToRemove(placed.white_pawn_list)
-                        placed.white_bishop_list = placedToRemove(placed.white_bishop_list)
-                        placed.white_knight_list = placedToRemove(placed.white_knight_list)
-                        placed.white_rook_list = placedToRemove(placed.white_rook_list)
-                        placed.white_queen_list = placedToRemove(placed.white_queen_list)
-                        placed.white_king_list = placedToRemove(placed.white_king_list)
-                        placed.black_pawn_list = placedToRemove(placed.black_pawn_list)
-                        placed.black_bishop_list = placedToRemove(placed.black_bishop_list)
-                        placed.black_knight_list = placedToRemove(placed.black_knight_list)
-                        placed.black_rook_list = placedToRemove(placed.black_rook_list)
-                        placed.black_queen_list = placedToRemove(placed.black_queen_list)
-                        placed.black_king_list = placedToRemove(placed.black_king_list)
+                            placed_list = []
+                            return placed_list
+                        placed.white_pawn_list = placed_to_remove(placed.white_pawn_list)
+                        placed.white_bishop_list = placed_to_remove(placed.white_bishop_list)
+                        placed.white_knight_list = placed_to_remove(placed.white_knight_list)
+                        placed.white_rook_list = placed_to_remove(placed.white_rook_list)
+                        placed.white_queen_list = placed_to_remove(placed.white_queen_list)
+                        placed.white_king_list = placed_to_remove(placed.white_king_list)
+                        placed.black_pawn_list = placed_to_remove(placed.black_pawn_list)
+                        placed.black_bishop_list = placed_to_remove(placed.black_bishop_list)
+                        placed.black_knight_list = placed_to_remove(placed.black_knight_list)
+                        placed.black_rook_list = placed_to_remove(placed.black_rook_list)
+                        placed.black_queen_list = placed_to_remove(placed.black_queen_list)
+                        placed.black_king_list = placed_to_remove(placed.black_king_list)
             if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[2]: #Right click on obj, destroy
                 if playSwitchButton.playSwitch is None: #Editing mode
-                    draggingFunction()
-                    removeObject()
+                    dragging_function()
+                    remove_object()
             # MIDDLE MOUSE DEBUGGER
             if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[1]:
                 for grid in room.gridList:
-                    if grid.rect.collidepoint(mousePos):
+                    if grid.rect.collidepoint(mouse_pos):
                         print(grid.coordinate)
             #PLAYER MOVEMENTS
             if(playSwitchButton.playSwitch is not None):
