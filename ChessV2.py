@@ -13,9 +13,9 @@ Customized Turns for black and white
 import pygame, random, sys, ast, os
 from pygame.constants import RLEACCEL
 from pygame.locals import *
-import Tkinter as tk
-from tkColorChooser import askcolor
-from tkFileDialog import *
+import tkinter as tk
+from tkinter.colorchooser import askcolor
+from tkinter.filedialog import *
 from ast import literal_eval
 
 #Tk box for color
@@ -38,9 +38,10 @@ TAKENPIECEYBLACK = TAKENPIECECOORDS[3]
 CHECKTEXT = ""
 
 #Grouping Images and Sounds
-startPos = {'whitePawn': (480, 390), 'whiteBishop':(480, 340), 'whiteKnight':(480, 290), 'whiteRook':(480, 240),
-    'whiteQueen':(480, 190), 'whiteKing':(480, 140), 'blackPawn': (540, 390), 'blackBishop':(540, 340), 'blackKnight':(540, 290),
-        'blackRook':(540, 240), 'blackQueen':(540, 190), 'blackKing':(540, 140)}
+startPos = {'whitePawn': (480, 390), 'whiteBishop':(480, 340), 'whiteKnight':(480, 290),
+            'whiteRook':(480, 240), 'whiteQueen':(480, 190), 'whiteKing':(480, 140),
+            'blackPawn': (540, 390), 'blackBishop':(540, 340), 'blackKnight':(540, 290),
+            'blackRook':(540, 240), 'blackQueen':(540, 190), 'blackKing':(540, 140)}
 images = {}
 sounds = {}
 gridsprites = pygame.sprite.Group()
