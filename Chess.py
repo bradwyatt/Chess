@@ -1570,9 +1570,22 @@ def main():
     MENUON = 1
     SCREEN = None
     
-    COLORKEY = [160,160,160]
-    XGRIDRANGE = [48, 432, 48] #1st num: begin 2nd: end 3rd: step
-    YGRIDRANGE = [96, 480, 48] #1st num: begin 2nd: end 3rd: step
+    #################
+    # USER CAN SET BELOW PARAMETERS
+    #################
+    COLORKEY = [160, 160, 160]
+    X_GRID_START = 48 # First board coordinate for X
+    X_GRID_WIDTH = 48 # How many pixels X is separated by
+    Y_GRID_START = 96 # First board coordinate for Y
+    Y_GRID_HEIGHT = 48 # How many pixels Y is separated by
+    
+    #################
+    #################
+    X_GRID_END = X_GRID_START+(X_GRID_WIDTH*8)
+    Y_GRID_END = Y_GRID_START+(Y_GRID_HEIGHT*8)
+    XGRIDRANGE = [X_GRID_START, X_GRID_END, X_GRID_WIDTH] #1st num: begin 2nd: end 3rd: step
+    YGRIDRANGE = [Y_GRID_START, Y_GRID_END, Y_GRID_HEIGHT] #1st num: begin 2nd: end 3rd: step
+    
     WHOSETURN = 1
     TAKENPIECECOORDS = [50, 15, 50, 525]
     TAKENPIECEXWHITE = TAKENPIECECOORDS[0]
@@ -1681,10 +1694,12 @@ def main():
     # Default White Turn
     WHOSETURN = "white"
     # Creates grid
-    for i in range(XGRIDRANGE[0], XGRIDRANGE[1], XGRIDRANGE[2]): 
-        for j in range(YGRIDRANGE[0], YGRIDRANGE[1], YGRIDRANGE[2]): 
+    for x in range(XGRIDRANGE[0], XGRIDRANGE[1], XGRIDRANGE[2]): 
+        for y in range(YGRIDRANGE[0], YGRIDRANGE[1], YGRIDRANGE[2]): 
             grid = Grid(GRID_SPRITES)
-            grid.rect.topleft = i, j
+            grid.rect.topleft = x, y
+            grid.coordinate[0] = chr(int((x-XGRIDRANGE[0])/XGRIDRANGE[2])+97)
+            grid.coordinate[1] = int((y-YGRIDRANGE[0])/YGRIDRANGE[2])+1
     for grid in Grid.grid_list:
         for i in range(ord("a"), ord("h"), 2):
             for j in range(2,9,2):
@@ -1748,6 +1763,11 @@ def main():
                 if event.type == pygame.KEYDOWN:
                     if event.key == K_ESCAPE:
                         MENUON = 1 #Getting out of menus
+                # If user wants to debug
+                if event.type == pygame.KEYUP:
+                    if event.key == pygame.K_SPACE:
+                        debug_message = 1
+                        state = DEBUG
                 if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and MOUSEPOS[0] > XGRIDRANGE[1]: #DRAG (only for menu and inanimate buttons at top)
                     if game_mode == EDIT_MODE: #Checks if in Editing Mode
                         #BUTTONS
@@ -1825,8 +1845,8 @@ def main():
                 
                 #placed object placed on location of mouse release
                 elif (event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and
-                      MOUSEPOS[0] > XGRIDRANGE[0] and MOUSEPOS[0] < XGRIDRANGE[1] and
-                      MOUSEPOS[1] > YGRIDRANGE[0] and MOUSEPOS[1] < YGRIDRANGE[1]): 
+                      MOUSEPOS[0] > X_GRID_START and MOUSEPOS[0] < X_GRID_END and
+                      MOUSEPOS[1] > Y_GRID_START and MOUSEPOS[1] < Y_GRID_END): 
                     if DRAGGING.white_pawn:
                         PlacedPawn(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
                     elif DRAGGING.white_bishop:
@@ -2064,19 +2084,32 @@ def main():
             # Board Coordinates Drawing
             coor_letter_text_list = [coor_A_text, coor_B_text, coor_C_text, coor_D_text, coor_E_text, coor_F_text, coor_G_text, coor_H_text]
             for text in range(0,len(coor_letter_text_list)):
-                SCREEN.blit(coor_letter_text_list[text], (XGRIDRANGE[0]+XGRIDRANGE[2]/3+(XGRIDRANGE[2]*text),YGRIDRANGE[0]-(YGRIDRANGE[2]*0.75)))
-                SCREEN.blit(coor_letter_text_list[text], (XGRIDRANGE[0]+XGRIDRANGE[2]/3+(XGRIDRANGE[2]*text),YGRIDRANGE[1]+(YGRIDRANGE[2]*0.25)))
+                SCREEN.blit(coor_letter_text_list[text], (X_GRID_START+X_GRID_WIDTH/3+(X_GRID_WIDTH*text),Y_GRID_START-(Y_GRID_HEIGHT*0.75)))
+                SCREEN.blit(coor_letter_text_list[text], (X_GRID_START+X_GRID_WIDTH/3+(X_GRID_WIDTH*text),Y_GRID_END+(Y_GRID_HEIGHT*0.25)))
             coor_number_text_list = [coor_8_text, coor_7_text, coor_6_text, coor_5_text, coor_4_text, coor_3_text, coor_2_text, coor_1_text]
             for text in range(0,len(coor_number_text_list)):
-                SCREEN.blit(coor_number_text_list[text], (XGRIDRANGE[0]-XGRIDRANGE[2]/2,YGRIDRANGE[0]+YGRIDRANGE[2]/4+(YGRIDRANGE[2]*text)))
-                SCREEN.blit(coor_number_text_list[text], (XGRIDRANGE[1]+XGRIDRANGE[2]/3,YGRIDRANGE[0]+YGRIDRANGE[2]/4+(YGRIDRANGE[2]*text)))
+                SCREEN.blit(coor_number_text_list[text], (X_GRID_START-X_GRID_WIDTH/2,Y_GRID_START+Y_GRID_HEIGHT/4+(Y_GRID_HEIGHT*text)))
+                SCREEN.blit(coor_number_text_list[text], (X_GRID_END+X_GRID_WIDTH/3,Y_GRID_START+Y_GRID_HEIGHT/4+(Y_GRID_HEIGHT*text)))
             if(game_mode == PLAY_MODE):
                 whose_turn_text = arialFont.render(WHOSETURN + "'s move to turn", 1, (0,0,0))
                 pin_check_text = arialFont.render(CHECKTEXT, 1, (0,0,0))
-                SCREEN.blit(whose_turn_text, (XGRIDRANGE[1]+XGRIDRANGE[2],SCREEN_HEIGHT/2))
-                SCREEN.blit(pin_check_text, (XGRIDRANGE[1]+XGRIDRANGE[2],200))
+                SCREEN.blit(whose_turn_text, (X_GRID_END+X_GRID_WIDTH, SCREEN_HEIGHT/2))
+                SCREEN.blit(pin_check_text, (X_GRID_END+X_GRID_WIDTH, 200))
             pygame.display.flip()
             pygame.display.update()
-        
+        elif state == DEBUG:
+            if debug_message == 1:
+                print("Entering debug mode")
+                debug_message = 0
+                # USE BREAKPOINT HERE
+                print("zzzz")
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.KEYUP:
+                    if event.key == pygame.K_SPACE:
+                        state = RUNNING
+                        print("back to Running")
 if __name__ == "__main__":
     main()
