@@ -1694,12 +1694,12 @@ def main():
     # Default White Turn
     WHOSETURN = "white"
     # Creates grid
-    for x in range(XGRIDRANGE[0], XGRIDRANGE[1], XGRIDRANGE[2]): 
-        for y in range(YGRIDRANGE[0], YGRIDRANGE[1], YGRIDRANGE[2]): 
+    for x in range(X_GRID_START, X_GRID_END, X_GRID_WIDTH): 
+        for y in range(Y_GRID_START, Y_GRID_END, Y_GRID_HEIGHT): 
             grid = Grid(GRID_SPRITES)
             grid.rect.topleft = x, y
-            grid.coordinate[0] = chr(int((x-XGRIDRANGE[0])/XGRIDRANGE[2])+97)
-            grid.coordinate[1] = int((y-YGRIDRANGE[0])/YGRIDRANGE[2])+1
+            grid.coordinate[0] = chr(int((x-X_GRID_START)/X_GRID_WIDTH)+97)
+            grid.coordinate[1] = int((Y_GRID_END-y)/Y_GRID_HEIGHT)
     for grid in Grid.grid_list:
         for i in range(ord("a"), ord("h"), 2):
             for j in range(2,9,2):
@@ -1768,7 +1768,7 @@ def main():
                     if event.key == pygame.K_SPACE:
                         debug_message = 1
                         state = DEBUG
-                if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and MOUSEPOS[0] > XGRIDRANGE[1]: #DRAG (only for menu and inanimate buttons at top)
+                if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and MOUSEPOS[0] > X_GRID_END: #DRAG (only for menu and inanimate buttons at top)
                     if game_mode == EDIT_MODE: #Checks if in Editing Mode
                         #BUTTONS
                         if COLOR_BUTTON.rect.collidepoint(MOUSEPOS):
