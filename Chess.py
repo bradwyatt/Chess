@@ -68,15 +68,16 @@ def load_image(file, name, transparent, alpha):
         new_image.set_colorkey(colorkey, RLEACCEL)
     IMAGES[name] = new_image
 
-def snap_to_grid(pos, screen_width, screen_height):
-    best_num_x, best_num_y = 0, 48 # Y is 48 so it doesn't go above the menu
-    for x_coord in range(0, screen_width, 24):
-        if pos[0]-x_coord <= 24 and pos[0]-x_coord >= 0:
-            best_num_x = x_coord
-    for y_coord in range(48, screen_height, 24):
-        if pos[1]-y_coord <= 24 and pos[1]-y_coord >= 0:
-            best_num_y = y_coord
-    return (best_num_x, best_num_y)
+def snap_to_grid(pos, x_range, y_range):
+    best_num_X, best_num_Y = x_range[0], y_range[0] #So Y doesn't go above the menu
+    for x in range(x_range[0], x_range[1], x_range[2]):
+        if pos[0]-x <= 48 and pos[0]-x >= 0:
+            best_num_X = x
+    for y in range(y_range[0], y_range[1], y_range[2]):
+        if pos[1]-y <= 48 and pos[1]-y >= 0:
+            best_num_Y = y
+    best_grid_snap = (best_num_X, best_num_Y)
+    return best_grid_snap
              
 def remove_placed_object(PLACED_SPRITES, mousepos):
     for placed_item_list in (PlacedPawn.white_pawn_list, PlacedBishop.white_bishop_list,
@@ -1827,29 +1828,29 @@ def main():
                       MOUSEPOS[0] > XGRIDRANGE[0] and MOUSEPOS[0] < XGRIDRANGE[1] and
                       MOUSEPOS[1] > YGRIDRANGE[0] and MOUSEPOS[1] < YGRIDRANGE[1]): 
                     if DRAGGING.white_pawn:
-                        PlacedPawn(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "white")
+                        PlacedPawn(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
                     elif DRAGGING.white_bishop:
-                        PlacedBishop(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "white")
+                        PlacedBishop(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
                     elif DRAGGING.white_knight:
-                        PlacedKnight(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "white")
+                        PlacedKnight(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
                     elif DRAGGING.white_rook:
-                        PlacedRook(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "white")
+                        PlacedRook(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
                     elif DRAGGING.white_queen:
-                        PlacedQueen(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "white")
+                        PlacedQueen(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
                     elif DRAGGING.white_king:
-                        PlacedKing(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "white")
+                        PlacedKing(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
                     elif DRAGGING.black_pawn:
-                        PlacedPawn(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "black")
+                        PlacedPawn(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
                     elif DRAGGING.black_bishop:
-                        PlacedBishop(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "black")
+                        PlacedBishop(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
                     elif DRAGGING.black_knight:
-                        PlacedKnight(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "black")
+                        PlacedKnight(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
                     elif DRAGGING.black_rook:
-                        PlacedRook(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "black")
+                        PlacedRook(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
                     elif DRAGGING.black_queen:
-                        PlacedQueen(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "black")
+                        PlacedQueen(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
                     elif DRAGGING.black_king:
-                        PlacedKing(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "black")
+                        PlacedKing(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
                     
                     """
                     # Moves piece
