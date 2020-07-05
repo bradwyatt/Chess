@@ -620,7 +620,7 @@ class StartObjects(pygame.sprite.Sprite):
         self.coordinate = ['z', 0]  # Starts as this
     def update(self):
         global MOUSEPOS
-        for grid in GRID_LIST:
+        for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
                 self.coordinate = grid.coordinate
         if(self.classname == "white_pawn"):
@@ -729,7 +729,7 @@ class PlacedObjects(pygame.sprite.Sprite):
         PLACED_SPRITES.add(self)
         self.coordinate = ['z', 0]  # Starts as this
     def update(self):
-        for grid in GRID_LIST:
+        for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
                 self.coordinate = grid.coordinate
 """
@@ -900,7 +900,7 @@ class PlayBishop(pygame.sprite.Sprite):
         self.select = 0
         self.pinned = False
     def update(self):
-        for grid in GRID_LIST:
+        for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
                 self.coordinate = grid.coordinate
         if(self.select == 0): # Projected Spaces Attacked
@@ -948,7 +948,7 @@ class PlayKnight(pygame.sprite.Sprite):
         self.select = 1
     def projected(self):
         if(self.pinned == False):
-            for grid in GRID_LIST:
+            for grid in Grid.grid_list:
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-2 and (grid.occupied == 0 or grid.occ_white_or_black != self.color):
                     grid.highlight()
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]+2 and (grid.occupied == 0 or grid.occ_white_or_black != self.color):
@@ -990,7 +990,7 @@ class PlayRook(pygame.sprite.Sprite):
         self.select = 0
         self.pinned = False
     def update(self):
-        for grid in GRID_LIST:
+        for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
                 self.coordinate = grid.coordinate
         if(self.select == 0): # Projected Spaces Attacked
@@ -1002,13 +1002,13 @@ class PlayRook(pygame.sprite.Sprite):
                     self.rect.topleft = grid.rect.topleft
         if castle == True and self.coordinate == ['h', self.ranknum]:
             if PlayKing.white_king_list[0].right_castle_ability == 1 and PlayKing.white_king_list[0].coordinate == ['g', 1]:
-                for grid in GRID_LIST:
+                for grid in Grid.grid_list:
                     if grid.coordinate == ['f', self.ranknum]:
                         self.rect.topleft = grid.rect.topleft
                         self.coordinate = grid.coordinate
         if castle == True and self.coordinate == ['a', self.ranknum]:
             if PlayKing.white_king_list[0].left_castle_ability == 1 and PlayKing.white_king_list[0].coordinate == ['c', 1]:
-                for grid in GRID_LIST:
+                for grid in Grid.grid_list:
                     if grid.coordinate == ['d', self.ranknum]:
                         self.rect.topleft = grid.rect.topleft
                         self.coordinate = grid.coordinate
@@ -1083,7 +1083,7 @@ class PlayKing(pygame.sprite.Sprite):
         self.right_clear_way = [0, 0]
         self.left_clear_way = [0, 0, 0]
     def update(self):
-        for grid in GRID_LIST:
+        for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
                 self.coordinate = grid.coordinate
         if(self.left_castle_ability == 2 or self.right_castle_ability == 2):
@@ -1102,11 +1102,11 @@ class PlayKing(pygame.sprite.Sprite):
         for rook in rook_list:
             if(rook.coordinate == ['h', ranknum]):
                 self.right_clear_way = [0, 0]
-                for i in range(0, len(GRID_LIST)):
-                    if(GRID_LIST[i].coordinate == ['f', ranknum] and GRID_LIST[i].occupied == 0):
+                for i in range(0, len(Grid.grid_list)):
+                    if(Grid.grid_list[i].coordinate == ['f', ranknum] and Grid.grid_list[i].occupied == 0):
                         self.right_clear_way[0] = 1
-                for i in range(0, len(GRID_LIST)):
-                    if(GRID_LIST[i].coordinate == ['g', ranknum] and GRID_LIST[i].occupied == 0):
+                for i in range(0, len(Grid.grid_list)):
+                    if(Grid.grid_list[i].coordinate == ['g', ranknum] and Grid.grid_list[i].occupied == 0):
                         self.right_clear_way[1] = 1
                 if(self.right_clear_way == [1, 1]):
                     self.right_castle_ability = 1
@@ -1114,14 +1114,14 @@ class PlayKing(pygame.sprite.Sprite):
                     self.right_castle_ability = 0
             if(rook.coordinate == ['a', ranknum]):
                 #left_clear_way = [0, 0, 0]
-                for i in range(0, len(GRID_LIST)):
-                    if(GRID_LIST[i].coordinate == ['b', ranknum] and GRID_LIST[i].occupied == 0):
+                for i in range(0, len(Grid.grid_list)):
+                    if(Grid.grid_list[i].coordinate == ['b', ranknum] and Grid.grid_list[i].occupied == 0):
                         self.left_clear_way[0] = 1
-                for i in range(0, len(GRID_LIST)):
-                    if(GRID_LIST[i].coordinate == ['c', ranknum] and GRID_LIST[i].occupied == 0):
+                for i in range(0, len(Grid.grid_list)):
+                    if(Grid.grid_list[i].coordinate == ['c', ranknum] and Grid.grid_list[i].occupied == 0):
                         self.left_clear_way[1] = 1
-                for i in range(0, len(GRID_LIST)):
-                    if(GRID_LIST[i].coordinate == ['d', ranknum] and GRID_LIST[i].occupied == 0):
+                for i in range(0, len(Grid.grid_list)):
+                    if(Grid.grid_list[i].coordinate == ['d', ranknum] and Grid.grid_list[i].occupied == 0):
                         self.left_clear_way[2] = 1
                 if(self.left_clear_way == [1, 1, 1]):
                     self.left_castle_ability = 1
@@ -1135,7 +1135,7 @@ class PlayKing(pygame.sprite.Sprite):
         self.select = 1
     def projected(self):
         # Try and Except for each direction
-        for grid in GRID_LIST:
+        for grid in Grid.grid_list:
             if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-1 and (grid.occupied == 0 or grid.occ_white_or_black != self.color):
                 grid.highlight()
             if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1] and (grid.occupied == 0 or grid.occ_white_or_black != self.color):
@@ -1167,7 +1167,6 @@ class PlayKing(pygame.sprite.Sprite):
     """
         
 class PlayPawn(pygame.sprite.Sprite):
-    global GRID_LIST
     white_pawn_list = []
     black_pawn_list = []
     def __init__(self, col, PLAY_SPRITES):
@@ -1183,7 +1182,7 @@ class PlayPawn(pygame.sprite.Sprite):
         self.select = 0
         self.pinned = False
     def update(self):
-        for grid in GRID_LIST:
+        for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
                 self.coordinate = grid.coordinate
     def highlight(self):
@@ -1195,37 +1194,37 @@ class PlayPawn(pygame.sprite.Sprite):
     def projected(self):
         if(self.pinned == False):
             if(self.color == "white"):
-                for grid in range(0,len(GRID_LIST)):
-                    if (GRID_LIST[grid].coordinate[0] == self.coordinate[0] and GRID_LIST[grid].coordinate[1] == self.coordinate[1]+1 and \
-                    GRID_LIST[grid].occupied == 0): # Move one space up
-                        GRID_LIST[grid].highlight()
-                        for grid in range(0,len(GRID_LIST)):
-                            if (self.coordinate[1] == 2 and GRID_LIST[grid].coordinate[0] == self.coordinate[0] and \
-                                GRID_LIST[grid].coordinate[1] == 4 and GRID_LIST[grid].occupied == 0):
-                                GRID_LIST[grid].highlight()
+                for grid in range(0,len(Grid.grid_list)):
+                    if (Grid.grid_list[grid].coordinate[0] == self.coordinate[0] and Grid.grid_list[grid].coordinate[1] == self.coordinate[1]+1 and \
+                    Grid.grid_list[grid].occupied == 0): # Move one space up
+                        Grid.grid_list[grid].highlight()
+                        for grid in range(0,len(Grid.grid_list)):
+                            if (self.coordinate[1] == 2 and Grid.grid_list[grid].coordinate[0] == self.coordinate[0] and \
+                                Grid.grid_list[grid].coordinate[1] == 4 and Grid.grid_list[grid].occupied == 0):
+                                Grid.grid_list[grid].highlight()
                     # Enemy pieces
-                    if (ord(GRID_LIST[grid].coordinate[0]) == ord(self.coordinate[0])-1 and GRID_LIST[grid].coordinate[1] == self.coordinate[1]+1 and \
-                    GRID_LIST[grid].occ_white_or_black == "black"):
-                        GRID_LIST[grid].highlight()
-                    if (ord(GRID_LIST[grid].coordinate[0]) == ord(self.coordinate[0])+1 and GRID_LIST[grid].coordinate[1] == self.coordinate[1]+1 and \
-                    GRID_LIST[grid].occ_white_or_black == "black"):
-                        GRID_LIST[grid].highlight()
+                    if (ord(Grid.grid_list[grid].coordinate[0]) == ord(self.coordinate[0])-1 and Grid.grid_list[grid].coordinate[1] == self.coordinate[1]+1 and \
+                    Grid.grid_list[grid].occ_white_or_black == "black"):
+                        Grid.grid_list[grid].highlight()
+                    if (ord(Grid.grid_list[grid].coordinate[0]) == ord(self.coordinate[0])+1 and Grid.grid_list[grid].coordinate[1] == self.coordinate[1]+1 and \
+                    Grid.grid_list[grid].occ_white_or_black == "black"):
+                        Grid.grid_list[grid].highlight()
             elif(self.color == "black"):
-                for grid in range(0,len(GRID_LIST)):
-                    if (GRID_LIST[grid].coordinate[0] == self.coordinate[0] and GRID_LIST[grid].coordinate[1] == self.coordinate[1]-1 and \
-                    GRID_LIST[grid].occupied == 0): # Move one space up
-                        GRID_LIST[grid].highlight()
-                        for grid in range(0,len(GRID_LIST)):
-                            if (self.coordinate[1] == 7 and GRID_LIST[grid].coordinate[0] == self.coordinate[0] and \
-                                GRID_LIST[grid].coordinate[1] == 5 and GRID_LIST[grid].occupied == 0):
-                                GRID_LIST[grid].highlight()
+                for grid in range(0,len(Grid.grid_list)):
+                    if (Grid.grid_list[grid].coordinate[0] == self.coordinate[0] and Grid.grid_list[grid].coordinate[1] == self.coordinate[1]-1 and \
+                    Grid.grid_list[grid].occupied == 0): # Move one space up
+                        Grid.grid_list[grid].highlight()
+                        for grid in range(0,len(Grid.grid_list)):
+                            if (self.coordinate[1] == 7 and Grid.grid_list[grid].coordinate[0] == self.coordinate[0] and \
+                                Grid.grid_list[grid].coordinate[1] == 5 and Grid.grid_list[grid].occupied == 0):
+                                Grid.grid_list[grid].highlight()
                     # Enemy pieces
-                    if (ord(GRID_LIST[grid].coordinate[0]) == ord(self.coordinate[0])-1 and GRID_LIST[grid].coordinate[1] == self.coordinate[1]-1 and \
-                    GRID_LIST[grid].occ_white_or_black == "white"):
-                        GRID_LIST[grid].highlight()
-                    if (ord(GRID_LIST[grid].coordinate[0]) == ord(self.coordinate[0])+1 and GRID_LIST[grid].coordinate[1] == self.coordinate[1]-1 and \
-                    GRID_LIST[grid].occ_white_or_black == "white"):
-                        GRID_LIST[grid].highlight()
+                    if (ord(Grid.grid_list[grid].coordinate[0]) == ord(self.coordinate[0])-1 and Grid.grid_list[grid].coordinate[1] == self.coordinate[1]-1 and \
+                    Grid.grid_list[grid].occ_white_or_black == "white"):
+                        Grid.grid_list[grid].highlight()
+                    if (ord(Grid.grid_list[grid].coordinate[0]) == ord(self.coordinate[0])+1 and Grid.grid_list[grid].coordinate[1] == self.coordinate[1]-1 and \
+                    Grid.grid_list[grid].occ_white_or_black == "white"):
+                        Grid.grid_list[grid].highlight()
     def no_highlight(self):
         if(self.color == "white"):
             self.image = IMAGES["SPR_WHITE_PAWN"]
@@ -1300,7 +1299,7 @@ class Grid(pygame.sprite.Sprite):
                                         TAKENPIECEXBLACK += 50
                                     piece.no_highlight()
                                     piece.coordinate = ['z', 0]
-                                    GRID_LIST = clear_grid(GRID_LIST)
+                                    Grid.grid_list = clear_grid(Grid.grid_list)
                                     
                     self.occ_white_or_black = col
     def which_square(self): # This calculates the coordinate of the grid
@@ -1678,6 +1677,35 @@ def main():
     EDIT_MODE, PLAY_MODE = 0, 1
     game_mode = EDIT_MODE
     
+    # Default White Turn
+    WHOSETURN = "white"
+    # Creates grid
+    for i in range(XGRIDRANGE[0], XGRIDRANGE[1], XGRIDRANGE[2]): 
+        for j in range(YGRIDRANGE[0], YGRIDRANGE[1], YGRIDRANGE[2]): 
+            grid = Grid(GRID_SPRITES)
+            grid.rect.topleft = i, j
+    for grid in Grid.grid_list:
+        for i in range(ord("a"), ord("h"), 2):
+            for j in range(2,9,2):
+                if(ord(grid.coordinate[0]) == i and grid.coordinate[1] == j):
+                    grid.image = IMAGES["SPR_WHITE_GRID"]
+                    grid.color = "white"
+        for i in range(ord("b"), ord("i"), 2):
+            for j in range(1,8,2):
+                if(ord(grid.coordinate[0]) == i and grid.coordinate[1] == j):
+                    grid.image = IMAGES["SPR_WHITE_GRID"]
+                    grid.color = "white"
+        for i in range(ord("a"), ord("h"), 2):
+            for j in range(1,8,2):
+                if(ord(grid.coordinate[0]) == i and grid.coordinate[1] == j):
+                    grid.image = IMAGES["SPR_GREEN_GRID"]
+                    grid.color = "green"
+        for i in range(ord("b"), ord("i"), 2):
+            for j in range(2,9,2):
+                if(ord(grid.coordinate[0]) == i and grid.coordinate[1] == j):
+                    grid.image = IMAGES["SPR_GREEN_GRID"]
+                    grid.color = "green"
+
     while True:
         CLOCK.tick(60)
         MOUSEPOS = pygame.mouse.get_pos()
@@ -1698,50 +1726,19 @@ def main():
         # GRID OCCUPIED
         """
         try:
-            for grid in range(0, len(GRID_LIST)):
+            for grid in range(0, len(Grid.grid_list)):
                 for color_pieces in play.total_play_list:
                     for piece_list in color_pieces:
                         for piece in piece_list:
-                            if piece.rect.topleft == GRID_LIST[grid].rect.topleft:
-                                GRID_LIST[grid].occupied = 1
+                            if piece.rect.topleft == Grid.grid_list[grid].rect.topleft:
+                                Grid.grid_list[grid].occupied = 1
                                 grid += 1
                             else:
-                                GRID_LIST[grid].occupied = 0
+                                Grid.grid_list[grid].occupied = 0
         except IndexError:
             pass
         """
-        
-        """
-        This used to be a Room class
-        """
-        #Default White Turn
-        WHOSETURN = "white"
-        # Creates grid
-        for i in range(XGRIDRANGE[0], XGRIDRANGE[1], XGRIDRANGE[2]): 
-            for j in range(YGRIDRANGE[0], YGRIDRANGE[1], YGRIDRANGE[2]): 
-                grid = Grid(GRID_SPRITES)
-                grid.rect.topleft = i, j
-        for grid in Grid.grid_list:
-            for i in range(ord("a"), ord("h"), 2):
-                for j in range(2,9,2):
-                    if(ord(grid.coordinate[0]) == i and grid.coordinate[1] == j):
-                        grid.image = IMAGES["SPR_WHITE_GRID"]
-                        grid.color = "white"
-            for i in range(ord("b"), ord("i"), 2):
-                for j in range(1,8,2):
-                    if(ord(grid.coordinate[0]) == i and grid.coordinate[1] == j):
-                        grid.image = IMAGES["SPR_WHITE_GRID"]
-                        grid.color = "white"
-            for i in range(ord("a"), ord("h"), 2):
-                for j in range(1,8,2):
-                    if(ord(grid.coordinate[0]) == i and grid.coordinate[1] == j):
-                        grid.image = IMAGES["SPR_GREEN_GRID"]
-                        grid.color = "green"
-            for i in range(ord("b"), ord("i"), 2):
-                for j in range(2,9,2):
-                    if(ord(grid.coordinate[0]) == i and grid.coordinate[1] == j):
-                        grid.image = IMAGES["SPR_GREEN_GRID"]
-                        grid.color = "green"
+
     
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -1754,11 +1751,11 @@ def main():
                 if game_mode == EDIT_MODE: #Checks if in Editing Mode
                     #BUTTONS
                     if COLOR_BUTTON.rect.collidepoint(MOUSEPOS):
-                        COLOR_BUTTON.get_color()
+                        COLORKEY = get_color()
                     if SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
-                        save_file()
+                        save_file(COLORKEY)
                     if LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
-                        load_file()
+                        PLACED_SPRITES, COLORKEY = load_file(PLACED_SPRITES, COLORKEY)
                         
                     # DRAG OBJECTS
                     if START.white_pawn.rect.collidepoint(MOUSEPOS):
@@ -1826,7 +1823,7 @@ def main():
             # LEFT CLICK (PRESSED DOWN)
             #################
             
-            #placedObject placed on location of mouse release
+            #placed object placed on location of mouse release
             elif (event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and
                   MOUSEPOS[0] > XGRIDRANGE[0] and MOUSEPOS[0] < XGRIDRANGE[1] and
                   MOUSEPOS[1] > YGRIDRANGE[0] and MOUSEPOS[1] < YGRIDRANGE[1]): 
@@ -1858,7 +1855,7 @@ def main():
                 
                 """
                 # Moves piece
-                for grid in GRID_LIST:
+                for grid in Grid.grid_list:
                     for color_pieces in play.total_play_list:
                         for piece_list in color_pieces:
                             for piece in piece_list:
@@ -1917,29 +1914,29 @@ def main():
                     print("Play Mode Activated")
 
                     for placed_white_pawn in PlacedPawn.white_pawn_list:
-                        PlayPawn(placed_white_pawn.rect.topleft, PLAY_SPRITES, col="white")
+                        PlayPawn(placed_white_pawn.rect.topleft, PLAY_SPRITES, "white")
                     for placed_white_bishop in PlacedBishop.white_bishop_list:
-                        PlayBishop(placed_white_bishop.rect.topleft, PLAY_SPRITES, col="white")
+                        PlayBishop(placed_white_bishop.rect.topleft, PLAY_SPRITES, "white")
                     for placed_white_knight in PlacedKnight.white_knight_list:
-                        PlayKnight(placed_white_knight.rect.topleft, PLAY_SPRITES, col="white")
+                        PlayKnight(placed_white_knight.rect.topleft, PLAY_SPRITES, "white")
                     for placed_white_rook in PlacedRook.white_rook_list:
-                        PlayRook(placed_white_rook.rect.topleft, PLAY_SPRITES, col="white")
+                        PlayRook(placed_white_rook.rect.topleft, PLAY_SPRITES, "white")
                     for placed_white_queen in PlacedQueen.white_queen_list:
-                        PlayQueen(placed_white_queen.rect.topleft, PLAY_SPRITES, col="white")    
+                        PlayQueen(placed_white_queen.rect.topleft, PLAY_SPRITES, "white")    
                     for placed_white_king in PlacedPawn.white_king_list:
-                        PlayKing(placed_white_king.rect.topleft, PLAY_SPRITES, col="white")
+                        PlayKing(placed_white_king.rect.topleft, PLAY_SPRITES, "white")
                     for placed_black_pawn in PlacedPawn.black_pawn_list:
-                        PlayPawn(placed_black_pawn.rect.topleft, PLAY_SPRITES, col="black")
+                        PlayPawn(placed_black_pawn.rect.topleft, PLAY_SPRITES, "black")
                     for placed_black_bishop in PlacedBishop.black_bishop_list:
-                        PlayBishop(placed_black_bishop.rect.topleft, PLAY_SPRITES, col="black")
+                        PlayBishop(placed_black_bishop.rect.topleft, PLAY_SPRITES, "black")
                     for placed_black_knight in PlacedKnight.black_knight_list:
-                        PlayKnight(placed_black_knight.rect.topleft, PLAY_SPRITES, col="black")
+                        PlayKnight(placed_black_knight.rect.topleft, PLAY_SPRITES, "black")
                     for placed_black_rook in PlacedRook.black_rook_list:
-                        PlayRook(placed_black_rook.rect.topleft, PLAY_SPRITES, col="black")
+                        PlayRook(placed_black_rook.rect.topleft, PLAY_SPRITES, "black")
                     for placed_black_queen in PlacedQueen.black_queen_list:
-                        PlayQueen(placed_black_queen.rect.topleft, PLAY_SPRITES, col="black")    
+                        PlayQueen(placed_black_queen.rect.topleft, PLAY_SPRITES, "black")    
                     for placed_black_king in PlacedPawn.black_king_list:
-                        PlayKing(placed_black_king.rect.topleft, PLAY_SPRITES, col="black")
+                        PlayKing(placed_black_king.rect.topleft, PLAY_SPRITES, "black")
                             
                 #################
                 # LEFT CLICK (RELEASE) STOP BUTTON
@@ -2049,7 +2046,7 @@ def main():
             if game_mode == PLAY_MODE:
                 pass
         #FOR DEBUGGING PURPOSES, PUT TEST CODE BELOW
-
+        
         #Update all sprites
         START_SPRITES.update()
         PLACED_SPRITES.update()
