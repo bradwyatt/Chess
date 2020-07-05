@@ -20,6 +20,7 @@ import tkinter as tk
 from tkinter.colorchooser import askcolor
 from tkinter.filedialog import *
 from ast import literal_eval
+import datetime
 
 #Grouping Images and Sounds
 STARTPOS = {'white_pawn': (480, 390), 'white_bishop':(480, 340), 'white_knight':(480, 290),
@@ -1502,7 +1503,7 @@ def restart(self):
     TAKENPIECEXBLACK = TAKENPIECECOORDS[2]
     TAKENPIECEYBLACK = TAKENPIECECOORDS[3]
     # Resets grid
-    for grid in self.grid_list:
+    for grid in Grid.grid_list:
         grid.no_highlight()
         grid.occupied = 0
             
@@ -1639,7 +1640,6 @@ def main():
     START = Start()
     #DRAGGING Variables
     DRAGGING = Dragging()
-    #Play and Stop Buttons
     
     PLAY_EDIT_SWITCH_BUTTON = PlayEditSwitchButton((SCREEN_WIDTH-50, 8), GAME_MODE_SPRITES)
 
@@ -1723,245 +1723,245 @@ def main():
             START.black_rook.rect.topleft = STARTPOS['black_rook']
             START.black_queen.rect.topleft = STARTPOS['black_queen']
             START.black_king.rect.topleft = STARTPOS['black_king']
-        # GRID OCCUPIED
-        """
-        try:
-            for grid in range(0, len(Grid.grid_list)):
-                for color_pieces in play.total_play_list:
-                    for piece_list in color_pieces:
-                        for piece in piece_list:
-                            if piece.rect.topleft == Grid.grid_list[grid].rect.topleft:
-                                Grid.grid_list[grid].occupied = 1
-                                grid += 1
-                            else:
-                                Grid.grid_list[grid].occupied = 0
-        except IndexError:
-            pass
-        """
-
-    
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == K_ESCAPE:
-                    MENUON = 1 #Getting out of menus
-            if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and MOUSEPOS[0] > XGRIDRANGE[1]: #DRAG (only for menu and inanimate buttons at top)
-                if game_mode == EDIT_MODE: #Checks if in Editing Mode
-                    #BUTTONS
-                    if COLOR_BUTTON.rect.collidepoint(MOUSEPOS):
-                        COLORKEY = get_color()
-                    if SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
-                        save_file(COLORKEY)
-                    if LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
-                        PLACED_SPRITES, COLORKEY = load_file(PLACED_SPRITES, COLORKEY)
-                        
-                    # DRAG OBJECTS
-                    if START.white_pawn.rect.collidepoint(MOUSEPOS):
-                        DRAGGING.dragging_all_false()
-                        START = restart_start_objects(START)
-                        DRAGGING.white_pawn = True
-                        START.blank_box.flip_start_sprite(DRAGGING, START.white_pawn.rect.topleft)
-                    elif START.white_bishop.rect.collidepoint(MOUSEPOS):
-                        DRAGGING.dragging_all_false()
-                        START = restart_start_objects(START)
-                        DRAGGING.white_bishop = True
-                        START.blank_box.flip_start_sprite(DRAGGING, START.white_bishop.rect.topleft)
-                    elif START.white_knight.rect.collidepoint(MOUSEPOS):
-                        DRAGGING.dragging_all_false()
-                        START = restart_start_objects(START)
-                        DRAGGING.white_knight = True
-                        START.blank_box.flip_start_sprite(DRAGGING, START.white_knight.rect.topleft)
-                    elif START.white_rook.rect.collidepoint(MOUSEPOS):
-                        DRAGGING.dragging_all_false()
-                        START = restart_start_objects(START)
-                        DRAGGING.white_rook = True
-                        START.blank_box.flip_start_sprite(DRAGGING, START.white_rook.rect.topleft)
-                    elif START.white_queen.rect.collidepoint(MOUSEPOS):
-                        DRAGGING.dragging_all_false()
-                        START = restart_start_objects(START)
-                        DRAGGING.white_queen = True
-                        START.blank_box.flip_start_sprite(DRAGGING, START.white_queen.rect.topleft)
-                    elif START.white_king.rect.collidepoint(MOUSEPOS):
-                        DRAGGING.dragging_all_false()
-                        START = restart_start_objects(START)
-                        DRAGGING.white_king = True
-                        START.blank_box.flip_start_sprite(DRAGGING, START.white_king.rect.topleft)
-                    elif START.black_pawn.rect.collidepoint(MOUSEPOS):
-                        DRAGGING.dragging_all_false()
-                        START = restart_start_objects(START)
-                        DRAGGING.black_pawn = True
-                        START.blank_box.flip_start_sprite(DRAGGING, START.black_pawn.rect.topleft)                    
-                    elif START.black_bishop.rect.collidepoint(MOUSEPOS):
-                        DRAGGING.dragging_all_false()
-                        START = restart_start_objects(START)
-                        DRAGGING.black_bishop = True
-                        START.blank_box.flip_start_sprite(DRAGGING, START.black_bishop.rect.topleft)
-                    elif START.black_knight.rect.collidepoint(MOUSEPOS):
-                        DRAGGING.dragging_all_false()
-                        START = restart_start_objects(START)
-                        DRAGGING.black_knight = True
-                        START.blank_box.flip_start_sprite(DRAGGING, START.black_knight.rect.topleft)
-                    elif START.black_rook.rect.collidepoint(MOUSEPOS):
-                        DRAGGING.dragging_all_false()
-                        START = restart_start_objects(START)
-                        DRAGGING.black_rook = True
-                        START.blank_box.flip_start_sprite(DRAGGING, START.black_rook.rect.topleft)
-                    elif START.black_queen.rect.collidepoint(MOUSEPOS):
-                        DRAGGING.dragging_all_false()
-                        START = restart_start_objects(START)
-                        DRAGGING.black_queen = True
-                        START.blank_box.flip_start_sprite(DRAGGING, START.black_queen.rect.topleft)
-                    elif START.black_king.rect.collidepoint(MOUSEPOS):
-                        DRAGGING.dragging_all_false()
-                        START = restart_start_objects(START)
-                        DRAGGING.black_king = True
-                        START.blank_box.flip_start_sprite(DRAGGING, START.black_king.rect.topleft)
-                        
-            #################
-            # LEFT CLICK (PRESSED DOWN)
-            #################
-            
-            #placed object placed on location of mouse release
-            elif (event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and
-                  MOUSEPOS[0] > XGRIDRANGE[0] and MOUSEPOS[0] < XGRIDRANGE[1] and
-                  MOUSEPOS[1] > YGRIDRANGE[0] and MOUSEPOS[1] < YGRIDRANGE[1]): 
-    
-                if DRAGGING.white_pawn:
-                    PlacedPawn(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "white")
-                elif DRAGGING.white_bishop:
-                    PlacedBishop(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "white")
-                elif DRAGGING.white_knight:
-                    PlacedKnight(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "white")
-                elif DRAGGING.white_rook:
-                    PlacedRook(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "white")
-                elif DRAGGING.white_queen:
-                    PlacedQueen(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "white")
-                elif DRAGGING.white_king:
-                    PlacedKing(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "white")
-                elif DRAGGING.black_pawn:
-                    PlacedPawn(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "black")
-                elif DRAGGING.black_bishop:
-                    PlacedBishop(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "black")
-                elif DRAGGING.black_knight:
-                    PlacedKnight(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "black")
-                elif DRAGGING.black_rook:
-                    PlacedRook(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "black")
-                elif DRAGGING.black_queen:
-                    PlacedQueen(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "black")
-                elif DRAGGING.black_king:
-                    PlacedKing(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "black")
-                
-                """
-                # Moves piece
-                for grid in Grid.grid_list:
+            # GRID OCCUPIED
+            """
+            try:
+                for grid in range(0, len(Grid.grid_list)):
                     for color_pieces in play.total_play_list:
                         for piece_list in color_pieces:
                             for piece in piece_list:
-                                if (grid.rect.collidepoint(MOUSEPOS) and grid.highlighted==1):
-                                    if(piece.select == 1):
-                                        piece.rect.topleft = grid.rect.topleft
-                                        if piece == play.white_king_list[0]:
-                                            play.white_king_list[0].coordinate = grid.coordinate
-                                            for white_rook in play.white_rook_list:
-                                                if grid.coordinate == ['g', 1]:
-                                                    white_rook.move_square(['f', 1], True)
-                                                elif grid.coordinate == ['c', 1]:
-                                                    white_rook.move_square(['d', 1], True)
-                                            piece.left_castle_ability = 2
-                                            piece.right_castle_ability = 2
-                                        if(WHOSETURN == 1):
-                                            WHOSETURN = 0
-                                        elif(WHOSETURN == 0):
-                                            WHOSETURN = 1
+                                if piece.rect.topleft == Grid.grid_list[grid].rect.topleft:
+                                    Grid.grid_list[grid].occupied = 1
+                                    grid += 1
+                                else:
+                                    Grid.grid_list[grid].occupied = 0
+            except IndexError:
+                pass
+            """
 
     
-                clicked_piece = None
-                # HIGHLIGHTS PIECE YOU CLICK ON
-                for color_pieces in play.total_play_list:
-                    for piece_list in color_pieces:
-                        for piece in piece_list:
-                            if (piece.rect.collidepoint(MOUSEPOS) and piece.select == 0 and WHOSETURN == piece.color):
-                                clicked_piece = piece
-                            else:
-                                piece.no_highlight()
-                                clear_grid()
-    
-                if clicked_piece is not None:
-                    # Just do this last, since we know only one piece will be selected
-                    clicked_piece.highlight()
-                    clicked_piece.projected()
-                    clicked_piece = None
-                """
-            #################
-            # CLICK (RELEASE)
-            ################# 
-            if game_mode == EDIT_MODE:
-                # Right click on obj, destroy
-                if(event.type == MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[2]):   
-                    DRAGGING.dragging_all_false()
-                    START = restart_start_objects(START)
-                    PLACED_SPRITES = remove_placed_object(PLACED_SPRITES, MOUSEPOS)
-            if event.type == pygame.MOUSEBUTTONUP: #Release Drag
-                #################
-                # PLAY BUTTON
-                #################
-                if PLAY_EDIT_SWITCH_BUTTON.rect.collidepoint(MOUSEPOS) and PLAY_EDIT_SWITCH_BUTTON.play_switch is None: 
-                    # Makes clicking play again unclickable    
-                    game_mode = PLAY_MODE
-                    PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(game_mode)                        
-                    print("Play Mode Activated")
-
-                    for placed_white_pawn in PlacedPawn.white_pawn_list:
-                        PlayPawn(placed_white_pawn.rect.topleft, PLAY_SPRITES, "white")
-                    for placed_white_bishop in PlacedBishop.white_bishop_list:
-                        PlayBishop(placed_white_bishop.rect.topleft, PLAY_SPRITES, "white")
-                    for placed_white_knight in PlacedKnight.white_knight_list:
-                        PlayKnight(placed_white_knight.rect.topleft, PLAY_SPRITES, "white")
-                    for placed_white_rook in PlacedRook.white_rook_list:
-                        PlayRook(placed_white_rook.rect.topleft, PLAY_SPRITES, "white")
-                    for placed_white_queen in PlacedQueen.white_queen_list:
-                        PlayQueen(placed_white_queen.rect.topleft, PLAY_SPRITES, "white")    
-                    for placed_white_king in PlacedPawn.white_king_list:
-                        PlayKing(placed_white_king.rect.topleft, PLAY_SPRITES, "white")
-                    for placed_black_pawn in PlacedPawn.black_pawn_list:
-                        PlayPawn(placed_black_pawn.rect.topleft, PLAY_SPRITES, "black")
-                    for placed_black_bishop in PlacedBishop.black_bishop_list:
-                        PlayBishop(placed_black_bishop.rect.topleft, PLAY_SPRITES, "black")
-                    for placed_black_knight in PlacedKnight.black_knight_list:
-                        PlayKnight(placed_black_knight.rect.topleft, PLAY_SPRITES, "black")
-                    for placed_black_rook in PlacedRook.black_rook_list:
-                        PlayRook(placed_black_rook.rect.topleft, PLAY_SPRITES, "black")
-                    for placed_black_queen in PlacedQueen.black_queen_list:
-                        PlayQueen(placed_black_queen.rect.topleft, PLAY_SPRITES, "black")    
-                    for placed_black_king in PlacedPawn.black_king_list:
-                        PlayKing(placed_black_king.rect.topleft, PLAY_SPRITES, "black")
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == K_ESCAPE:
+                        MENUON = 1 #Getting out of menus
+                if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and MOUSEPOS[0] > XGRIDRANGE[1]: #DRAG (only for menu and inanimate buttons at top)
+                    if game_mode == EDIT_MODE: #Checks if in Editing Mode
+                        #BUTTONS
+                        if COLOR_BUTTON.rect.collidepoint(MOUSEPOS):
+                            COLORKEY = get_color()
+                        if SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
+                            save_file(COLORKEY)
+                        if LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
+                            PLACED_SPRITES, COLORKEY = load_file(PLACED_SPRITES, COLORKEY)
+                        # DRAG OBJECTS
+                        if START.white_pawn.rect.collidepoint(MOUSEPOS):
+                            DRAGGING.dragging_all_false()
+                            START = restart_start_objects(START)
+                            DRAGGING.white_pawn = True
+                            START.blank_box.flip_start_sprite(DRAGGING, START.white_pawn.rect.topleft)
+                        elif START.white_bishop.rect.collidepoint(MOUSEPOS):
+                            DRAGGING.dragging_all_false()
+                            START = restart_start_objects(START)
+                            DRAGGING.white_bishop = True
+                            START.blank_box.flip_start_sprite(DRAGGING, START.white_bishop.rect.topleft)
+                        elif START.white_knight.rect.collidepoint(MOUSEPOS):
+                            DRAGGING.dragging_all_false()
+                            START = restart_start_objects(START)
+                            DRAGGING.white_knight = True
+                            START.blank_box.flip_start_sprite(DRAGGING, START.white_knight.rect.topleft)
+                        elif START.white_rook.rect.collidepoint(MOUSEPOS):
+                            DRAGGING.dragging_all_false()
+                            START = restart_start_objects(START)
+                            DRAGGING.white_rook = True
+                            START.blank_box.flip_start_sprite(DRAGGING, START.white_rook.rect.topleft)
+                        elif START.white_queen.rect.collidepoint(MOUSEPOS):
+                            DRAGGING.dragging_all_false()
+                            START = restart_start_objects(START)
+                            DRAGGING.white_queen = True
+                            START.blank_box.flip_start_sprite(DRAGGING, START.white_queen.rect.topleft)
+                        elif START.white_king.rect.collidepoint(MOUSEPOS):
+                            DRAGGING.dragging_all_false()
+                            START = restart_start_objects(START)
+                            DRAGGING.white_king = True
+                            START.blank_box.flip_start_sprite(DRAGGING, START.white_king.rect.topleft)
+                        elif START.black_pawn.rect.collidepoint(MOUSEPOS):
+                            DRAGGING.dragging_all_false()
+                            START = restart_start_objects(START)
+                            DRAGGING.black_pawn = True
+                            START.blank_box.flip_start_sprite(DRAGGING, START.black_pawn.rect.topleft)                    
+                        elif START.black_bishop.rect.collidepoint(MOUSEPOS):
+                            DRAGGING.dragging_all_false()
+                            START = restart_start_objects(START)
+                            DRAGGING.black_bishop = True
+                            START.blank_box.flip_start_sprite(DRAGGING, START.black_bishop.rect.topleft)
+                        elif START.black_knight.rect.collidepoint(MOUSEPOS):
+                            DRAGGING.dragging_all_false()
+                            START = restart_start_objects(START)
+                            DRAGGING.black_knight = True
+                            START.blank_box.flip_start_sprite(DRAGGING, START.black_knight.rect.topleft)
+                        elif START.black_rook.rect.collidepoint(MOUSEPOS):
+                            DRAGGING.dragging_all_false()
+                            START = restart_start_objects(START)
+                            DRAGGING.black_rook = True
+                            START.blank_box.flip_start_sprite(DRAGGING, START.black_rook.rect.topleft)
+                        elif START.black_queen.rect.collidepoint(MOUSEPOS):
+                            DRAGGING.dragging_all_false()
+                            START = restart_start_objects(START)
+                            DRAGGING.black_queen = True
+                            START.blank_box.flip_start_sprite(DRAGGING, START.black_queen.rect.topleft)
+                        elif START.black_king.rect.collidepoint(MOUSEPOS):
+                            DRAGGING.dragging_all_false()
+                            START = restart_start_objects(START)
+                            DRAGGING.black_king = True
+                            START.blank_box.flip_start_sprite(DRAGGING, START.black_king.rect.topleft)
                             
                 #################
-                # LEFT CLICK (RELEASE) STOP BUTTON
+                # LEFT CLICK (PRESSED DOWN)
                 #################
-                elif PLAY_EDIT_SWITCH_BUTTON.rect.collidepoint(MOUSEPOS) and game_mode == PLAY_MODE:
-                    if game_mode == PLAY_MODE:
-                        print("Editing Mode Activated")
-                        game_mode = EDIT_MODE
-                        PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(game_mode)
-                        remove_all_play()
-                if RESTART_BUTTON.rect.collidepoint(MOUSEPOS):
-                    pass
-                if INFO_BUTTON.rect.collidepoint(MOUSEPOS):
-                    MENUON = 2
-                if CLEAR_BUTTON.rect.collidepoint(MOUSEPOS):
-                    if game_mode == EDIT_MODE: #Editing mode
+                
+                #placed object placed on location of mouse release
+                elif (event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and
+                      MOUSEPOS[0] > XGRIDRANGE[0] and MOUSEPOS[0] < XGRIDRANGE[1] and
+                      MOUSEPOS[1] > YGRIDRANGE[0] and MOUSEPOS[1] < YGRIDRANGE[1]): 
+                    if DRAGGING.white_pawn:
+                        PlacedPawn(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "white")
+                    elif DRAGGING.white_bishop:
+                        PlacedBishop(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "white")
+                    elif DRAGGING.white_knight:
+                        PlacedKnight(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "white")
+                    elif DRAGGING.white_rook:
+                        PlacedRook(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "white")
+                    elif DRAGGING.white_queen:
+                        PlacedQueen(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "white")
+                    elif DRAGGING.white_king:
+                        PlacedKing(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "white")
+                    elif DRAGGING.black_pawn:
+                        PlacedPawn(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "black")
+                    elif DRAGGING.black_bishop:
+                        PlacedBishop(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "black")
+                    elif DRAGGING.black_knight:
+                        PlacedKnight(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "black")
+                    elif DRAGGING.black_rook:
+                        PlacedRook(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "black")
+                    elif DRAGGING.black_queen:
+                        PlacedQueen(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "black")
+                    elif DRAGGING.black_king:
+                        PlacedKing(snap_to_grid(MOUSEPOS, SCREEN_WIDTH, SCREEN_HEIGHT), PLACED_SPRITES, "black")
+                    
+                    """
+                    # Moves piece
+                    for grid in Grid.grid_list:
+                        for color_pieces in play.total_play_list:
+                            for piece_list in color_pieces:
+                                for piece in piece_list:
+                                    if (grid.rect.collidepoint(MOUSEPOS) and grid.highlighted==1):
+                                        if(piece.select == 1):
+                                            piece.rect.topleft = grid.rect.topleft
+                                            if piece == play.white_king_list[0]:
+                                                play.white_king_list[0].coordinate = grid.coordinate
+                                                for white_rook in play.white_rook_list:
+                                                    if grid.coordinate == ['g', 1]:
+                                                        white_rook.move_square(['f', 1], True)
+                                                    elif grid.coordinate == ['c', 1]:
+                                                        white_rook.move_square(['d', 1], True)
+                                                piece.left_castle_ability = 2
+                                                piece.right_castle_ability = 2
+                                            if(WHOSETURN == 1):
+                                                WHOSETURN = 0
+                                            elif(WHOSETURN == 0):
+                                                WHOSETURN = 1
+    
+        
+                    clicked_piece = None
+                    # HIGHLIGHTS PIECE YOU CLICK ON
+                    for color_pieces in play.total_play_list:
+                        for piece_list in color_pieces:
+                            for piece in piece_list:
+                                if (piece.rect.collidepoint(MOUSEPOS) and piece.select == 0 and WHOSETURN == piece.color):
+                                    clicked_piece = piece
+                                else:
+                                    piece.no_highlight()
+                                    clear_grid()
+        
+                    if clicked_piece is not None:
+                        # Just do this last, since we know only one piece will be selected
+                        clicked_piece.highlight()
+                        clicked_piece.projected()
+                        clicked_piece = None
+                    """
+                #################
+                # CLICK (RELEASE)
+                ################# 
+                
+                if game_mode == EDIT_MODE:
+                    # Right click on obj, destroy
+                    if(event.type == MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[2]):   
+                        DRAGGING.dragging_all_false()
                         START = restart_start_objects(START)
-                        # REMOVE ALL SPRITES
-                        remove_all_placed()
-            # MIDDLE MOUSE DEBUGGER
-            if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[1]:
-                for grid in Grid.grid_list:
-                    if grid.rect.collidepoint(MOUSEPOS):
-                        print(grid.coordinate)
-                        
+                        PLACED_SPRITES = remove_placed_object(PLACED_SPRITES, MOUSEPOS)
+                
+                if event.type == pygame.MOUSEBUTTONUP: #Release Drag
+                    #################
+                    # PLAY BUTTON
+                    #################
+                    if PLAY_EDIT_SWITCH_BUTTON.rect.collidepoint(MOUSEPOS) and game_mode == EDIT_MODE: 
+                        # Makes clicking play again unclickable    
+                        game_mode = PLAY_MODE
+                        PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(game_mode)                        
+                        print("Play Mode Activated")
+    
+                        for placed_white_pawn in PlacedPawn.white_pawn_list:
+                            PlayPawn(placed_white_pawn.rect.topleft, PLAY_SPRITES, "white")
+                        for placed_white_bishop in PlacedBishop.white_bishop_list:
+                            PlayBishop(placed_white_bishop.rect.topleft, PLAY_SPRITES, "white")
+                        for placed_white_knight in PlacedKnight.white_knight_list:
+                            PlayKnight(placed_white_knight.rect.topleft, PLAY_SPRITES, "white")
+                        for placed_white_rook in PlacedRook.white_rook_list:
+                            PlayRook(placed_white_rook.rect.topleft, PLAY_SPRITES, "white")
+                        for placed_white_queen in PlacedQueen.white_queen_list:
+                            PlayQueen(placed_white_queen.rect.topleft, PLAY_SPRITES, "white")    
+                        for placed_white_king in PlacedPawn.white_king_list:
+                            PlayKing(placed_white_king.rect.topleft, PLAY_SPRITES, "white")
+                        for placed_black_pawn in PlacedPawn.black_pawn_list:
+                            PlayPawn(placed_black_pawn.rect.topleft, PLAY_SPRITES, "black")
+                        for placed_black_bishop in PlacedBishop.black_bishop_list:
+                            PlayBishop(placed_black_bishop.rect.topleft, PLAY_SPRITES, "black")
+                        for placed_black_knight in PlacedKnight.black_knight_list:
+                            PlayKnight(placed_black_knight.rect.topleft, PLAY_SPRITES, "black")
+                        for placed_black_rook in PlacedRook.black_rook_list:
+                            PlayRook(placed_black_rook.rect.topleft, PLAY_SPRITES, "black")
+                        for placed_black_queen in PlacedQueen.black_queen_list:
+                            PlayQueen(placed_black_queen.rect.topleft, PLAY_SPRITES, "black")    
+                        for placed_black_king in PlacedPawn.black_king_list:
+                            PlayKing(placed_black_king.rect.topleft, PLAY_SPRITES, "black")
+                                
+                    #################
+                    # LEFT CLICK (RELEASE) STOP BUTTON
+                    #################
+                    elif PLAY_EDIT_SWITCH_BUTTON.rect.collidepoint(MOUSEPOS) and game_mode == PLAY_MODE:
+                        if game_mode == PLAY_MODE:
+                            print("Editing Mode Activated")
+                            game_mode = EDIT_MODE
+                            PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(game_mode)
+                            remove_all_play()
+                    if RESTART_BUTTON.rect.collidepoint(MOUSEPOS):
+                        pass
+                    if INFO_BUTTON.rect.collidepoint(MOUSEPOS):
+                        MENUON = 2
+                    if CLEAR_BUTTON.rect.collidepoint(MOUSEPOS):
+                        if game_mode == EDIT_MODE: #Editing mode
+                            START = restart_start_objects(START)
+                            # REMOVE ALL SPRITES
+                            remove_all_placed()
+                # MIDDLE MOUSE DEBUGGER
+                if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[1]:
+                    for grid in Grid.grid_list:
+                        if grid.rect.collidepoint(MOUSEPOS):
+                            print(grid.coordinate)
+                            
             ##################
             # ALL EDIT ACTIONS
             ##################
@@ -2045,37 +2045,37 @@ def main():
             ##################
             if game_mode == PLAY_MODE:
                 pass
-        #FOR DEBUGGING PURPOSES, PUT TEST CODE BELOW
-        
-        #Update all sprites
-        START_SPRITES.update()
-        PLACED_SPRITES.update()
-        PLAY_SPRITES.update()
-        GAME_MODE_SPRITES.draw(SCREEN)
-        SCREEN.fill(COLORKEY)
-        if(game_mode == EDIT_MODE): #Only draw placed sprites in editing mode
-            GRID_SPRITES.draw(SCREEN)
-            START_SPRITES.draw(SCREEN)
-            PLACED_SPRITES.draw(SCREEN)
-        elif(game_mode == PLAY_MODE): #Only draw play sprites in play mode
-            GRID_SPRITES.draw(SCREEN)
-            PLAY_SPRITES.draw(SCREEN)
-        # Board Coordinates Drawing
-        coor_letter_text_list = [coor_A_text, coor_B_text, coor_C_text, coor_D_text, coor_E_text, coor_F_text, coor_G_text, coor_H_text]
-        for text in range(0,len(coor_letter_text_list)):
-            SCREEN.blit(coor_letter_text_list[text], (XGRIDRANGE[0]+XGRIDRANGE[2]/3+(XGRIDRANGE[2]*text),YGRIDRANGE[0]-(YGRIDRANGE[2]*0.75)))
-            SCREEN.blit(coor_letter_text_list[text], (XGRIDRANGE[0]+XGRIDRANGE[2]/3+(XGRIDRANGE[2]*text),YGRIDRANGE[1]+(YGRIDRANGE[2]*0.25)))
-        coor_number_text_list = [coor_8_text, coor_7_text, coor_6_text, coor_5_text, coor_4_text, coor_3_text, coor_2_text, coor_1_text]
-        for text in range(0,len(coor_number_text_list)):
-            SCREEN.blit(coor_number_text_list[text], (XGRIDRANGE[0]-XGRIDRANGE[2]/2,YGRIDRANGE[0]+YGRIDRANGE[2]/4+(YGRIDRANGE[2]*text)))
-            SCREEN.blit(coor_number_text_list[text], (XGRIDRANGE[1]+XGRIDRANGE[2]/3,YGRIDRANGE[0]+YGRIDRANGE[2]/4+(YGRIDRANGE[2]*text)))
-        if(game_mode == PLAY_MODE):
-            whose_turn_text = arialFont.render(WHOSETURN + "'s move to turn", 1, (0,0,0))
-            pin_check_text = arialFont.render(CHECKTEXT, 1, (0,0,0))
-            SCREEN.blit(whose_turn_text, (XGRIDRANGE[1]+XGRIDRANGE[2],SCREEN_HEIGHT/2))
-            SCREEN.blit(pin_check_text, (XGRIDRANGE[1]+XGRIDRANGE[2],200))
-        pygame.display.flip()
-        pygame.display.update()
+            #FOR DEBUGGING PURPOSES, PUT TEST CODE BELOW
+            
+            #Update all sprites
+            START_SPRITES.update()
+            PLACED_SPRITES.update()
+            PLAY_SPRITES.update()
+            GAME_MODE_SPRITES.draw(SCREEN)
+            SCREEN.fill(COLORKEY)
+            if(game_mode == EDIT_MODE): #Only draw placed sprites in editing mode
+                GRID_SPRITES.draw(SCREEN)
+                START_SPRITES.draw(SCREEN)
+                PLACED_SPRITES.draw(SCREEN)
+            elif(game_mode == PLAY_MODE): #Only draw play sprites in play mode
+                GRID_SPRITES.draw(SCREEN)
+                PLAY_SPRITES.draw(SCREEN)
+            # Board Coordinates Drawing
+            coor_letter_text_list = [coor_A_text, coor_B_text, coor_C_text, coor_D_text, coor_E_text, coor_F_text, coor_G_text, coor_H_text]
+            for text in range(0,len(coor_letter_text_list)):
+                SCREEN.blit(coor_letter_text_list[text], (XGRIDRANGE[0]+XGRIDRANGE[2]/3+(XGRIDRANGE[2]*text),YGRIDRANGE[0]-(YGRIDRANGE[2]*0.75)))
+                SCREEN.blit(coor_letter_text_list[text], (XGRIDRANGE[0]+XGRIDRANGE[2]/3+(XGRIDRANGE[2]*text),YGRIDRANGE[1]+(YGRIDRANGE[2]*0.25)))
+            coor_number_text_list = [coor_8_text, coor_7_text, coor_6_text, coor_5_text, coor_4_text, coor_3_text, coor_2_text, coor_1_text]
+            for text in range(0,len(coor_number_text_list)):
+                SCREEN.blit(coor_number_text_list[text], (XGRIDRANGE[0]-XGRIDRANGE[2]/2,YGRIDRANGE[0]+YGRIDRANGE[2]/4+(YGRIDRANGE[2]*text)))
+                SCREEN.blit(coor_number_text_list[text], (XGRIDRANGE[1]+XGRIDRANGE[2]/3,YGRIDRANGE[0]+YGRIDRANGE[2]/4+(YGRIDRANGE[2]*text)))
+            if(game_mode == PLAY_MODE):
+                whose_turn_text = arialFont.render(WHOSETURN + "'s move to turn", 1, (0,0,0))
+                pin_check_text = arialFont.render(CHECKTEXT, 1, (0,0,0))
+                SCREEN.blit(whose_turn_text, (XGRIDRANGE[1]+XGRIDRANGE[2],SCREEN_HEIGHT/2))
+                SCREEN.blit(pin_check_text, (XGRIDRANGE[1]+XGRIDRANGE[2],200))
+            pygame.display.flip()
+            pygame.display.update()
         
 if __name__ == "__main__":
     main()
