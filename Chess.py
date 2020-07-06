@@ -1062,14 +1062,16 @@ class PlayKing(pygame.sprite.Sprite):
 class PlayPawn(pygame.sprite.Sprite):
     white_pawn_list = []
     black_pawn_list = []
-    def __init__(self, col, PLAY_SPRITES):
+    def __init__(self, pos, PLAY_SPRITES, col):
         pygame.sprite.Sprite.__init__(self)
         self.color = col
         if(self.color == "white"):
-            self.image = IMAGES["sprwhite_pawn"]
+            self.image = IMAGES["SPR_WHITE_PAWN"]
         elif(self.color == "black"):
-            self.image = IMAGES["sprBlackPawn"]
+            self.image = IMAGES["SPR_BLACK_PAWN"]
+        print("selfcolor: " + str(self.color))
         self.rect = self.image.get_rect()
+        self.rect.topleft = pos
         PLAY_SPRITES.add(self)
         self.coordinate = ['z', 0] #blank coordinate, will change once it updates
         self.select = 0
@@ -1080,21 +1082,21 @@ class PlayPawn(pygame.sprite.Sprite):
                 self.coordinate = grid.coordinate
     def highlight(self):
         if(self.color == "white"):
-            self.image = IMAGES["sprwhite_pawnHighlighted"]
+            self.image = IMAGES["SPR_WHITE_PAWN_HIGHLIGHTED"]
         elif(self.color == "black"):
-            self.image = IMAGES["sprBlackPawnHighlighted"]
+            self.image = IMAGES["SPR_BLACK_PAWN_HIGHLIGHTED"]
         self.select = 1
     def projected(self):
         if(self.pinned == False):
             if(self.color == "white"):
-                for grid in range(0,len(Grid.grid_list)):
-                    if (Grid.grid_list[grid].coordinate[0] == self.coordinate[0] and Grid.grid_list[grid].coordinate[1] == self.coordinate[1]+1 and \
-                    Grid.grid_list[grid].occupied == 0): # Move one space up
+                for grid in range(0, len(Grid.grid_list)):
+                    if (Grid.grid_list[grid].coordinate[0] == self.coordinate[0] and \
+                        Grid.grid_list[grid].coordinate[1] == self.coordinate[1]+1 and \
+                        Grid.grid_list[grid].occupied == 0): # Move one space up
                         Grid.grid_list[grid].highlight()
-                        for grid in range(0,len(Grid.grid_list)):
-                            if (self.coordinate[1] == 2 and Grid.grid_list[grid].coordinate[0] == self.coordinate[0] and \
-                                Grid.grid_list[grid].coordinate[1] == 4 and Grid.grid_list[grid].occupied == 0):
-                                Grid.grid_list[grid].highlight()
+                        if (self.coordinate[1] == 2 and Grid.grid_list[grid].coordinate[0] == self.coordinate[0] and \
+                            Grid.grid_list[grid].coordinate[1] == 4 and Grid.grid_list[grid].occupied == 0):
+                            Grid.grid_list[grid].highlight()
                     # Enemy pieces
                     if (ord(Grid.grid_list[grid].coordinate[0]) == ord(self.coordinate[0])-1 and Grid.grid_list[grid].coordinate[1] == self.coordinate[1]+1 and \
                     Grid.grid_list[grid].occ_white_or_black == "black"):
@@ -1105,12 +1107,11 @@ class PlayPawn(pygame.sprite.Sprite):
             elif(self.color == "black"):
                 for grid in range(0,len(Grid.grid_list)):
                     if (Grid.grid_list[grid].coordinate[0] == self.coordinate[0] and Grid.grid_list[grid].coordinate[1] == self.coordinate[1]-1 and \
-                    Grid.grid_list[grid].occupied == 0): # Move one space up
+                        Grid.grid_list[grid].occupied == 0): # Move one space up
                         Grid.grid_list[grid].highlight()
-                        for grid in range(0,len(Grid.grid_list)):
-                            if (self.coordinate[1] == 7 and Grid.grid_list[grid].coordinate[0] == self.coordinate[0] and \
-                                Grid.grid_list[grid].coordinate[1] == 5 and Grid.grid_list[grid].occupied == 0):
-                                Grid.grid_list[grid].highlight()
+                        if (self.coordinate[1] == 7 and Grid.grid_list[grid].coordinate[0] == self.coordinate[0] and \
+                            Grid.grid_list[grid].coordinate[1] == 5 and Grid.grid_list[grid].occupied == 0):
+                            Grid.grid_list[grid].highlight()
                     # Enemy pieces
                     if (ord(Grid.grid_list[grid].coordinate[0]) == ord(self.coordinate[0])-1 and Grid.grid_list[grid].coordinate[1] == self.coordinate[1]-1 and \
                     Grid.grid_list[grid].occ_white_or_black == "white"):
