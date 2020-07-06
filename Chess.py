@@ -1609,7 +1609,7 @@ def main():
     CLOCK = pygame.time.Clock()
     
     #Fonts
-    arialFont = pygame.font.SysFont('Arial', 24)
+    arial_font = pygame.font.SysFont('Arial', 24)
     #Sprites
     load_image("Sprites/blankbox.png", "SPR_BLANKBOX", True, False)
     load_image("Sprites/Chess/white_pawn.png", "SPR_WHITE_PAWN", True, True)
@@ -1658,11 +1658,16 @@ def main():
     PLAY_EDIT_SWITCH_BUTTON = PlayEditSwitchButton((SCREEN_WIDTH-50, 8), GAME_MODE_SPRITES)
 
     CLEAR_BUTTON = ClearButton((SCREEN_WIDTH-115, 10))
+    START_SPRITES.add(CLEAR_BUTTON)
     INFO_BUTTON = InfoButton((SCREEN_WIDTH-320, 10))
+    START_SPRITES.add(INFO_BUTTON)
     RESTART_BUTTON = RestartButton((SCREEN_WIDTH-175, 10), PLAY_SPRITES)
     COLOR_BUTTON = ColorButton((SCREEN_WIDTH-195, 10))
+    START_SPRITES.add(COLOR_BUTTON)
     SAVE_FILE_BUTTON = SaveFileButton((SCREEN_WIDTH-230, 10))
+    START_SPRITES.add(SAVE_FILE_BUTTON)
     LOAD_FILE_BUTTON = LoadFileButton((SCREEN_WIDTH-265, 10))
+    START_SPRITES.add(LOAD_FILE_BUTTON)
     #Backgrounds
     INFO_SCREEN = pygame.image.load("Sprites/infoscreen.bmp").convert()
     INFO_SCREEN = pygame.transform.scale(INFO_SCREEN, (SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -1671,22 +1676,22 @@ def main():
     pygame.display.set_icon(gameicon)
     pygame.display.set_caption('Chess')
     #fonts
-    coor_A_text = arialFont.render("a", 1, (0,0,0))
-    coor_B_text = arialFont.render("b", 1, (0,0,0))
-    coor_C_text = arialFont.render("c", 1, (0,0,0))
-    coor_D_text = arialFont.render("d", 1, (0,0,0))
-    coor_E_text = arialFont.render("e", 1, (0,0,0))
-    coor_F_text = arialFont.render("f", 1, (0,0,0))
-    coor_G_text = arialFont.render("g", 1, (0,0,0))
-    coor_H_text = arialFont.render("h", 1, (0,0,0))
-    coor_1_text = arialFont.render("1", 1, (0,0,0))
-    coor_2_text = arialFont.render("2", 1, (0,0,0))
-    coor_3_text = arialFont.render("3", 1, (0,0,0))
-    coor_4_text= arialFont.render("4", 1, (0,0,0))
-    coor_5_text = arialFont.render("5", 1, (0,0,0))
-    coor_6_text = arialFont.render("6", 1, (0,0,0))
-    coor_7_text= arialFont.render("7", 1, (0,0,0))
-    coor_8_text = arialFont.render("8", 1, (0,0,0))
+    coor_A_text = arial_font.render("a", 1, (0, 0, 0))
+    coor_B_text = arial_font.render("b", 1, (0, 0, 0))
+    coor_C_text = arial_font.render("c", 1, (0, 0, 0))
+    coor_D_text = arial_font.render("d", 1, (0, 0, 0))
+    coor_E_text = arial_font.render("e", 1, (0, 0, 0))
+    coor_F_text = arial_font.render("f", 1, (0, 0, 0))
+    coor_G_text = arial_font.render("g", 1, (0, 0, 0))
+    coor_H_text = arial_font.render("h", 1, (0, 0, 0))
+    coor_1_text = arial_font.render("1", 1, (0, 0, 0))
+    coor_2_text = arial_font.render("2", 1, (0, 0, 0))
+    coor_3_text = arial_font.render("3", 1, (0, 0, 0))
+    coor_4_text= arial_font.render("4", 1, (0, 0, 0))
+    coor_5_text = arial_font.render("5", 1, (0, 0, 0))
+    coor_6_text = arial_font.render("6", 1, (0, 0, 0))
+    coor_7_text= arial_font.render("7", 1, (0, 0, 0))
+    coor_8_text = arial_font.render("8", 1, (0, 0, 0))
     
     EDIT_MODE, PLAY_MODE = 0, 1
     game_mode = EDIT_MODE
@@ -1702,22 +1707,22 @@ def main():
             grid.coordinate[1] = int((Y_GRID_END-y)/Y_GRID_HEIGHT)
     for grid in Grid.grid_list:
         for i in range(ord("a"), ord("h"), 2):
-            for j in range(2,9,2):
+            for j in range(2, 9, 2):
                 if(ord(grid.coordinate[0]) == i and grid.coordinate[1] == j):
                     grid.image = IMAGES["SPR_WHITE_GRID"]
                     grid.color = "white"
         for i in range(ord("b"), ord("i"), 2):
-            for j in range(1,8,2):
+            for j in range(1, 8, 2):
                 if(ord(grid.coordinate[0]) == i and grid.coordinate[1] == j):
                     grid.image = IMAGES["SPR_WHITE_GRID"]
                     grid.color = "white"
         for i in range(ord("a"), ord("h"), 2):
-            for j in range(1,8,2):
+            for j in range(1, 8, 2):
                 if(ord(grid.coordinate[0]) == i and grid.coordinate[1] == j):
                     grid.image = IMAGES["SPR_GREEN_GRID"]
                     grid.color = "green"
         for i in range(ord("b"), ord("i"), 2):
-            for j in range(2,9,2):
+            for j in range(2, 9, 2):
                 if(ord(grid.coordinate[0]) == i and grid.coordinate[1] == j):
                     grid.image = IMAGES["SPR_GREEN_GRID"]
                     grid.color = "green"
@@ -1944,7 +1949,7 @@ def main():
                             PlayRook(placed_white_rook.rect.topleft, PLAY_SPRITES, "white")
                         for placed_white_queen in PlacedQueen.white_queen_list:
                             PlayQueen(placed_white_queen.rect.topleft, PLAY_SPRITES, "white")    
-                        for placed_white_king in PlacedPawn.white_king_list:
+                        for placed_white_king in PlacedKing.white_king_list:
                             PlayKing(placed_white_king.rect.topleft, PLAY_SPRITES, "white")
                         for placed_black_pawn in PlacedPawn.black_pawn_list:
                             PlayPawn(placed_black_pawn.rect.topleft, PLAY_SPRITES, "black")
@@ -1956,7 +1961,7 @@ def main():
                             PlayRook(placed_black_rook.rect.topleft, PLAY_SPRITES, "black")
                         for placed_black_queen in PlacedQueen.black_queen_list:
                             PlayQueen(placed_black_queen.rect.topleft, PLAY_SPRITES, "black")    
-                        for placed_black_king in PlacedPawn.black_king_list:
+                        for placed_black_king in PlacedKing.black_king_list:
                             PlayKing(placed_black_king.rect.topleft, PLAY_SPRITES, "black")
                                 
                     #################
@@ -2084,15 +2089,15 @@ def main():
             # Board Coordinates Drawing
             coor_letter_text_list = [coor_A_text, coor_B_text, coor_C_text, coor_D_text, coor_E_text, coor_F_text, coor_G_text, coor_H_text]
             for text in range(0,len(coor_letter_text_list)):
-                SCREEN.blit(coor_letter_text_list[text], (X_GRID_START+X_GRID_WIDTH/3+(X_GRID_WIDTH*text),Y_GRID_START-(Y_GRID_HEIGHT*0.75)))
-                SCREEN.blit(coor_letter_text_list[text], (X_GRID_START+X_GRID_WIDTH/3+(X_GRID_WIDTH*text),Y_GRID_END+(Y_GRID_HEIGHT*0.25)))
+                SCREEN.blit(coor_letter_text_list[text], (X_GRID_START+X_GRID_WIDTH/3+(X_GRID_WIDTH*text), Y_GRID_START-(Y_GRID_HEIGHT*0.75)))
+                SCREEN.blit(coor_letter_text_list[text], (X_GRID_START+X_GRID_WIDTH/3+(X_GRID_WIDTH*text), Y_GRID_END+(Y_GRID_HEIGHT*0.25)))
             coor_number_text_list = [coor_8_text, coor_7_text, coor_6_text, coor_5_text, coor_4_text, coor_3_text, coor_2_text, coor_1_text]
             for text in range(0,len(coor_number_text_list)):
-                SCREEN.blit(coor_number_text_list[text], (X_GRID_START-X_GRID_WIDTH/2,Y_GRID_START+Y_GRID_HEIGHT/4+(Y_GRID_HEIGHT*text)))
-                SCREEN.blit(coor_number_text_list[text], (X_GRID_END+X_GRID_WIDTH/3,Y_GRID_START+Y_GRID_HEIGHT/4+(Y_GRID_HEIGHT*text)))
+                SCREEN.blit(coor_number_text_list[text], (X_GRID_START-X_GRID_WIDTH/2, Y_GRID_START+Y_GRID_HEIGHT/4+(Y_GRID_HEIGHT*text)))
+                SCREEN.blit(coor_number_text_list[text], (X_GRID_END+X_GRID_WIDTH/3, Y_GRID_START+Y_GRID_HEIGHT/4+(Y_GRID_HEIGHT*text)))
             if(game_mode == PLAY_MODE):
-                whose_turn_text = arialFont.render(WHOSETURN + "'s move to turn", 1, (0,0,0))
-                pin_check_text = arialFont.render(CHECKTEXT, 1, (0,0,0))
+                whose_turn_text = arial_font.render(WHOSETURN + "'s move to turn", 1, (0, 0, 0))
+                pin_check_text = arial_font.render(CHECKTEXT, 1, (0, 0, 0))
                 SCREEN.blit(whose_turn_text, (X_GRID_END+X_GRID_WIDTH, SCREEN_HEIGHT/2))
                 SCREEN.blit(pin_check_text, (X_GRID_END+X_GRID_WIDTH, 200))
             pygame.display.flip()
