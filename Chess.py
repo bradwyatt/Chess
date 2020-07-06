@@ -588,116 +588,7 @@ class StartBlankBox(pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_KING"]
         else:
             self.image = IMAGES["SPR_BLANKBOX"]
-"""            
-class StartObjects(pygame.sprite.Sprite):
-    def __init__(self, classname, START_SPRITES):
-        pygame.sprite.Sprite.__init__(self)
-        self.classname = classname
-        if(classname == "white_pawn"):
-            self.image = IMAGES["SPR_WHITE_PAWN"]
-        elif(classname == "white_bishop"):
-            self.image = IMAGES["SPR_WHITE_BISHOP"]
-        elif(classname == "white_knight"):
-            self.image = IMAGES["SPR_WHITE_KNIGHT"]
-        elif(classname == "white_rook"):
-            self.image = IMAGES["SPR_WHITE_ROOK"]
-        elif(classname == "white_queen"):
-            self.image = IMAGES["SPR_WHITE_QUEEN"]
-        elif(classname == "white_king"):
-            self.image = IMAGES["SPR_WHITE_KING"]
-        elif(classname == "black_pawn"):
-            self.image = IMAGES["SPR_BLACK_PAWN"]
-        elif(classname == "black_bishop"):
-            self.image = IMAGES["SPR_BLACK_BISHOP"]
-        elif(classname == "black_knight"):
-            self.image = IMAGES["SPR_BLACK_KNIGHT"]
-        elif(classname == "black_rook"):
-            self.image = IMAGES["SPR_BLACK_ROOK"]
-        elif(classname == "black_queen"):
-            self.image = IMAGES["SPR_BLACK_QUEEN"]
-        elif(classname == "black_king"):
-            self.image = IMAGES["SPR_BLACK_KING"]
-        self.rect = self.image.get_rect()
-        START_SPRITES.add(self)
-        self.coordinate = ['z', 0]  # Starts as this
-    def update(self):
-        global MOUSEPOS
-        for grid in Grid.grid_list:
-            if self.rect.colliderect(grid):
-                self.coordinate = grid.coordinate
-        if(self.classname == "white_pawn"):
-            if DRAGGING.white_pawn:
-                start.blankbox.rect.topleft = STARTPOS['white_pawn'] #Replaces in Menu
-                start.white_pawn.rect.topleft = MOUSEPOS[0]-(self.image.get_width()/2), MOUSEPOS[1]-(self.image.get_height()/2)
-            else:
-                start.white_pawn.rect.topleft = STARTPOS['white_pawn']
-        elif(self.classname == "white_bishop"):
-            if DRAGGING.white_bishop:
-                start.blankbox.rect.topleft = STARTPOS['white_bishop'] #Replaces in Menu
-                start.white_bishop.rect.topleft = MOUSEPOS[0]-(self.image.get_width()/2), MOUSEPOS[1]-(self.image.get_height()/2)
-            else:
-                start.white_bishop.rect.topleft = STARTPOS['white_bishop']
-        elif(self.classname == "white_knight"):
-            if DRAGGING.white_knight:
-                start.blankbox.rect.topleft = STARTPOS['white_knight'] #Replaces in Menu
-                start.white_knight.rect.topleft = MOUSEPOS[0]-(self.image.get_width()/2), MOUSEPOS[1]-(self.image.get_height()/2)
-            else:
-                start.white_knight.rect.topleft = STARTPOS['white_knight']
-        elif(self.classname == "white_rook"):
-            if DRAGGING.white_rook:
-                start.blankbox.rect.topleft = STARTPOS['white_rook'] #Replaces in Menu
-                start.white_rook.rect.topleft = MOUSEPOS[0]-(self.image.get_width()/2), MOUSEPOS[1]-(self.image.get_height()/2)
-            else:
-                start.white_rook.rect.topleft = STARTPOS['white_rook']
-        elif(self.classname == "white_queen"):
-            if DRAGGING.white_queen:
-                start.blankbox.rect.topleft = STARTPOS['white_queen'] #Replaces in Menu
-                start.white_queen.rect.topleft = MOUSEPOS[0]-(self.image.get_width()/2), MOUSEPOS[1]-(self.image.get_height()/2)
-            else:
-                start.white_queen.rect.topleft = STARTPOS['white_queen']
-        elif(self.classname == "white_king"):
-            if DRAGGING.white_king and len(placed.white_king_list) == 0:
-                start.blankbox.rect.topleft = STARTPOS['white_king'] #Replaces in Menu
-                start.white_king.rect.topleft = MOUSEPOS[0]-(self.image.get_width()/2), MOUSEPOS[1]-(self.image.get_height()/2)
-            else:
-                start.white_king.rect.topleft = STARTPOS['white_king']
-        elif(self.classname == "black_pawn"):
-            if DRAGGING.black_pawn:
-                start.blankbox.rect.topleft = STARTPOS['black_pawn'] #Replaces in Menu
-                start.black_pawn.rect.topleft = MOUSEPOS[0]-(self.image.get_width()/2), MOUSEPOS[1]-(self.image.get_height()/2)
-            else:
-                start.black_pawn.rect.topleft = STARTPOS['black_pawn']
-        elif(self.classname == "black_bishop"):
-            if DRAGGING.black_bishop:
-                start.blankbox.rect.topleft = STARTPOS['black_bishop'] #Replaces in Menu
-                start.black_bishop.rect.topleft = MOUSEPOS[0]-(self.image.get_width()/2), MOUSEPOS[1]-(self.image.get_height()/2)
-            else:
-                start.black_bishop.rect.topleft = STARTPOS['black_bishop']
-        elif(self.classname == "black_knight"):
-            if DRAGGING.black_knight:
-                start.blankbox.rect.topleft = STARTPOS['black_knight'] #Replaces in Menu
-                start.black_knight.rect.topleft = MOUSEPOS[0]-(self.image.get_width()/2), MOUSEPOS[1]-(self.image.get_height()/2)
-            else:
-                start.black_knight.rect.topleft = STARTPOS['black_knight']
-        elif(self.classname == "black_rook"):
-            if DRAGGING.black_rook:
-                start.blankbox.rect.topleft = STARTPOS['black_rook'] #Replaces in Menu
-                start.black_rook.rect.topleft = MOUSEPOS[0]-(self.image.get_width()/2), MOUSEPOS[1]-(self.image.get_height()/2)
-            else:
-                start.black_rook.rect.topleft = STARTPOS['black_rook']
-        elif(self.classname == "black_queen"):
-            if DRAGGING.black_queen:
-                start.blankbox.rect.topleft = STARTPOS['black_queen'] #Replaces in Menu
-                start.black_queen.rect.topleft = MOUSEPOS[0]-(self.image.get_width()/2), MOUSEPOS[1]-(self.image.get_height()/2)
-            else:
-                start.black_queen.rect.topleft = STARTPOS['black_queen']
-        elif(self.classname == "black_king"):
-            if DRAGGING.black_king and len(placed.black_king_list) == 0:
-                start.blankbox.rect.topleft = STARTPOS['black_king'] #Replaces in Menu
-                start.black_king.rect.topleft = MOUSEPOS[0]-(self.image.get_width()/2), MOUSEPOS[1]-(self.image.get_height()/2)
-            else:
-                start.black_king.rect.topleft = STARTPOS['black_king']
-"""
+
 """
 class PlacedObjects(pygame.sprite.Sprite):
     def __init__(self, classname, PLACED_SPRITES):
@@ -2077,14 +1968,13 @@ def main():
             START_SPRITES.update()
             PLACED_SPRITES.update()
             PLAY_SPRITES.update()
-            GAME_MODE_SPRITES.draw(SCREEN)
             SCREEN.fill(COLORKEY)
+            GAME_MODE_SPRITES.draw(SCREEN)
+            GRID_SPRITES.draw(SCREEN)
             if(game_mode == EDIT_MODE): #Only draw placed sprites in editing mode
-                GRID_SPRITES.draw(SCREEN)
                 START_SPRITES.draw(SCREEN)
-                PLACED_SPRITES.draw(SCREEN)
+                PLACED_SPRITES.draw(SCREEN)    
             elif(game_mode == PLAY_MODE): #Only draw play sprites in play mode
-                GRID_SPRITES.draw(SCREEN)
                 PLAY_SPRITES.draw(SCREEN)
             # Board Coordinates Drawing
             coor_letter_text_list = [coor_A_text, coor_B_text, coor_C_text, coor_D_text, coor_E_text, coor_F_text, coor_G_text, coor_H_text]
@@ -2100,7 +1990,6 @@ def main():
                 pin_check_text = arial_font.render(CHECKTEXT, 1, (0, 0, 0))
                 SCREEN.blit(whose_turn_text, (X_GRID_END+X_GRID_WIDTH, SCREEN_HEIGHT/2))
                 SCREEN.blit(pin_check_text, (X_GRID_END+X_GRID_WIDTH, 200))
-            pygame.display.flip()
             pygame.display.update()
         elif state == DEBUG:
             if debug_message == 1:
