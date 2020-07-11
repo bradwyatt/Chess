@@ -588,116 +588,7 @@ class StartBlankBox(pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_KING"]
         else:
             self.image = IMAGES["SPR_BLANKBOX"]
-"""            
-class StartObjects(pygame.sprite.Sprite):
-    def __init__(self, classname, START_SPRITES):
-        pygame.sprite.Sprite.__init__(self)
-        self.classname = classname
-        if(classname == "white_pawn"):
-            self.image = IMAGES["SPR_WHITE_PAWN"]
-        elif(classname == "white_bishop"):
-            self.image = IMAGES["SPR_WHITE_BISHOP"]
-        elif(classname == "white_knight"):
-            self.image = IMAGES["SPR_WHITE_KNIGHT"]
-        elif(classname == "white_rook"):
-            self.image = IMAGES["SPR_WHITE_ROOK"]
-        elif(classname == "white_queen"):
-            self.image = IMAGES["SPR_WHITE_QUEEN"]
-        elif(classname == "white_king"):
-            self.image = IMAGES["SPR_WHITE_KING"]
-        elif(classname == "black_pawn"):
-            self.image = IMAGES["SPR_BLACK_PAWN"]
-        elif(classname == "black_bishop"):
-            self.image = IMAGES["SPR_BLACK_BISHOP"]
-        elif(classname == "black_knight"):
-            self.image = IMAGES["SPR_BLACK_KNIGHT"]
-        elif(classname == "black_rook"):
-            self.image = IMAGES["SPR_BLACK_ROOK"]
-        elif(classname == "black_queen"):
-            self.image = IMAGES["SPR_BLACK_QUEEN"]
-        elif(classname == "black_king"):
-            self.image = IMAGES["SPR_BLACK_KING"]
-        self.rect = self.image.get_rect()
-        START_SPRITES.add(self)
-        self.coordinate = ['z', 0]  # Starts as this
-    def update(self):
-        global MOUSEPOS
-        for grid in Grid.grid_list:
-            if self.rect.colliderect(grid):
-                self.coordinate = grid.coordinate
-        if(self.classname == "white_pawn"):
-            if DRAGGING.white_pawn:
-                start.blankbox.rect.topleft = STARTPOS['white_pawn'] #Replaces in Menu
-                start.white_pawn.rect.topleft = MOUSEPOS[0]-(self.image.get_width()/2), MOUSEPOS[1]-(self.image.get_height()/2)
-            else:
-                start.white_pawn.rect.topleft = STARTPOS['white_pawn']
-        elif(self.classname == "white_bishop"):
-            if DRAGGING.white_bishop:
-                start.blankbox.rect.topleft = STARTPOS['white_bishop'] #Replaces in Menu
-                start.white_bishop.rect.topleft = MOUSEPOS[0]-(self.image.get_width()/2), MOUSEPOS[1]-(self.image.get_height()/2)
-            else:
-                start.white_bishop.rect.topleft = STARTPOS['white_bishop']
-        elif(self.classname == "white_knight"):
-            if DRAGGING.white_knight:
-                start.blankbox.rect.topleft = STARTPOS['white_knight'] #Replaces in Menu
-                start.white_knight.rect.topleft = MOUSEPOS[0]-(self.image.get_width()/2), MOUSEPOS[1]-(self.image.get_height()/2)
-            else:
-                start.white_knight.rect.topleft = STARTPOS['white_knight']
-        elif(self.classname == "white_rook"):
-            if DRAGGING.white_rook:
-                start.blankbox.rect.topleft = STARTPOS['white_rook'] #Replaces in Menu
-                start.white_rook.rect.topleft = MOUSEPOS[0]-(self.image.get_width()/2), MOUSEPOS[1]-(self.image.get_height()/2)
-            else:
-                start.white_rook.rect.topleft = STARTPOS['white_rook']
-        elif(self.classname == "white_queen"):
-            if DRAGGING.white_queen:
-                start.blankbox.rect.topleft = STARTPOS['white_queen'] #Replaces in Menu
-                start.white_queen.rect.topleft = MOUSEPOS[0]-(self.image.get_width()/2), MOUSEPOS[1]-(self.image.get_height()/2)
-            else:
-                start.white_queen.rect.topleft = STARTPOS['white_queen']
-        elif(self.classname == "white_king"):
-            if DRAGGING.white_king and len(placed.white_king_list) == 0:
-                start.blankbox.rect.topleft = STARTPOS['white_king'] #Replaces in Menu
-                start.white_king.rect.topleft = MOUSEPOS[0]-(self.image.get_width()/2), MOUSEPOS[1]-(self.image.get_height()/2)
-            else:
-                start.white_king.rect.topleft = STARTPOS['white_king']
-        elif(self.classname == "black_pawn"):
-            if DRAGGING.black_pawn:
-                start.blankbox.rect.topleft = STARTPOS['black_pawn'] #Replaces in Menu
-                start.black_pawn.rect.topleft = MOUSEPOS[0]-(self.image.get_width()/2), MOUSEPOS[1]-(self.image.get_height()/2)
-            else:
-                start.black_pawn.rect.topleft = STARTPOS['black_pawn']
-        elif(self.classname == "black_bishop"):
-            if DRAGGING.black_bishop:
-                start.blankbox.rect.topleft = STARTPOS['black_bishop'] #Replaces in Menu
-                start.black_bishop.rect.topleft = MOUSEPOS[0]-(self.image.get_width()/2), MOUSEPOS[1]-(self.image.get_height()/2)
-            else:
-                start.black_bishop.rect.topleft = STARTPOS['black_bishop']
-        elif(self.classname == "black_knight"):
-            if DRAGGING.black_knight:
-                start.blankbox.rect.topleft = STARTPOS['black_knight'] #Replaces in Menu
-                start.black_knight.rect.topleft = MOUSEPOS[0]-(self.image.get_width()/2), MOUSEPOS[1]-(self.image.get_height()/2)
-            else:
-                start.black_knight.rect.topleft = STARTPOS['black_knight']
-        elif(self.classname == "black_rook"):
-            if DRAGGING.black_rook:
-                start.blankbox.rect.topleft = STARTPOS['black_rook'] #Replaces in Menu
-                start.black_rook.rect.topleft = MOUSEPOS[0]-(self.image.get_width()/2), MOUSEPOS[1]-(self.image.get_height()/2)
-            else:
-                start.black_rook.rect.topleft = STARTPOS['black_rook']
-        elif(self.classname == "black_queen"):
-            if DRAGGING.black_queen:
-                start.blankbox.rect.topleft = STARTPOS['black_queen'] #Replaces in Menu
-                start.black_queen.rect.topleft = MOUSEPOS[0]-(self.image.get_width()/2), MOUSEPOS[1]-(self.image.get_height()/2)
-            else:
-                start.black_queen.rect.topleft = STARTPOS['black_queen']
-        elif(self.classname == "black_king"):
-            if DRAGGING.black_king and len(placed.black_king_list) == 0:
-                start.blankbox.rect.topleft = STARTPOS['black_king'] #Replaces in Menu
-                start.black_king.rect.topleft = MOUSEPOS[0]-(self.image.get_width()/2), MOUSEPOS[1]-(self.image.get_height()/2)
-            else:
-                start.black_king.rect.topleft = STARTPOS['black_king']
-"""
+
 """
 class PlacedObjects(pygame.sprite.Sprite):
     def __init__(self, classname, PLACED_SPRITES):
@@ -1171,14 +1062,16 @@ class PlayKing(pygame.sprite.Sprite):
 class PlayPawn(pygame.sprite.Sprite):
     white_pawn_list = []
     black_pawn_list = []
-    def __init__(self, col, PLAY_SPRITES):
+    def __init__(self, pos, PLAY_SPRITES, col):
         pygame.sprite.Sprite.__init__(self)
         self.color = col
         if(self.color == "white"):
-            self.image = IMAGES["sprwhite_pawn"]
+            self.image = IMAGES["SPR_WHITE_PAWN"]
         elif(self.color == "black"):
-            self.image = IMAGES["sprBlackPawn"]
+            self.image = IMAGES["SPR_BLACK_PAWN"]
+        print("selfcolor: " + str(self.color))
         self.rect = self.image.get_rect()
+        self.rect.topleft = pos
         PLAY_SPRITES.add(self)
         self.coordinate = ['z', 0] #blank coordinate, will change once it updates
         self.select = 0
@@ -1189,21 +1082,21 @@ class PlayPawn(pygame.sprite.Sprite):
                 self.coordinate = grid.coordinate
     def highlight(self):
         if(self.color == "white"):
-            self.image = IMAGES["sprwhite_pawnHighlighted"]
+            self.image = IMAGES["SPR_WHITE_PAWN_HIGHLIGHTED"]
         elif(self.color == "black"):
-            self.image = IMAGES["sprBlackPawnHighlighted"]
+            self.image = IMAGES["SPR_BLACK_PAWN_HIGHLIGHTED"]
         self.select = 1
     def projected(self):
         if(self.pinned == False):
             if(self.color == "white"):
-                for grid in range(0,len(Grid.grid_list)):
-                    if (Grid.grid_list[grid].coordinate[0] == self.coordinate[0] and Grid.grid_list[grid].coordinate[1] == self.coordinate[1]+1 and \
-                    Grid.grid_list[grid].occupied == 0): # Move one space up
+                for grid in range(0, len(Grid.grid_list)):
+                    if (Grid.grid_list[grid].coordinate[0] == self.coordinate[0] and \
+                        Grid.grid_list[grid].coordinate[1] == self.coordinate[1]+1 and \
+                        Grid.grid_list[grid].occupied == 0): # Move one space up
                         Grid.grid_list[grid].highlight()
-                        for grid in range(0,len(Grid.grid_list)):
-                            if (self.coordinate[1] == 2 and Grid.grid_list[grid].coordinate[0] == self.coordinate[0] and \
-                                Grid.grid_list[grid].coordinate[1] == 4 and Grid.grid_list[grid].occupied == 0):
-                                Grid.grid_list[grid].highlight()
+                        if (self.coordinate[1] == 2 and Grid.grid_list[grid].coordinate[0] == self.coordinate[0] and \
+                            Grid.grid_list[grid].coordinate[1] == 4 and Grid.grid_list[grid].occupied == 0):
+                            Grid.grid_list[grid].highlight()
                     # Enemy pieces
                     if (ord(Grid.grid_list[grid].coordinate[0]) == ord(self.coordinate[0])-1 and Grid.grid_list[grid].coordinate[1] == self.coordinate[1]+1 and \
                     Grid.grid_list[grid].occ_white_or_black == "black"):
@@ -1214,12 +1107,11 @@ class PlayPawn(pygame.sprite.Sprite):
             elif(self.color == "black"):
                 for grid in range(0,len(Grid.grid_list)):
                     if (Grid.grid_list[grid].coordinate[0] == self.coordinate[0] and Grid.grid_list[grid].coordinate[1] == self.coordinate[1]-1 and \
-                    Grid.grid_list[grid].occupied == 0): # Move one space up
+                        Grid.grid_list[grid].occupied == 0): # Move one space up
                         Grid.grid_list[grid].highlight()
-                        for grid in range(0,len(Grid.grid_list)):
-                            if (self.coordinate[1] == 7 and Grid.grid_list[grid].coordinate[0] == self.coordinate[0] and \
-                                Grid.grid_list[grid].coordinate[1] == 5 and Grid.grid_list[grid].occupied == 0):
-                                Grid.grid_list[grid].highlight()
+                        if (self.coordinate[1] == 7 and Grid.grid_list[grid].coordinate[0] == self.coordinate[0] and \
+                            Grid.grid_list[grid].coordinate[1] == 5 and Grid.grid_list[grid].occupied == 0):
+                            Grid.grid_list[grid].highlight()
                     # Enemy pieces
                     if (ord(Grid.grid_list[grid].coordinate[0]) == ord(self.coordinate[0])-1 and Grid.grid_list[grid].coordinate[1] == self.coordinate[1]-1 and \
                     Grid.grid_list[grid].occ_white_or_black == "white"):
@@ -1609,7 +1501,7 @@ def main():
     CLOCK = pygame.time.Clock()
     
     #Fonts
-    arialFont = pygame.font.SysFont('Arial', 24)
+    arial_font = pygame.font.SysFont('Arial', 24)
     #Sprites
     load_image("Sprites/blankbox.png", "SPR_BLANKBOX", True, False)
     load_image("Sprites/Chess/white_pawn.png", "SPR_WHITE_PAWN", True, True)
@@ -1658,11 +1550,16 @@ def main():
     PLAY_EDIT_SWITCH_BUTTON = PlayEditSwitchButton((SCREEN_WIDTH-50, 8), GAME_MODE_SPRITES)
 
     CLEAR_BUTTON = ClearButton((SCREEN_WIDTH-115, 10))
+    START_SPRITES.add(CLEAR_BUTTON)
     INFO_BUTTON = InfoButton((SCREEN_WIDTH-320, 10))
+    START_SPRITES.add(INFO_BUTTON)
     RESTART_BUTTON = RestartButton((SCREEN_WIDTH-175, 10), PLAY_SPRITES)
     COLOR_BUTTON = ColorButton((SCREEN_WIDTH-195, 10))
+    START_SPRITES.add(COLOR_BUTTON)
     SAVE_FILE_BUTTON = SaveFileButton((SCREEN_WIDTH-230, 10))
+    START_SPRITES.add(SAVE_FILE_BUTTON)
     LOAD_FILE_BUTTON = LoadFileButton((SCREEN_WIDTH-265, 10))
+    START_SPRITES.add(LOAD_FILE_BUTTON)
     #Backgrounds
     INFO_SCREEN = pygame.image.load("Sprites/infoscreen.bmp").convert()
     INFO_SCREEN = pygame.transform.scale(INFO_SCREEN, (SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -1671,22 +1568,22 @@ def main():
     pygame.display.set_icon(gameicon)
     pygame.display.set_caption('Chess')
     #fonts
-    coor_A_text = arialFont.render("a", 1, (0,0,0))
-    coor_B_text = arialFont.render("b", 1, (0,0,0))
-    coor_C_text = arialFont.render("c", 1, (0,0,0))
-    coor_D_text = arialFont.render("d", 1, (0,0,0))
-    coor_E_text = arialFont.render("e", 1, (0,0,0))
-    coor_F_text = arialFont.render("f", 1, (0,0,0))
-    coor_G_text = arialFont.render("g", 1, (0,0,0))
-    coor_H_text = arialFont.render("h", 1, (0,0,0))
-    coor_1_text = arialFont.render("1", 1, (0,0,0))
-    coor_2_text = arialFont.render("2", 1, (0,0,0))
-    coor_3_text = arialFont.render("3", 1, (0,0,0))
-    coor_4_text= arialFont.render("4", 1, (0,0,0))
-    coor_5_text = arialFont.render("5", 1, (0,0,0))
-    coor_6_text = arialFont.render("6", 1, (0,0,0))
-    coor_7_text= arialFont.render("7", 1, (0,0,0))
-    coor_8_text = arialFont.render("8", 1, (0,0,0))
+    coor_A_text = arial_font.render("a", 1, (0, 0, 0))
+    coor_B_text = arial_font.render("b", 1, (0, 0, 0))
+    coor_C_text = arial_font.render("c", 1, (0, 0, 0))
+    coor_D_text = arial_font.render("d", 1, (0, 0, 0))
+    coor_E_text = arial_font.render("e", 1, (0, 0, 0))
+    coor_F_text = arial_font.render("f", 1, (0, 0, 0))
+    coor_G_text = arial_font.render("g", 1, (0, 0, 0))
+    coor_H_text = arial_font.render("h", 1, (0, 0, 0))
+    coor_1_text = arial_font.render("1", 1, (0, 0, 0))
+    coor_2_text = arial_font.render("2", 1, (0, 0, 0))
+    coor_3_text = arial_font.render("3", 1, (0, 0, 0))
+    coor_4_text= arial_font.render("4", 1, (0, 0, 0))
+    coor_5_text = arial_font.render("5", 1, (0, 0, 0))
+    coor_6_text = arial_font.render("6", 1, (0, 0, 0))
+    coor_7_text= arial_font.render("7", 1, (0, 0, 0))
+    coor_8_text = arial_font.render("8", 1, (0, 0, 0))
     
     EDIT_MODE, PLAY_MODE = 0, 1
     game_mode = EDIT_MODE
@@ -1702,22 +1599,22 @@ def main():
             grid.coordinate[1] = int((Y_GRID_END-y)/Y_GRID_HEIGHT)
     for grid in Grid.grid_list:
         for i in range(ord("a"), ord("h"), 2):
-            for j in range(2,9,2):
+            for j in range(2, 9, 2):
                 if(ord(grid.coordinate[0]) == i and grid.coordinate[1] == j):
                     grid.image = IMAGES["SPR_WHITE_GRID"]
                     grid.color = "white"
         for i in range(ord("b"), ord("i"), 2):
-            for j in range(1,8,2):
+            for j in range(1, 8, 2):
                 if(ord(grid.coordinate[0]) == i and grid.coordinate[1] == j):
                     grid.image = IMAGES["SPR_WHITE_GRID"]
                     grid.color = "white"
         for i in range(ord("a"), ord("h"), 2):
-            for j in range(1,8,2):
+            for j in range(1, 8, 2):
                 if(ord(grid.coordinate[0]) == i and grid.coordinate[1] == j):
                     grid.image = IMAGES["SPR_GREEN_GRID"]
                     grid.color = "green"
         for i in range(ord("b"), ord("i"), 2):
-            for j in range(2,9,2):
+            for j in range(2, 9, 2):
                 if(ord(grid.coordinate[0]) == i and grid.coordinate[1] == j):
                     grid.image = IMAGES["SPR_GREEN_GRID"]
                     grid.color = "green"
@@ -1944,7 +1841,7 @@ def main():
                             PlayRook(placed_white_rook.rect.topleft, PLAY_SPRITES, "white")
                         for placed_white_queen in PlacedQueen.white_queen_list:
                             PlayQueen(placed_white_queen.rect.topleft, PLAY_SPRITES, "white")    
-                        for placed_white_king in PlacedPawn.white_king_list:
+                        for placed_white_king in PlacedKing.white_king_list:
                             PlayKing(placed_white_king.rect.topleft, PLAY_SPRITES, "white")
                         for placed_black_pawn in PlacedPawn.black_pawn_list:
                             PlayPawn(placed_black_pawn.rect.topleft, PLAY_SPRITES, "black")
@@ -1956,7 +1853,7 @@ def main():
                             PlayRook(placed_black_rook.rect.topleft, PLAY_SPRITES, "black")
                         for placed_black_queen in PlacedQueen.black_queen_list:
                             PlayQueen(placed_black_queen.rect.topleft, PLAY_SPRITES, "black")    
-                        for placed_black_king in PlacedPawn.black_king_list:
+                        for placed_black_king in PlacedKing.black_king_list:
                             PlayKing(placed_black_king.rect.topleft, PLAY_SPRITES, "black")
                                 
                     #################
@@ -2072,30 +1969,28 @@ def main():
             START_SPRITES.update()
             PLACED_SPRITES.update()
             PLAY_SPRITES.update()
-            GAME_MODE_SPRITES.draw(SCREEN)
             SCREEN.fill(COLORKEY)
+            GAME_MODE_SPRITES.draw(SCREEN)
+            GRID_SPRITES.draw(SCREEN)
             if(game_mode == EDIT_MODE): #Only draw placed sprites in editing mode
-                GRID_SPRITES.draw(SCREEN)
                 START_SPRITES.draw(SCREEN)
-                PLACED_SPRITES.draw(SCREEN)
+                PLACED_SPRITES.draw(SCREEN)    
             elif(game_mode == PLAY_MODE): #Only draw play sprites in play mode
-                GRID_SPRITES.draw(SCREEN)
                 PLAY_SPRITES.draw(SCREEN)
             # Board Coordinates Drawing
             coor_letter_text_list = [coor_A_text, coor_B_text, coor_C_text, coor_D_text, coor_E_text, coor_F_text, coor_G_text, coor_H_text]
             for text in range(0,len(coor_letter_text_list)):
-                SCREEN.blit(coor_letter_text_list[text], (X_GRID_START+X_GRID_WIDTH/3+(X_GRID_WIDTH*text),Y_GRID_START-(Y_GRID_HEIGHT*0.75)))
-                SCREEN.blit(coor_letter_text_list[text], (X_GRID_START+X_GRID_WIDTH/3+(X_GRID_WIDTH*text),Y_GRID_END+(Y_GRID_HEIGHT*0.25)))
+                SCREEN.blit(coor_letter_text_list[text], (X_GRID_START+X_GRID_WIDTH/3+(X_GRID_WIDTH*text), Y_GRID_START-(Y_GRID_HEIGHT*0.75)))
+                SCREEN.blit(coor_letter_text_list[text], (X_GRID_START+X_GRID_WIDTH/3+(X_GRID_WIDTH*text), Y_GRID_END+(Y_GRID_HEIGHT*0.25)))
             coor_number_text_list = [coor_8_text, coor_7_text, coor_6_text, coor_5_text, coor_4_text, coor_3_text, coor_2_text, coor_1_text]
             for text in range(0,len(coor_number_text_list)):
-                SCREEN.blit(coor_number_text_list[text], (X_GRID_START-X_GRID_WIDTH/2,Y_GRID_START+Y_GRID_HEIGHT/4+(Y_GRID_HEIGHT*text)))
-                SCREEN.blit(coor_number_text_list[text], (X_GRID_END+X_GRID_WIDTH/3,Y_GRID_START+Y_GRID_HEIGHT/4+(Y_GRID_HEIGHT*text)))
+                SCREEN.blit(coor_number_text_list[text], (X_GRID_START-X_GRID_WIDTH/2, Y_GRID_START+Y_GRID_HEIGHT/4+(Y_GRID_HEIGHT*text)))
+                SCREEN.blit(coor_number_text_list[text], (X_GRID_END+X_GRID_WIDTH/3, Y_GRID_START+Y_GRID_HEIGHT/4+(Y_GRID_HEIGHT*text)))
             if(game_mode == PLAY_MODE):
-                whose_turn_text = arialFont.render(WHOSETURN + "'s move to turn", 1, (0,0,0))
-                pin_check_text = arialFont.render(CHECKTEXT, 1, (0,0,0))
+                whose_turn_text = arial_font.render(WHOSETURN + "'s move to turn", 1, (0, 0, 0))
+                pin_check_text = arial_font.render(CHECKTEXT, 1, (0, 0, 0))
                 SCREEN.blit(whose_turn_text, (X_GRID_END+X_GRID_WIDTH, SCREEN_HEIGHT/2))
                 SCREEN.blit(pin_check_text, (X_GRID_END+X_GRID_WIDTH, 200))
-            pygame.display.flip()
             pygame.display.update()
         elif state == DEBUG:
             if debug_message == 1:
