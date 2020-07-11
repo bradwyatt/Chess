@@ -24,9 +24,9 @@ import datetime
 
 #Grouping Images and Sounds
 STARTPOS = {'white_pawn': (480, 390), 'white_bishop':(480, 340), 'white_knight':(480, 290),
-             'white_rook':(480, 240), 'white_queen':(480, 190), 'white_king':(480, 140),
-             'black_pawn': (540, 390), 'black_bishop':(540, 340), 'black_knight':(540, 290),
-             'black_rook':(540, 240), 'black_queen':(540, 190), 'black_king':(540, 140)}
+            'white_rook':(480, 240), 'white_queen':(480, 190), 'white_king':(480, 140),
+            'black_pawn': (540, 390), 'black_bishop':(540, 340), 'black_knight':(540, 290),
+            'black_rook':(540, 240), 'black_queen':(540, 190), 'black_king':(540, 140)}
 IMAGES = {}
 SOUNDS = {}
 SCREEN_WIDTH, SCREEN_HEIGHT = 936, 650
@@ -537,7 +537,7 @@ def queen_move(piece, col):
     """
             
 class InfoScreen():
-    def __init__(self,screen):
+    def __init__(self, screen):
         self.screen = screen
         self.title = INFO_SCREEN
         self.clock = pygame.time.Clock()
