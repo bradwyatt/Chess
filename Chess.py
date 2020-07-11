@@ -13,13 +13,18 @@ Checkmate
 Reset button for reset the board
 Customized Turns for black and white
 """
-import pygame, random, sys, ast, os
-from pygame.constants import RLEACCEL
-from pygame.locals import *
+import random
+import sys
+import os
+import copy
 import tkinter as tk
 from tkinter.colorchooser import askcolor
 from tkinter.filedialog import *
-from ast import literal_eval
+from ast import *
+import pygame
+from pygame.constants import RLEACCEL
+from pygame.locals import (KEYDOWN, MOUSEBUTTONDOWN, MOUSEBUTTONUP, K_LEFT,
+                           K_RIGHT, QUIT, K_ESCAPE)
 import datetime
 
 #Grouping Images and Sounds
@@ -1069,7 +1074,6 @@ class PlayPawn(pygame.sprite.Sprite):
             self.image = IMAGES["SPR_WHITE_PAWN"]
         elif(self.color == "black"):
             self.image = IMAGES["SPR_BLACK_PAWN"]
-        print("selfcolor: " + str(self.color))
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         PLAY_SPRITES.add(self)
