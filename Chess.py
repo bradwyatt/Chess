@@ -193,7 +193,7 @@ def save_file(colorkey):
             save_file_name.close()
             print("File Saved Successfully.")
         else:
-            print("Error! Need player and door to save!")
+            print("Error! Need king to save!")
     except IOError:
         print("Save File Error, please restart game and try again.")
 
@@ -484,7 +484,7 @@ def rook_move(piece, col):
 """
 
 def bishop_move(piece, col):
-    try:
+    def south_west():
         for i in range(1,8): #southwest
             for grid in Grid.grid_list:
                 if ord(grid.coordinate[0]) == ord(piece.coordinate[0])-i and grid.coordinate[1] == piece.coordinate[1]-i and grid.occupied == 0:
@@ -492,10 +492,9 @@ def bishop_move(piece, col):
                 elif ord(grid.coordinate[0]) == ord(piece.coordinate[0])-i and grid.coordinate[1] == piece.coordinate[1]-i and grid.occupied == 1:
                     if(grid.occupied_piece_color != col): # Highlights when enemy piece in path
                         grid.highlight()
-                    raise
-    except:
-        print("whatever")
-    try:
+                    return
+    south_west()
+    def north_west():
         for i in range(1,8): #northwest
             for grid in Grid.grid_list:
                 if ord(grid.coordinate[0]) == ord(piece.coordinate[0])-i and grid.coordinate[1] == piece.coordinate[1]+i and grid.occupied == 0:
@@ -503,10 +502,9 @@ def bishop_move(piece, col):
                 elif ord(grid.coordinate[0]) == ord(piece.coordinate[0])-i and grid.coordinate[1] == piece.coordinate[1]+i and grid.occupied == 1:
                     if(grid.occupied_piece_color != col): # Highlights when enemy piece in path
                         grid.highlight()
-                    raise
-    except:
-        print("whatever")
-    try:
+                    return
+    north_west()
+    def south_west():
         for i in range(1,8): #southwest
             for grid in Grid.grid_list:
                 if ord(grid.coordinate[0]) == ord(piece.coordinate[0])+i and grid.coordinate[1] == piece.coordinate[1]-i and grid.occupied == 0:
@@ -514,10 +512,9 @@ def bishop_move(piece, col):
                 elif ord(grid.coordinate[0]) == ord(piece.coordinate[0])+i and grid.coordinate[1] == piece.coordinate[1]-i and grid.occupied == 1:
                     if(grid.occupied_piece_color != col): # Highlights when enemy piece in path
                         grid.highlight()
-                    raise
-    except:
-        print("whatever")
-    try:
+                    return
+    south_west()
+    def north_east():
         for i in range(1,8): #northeast
             for grid in Grid.grid_list:
                 if ord(grid.coordinate[0]) == ord(piece.coordinate[0])+i and grid.coordinate[1] == piece.coordinate[1]+i and grid.occupied == 0:
@@ -525,9 +522,8 @@ def bishop_move(piece, col):
                 elif ord(grid.coordinate[0]) == ord(piece.coordinate[0])+i and grid.coordinate[1] == piece.coordinate[1]+i and grid.occupied == 1:
                     if(grid.occupied_piece_color != col): # Highlights when enemy piece in path
                         grid.highlight()
-                    raise
-    except:
-        print("whatever")
+                    return
+    north_east()
     
 def queen_move(piece, col):
     pass
@@ -588,44 +584,6 @@ class StartBlankBox(pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_KING"]
         else:
             self.image = IMAGES["SPR_BLANKBOX"]
-
-"""
-class PlacedObjects(pygame.sprite.Sprite):
-    def __init__(self, classname, PLACED_SPRITES):
-        pygame.sprite.Sprite.__init__(self)
-        self.classname = classname
-        if(self.classname == "white_pawn"):
-            self.image = IMAGES["sprwhite_pawn"]
-        elif(self.classname == "white_bishop"):
-            self.image = IMAGES["SPR_WHITE_BISHOP"]
-        elif(self.classname == "white_knight"):
-            self.image = IMAGES["SPR_WHITE_KNIGHT"]
-        elif(self.classname == "white_rook"):
-            self.image = IMAGES["SPR_WHITE_ROOK"]
-        elif(self.classname == "white_queen"):
-            self.image = IMAGES["SPR_WHITE_QUEEN"]
-        elif(self.classname == "white_king"):
-            self.image = IMAGES["SPR_WHITE_KING"]
-        elif(self.classname == "black_pawn"):
-            self.image = IMAGES["SPR_BLACK_PAWN"]
-        elif(self.classname == "black_bishop"):
-            self.image = IMAGES["SPR_BLACK_BISHOP"]
-        elif(self.classname == "black_knight"):
-            self.image = IMAGES["SPR_BLACK_KNIGHT"]
-        elif(self.classname == "black_rook"):
-            self.image = IMAGES["SPR_BLACK_ROOK"]
-        elif(self.classname == "black_queen"):
-            self.image = IMAGES["SPR_BLACK_QUEEN"]
-        elif(self.classname == "black_king"):
-            self.image = IMAGES["SPR_BLACK_KING"]
-        self.rect = self.image.get_rect()
-        PLACED_SPRITES.add(self)
-        self.coordinate = ['z', 0]  # Starts as this
-    def update(self):
-        for grid in Grid.grid_list:
-            if self.rect.colliderect(grid):
-                self.coordinate = grid.coordinate
-"""
              
 class PlacedPawn(pygame.sprite.Sprite):
     white_pawn_list = []
@@ -1178,7 +1136,7 @@ class Grid(pygame.sprite.Sprite):
         self.rect.topleft = pos
         GRID_SPRITES.add(self)
         self.coordinate = coordinate
-        self.highlighted = True
+        self.highlighted = False
         self.occupied = False
         self.color = None
         self.occupied_piece_color = ""
@@ -1643,7 +1601,8 @@ def main():
                     if event.key == pygame.K_SPACE:
                         debug_message = 1
                         state = DEBUG
-                if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and MOUSEPOS[0] > X_GRID_END: #DRAG (only for menu and inanimate buttons at top)
+                #DRAG (only for menu and inanimate buttons at top)
+                if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and MOUSEPOS[0] > X_GRID_END:
                     if game_mode == EDIT_MODE: #Checks if in Editing Mode
                         #BUTTONS
                         if COLOR_BUTTON.rect.collidepoint(MOUSEPOS):
@@ -1756,7 +1715,7 @@ def main():
                                            PlayKnight.black_knight_list, PlayRook.black_rook_list, 
                                            PlayQueen.black_queen_list, PlayKing.black_king_list]:
                             for piece in piece_list:
-                                if (grid.rect.collidepoint(MOUSEPOS) and grid.highlighted==True and piece.select == 1):
+                                if (grid.rect.collidepoint(MOUSEPOS) and grid.highlighted==True and piece.select == True):
                                     # Taking a piece by checking if highlighted grid is opposite color of piece
                                     # And iterating through all pieces to check if coordinates of that grid
                                     # are the same as any of the pieces
@@ -1789,7 +1748,7 @@ def main():
                                            PlayQueen.white_queen_list, PlayKing.white_king_list]:
                             for piece in piece_list:
                                 # Selects piece
-                                if (piece.rect.collidepoint(MOUSEPOS) and piece.select == 0):
+                                if (piece.rect.collidepoint(MOUSEPOS) and piece.select == False):
                                     clicked_piece = piece
                                 else:
                                     # Unselects piece
@@ -1802,7 +1761,7 @@ def main():
                                            PlayKnight.black_knight_list, PlayRook.black_rook_list, 
                                            PlayQueen.black_queen_list, PlayKing.black_king_list]:
                             for piece in piece_list:
-                                if (piece.rect.collidepoint(MOUSEPOS) and piece.select == 0):
+                                if (piece.rect.collidepoint(MOUSEPOS) and piece.select == False):
                                     clicked_piece = piece
                                 else:
                                     piece.no_highlight()
