@@ -1167,6 +1167,7 @@ class Grid(pygame.sprite.Sprite):
         self.coordinate = coordinate
         self.highlighted = False
         self.occupied = False
+        self.placed_occupied = False
         self.color = None
         self.occupied_piece_color = ""
         self.occ_king = False
@@ -1710,31 +1711,44 @@ def main():
                 elif (event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and
                       MOUSEPOS[0] > X_GRID_START and MOUSEPOS[0] < X_GRID_END and
                       MOUSEPOS[1] > Y_GRID_START and MOUSEPOS[1] < Y_GRID_END): 
-                    if DRAGGING.white_pawn:
-                        PlacedPawn(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
-                    elif DRAGGING.white_bishop:
-                        PlacedBishop(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
-                    elif DRAGGING.white_knight:
-                        PlacedKnight(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
-                    elif DRAGGING.white_rook:
-                        PlacedRook(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
-                    elif DRAGGING.white_queen:
-                        PlacedQueen(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
-                    elif DRAGGING.white_king:
-                        PlacedKing(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
-                    elif DRAGGING.black_pawn:
-                        PlacedPawn(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
-                    elif DRAGGING.black_bishop:
-                        PlacedBishop(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
-                    elif DRAGGING.black_knight:
-                        PlacedKnight(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
-                    elif DRAGGING.black_rook:
-                        PlacedRook(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
-                    elif DRAGGING.black_queen:
-                        PlacedQueen(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
-                    elif DRAGGING.black_king:
-                        PlacedKing(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
-                    
+                    def dragging_to_placed_no_dups():
+                        for piece_list in [PlacedPawn.white_pawn_list, PlacedBishop.white_bishop_list, 
+                                           PlacedKnight.white_knight_list, PlacedRook.white_rook_list, 
+                                           PlacedQueen.white_queen_list, PlacedKing.white_king_list,
+                                           PlacedPawn.black_pawn_list, PlacedBishop.black_bishop_list, 
+                                           PlacedKnight.black_knight_list, PlacedRook.black_rook_list, 
+                                           PlacedQueen.black_queen_list, PlacedKing.black_king_list]:
+                            # If there is already a piece on grid then don't create new Placed object
+                            for piece in piece_list:
+                                if piece.rect.topleft == snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE):
+                                    return
+                        if DRAGGING.white_pawn:
+                            PlacedPawn(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
+                        elif DRAGGING.white_bishop:
+                            PlacedBishop(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
+                        elif DRAGGING.white_knight:
+                            PlacedKnight(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
+                        elif DRAGGING.white_rook:
+                            PlacedRook(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
+                        elif DRAGGING.white_queen:
+                            PlacedQueen(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
+                        elif DRAGGING.white_king:
+                            PlacedKing(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
+                        elif DRAGGING.black_pawn:
+                            PlacedPawn(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
+                        elif DRAGGING.black_bishop:
+                            PlacedBishop(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
+                        elif DRAGGING.black_knight:
+                            PlacedKnight(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
+                        elif DRAGGING.black_rook:
+                            PlacedRook(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
+                        elif DRAGGING.black_queen:
+                            PlacedQueen(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
+                        elif DRAGGING.black_king:
+                            PlacedKing(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
+                        
+                    dragging_to_placed_no_dups()
+                                
                     # Moves piece
                     for grid in Grid.grid_list:
                         for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
