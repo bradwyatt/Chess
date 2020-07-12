@@ -1098,6 +1098,12 @@ class PlayPawn(pygame.sprite.Sprite):
         elif(self.color == "black"):
             self.image = IMAGES["SPR_BLACK_PAWN_HIGHLIGHTED"]
         self.select = 1
+    def no_highlight(self):
+        if(self.color == "white"):
+            self.image = IMAGES["SPR_WHITE_PAWN"]
+        elif(self.color == "black"):
+            self.image = IMAGES["SPR_BLACK_PAWN"]
+        self.select = 0
     def projected(self):
         if(self.pinned == False):
             if(self.color == "white"):
@@ -1131,13 +1137,7 @@ class PlayPawn(pygame.sprite.Sprite):
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-1 and \
                     grid.occ_white_or_black == "white"):
                         grid.highlight()
-    def no_highlight(self):
-        if(self.color == "white"):
-            self.image = IMAGES["SPR_WHITE_PAWN"]
-        elif(self.color == "black"):
-            self.image = IMAGES["SPR_BLACK_PAWN"]
-        self.select = 0
-            
+
 class PlayEditSwitchButton(pygame.sprite.Sprite):
     def __init__(self, pos, GAME_MODE_SPRITES):
         pygame.sprite.Sprite.__init__(self)
@@ -1792,6 +1792,8 @@ def main():
                             for piece in piece_list:
                                 if (grid.rect.collidepoint(MOUSEPOS) and grid.highlighted==1 and piece.select == 1):
                                     piece.rect.topleft = grid.rect.topleft
+                                    piece.no_highlight()
+                                    grid.no_highlight()
                                     if(WHOSETURN == WHITE_TO_MOVE):
                                         WHOSETURN = BLACK_TO_MOVE
                                     elif(WHOSETURN == BLACK_TO_MOVE):
@@ -1825,6 +1827,7 @@ def main():
         
                     if clicked_piece is not None:
                         # Just do this last, since we know only one piece will be selected
+                        print("clickpiece " + str(datetime.datetime.now()))
                         clicked_piece.highlight()
                         clicked_piece.projected()
                         clicked_piece = None
