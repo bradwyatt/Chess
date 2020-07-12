@@ -793,20 +793,20 @@ class PlayBishop(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         PLAY_SPRITES.add(self)
         self.coordinate = ['z', 0] #blank coordinate, will change once it updates
-        self.select = 0
+        self.select = False
         self.pinned = False
     def update(self):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
                 self.coordinate = grid.coordinate
-        if(self.select == 0): # Projected Spaces Attacked
+        if(self.select == False): # Projected Spaces Attacked
             bishop_projected(self, self.color)
     def highlight(self):
         if(self.color == "white"):
             self.image = IMAGES["SPR_WHITE_BISHOP_HIGHLIGHTED"]
         elif(self.color == "black"):
             self.image = IMAGES["SPR_BLACK_BISHOP_HIGHLIGHTED"]
-        self.select = 1
+        self.select = True
     def projected(self):
         if(self.pinned == False):
             bishop_move(self, self.color)
@@ -815,7 +815,7 @@ class PlayBishop(pygame.sprite.Sprite):
             self.image = IMAGES["SPR_WHITE_BISHOP"]
         elif(self.color == "black"):
             self.image = IMAGES["SPR_BLACK_BISHOP"]
-        self.select = 0
+        self.select = False
         
 class PlayKnight(pygame.sprite.Sprite):
     white_knight_list = []
@@ -832,7 +832,7 @@ class PlayKnight(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         PLAY_SPRITES.add(self)
         self.coordinate = ['z', 0] #blank coordinate, will change once it updates
-        self.select = 0
+        self.select = False
         self.pinned = False
     def update(self):
         for grid in Grid.grid_list:
@@ -843,7 +843,7 @@ class PlayKnight(pygame.sprite.Sprite):
             self.image = IMAGES["SPR_WHITE_KNIGHT_HIGHLIGHTED"]
         elif(self.color == "black"):
             self.image = IMAGES["SPR_BLACK_KNIGHT_HIGHLIGHTED"]
-        self.select = 1
+        self.select = True
     def projected(self):
         if(self.pinned == False):
             for grid in Grid.grid_list:
@@ -868,7 +868,7 @@ class PlayKnight(pygame.sprite.Sprite):
             self.image = IMAGES["SPR_WHITE_KNIGHT"]
         elif(self.color == "black"):
             self.image = IMAGES["SPR_BLACK_KNIGHT"]
-        self.select = 0
+        self.select = False
         
 class PlayRook(pygame.sprite.Sprite):
     white_rook_list = []
@@ -887,13 +887,13 @@ class PlayRook(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         PLAY_SPRITES.add(self)
         self.coordinate = ['z', 0] #blank coordinate, will change once it updates
-        self.select = 0
+        self.select = False
         self.pinned = False
     def update(self):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
                 self.coordinate = grid.coordinate
-        if(self.select == 0): # Projected Spaces Attacked
+        if(self.select == False): # Projected Spaces Attacked
             rook_projected(self, self.color)
     def move_square(self, coordinate_parameter, castle=False):
         if castle == False:
@@ -917,7 +917,7 @@ class PlayRook(pygame.sprite.Sprite):
             self.image = IMAGES["SPR_WHITE_ROOK_HIGHLIGHTED"]
         elif(self.color == "black"):
             self.image = IMAGES["SPR_BLACK_ROOK_HIGHLIGHTED"]
-        self.select = 1
+        self.select = True
     def projected(self):
         # Try and Except for each direction
         if(self.pinned == False):
@@ -927,7 +927,7 @@ class PlayRook(pygame.sprite.Sprite):
             self.image = IMAGES["SPR_WHITE_ROOK"]
         elif(self.color == "black"):
             self.image = IMAGES["SPR_BLACK_ROOK"]
-        self.select = 0
+        self.select = False
 
 class PlayQueen(pygame.sprite.Sprite):
     white_queen_list = []
@@ -944,7 +944,7 @@ class PlayQueen(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         PLAY_SPRITES.add(self)
         self.coordinate = ['z', 0] #blank coordinate, will change once it updates
-        self.select = 0
+        self.select = False
         self.pinned = False
     def update(self):
         for grid in Grid.grid_list:
@@ -955,7 +955,7 @@ class PlayQueen(pygame.sprite.Sprite):
             self.image = IMAGES["SPR_WHITE_QUEEN_HIGHLIGHTED"]
         if(self.color == "black"):
             self.image = IMAGES["SPR_BLACK_QUEEN_HIGHLIGHTED"]
-        self.select = 1
+        self.select = True
     def projected(self):
         if(self.pinned == False):
             queen_move(self, self.color)
@@ -964,7 +964,7 @@ class PlayQueen(pygame.sprite.Sprite):
             self.image = IMAGES["SPR_WHITE_QUEEN"]
         if(self.color == "black"):
             self.image = IMAGES["SPR_BLACK_QUEEN"]
-        self.select = 0
+        self.select = False
 
 class PlayKing(pygame.sprite.Sprite):
     white_king_list = []
@@ -981,7 +981,7 @@ class PlayKing(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         PLAY_SPRITES.add(self)
         self.coordinate = ['z', 0] #blank coordinate, will change once it updates
-        self.select = 0
+        self.select = False
         self.left_castle_ability = 0
         self.right_castle_ability = 0
         self.right_clear_way = [0, 0]
@@ -1086,7 +1086,7 @@ class PlayPawn(pygame.sprite.Sprite):
         self.rect.topleft = pos
         PLAY_SPRITES.add(self)
         self.coordinate = ['z', 0] #blank coordinate, will change once it updates
-        self.select = 0
+        self.select = False
         self.pinned = False
     def update(self):
         for grid in Grid.grid_list:
@@ -1097,13 +1097,13 @@ class PlayPawn(pygame.sprite.Sprite):
             self.image = IMAGES["SPR_WHITE_PAWN_HIGHLIGHTED"]
         elif(self.color == "black"):
             self.image = IMAGES["SPR_BLACK_PAWN_HIGHLIGHTED"]
-        self.select = 1
+        self.select = True
     def no_highlight(self):
         if(self.color == "white"):
             self.image = IMAGES["SPR_WHITE_PAWN"]
         elif(self.color == "black"):
             self.image = IMAGES["SPR_BLACK_PAWN"]
-        self.select = 0
+        self.select = False
     def projected(self):
         if(self.pinned == False):
             if(self.color == "white"):
@@ -1111,11 +1111,11 @@ class PlayPawn(pygame.sprite.Sprite):
                     # Move one space up
                     if (grid.coordinate[0] == self.coordinate[0] and \
                         grid.coordinate[1] == self.coordinate[1]+1 and \
-                        grid.occupied == 0): 
+                        grid.occupied == False): 
                         grid.highlight()
                     # Move two spaces up
                     if (self.coordinate[1] == 2 and grid.coordinate[0] == self.coordinate[0] and \
-                        grid.coordinate[1] == 4 and grid.occupied == 0):
+                        grid.coordinate[1] == 4 and grid.occupied == False):
                         grid.highlight()
                     # Enemy pieces
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]+1 and \
@@ -1128,11 +1128,11 @@ class PlayPawn(pygame.sprite.Sprite):
                 for grid in Grid.grid_list:
                     # Move one space up
                     if (grid.coordinate[0] == self.coordinate[0] and grid.coordinate[1] == self.coordinate[1]-1 and \
-                        grid.occupied == 0): 
+                        grid.occupied == False): 
                         grid.highlight()
                     # Move two spaces up
                     if (self.coordinate[1] == 7 and grid.coordinate[0] == self.coordinate[0] and \
-                        grid.coordinate[1] == 5 and grid.occupied == 0):
+                        grid.coordinate[1] == 5 and grid.occupied == False):
                         grid.highlight()
                     # Enemy pieces
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-1 and \
@@ -1158,26 +1158,35 @@ class PlayEditSwitchButton(pygame.sprite.Sprite):
     
 class Grid(pygame.sprite.Sprite):
     grid_list = []
-    def __init__(self, GRID_SPRITES):
+    def __init__(self, GRID_SPRITES, pos, coordinate):
         pygame.sprite.Sprite.__init__(self)
-        self.image = IMAGES["SPR_GRID"]
+        self.image = IMAGES["SPR_GRID"] # Default
         self.rect = self.image.get_rect()
+        self.rect.topleft = pos
         GRID_SPRITES.add(self)
-        self.coordinate = ["z", 0] #Default, Must be changed
-        self.highlighted = 0
-        self.occupied = 0
+        self.coordinate = coordinate
+        self.highlighted = True
+        self.occupied = False
         self.color = None
         self.occ_white_or_black = ""
-        self.occ_king = 0
+        self.occ_king = False
         Grid.grid_list.append(self)
     def update(self):
-        pass
+        def grid_func():
+            for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
+                               PlayKnight.white_knight_list, PlayRook.white_rook_list, 
+                               PlayQueen.white_queen_list, PlayKing.white_king_list,
+                               PlayPawn.black_pawn_list, PlayBishop.black_bishop_list,
+                               PlayKnight.black_knight_list, PlayRook.black_rook_list,
+                               PlayQueen.black_queen_list, PlayKing.black_king_list]:
+                for piece in piece_list:
+                    if self.rect.topleft == piece.rect.topleft:
+                        self.occupied = True
+                        return
+            else:
+                self.occupied = False
+        grid_func()
     """
-        global SCREEN_HEIGHT, SCREEN_WIDTH
-        if self.rect.bottom > SCREEN_HEIGHT:
-            START_SPRITES.remove(self)
-        if self.rect.right > SCREEN_WIDTH:
-            START_SPRITES.remove(self)
         if(self.occupied == 1):
             self.piece_captured("white", "black", play.white_list) # White piece stays
             self.piece_captured("black", "white", play.black_list) # Black piece stays
@@ -1225,13 +1234,13 @@ class Grid(pygame.sprite.Sprite):
     """
     def highlight(self):
         self.image = IMAGES["SPR_HIGHLIGHT"]
-        self.highlighted = 1
+        self.highlighted = True
     def no_highlight(self):
         if(self.color == "green"):
             self.image = IMAGES["SPR_GREEN_GRID"]
         elif(self.color == "white"):
             self.image = IMAGES["SPR_WHITE_GRID"]
-        self.highlighted = 0
+        self.highlighted = False
             
 class ClearButton(pygame.sprite.Sprite):
     def __init__(self, pos):
@@ -1404,14 +1413,6 @@ class StartKing(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
     def update(self):
         pass
-
-def restart(color_to_move):
-    global WHOSETURN
-    WHOSETURN = color_to_move # DEFAULT TURN
-    # Resets grid
-    for grid in Grid.grid_list:
-        grid.no_highlight()
-        grid.occupied = 0
             
 # Returns the tuples of each objects' positions within all classes
 def get_dict_rect_positions():
@@ -1466,6 +1467,8 @@ def remove_all_play():
     PlayKnight.black_knight_list = []
     PlayQueen.black_queen_list = []
     PlayKing.black_king_list = []
+    for grid in Grid.grid_list:
+        grid.no_highlight()
 
 def main():    
     #Tk box for color
@@ -1609,10 +1612,9 @@ def main():
     # Creates grid
     for x in range(X_GRID_START, X_GRID_END, X_GRID_WIDTH): 
         for y in range(Y_GRID_START, Y_GRID_END, Y_GRID_HEIGHT): 
-            grid = Grid(GRID_SPRITES)
-            grid.rect.topleft = x, y
-            grid.coordinate[0] = chr(int((x-X_GRID_START)/X_GRID_WIDTH)+97)
-            grid.coordinate[1] = int((Y_GRID_END-y)/Y_GRID_HEIGHT)
+            grid_pos = x, y
+            grid_coordinate = [chr(int((x-X_GRID_START)/X_GRID_WIDTH)+97), int((Y_GRID_END-y)/Y_GRID_HEIGHT)]
+            grid = Grid(GRID_SPRITES, grid_pos, grid_coordinate)
     for grid in Grid.grid_list:
         for i in range(ord("a"), ord("h"), 2):
             for j in range(2, 9, 2):
@@ -1794,8 +1796,9 @@ def main():
                                            PlayKnight.black_knight_list, PlayRook.black_rook_list, 
                                            PlayQueen.black_queen_list, PlayKing.black_king_list]:
                             for piece in piece_list:
-                                if (grid.rect.collidepoint(MOUSEPOS) and grid.highlighted==1 and piece.select == 1):
+                                if (grid.rect.collidepoint(MOUSEPOS) and grid.highlighted==True and piece.select == 1):
                                     piece.rect.topleft = grid.rect.topleft
+                                    grid.occupied = True
                                     piece.no_highlight()
                                     grid.no_highlight()
                                     if(WHOSETURN == WHITE_TO_MOVE):
@@ -1804,6 +1807,7 @@ def main():
                                         WHOSETURN = WHITE_TO_MOVE
     
                     clicked_piece = None
+                    # Selecting and unselecting white pieces
                     if WHOSETURN == WHITE_TO_MOVE:
                         for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                                            PlayKnight.white_knight_list, PlayRook.white_rook_list, 
@@ -1817,6 +1821,7 @@ def main():
                                     piece.no_highlight()
                                     for grid in Grid.grid_list:
                                         grid.no_highlight()
+                    # Selecting and unselecting black pieces
                     elif WHOSETURN == BLACK_TO_MOVE:
                         for piece_list in [PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
                                            PlayKnight.black_knight_list, PlayRook.black_rook_list, 
@@ -1828,10 +1833,8 @@ def main():
                                     piece.no_highlight()
                                     for grid in Grid.grid_list:
                                         grid.no_highlight()
-        
+                    # Just do this last, since we know only one piece will be selected
                     if clicked_piece is not None:
-                        # Just do this last, since we know only one piece will be selected
-                        print("clickpiece " + str(datetime.datetime.now()))
                         clicked_piece.highlight()
                         clicked_piece.projected()
                         clicked_piece = None
@@ -1855,7 +1858,7 @@ def main():
                         # Makes clicking play again unclickable    
                         game_mode = PLAY_MODE
                         PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(game_mode)  
-                        restart(WHITE_TO_MOVE)
+                        WHOSETURN = WHITE_TO_MOVE
                         print("Play Mode Activated")
     
                         for placed_white_pawn in PlacedPawn.white_pawn_list:
@@ -1905,7 +1908,7 @@ def main():
                 if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[1]:
                     for grid in Grid.grid_list:
                         if grid.rect.collidepoint(MOUSEPOS):
-                            print(grid.coordinate)
+                            print("Coordinate: " + str(grid.coordinate) + " and Occupied: " + str(grid.occupied))
                             
             ##################
             # ALL EDIT ACTIONS
@@ -1999,6 +2002,7 @@ def main():
             SCREEN.fill(COLORKEY)
             GAME_MODE_SPRITES.draw(SCREEN)
             GRID_SPRITES.draw(SCREEN)
+            GRID_SPRITES.update()
             if(game_mode == EDIT_MODE): #Only draw placed sprites in editing mode
                 START_SPRITES.draw(SCREEN)
                 PLACED_SPRITES.draw(SCREEN)    
