@@ -97,6 +97,7 @@ def remove_placed_object(PLACED_SPRITES, mousepos):
                 placed_item_list.remove(placed_item)
     return PLACED_SPRITES
 
+
 def restart_start_objects(START):
     START.white_pawn.rect.topleft = STARTPOS['white_pawn']
     START.white_bishop.rect.topleft = STARTPOS['white_bishop']
@@ -601,8 +602,11 @@ class PlacedPawn(pygame.sprite.Sprite):
             PlacedPawn.black_pawn_list.append(self)
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
+        self.coordinate = None
     def update(self):
-        pass
+        for grid in Grid.grid_list:
+            if self.rect.colliderect(grid):
+                self.coordinate = grid.coordinate
     def destroy(self):
         if self.col == "white":
             PlacedPawn.white_pawn_list.remove(self)
@@ -626,8 +630,11 @@ class PlacedBishop(pygame.sprite.Sprite):
             PlacedBishop.black_bishop_list.append(self)
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
+        self.coordinate = None
     def update(self):
-        pass
+        for grid in Grid.grid_list:
+            if self.rect.colliderect(grid):
+                self.coordinate = grid.coordinate
     def destroy(self):
         if self.col == "white":
             PlacedBishop.white_bishop_list.remove(self)
@@ -651,8 +658,11 @@ class PlacedKnight(pygame.sprite.Sprite):
             PlacedKnight.black_knight_list.append(self)
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
+        self.coordinate = None
     def update(self):
-        pass
+        for grid in Grid.grid_list:
+            if self.rect.colliderect(grid):
+                self.coordinate = grid.coordinate
     def destroy(self):
         if self.col == "white":
             PlacedKnight.white_knight_list.remove(self)
@@ -676,8 +686,11 @@ class PlacedRook(pygame.sprite.Sprite):
             PlacedRook.black_rook_list.append(self)
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
+        self.coordinate = None
     def update(self):
-        pass
+        for grid in Grid.grid_list:
+            if self.rect.colliderect(grid):
+                self.coordinate = grid.coordinate
     def destroy(self):
         if self.col == "white":
             PlacedRook.white_rook_list.remove(self)
@@ -701,8 +714,11 @@ class PlacedQueen(pygame.sprite.Sprite):
             PlacedQueen.black_queen_list.append(self)
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
+        self.coordinate = None
     def update(self):
-        pass
+        for grid in Grid.grid_list:
+            if self.rect.colliderect(grid):
+                self.coordinate = grid.coordinate
     def destroy(self):
         if self.col == "white":
             PlacedQueen.white_queen_list.remove(self)
@@ -726,8 +742,11 @@ class PlacedKing(pygame.sprite.Sprite):
             PlacedKing.black_king_list.append(self)
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
+        self.coordinate = None
     def update(self):
-        pass
+        for grid in Grid.grid_list:
+            if self.rect.colliderect(grid):
+                self.coordinate = grid.coordinate
     def destroy(self):
         if self.col == "white":
             PlacedKing.white_king_list.remove(self)
@@ -839,6 +858,10 @@ class PlayBishop(pygame.sprite.Sprite):
                 self.coordinate = grid.coordinate
         if(self.select == False): # Projected Spaces Attacked
             bishop_projected(self, self.color)
+    def captured(self):
+        self.taken_off_board = True
+        self.coordinate = None
+        self.rect.topleft = 300, 600
     def highlight(self):
         if self.taken_off_board != True:
             if(self.color == "white"):
@@ -860,7 +883,7 @@ class PlayBishop(pygame.sprite.Sprite):
 class PlayKnight(pygame.sprite.Sprite):
     white_knight_list = []
     black_knight_list = []
-    def __init__(self, col, PLAY_SPRITES):
+    def __init__(self, pos, PLAY_SPRITES, col):
         pygame.sprite.Sprite.__init__(self)
         self.color = col
         if(self.color == "white"):
@@ -870,14 +893,20 @@ class PlayKnight(pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_KNIGHT"]
             PlayKnight.black_knight_list.append(self)
         self.rect = self.image.get_rect()
+        self.rect.topleft = pos
         PLAY_SPRITES.add(self)
-        self.coordinate = ['z', 0] #blank coordinate, will change once it updates
+        self.coordinate = None #blank coordinate, will change once it updates
         self.select = False
         self.pinned = False
+        self.taken_off_board = False
     def update(self):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
                 self.coordinate = grid.coordinate
+    def captured(self):
+        self.taken_off_board = True
+        self.coordinate = None
+        self.rect.topleft = 400, 600
     def highlight(self):
         if(self.color == "white"):
             self.image = IMAGES["SPR_WHITE_KNIGHT_HIGHLIGHTED"]
@@ -1473,7 +1502,7 @@ def main():
     load_image("Sprites/Chess/black_bishop.png", "SPR_BLACK_BISHOP", True, True)
     load_image("Sprites/Chess/black_bishop_highlighted.png", "SPR_BLACK_BISHOP_HIGHLIGHTED", True, True)
     load_image("Sprites/Chess/black_knight.png", "SPR_BLACK_KNIGHT", True, True)
-    load_image("Sprites/Chess/black_knight_highlighted.png", "SPR_BLACK_KNIGHT_HIGHLITED", True, True)
+    load_image("Sprites/Chess/black_knight_highlighted.png", "SPR_BLACK_KNIGHT_HIGHLIGHTED", True, True)
     load_image("Sprites/Chess/black_rook.png", "SPR_BLACK_ROOK", True, True)
     load_image("Sprites/Chess/black_rook_highlighted.png", "SPR_BLACK_ROOK_HIGHLIGHTED", True, True)
     load_image("Sprites/Chess/black_queen.png", "SPR_BLACK_QUEEN", True, True)
@@ -1715,7 +1744,7 @@ def main():
                                            PlayKnight.black_knight_list, PlayRook.black_rook_list, 
                                            PlayQueen.black_queen_list, PlayKing.black_king_list]:
                             for piece in piece_list:
-                                if (grid.rect.collidepoint(MOUSEPOS) and grid.highlighted==True and piece.select == True):
+                                if (grid.rect.collidepoint(MOUSEPOS) and grid.highlighted==True and piece.select==True):
                                     # Taking a piece by checking if highlighted grid is opposite color of piece
                                     # And iterating through all pieces to check if coordinates of that grid
                                     # are the same as any of the pieces
