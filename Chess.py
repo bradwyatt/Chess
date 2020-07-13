@@ -994,7 +994,6 @@ class PlayRook(pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_ROOK_HIGHLIGHTED"]
         self.select = True
     def projected(self):
-        # Try and Except for each direction
         if(self.pinned == False):
             rook_move(self, self.color)
     def no_highlight(self):
@@ -1052,7 +1051,7 @@ class PlayQueen(pygame.sprite.Sprite):
 class PlayKing(pygame.sprite.Sprite):
     white_king_list = []
     black_king_list = []
-    def __init__(self, col, PLAY_SPRITES):
+    def __init__(self, pos, PLAY_SPRITES, col):
         pygame.sprite.Sprite.__init__(self)
         self.color = col
         if(self.color == "white"):
@@ -1062,8 +1061,9 @@ class PlayKing(pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_KING"]
             PlayKing.black_king_list.append(self)
         self.rect = self.image.get_rect()
+        self.rect.topleft = pos
         PLAY_SPRITES.add(self)
-        self.coordinate = ['z', 0] #blank coordinate, will change once it updates
+        self.coordinate = None #blank coordinate, will change once it updates
         self.select = False
         self.left_castle_ability = 0
         self.right_castle_ability = 0
@@ -1078,15 +1078,14 @@ class PlayKing(pygame.sprite.Sprite):
             self.right_castle_ability = 2
         elif((self.color == "white" and self.coordinate == ['e', 1]) or (self.color == "black" and self.coordinate == ['e', 8])):
             self.castle_check(self.color)
-    """
     def castle_check(self, color):
         if color == "white":
-            rook_list = play.white_rook_list
+            self.rook_list = PlayRook.white_rook_list
             ranknum = 1
         elif color == "black":
-            rook_list = play.black_rook_list
+            self.rook_list = PlayRook.black_rook_list
             ranknum = 8
-        for rook in rook_list:
+        for rook in self.rook_list:
             if(rook.coordinate == ['h', ranknum]):
                 self.right_clear_way = [0, 0]
                 for i in range(0, len(Grid.grid_list)):
@@ -1121,39 +1120,45 @@ class PlayKing(pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_KING_HIGHLIGHTED"]
         self.select = 1
     def projected(self):
-        # Try and Except for each direction
         for grid in Grid.grid_list:
-            if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-1 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+            if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-1 and \
+                (grid.occupied == 0 or grid.occupied_piece_color != self.color):
                 grid.highlight()
-            if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1] and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+            if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1] and \
+                (grid.occupied == 0 or grid.occupied_piece_color != self.color):
                 grid.highlight()
-            if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]+1 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+            if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]+1 and \
+                (grid.occupied == 0 or grid.occupied_piece_color != self.color):
                 grid.highlight()
-            if ord(grid.coordinate[0]) == ord(self.coordinate[0]) and grid.coordinate[1] == self.coordinate[1]-1 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+            if ord(grid.coordinate[0]) == ord(self.coordinate[0]) and grid.coordinate[1] == self.coordinate[1]-1 and \
+                (grid.occupied == 0 or grid.occupied_piece_color != self.color):
                 grid.highlight()
-            if ord(grid.coordinate[0]) == ord(self.coordinate[0]) and grid.coordinate[1] == self.coordinate[1]+1 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+            if ord(grid.coordinate[0]) == ord(self.coordinate[0]) and grid.coordinate[1] == self.coordinate[1]+1 and \
+                (grid.occupied == 0 or grid.occupied_piece_color != self.color):
                 grid.highlight()
-            if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-1 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+            if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-1 and \
+                (grid.occupied == 0 or grid.occupied_piece_color != self.color):
                 grid.highlight()
-            if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1] and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+            if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1] and \
+                (grid.occupied == 0 or grid.occupied_piece_color != self.color):
                 grid.highlight()
-            if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]+1 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+            if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]+1 and \
+                (grid.occupied == 0 or grid.occupied_piece_color != self.color):
                 grid.highlight()
-            if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and grid.coordinate[1] == self.coordinate[1] and (grid.occupied == 0 or grid.occupied_piece_color != self.color) and
+            if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and grid.coordinate[1] == self.coordinate[1] and \
+                (grid.occupied == 0 or grid.occupied_piece_color != self.color) and
                 self.right_castle_ability == 1 and (self.coordinate[1] == 1 or self.coordinate[1]==8)):
                     grid.highlight()
-            if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-2 and grid.coordinate[1] == self.coordinate[1] and (grid.occupied == 0 or grid.occupied_piece_color != self.color) and
+            if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-2 and grid.coordinate[1] == self.coordinate[1] and \
+                (grid.occupied == 0 or grid.occupied_piece_color != self.color) and
                 self.left_castle_ability == 1 and (self.coordinate[1] == 1 or self.coordinate[1]==8)):
                     grid.highlight()
     def no_highlight(self):
         if(self.color == "white"):
-            self.image = IMAGES["sprWhiteKing"]
+            self.image = IMAGES["SPR_WHITE_KING"]
         elif(self.color == "black"):
-            self.image = IMAGES["sprBlackKing"]
+            self.image = IMAGES["SPR_BLACK_KING"]
         self.select = 0
-    """
-        
-
 
 class PlayEditSwitchButton(pygame.sprite.Sprite):
     def __init__(self, pos, GAME_MODE_SPRITES):
