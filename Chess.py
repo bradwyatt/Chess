@@ -2,10 +2,8 @@
 Chess created by Brad Wyatt
 Python 3
 
-To-Do (short-term):
-
-
 To-Do (long-term):
+Pinning
 Castling (can't do it through check) --> Need to be aware of left and right rook (if they moved or not)
 En Passant
 Check
@@ -72,6 +70,27 @@ def load_image(file, name, transparent, alpha):
         colorkey = new_image.get_at((0, 0))
         new_image.set_colorkey(colorkey, RLEACCEL)
     IMAGES[name] = new_image
+
+class InfoScreen():
+    def __init__(self,screen):
+        self.screen = screen
+        self.title = INFO_SCREEN
+        self.clock = pygame.time.Clock()
+        self.main_loop()
+
+    def main_loop(self):
+        global MENUON
+        while MENUON == 2:
+            self.clock.tick(60)
+            self.screen.blit(self.title, (0, 0))
+            events = pygame.event.get()
+            pygame.display.flip()
+            for event in events:
+                if event.type == QUIT:
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == K_ESCAPE:
+                        MENUON = 1
 
 def snap_to_grid(pos, x_range, y_range):
     best_num_X, best_num_Y = x_range[0], y_range[0] #So Y doesn't go above the menu
@@ -205,27 +224,26 @@ def quit():
     sys.exit()
 
 def deactivate_piece(coord, pin):
-    pass
-    """
     #pin parameter determines whether we want pinned piece to be able to move
     for grid in Grid.grid_list:
-        for color_list in play.total_play_list:
-            for piece_list in color_list:
+        for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
+                           PlayKnight.white_knight_list, PlayRook.white_rook_list, 
+                           PlayQueen.white_queen_list, PlayKing.white_king_list,
+                           PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
+                           PlayKnight.black_knight_list, PlayRook.black_rook_list, 
+                           PlayQueen.black_queen_list, PlayKing.black_king_list]:
                 for piece in piece_list:
                     if(piece.coordinate == coord and pin == True):
                         piece.pinned = True
                     else:
                         piece.pinned = False
-    """
                 
 # Projected Bishop Path
 def bishop_projected(piece, col):
-    pass
-    """
     global CHECKTEXT
-    pieces_in_way = 0 #Pieces between the bishop and the enemy King
-    king_counter = 0 #Checks to see if there's a king in a direction
-    try:
+    def south_west():
+        pieces_in_way = 0 #Pieces between the bishop and the enemy King
+        king_counter = 0 #Checks to see if there's a king in a direction
         for i in range(1, 8): #southwest
             for grid in Grid.grid_list:
                 if ord(grid.coordinate[0]) == ord(piece.coordinate[0])-i and grid.coordinate[1] == piece.coordinate[1]-i:
@@ -237,19 +255,23 @@ def bishop_projected(piece, col):
                                     king_counter += 1
                                 else:
                                     deactivate_piece(grid.coordinate, True)
-                    grid.image = IMAGES["SPR_HIGHLIGHT2"]
+                    grid.image = IMAGES["SPR_HIGHLIGHT_PROJECTED"]
         if(pieces_in_way == 2 and king_counter == 1): #2 Pieces in way, includes 1 king
             CHECKTEXT = "Pinned"
-            raise
+            return
         elif(pieces_in_way == 1 and king_counter == 1):
             CHECKTEXT = "Check"
-            raise
+            return
         elif(king_counter == 50 or pieces_in_way > 2): # Either no pin, or too many pieces in the way of a potential pin
             deactivate_piece(grid.coordinate, False)
             CHECKTEXT = ""
         else:
             pieces_in_way = 0
             king_counter = 0
+    south_west()
+    def north_west():
+        pieces_in_way = 0 #Pieces between the bishop and the enemy King
+        king_counter = 0 #Checks to see if there's a king in a direction
         for i in range(1,8): #northwest
             for grid in Grid.grid_list:
                 if ord(grid.coordinate[0]) == ord(piece.coordinate[0])-i and grid.coordinate[1] == piece.coordinate[1]+i:
@@ -261,19 +283,23 @@ def bishop_projected(piece, col):
                                     king_counter += 1
                                 else:
                                     deactivate_piece(grid.coordinate, True)
-                    grid.image = IMAGES["sprHighlight2"]
+                    grid.image = IMAGES["SPR_HIGHLIGHT_PROJECTED"]
         if(pieces_in_way == 2 and king_counter == 1):
             CHECKTEXT = "Pinned"
-            raise
+            return
         elif(pieces_in_way == 1 and king_counter == 1):
             CHECKTEXT = "Check"
-            raise
+            return
         elif(king_counter == 0 or pieces_in_way > 2):
             deactivate_piece(grid.coordinate, False)
             CHECKTEXT = ""
         else:
             pieces_in_way = 0
             king_counter = 0
+    north_west()
+    def south_west():
+        pieces_in_way = 0 #Pieces between the bishop and the enemy King
+        king_counter = 0 #Checks to see if there's a king in a direction
         for i in range(1,8): #southwest
             for grid in Grid.grid_list:
                 if ord(grid.coordinate[0]) == ord(piece.coordinate[0])+i and grid.coordinate[1] == piece.coordinate[1]-i:
@@ -285,19 +311,23 @@ def bishop_projected(piece, col):
                                     king_counter += 1
                                 else:
                                     deactivate_piece(grid.coordinate, True)
-                    grid.image = IMAGES["SPR_HIGHLIGHT2"]
+                    grid.image = IMAGES["SPR_HIGHLIGHT_PROJECTED"]
         if(pieces_in_way == 2 and king_counter == 1):
             CHECKTEXT = "Pinned"
-            raise
+            return
         elif(pieces_in_way == 1 and king_counter == 1):
             CHECKTEXT = "Check"
-            raise
+            return
         elif(king_counter == 0 or pieces_in_way > 2): 
             deactivate_piece(grid.coordinate, False)
             CHECKTEXT = ""
         else:
             pieces_in_way = 0
             king_counter = 0
+    south_west()
+    def north_east():
+        pieces_in_way = 0 #Pieces between the bishop and the enemy King
+        king_counter = 0 #Checks to see if there's a king in a direction
         for i in range(1,8): #northeast
             for grid in Grid.grid_list:
                 if ord(grid.coordinate[0]) == ord(piece.coordinate[0])+i and grid.coordinate[1] == piece.coordinate[1]+i:
@@ -309,7 +339,7 @@ def bishop_projected(piece, col):
                                     king_counter += 1
                                 else:
                                     deactivate_piece(grid.coordinate, True)
-                    grid.image = IMAGES["SPR_HIGHLIGHT2"]
+                    grid.image = IMAGES["SPR_HIGHLIGHT_PROJECTED"]
         if(pieces_in_way == 2 and king_counter == 1):
             CHECKTEXT = "Pinned"
             raise
@@ -322,10 +352,7 @@ def bishop_projected(piece, col):
         else:
             pieces_in_way = 0
             king_counter = 0
-    except:
-        print("meow")
-        pass
-    """
+    north_east()
     
 # ProjectedRookPath
 def rook_projected(piece, col):
@@ -346,7 +373,7 @@ def rook_projected(piece, col):
                                     king_counter += 1
                                 else:
                                     deactivate_piece(grid.coordinate, True)
-                    #grid.image = IMAGES["sprHighlight2"]
+                    #grid.image = IMAGES["SPR_HIGHLIGHT_PROJECTED"]
         if(pieces_in_way == 2 and king_counter == 1): #2 Pieces in way, includes 1 king
             CHECKTEXT = "Pinned"
             raise
@@ -370,7 +397,7 @@ def rook_projected(piece, col):
                                     king_counter += 1
                                 else:
                                     deactivate_piece(grid.coordinate, True)
-                    #grid.image = IMAGES["sprHighlight2"]
+                    #grid.image = IMAGES["SPR_HIGHLIGHT_PROJECTED"]
 
         if(pieces_in_way == 2 and king_counter == 1):
             CHECKTEXT = "Pinned"
@@ -395,7 +422,7 @@ def rook_projected(piece, col):
                                     king_counter += 1
                                 else:
                                     deactivate_piece(grid.coordinate, True)
-                    #grid.image = IMAGES["sprHighlight2"]
+                    #grid.image = IMAGES["SPR_HIGHLIGHT_PROJECTED"]
         if(pieces_in_way == 2 and king_counter == 1):
             CHECKTEXT = "Pinned"
             raise
@@ -419,7 +446,7 @@ def rook_projected(piece, col):
                                     king_counter += 1
                                 else:
                                     deactivate_piece(grid.coordinate, True)
-                    #grid.image = IMAGES["sprHighlight2"]
+                    #grid.image = IMAGES["SPR_HIGHLIGHT_PROJECTED"]
         if(pieces_in_way == 2 and king_counter == 1):
             CHECKTEXT = "Pinned"
             raise
@@ -527,26 +554,7 @@ def queen_move(piece, col):
     rook_move(piece, col)
     bishop_move(piece, col)
             
-class InfoScreen():
-    def __init__(self,screen):
-        self.screen = screen
-        self.title = INFO_SCREEN
-        self.clock = pygame.time.Clock()
-        self.main_loop()
 
-    def main_loop(self):
-        global MENUON
-        while MENUON == 2:
-            self.clock.tick(60)
-            self.screen.blit(self.title, (0, 0))
-            events = pygame.event.get()
-            pygame.display.flip()
-            for event in events:
-                if event.type == QUIT:
-                    sys.exit()
-                if event.type == pygame.KEYDOWN:
-                    if event.key == K_ESCAPE:
-                        MENUON = 1
             
 class StartBlankBox(pygame.sprite.Sprite):
     def __init__(self):
@@ -1538,7 +1546,7 @@ def main():
     load_image("Sprites/whiteGrid.png", "SPR_WHITE_GRID", True, True)
     load_image("Sprites/greenGrid.png", "SPR_GREEN_GRID", True, True)
     load_image("Sprites/Chess/highlight.png", "SPR_HIGHLIGHT", True, True)
-    load_image("Sprites/Chess/highlight2.png", "SPR_HIGHLIGHT2", True, True)
+    load_image("Sprites/Chess/highlight2.png", "SPR_HIGHLIGHT_PROJECTED", True, True)
     load_image("Sprites/play_button.png", "SPR_PLAY_BUTTON", True, True)
     load_image("Sprites/stopbutton.png", "SPR_STOP_BUTTON", True, True)
     load_image("Sprites/clear.png", "SPR_CLEAR_BUTTON", True, True)
