@@ -524,11 +524,8 @@ def bishop_move(piece, col):
     north_east()
     
 def queen_move(piece, col):
-    pass
-    """
     rook_move(piece, col)
     bishop_move(piece, col)
-    """
             
 class InfoScreen():
     def __init__(self,screen):
@@ -1010,7 +1007,7 @@ class PlayRook(pygame.sprite.Sprite):
 class PlayQueen(pygame.sprite.Sprite):
     white_queen_list = []
     black_queen_list = []
-    def __init__(self, col, PLAY_SPRITES):
+    def __init__(self, pos, PLAY_SPRITES, col):
         pygame.sprite.Sprite.__init__(self)
         self.color = col
         if(self.color == "white"):
@@ -1020,29 +1017,37 @@ class PlayQueen(pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_QUEEN"]
             PlayQueen.black_queen_list.append(self)
         self.rect = self.image.get_rect()
+        self.rect.topleft = pos
         PLAY_SPRITES.add(self)
-        self.coordinate = ['z', 0] #blank coordinate, will change once it updates
+        self.coordinate = None #blank coordinate, will change once it updates
         self.select = False
         self.pinned = False
+        self.taken_off_board = False
     def update(self):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
                 self.coordinate = grid.coordinate
+    def captured(self):
+        self.taken_off_board = True
+        self.coordinate = None
+        self.rect.topleft = 650, 600
     def highlight(self):
-        if(self.color == "white"):
-            self.image = IMAGES["SPR_WHITE_QUEEN_HIGHLIGHTED"]
-        if(self.color == "black"):
-            self.image = IMAGES["SPR_BLACK_QUEEN_HIGHLIGHTED"]
-        self.select = True
+        if self.taken_off_board != True:
+            if(self.color == "white"):
+                self.image = IMAGES["SPR_WHITE_QUEEN_HIGHLIGHTED"]
+            if(self.color == "black"):
+                self.image = IMAGES["SPR_BLACK_QUEEN_HIGHLIGHTED"]
+            self.select = True
     def projected(self):
-        if(self.pinned == False):
+        if(self.pinned == False and self.taken_off_board != True):
             queen_move(self, self.color)
     def no_highlight(self):
-        if(self.color == "white"):
-            self.image = IMAGES["SPR_WHITE_QUEEN"]
-        if(self.color == "black"):
-            self.image = IMAGES["SPR_BLACK_QUEEN"]
-        self.select = False
+        if self.taken_off_board != True:
+            if(self.color == "white"):
+                self.image = IMAGES["SPR_WHITE_QUEEN"]
+            if(self.color == "black"):
+                self.image = IMAGES["SPR_BLACK_QUEEN"]
+            self.select = False
 
 class PlayKing(pygame.sprite.Sprite):
     white_king_list = []
