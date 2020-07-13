@@ -102,11 +102,13 @@ def restart_start_objects(START):
     START.white_pawn.rect.topleft = STARTPOS['white_pawn']
     START.white_bishop.rect.topleft = STARTPOS['white_bishop']
     START.white_knight.rect.topleft = STARTPOS['white_knight']
+    START.white_rook.rect.topleft = STARTPOS['white_rook']
     START.white_queen.rect.topleft = STARTPOS['white_queen']
     START.white_king.rect.topleft = STARTPOS['white_king']
     START.black_pawn.rect.topleft = STARTPOS['black_pawn']
     START.black_bishop.rect.topleft = STARTPOS['black_bishop']
     START.black_knight.rect.topleft = STARTPOS['black_knight']
+    START.black_rook.rect.topleft = STARTPOS['black_rook']
     START.black_queen.rect.topleft = STARTPOS['black_queen']
     START.black_king.rect.topleft = STARTPOS['black_king']
     return START
@@ -433,12 +435,12 @@ def rook_projected(piece, col):
     except:
         pass
     """
+#############
+# MOVING PIECES
+#############
 
-# Moving pieces
 def rook_move(piece, col):
-    pass
-    """
-    try:
+    def west():
         for i in range(1,8): #west
             for grid in Grid.grid_list:
                 if ord(grid.coordinate[0]) == ord(piece.coordinate[0])-i and grid.coordinate[1] == piece.coordinate[1] and grid.occupied == 0:
@@ -446,10 +448,9 @@ def rook_move(piece, col):
                 elif ord(grid.coordinate[0]) == ord(piece.coordinate[0])-i and grid.coordinate[1] == piece.coordinate[1] and grid.occupied == 1:
                     if(grid.occupied_piece_color != col): # Highlights when enemy piece in path
                         grid.highlight()
-                    raise
-    except:
-        pass
-    try:
+                    return
+    west()
+    def east():
         for i in range(1,8): #east
             for grid in Grid.grid_list:
                 if ord(grid.coordinate[0]) == ord(piece.coordinate[0])+i and grid.coordinate[1] == piece.coordinate[1] and grid.occupied == 0:
@@ -457,10 +458,9 @@ def rook_move(piece, col):
                 elif ord(grid.coordinate[0]) == ord(piece.coordinate[0])+i and grid.coordinate[1] == piece.coordinate[1] and grid.occupied == 1:
                     if(grid.occupied_piece_color != col): # Highlights when enemy piece in path
                         grid.highlight()
-                    raise
-    except:
-        pass
-    try:
+                    return
+    east()
+    def north():
         for i in range(1,8): #north
             for grid in Grid.grid_list:
                 if ord(grid.coordinate[0]) == ord(piece.coordinate[0]) and grid.coordinate[1] == piece.coordinate[1]+i and grid.occupied == 0:
@@ -468,10 +468,9 @@ def rook_move(piece, col):
                 elif ord(grid.coordinate[0]) == ord(piece.coordinate[0]) and grid.coordinate[1] == piece.coordinate[1]+i and grid.occupied == 1:
                     if(grid.occupied_piece_color != col): # Highlights when enemy piece in path
                         grid.highlight()
-                    raise
-    except:
-        pass
-    try:
+                    return
+    north()
+    def south():
         for i in range(1,8): #south
             for grid in Grid.grid_list:
                 if ord(grid.coordinate[0]) == ord(piece.coordinate[0]) and grid.coordinate[1] == piece.coordinate[1]-i and grid.occupied == 0:
@@ -479,10 +478,8 @@ def rook_move(piece, col):
                 elif ord(grid.coordinate[0]) == ord(piece.coordinate[0]) and grid.coordinate[1] == piece.coordinate[1]-i and grid.occupied == 1:
                     if(grid.occupied_piece_color != col): # Highlights when enemy piece in path
                         grid.highlight()
-                    raise
-    except:
-        pass
-"""
+                    return
+    south()
 
 def bishop_move(piece, col):
     def south_west():
@@ -569,6 +566,8 @@ class StartBlankBox(pygame.sprite.Sprite):
             self.image = IMAGES["SPR_WHITE_BISHOP"]
         elif DRAGGING.white_knight:
             self.image = IMAGES["SPR_WHITE_KNIGHT"]
+        elif DRAGGING.white_rook:
+            self.image = IMAGES["SPR_WHITE_ROOK"]
         elif DRAGGING.white_queen:
             self.image = IMAGES["SPR_WHITE_QUEEN"]
         elif DRAGGING.white_king:
@@ -579,6 +578,8 @@ class StartBlankBox(pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_BISHOP"]
         elif DRAGGING.black_knight:
             self.image = IMAGES["SPR_BLACK_KNIGHT"]
+        elif DRAGGING.black_rook:
+            self.image = IMAGES["SPR_BLACK_ROOK"]
         elif DRAGGING.black_queen:
             self.image = IMAGES["SPR_BLACK_QUEEN"]
         elif DRAGGING.black_king:
@@ -908,13 +909,14 @@ class PlayKnight(pygame.sprite.Sprite):
         self.coordinate = None
         self.rect.topleft = 400, 600
     def highlight(self):
-        if(self.color == "white"):
-            self.image = IMAGES["SPR_WHITE_KNIGHT_HIGHLIGHTED"]
-        elif(self.color == "black"):
-            self.image = IMAGES["SPR_BLACK_KNIGHT_HIGHLIGHTED"]
-        self.select = True
+        if self.taken_off_board != True:
+            if(self.color == "white"):
+                self.image = IMAGES["SPR_WHITE_KNIGHT_HIGHLIGHTED"]
+            elif(self.color == "black"):
+                self.image = IMAGES["SPR_BLACK_KNIGHT_HIGHLIGHTED"]
+            self.select = True
     def projected(self):
-        if(self.pinned == False):
+        if(self.pinned == False and self.taken_off_board != True):
             for grid in Grid.grid_list:
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-2 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
                     grid.highlight()
@@ -933,16 +935,17 @@ class PlayKnight(pygame.sprite.Sprite):
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and grid.coordinate[1] == self.coordinate[1]+1 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
                     grid.highlight()
     def no_highlight(self):
-        if(self.color == "white"):
-            self.image = IMAGES["SPR_WHITE_KNIGHT"]
-        elif(self.color == "black"):
-            self.image = IMAGES["SPR_BLACK_KNIGHT"]
-        self.select = False
+        if self.taken_off_board != True:
+            if(self.color == "white"):
+                self.image = IMAGES["SPR_WHITE_KNIGHT"]
+            elif(self.color == "black"):
+                self.image = IMAGES["SPR_BLACK_KNIGHT"]
+            self.select = False
         
 class PlayRook(pygame.sprite.Sprite):
     white_rook_list = []
     black_rook_list = []
-    def __init__(self, col, PLAY_SPRITES):
+    def __init__(self, pos, PLAY_SPRITES, col):
         pygame.sprite.Sprite.__init__(self)
         self.color = col
         if(self.color == "white"):
@@ -954,16 +957,22 @@ class PlayRook(pygame.sprite.Sprite):
             PlayRook.black_rook_list.append(self)
             self.ranknum = 8
         self.rect = self.image.get_rect()
+        self.rect.topleft = pos
         PLAY_SPRITES.add(self)
-        self.coordinate = ['z', 0] #blank coordinate, will change once it updates
+        self.coordinate = None #blank coordinate, will change once it updates
         self.select = False
         self.pinned = False
+        self.taken_off_board = False
     def update(self):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
                 self.coordinate = grid.coordinate
         if(self.select == False): # Projected Spaces Attacked
             rook_projected(self, self.color)
+    def captured(self):
+        self.taken_off_board = True
+        self.coordinate = None
+        self.rect.topleft = 550, 600
     def move_square(self, coordinate_parameter, castle=False):
         if castle == False:
             for grid in Grid.grid_list:
@@ -1167,7 +1176,6 @@ class Grid(pygame.sprite.Sprite):
         self.coordinate = coordinate
         self.highlighted = False
         self.occupied = False
-        self.placed_occupied = False
         self.color = None
         self.occupied_piece_color = ""
         self.occ_king = False
@@ -1401,39 +1409,45 @@ def get_dict_rect_positions():
 
 def remove_all_placed():
     for spr_list in [PlacedPawn.white_pawn_list, PlacedBishop.white_bishop_list,
-                     PlacedKnight.white_knight_list, PlacedQueen.white_queen_list, 
-                     PlacedKing.white_king_list, PlacedPawn.black_pawn_list,
-                     PlacedBishop.black_bishop_list, PlacedKnight.black_knight_list, 
+                     PlacedKnight.white_knight_list, PlacedRook.white_rook_list,
+                     PlacedQueen.white_queen_list, PlacedKing.white_king_list, 
+                     PlacedPawn.black_pawn_list, PlacedBishop.black_bishop_list, 
+                     PlacedKnight.black_knight_list, PlacedRook.black_rook_list,
                      PlacedQueen.black_queen_list, PlacedKing.black_king_list]:
         for obj in spr_list:
             obj.kill()
     PlacedPawn.white_pawn_list = []
     PlacedBishop.white_bishop_list = []
     PlacedKnight.white_knight_list = []
+    PlacedRook.white_rook_list = []
     PlacedQueen.white_queen_list = []
     PlacedKing.white_king_list = []
     PlacedPawn.black_pawn_list = []
     PlacedBishop.black_bishop_list = []
     PlacedKnight.black_knight_list = []
+    PlacedRook.black_rook_list = []
     PlacedQueen.black_queen_list = []
     PlacedKing.black_king_list = []
 
 def remove_all_play():
     for spr_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
-                     PlayKnight.white_knight_list, PlayQueen.white_queen_list, 
-                     PlayKing.white_king_list, PlayPawn.black_pawn_list,
-                     PlayBishop.black_bishop_list, PlayKnight.black_knight_list, 
+                     PlayKnight.white_knight_list, PlayRook.white_rook_list,
+                     PlayQueen.white_queen_list, PlayKing.white_king_list, 
+                     PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
+                     PlayKnight.black_knight_list, PlayRook.black_rook_list,
                      PlayQueen.black_queen_list, PlayKing.black_king_list]:
         for obj in spr_list:
             obj.kill()
     PlayPawn.white_pawn_list = []
     PlayBishop.white_bishop_list = []
     PlayKnight.white_knight_list = []
+    PlayRook.white_rook_list = []
     PlayQueen.white_queen_list = []
     PlayKing.white_king_list = []
     PlayPawn.black_pawn_list = []
     PlayBishop.black_bishop_list = []
     PlayKnight.black_knight_list = []
+    PlayRook.black_rook_list = []
     PlayQueen.black_queen_list = []
     PlayKing.black_king_list = []
     for grid in Grid.grid_list:
