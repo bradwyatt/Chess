@@ -255,7 +255,7 @@ def bishop_projected(piece, col):
                                     king_counter += 1
                                 else:
                                     deactivate_piece(grid.coordinate, True)
-                    grid.image = IMAGES["SPR_HIGHLIGHT_PROJECTED"]
+                    grid.white_bishop_path = True
         if(pieces_in_way == 2 and king_counter == 1): #2 Pieces in way, includes 1 king
             CHECKTEXT = "Pinned"
             return
@@ -283,7 +283,7 @@ def bishop_projected(piece, col):
                                     king_counter += 1
                                 else:
                                     deactivate_piece(grid.coordinate, True)
-                    grid.image = IMAGES["SPR_HIGHLIGHT_PROJECTED"]
+                    grid.white_bishop_path = True
         if(pieces_in_way == 2 and king_counter == 1):
             CHECKTEXT = "Pinned"
             return
@@ -311,7 +311,7 @@ def bishop_projected(piece, col):
                                     king_counter += 1
                                 else:
                                     deactivate_piece(grid.coordinate, True)
-                    grid.image = IMAGES["SPR_HIGHLIGHT_PROJECTED"]
+                    grid.white_bishop_path = True
         if(pieces_in_way == 2 and king_counter == 1):
             CHECKTEXT = "Pinned"
             return
@@ -339,7 +339,7 @@ def bishop_projected(piece, col):
                                     king_counter += 1
                                 else:
                                     deactivate_piece(grid.coordinate, True)
-                    grid.image = IMAGES["SPR_HIGHLIGHT_PROJECTED"]
+                    grid.white_bishop_path = True
         if(pieces_in_way == 2 and king_counter == 1):
             CHECKTEXT = "Pinned"
             raise
@@ -1199,6 +1199,7 @@ class Grid(pygame.sprite.Sprite):
         self.occ_king = False
         Grid.grid_list.append(self)
         Grid.grid_dict["".join([self.coordinate[0],str(self.coordinate[1])])] = self
+        self.white_bishop_path = False
     def update(self):
         def grid_occupied_by_piece():
             for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
@@ -1917,7 +1918,8 @@ def main():
                     for grid in Grid.grid_list:
                         if grid.rect.collidepoint(MOUSEPOS):
                             print("Coordinate: " + str(grid.coordinate) + " and Occupied:" \
-                                   + str(grid.occupied) + " whiteorblack: " + str(grid.occupied_piece_color))
+                                   + str(grid.occupied) + " whiteorblack: " + str(grid.occupied_piece_color) \
+                                   + " White Bishop Path: " + str(grid.white_bishop_path))
                             
             ##################
             # ALL EDIT ACTIONS
