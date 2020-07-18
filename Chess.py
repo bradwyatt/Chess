@@ -715,7 +715,7 @@ class PlayBishop(pygame.sprite.Sprite):
                         if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 0:
                             grid.highlight()
                         elif ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 1:
-                            if(grid.occupied_piece_color != self.col): # Highlights when enemy piece in path
+                            if(grid.occupied_piece_color != self.color): # Highlights when enemy piece in path
                                 grid.highlight()
                             return
             bishop_direction(-1, -1) #southwest
@@ -1081,26 +1081,33 @@ class Grid(pygame.sprite.Sprite):
         Grid.grid_list.append(self)
         Grid.grid_dict["".join([self.coordinate[0],str(self.coordinate[1])])] = self
         self.white_bishop_path = 0
-    def update(self):
-        def grid_occupied_by_piece():
-            for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
-                               PlayKnight.white_knight_list, PlayRook.white_rook_list, 
-                               PlayQueen.white_queen_list, PlayKing.white_king_list,
-                               PlayPawn.black_pawn_list, PlayBishop.black_bishop_list,
-                               PlayKnight.black_knight_list, PlayRook.black_rook_list,
-                               PlayQueen.black_queen_list, PlayKing.black_king_list]:
-                for piece in piece_list:
-                    if self.rect.topleft == piece.rect.topleft:
-                        self.occupied = True
-                        if piece.color == "white":
-                            self.occupied_piece_color = "white"
-                        elif piece.color == "black":
-                            self.occupied_piece_color = "black"
-                        return
-            else:
-                self.occupied = False
-                self.occupied_piece_color = ""
-        grid_occupied_by_piece()
+    def reset_board(self):
+        self.no_highlight()
+        self.occupied = False
+        self.occupied_piece_color = ""
+        self.occ_king = False
+        self.white_bishop_path = 0
+    def update(self, game_controller):
+        if game_controller.game_mode == game_controller.PLAY_MODE:
+            def grid_occupied_by_piece():
+                for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
+                                   PlayKnight.white_knight_list, PlayRook.white_rook_list, 
+                                   PlayQueen.white_queen_list, PlayKing.white_king_list,
+                                   PlayPawn.black_pawn_list, PlayBishop.black_bishop_list,
+                                   PlayKnight.black_knight_list, PlayRook.black_rook_list,
+                                   PlayQueen.black_queen_list, PlayKing.black_king_list]:
+                    for piece in piece_list:
+                        if self.rect.topleft == piece.rect.topleft:
+                            self.occupied = True
+                            if piece.color == "white":
+                                self.occupied_piece_color = "white"
+                            elif piece.color == "black":
+                                self.occupied_piece_color = "black"
+                            return
+                else:
+                    self.occupied = False
+                    self.occupied_piece_color = ""
+            grid_occupied_by_piece()
     def reset_projected_paths(self):
         self.white_bishop_path = 0
     """
@@ -1331,32 +1338,44 @@ def remove_all_placed():
     PlacedQueen.black_queen_list = []
     PlacedKing.black_king_list = []
 
-def remove_all_play():
-    for spr_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
-                     PlayKnight.white_knight_list, PlayRook.white_rook_list,
-                     PlayQueen.white_queen_list, PlayKing.white_king_list, 
-                     PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
-                     PlayKnight.black_knight_list, PlayRook.black_rook_list,
-                     PlayQueen.black_queen_list, PlayKing.black_king_list]:
-        for obj in spr_list:
-            obj.kill()
-    PlayPawn.white_pawn_list = []
-    PlayBishop.white_bishop_list = []
-    PlayKnight.white_knight_list = []
-    PlayRook.white_rook_list = []
-    PlayQueen.white_queen_list = []
-    PlayKing.white_king_list = []
-    PlayPawn.black_pawn_list = []
-    PlayBishop.black_bishop_list = []
-    PlayKnight.black_knight_list = []
-    PlayRook.black_rook_list = []
-    PlayQueen.black_queen_list = []
-    PlayKing.black_king_list = []
-    for grid in Grid.grid_list:
-        grid.no_highlight()
+class Game_Controller():
+    def __init__(self):
+        self.BLACK_TO_MOVE, self.WHITE_TO_MOVE = 0, 1
+        self.WHOSETURN = self.WHITE_TO_MOVE
+        self.CHECKTEXT = ""
+        self.EDIT_MODE, self.PLAY_MODE = 0, 1
+        self.game_mode = self.EDIT_MODE
+    def reset_board(self):
+        self.BLACK_TO_MOVE, self.WHITE_TO_MOVE = 0, 1
+        self.WHOSETURN = self.WHITE_TO_MOVE
+        self.CHECKTEXT = ""
+        self.EDIT_MODE, self.PLAY_MODE = 0, 1
+        self.game_mode = self.EDIT_MODE
+        for spr_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
+                 PlayKnight.white_knight_list, PlayRook.white_rook_list,
+                 PlayQueen.white_queen_list, PlayKing.white_king_list, 
+                 PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
+                 PlayKnight.black_knight_list, PlayRook.black_rook_list,
+                 PlayQueen.black_queen_list, PlayKing.black_king_list]:
+            for obj in spr_list:
+                obj.kill()
+        PlayPawn.white_pawn_list = []
+        PlayBishop.white_bishop_list = []
+        PlayKnight.white_knight_list = []
+        PlayRook.white_rook_list = []
+        PlayQueen.white_queen_list = []
+        PlayKing.white_king_list = []
+        PlayPawn.black_pawn_list = []
+        PlayBishop.black_bishop_list = []
+        PlayKnight.black_knight_list = []
+        PlayRook.black_rook_list = []
+        PlayQueen.black_queen_list = []
+        PlayKing.black_king_list = []
+        for grid in Grid.grid_list:
+            grid.reset_board()
+    
 
 def main():    
-    global WHOSETURN, BLACK_TO_MOVE, WHITE_TO_MOVE
     #Tk box for color
     root = tk.Tk()
     root.withdraw()
@@ -1380,13 +1399,11 @@ def main():
     XGRIDRANGE = [X_GRID_START, X_GRID_END, X_GRID_WIDTH] #1st num: begin 2nd: end 3rd: step
     YGRIDRANGE = [Y_GRID_START, Y_GRID_END, Y_GRID_HEIGHT] #1st num: begin 2nd: end 3rd: step
     
-    BLACK_TO_MOVE, WHITE_TO_MOVE = 0, 1
-    WHOSETURN = WHITE_TO_MOVE
-    CHECKTEXT = ""
-    
     RUNNING, DEBUG = 0, 1
     state = RUNNING
     debug_message = 0
+    
+    game_controller = Game_Controller()
     
     #Init
     pygame.init()
@@ -1483,12 +1500,6 @@ def main():
     coor_7_text= arial_font.render("7", 1, (0, 0, 0))
     coor_8_text = arial_font.render("8", 1, (0, 0, 0))
     
-    EDIT_MODE, PLAY_MODE = 0, 1
-    game_mode = EDIT_MODE
-    
-    # Default White Turn
-    WHOSETURN = WHITE_TO_MOVE
-    
     # Creates grid setting coordinate as list with first element being letter and second being number
     for x in range(X_GRID_START, X_GRID_END, X_GRID_WIDTH): 
         for y in range(Y_GRID_START, Y_GRID_END, Y_GRID_HEIGHT): 
@@ -1549,7 +1560,7 @@ def main():
                         state = DEBUG
                 #DRAG (only for menu and inanimate buttons at top)
                 if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and MOUSEPOS[0] > X_GRID_END:
-                    if game_mode == EDIT_MODE: #Checks if in Editing Mode
+                    if game_controller.game_mode == game_controller.EDIT_MODE: #Checks if in Editing Mode
                         #BUTTONS
                         if COLOR_BUTTON.rect.collidepoint(MOUSEPOS):
                             COLORKEY = get_color()
@@ -1667,7 +1678,6 @@ def main():
                                 
                     # Moves piece
                     def move_piece_on_grid():
-                        global WHOSETURN, WHITE_TO_MOVE, BLACK_TO_MOVE
                         for grid in Grid.grid_list:
                             for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                                                PlayKnight.white_knight_list, PlayRook.white_rook_list, 
@@ -1697,10 +1707,10 @@ def main():
                                         piece.no_highlight()
                                         grid.no_highlight()
                                         grid.reset_projected_paths()
-                                        if(WHOSETURN == WHITE_TO_MOVE):
-                                            WHOSETURN = BLACK_TO_MOVE
-                                        elif(WHOSETURN == BLACK_TO_MOVE):
-                                            WHOSETURN = WHITE_TO_MOVE
+                                        if(game_controller.WHOSETURN == game_controller.WHITE_TO_MOVE):
+                                            game_controller.WHOSETURN = game_controller.BLACK_TO_MOVE
+                                        elif(game_controller.WHOSETURN == game_controller.BLACK_TO_MOVE):
+                                            game_controller.WHOSETURN = game_controller.WHITE_TO_MOVE
                                         for grid_outer_scope in Grid.grid_list:
                                             grid_outer_scope.no_highlight()
                                         return
@@ -1708,7 +1718,7 @@ def main():
     
                     clicked_piece = None
                     # Selecting and unselecting white pieces
-                    if WHOSETURN == WHITE_TO_MOVE:
+                    if game_controller.WHOSETURN == game_controller.WHITE_TO_MOVE:
                         for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                                            PlayKnight.white_knight_list, PlayRook.white_rook_list, 
                                            PlayQueen.white_queen_list, PlayKing.white_king_list]:
@@ -1722,7 +1732,7 @@ def main():
                                     for grid in Grid.grid_list:
                                         grid.no_highlight()
                     # Selecting and unselecting black pieces
-                    elif WHOSETURN == BLACK_TO_MOVE:
+                    elif game_controller.WHOSETURN == game_controller.BLACK_TO_MOVE:
                         for piece_list in [PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
                                            PlayKnight.black_knight_list, PlayRook.black_rook_list, 
                                            PlayQueen.black_queen_list, PlayKing.black_king_list]:
@@ -1743,7 +1753,7 @@ def main():
                 # CLICK (RELEASE)
                 ################# 
                 
-                if game_mode == EDIT_MODE:
+                if game_controller.game_mode == game_controller.EDIT_MODE:
                     # Right click on obj, destroy
                     if(event.type == MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[2]):   
                         DRAGGING.dragging_all_false()
@@ -1754,11 +1764,11 @@ def main():
                     #################
                     # PLAY BUTTON
                     #################
-                    if PLAY_EDIT_SWITCH_BUTTON.rect.collidepoint(MOUSEPOS) and game_mode == EDIT_MODE: 
+                    if PLAY_EDIT_SWITCH_BUTTON.rect.collidepoint(MOUSEPOS) and game_controller.game_mode == game_controller.EDIT_MODE: 
                         # Makes clicking play again unclickable    
-                        game_mode = PLAY_MODE
-                        PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(game_mode)  
-                        WHOSETURN = WHITE_TO_MOVE
+                        game_controller.game_mode = game_controller.PLAY_MODE
+                        PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(game_controller.game_mode)  
+                        game_controller.WHOSETURN = game_controller.WHITE_TO_MOVE
                         print("Play Mode Activated")
     
                         for placed_white_pawn in PlacedPawn.white_pawn_list:
@@ -1789,17 +1799,17 @@ def main():
                     #################
                     # LEFT CLICK (RELEASE) STOP BUTTON
                     #################
-                    elif PLAY_EDIT_SWITCH_BUTTON.rect.collidepoint(MOUSEPOS) and game_mode == PLAY_MODE:
+                    elif PLAY_EDIT_SWITCH_BUTTON.rect.collidepoint(MOUSEPOS) and game_controller.game_mode == game_controller.PLAY_MODE:
                         print("Editing Mode Activated")
-                        game_mode = EDIT_MODE
-                        PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(game_mode)
-                        remove_all_play()
+                        game_controller.game_mode = game_controller.EDIT_MODE
+                        PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(game_controller.game_mode)
+                        game_controller.reset_board()
                     if RESTART_BUTTON.rect.collidepoint(MOUSEPOS):
                         pass
                     if INFO_BUTTON.rect.collidepoint(MOUSEPOS):
                         MENUON = 2
                     if CLEAR_BUTTON.rect.collidepoint(MOUSEPOS):
-                        if game_mode == EDIT_MODE: #Editing mode
+                        if game_controller.game_mode == game_controller.EDIT_MODE: #Editing mode
                             START = restart_start_objects(START)
                             # REMOVE ALL SPRITES
                             remove_all_placed()
@@ -1815,7 +1825,7 @@ def main():
             # ALL EDIT ACTIONS
             ##################
             # Replace start sprite with blank box in top menu
-            if game_mode == EDIT_MODE:
+            if game_controller.game_mode == game_controller.EDIT_MODE:
                 if DRAGGING.white_pawn:
                     START.blank_box.rect.topleft = STARTPOS['white_pawn'] # Replaces in Menu
                     START.white_pawn.rect.topleft = (MOUSEPOS[0]-(START.white_pawn.image.get_width()/2),
@@ -1892,7 +1902,7 @@ def main():
             ##################
             # IN-GAME ACTIONS
             ##################
-            if game_mode == PLAY_MODE:
+            if game_controller.game_mode == game_controller.PLAY_MODE:
                 pass
             #FOR DEBUGGING PURPOSES, PUT TEST CODE BELOW
             
@@ -1903,11 +1913,11 @@ def main():
             SCREEN.fill(COLORKEY)
             GAME_MODE_SPRITES.draw(SCREEN)
             GRID_SPRITES.draw(SCREEN)
-            GRID_SPRITES.update()
-            if(game_mode == EDIT_MODE): #Only draw placed sprites in editing mode
+            GRID_SPRITES.update(game_controller)
+            if(game_controller.game_mode == game_controller.EDIT_MODE): #Only draw placed sprites in editing mode
                 START_SPRITES.draw(SCREEN)
                 PLACED_SPRITES.draw(SCREEN)    
-            elif(game_mode == PLAY_MODE): #Only draw play sprites in play mode
+            elif(game_controller.game_mode == game_controller.PLAY_MODE): #Only draw play sprites in play mode
                 PLAY_SPRITES.draw(SCREEN)
             # Board Coordinates Drawing
             coor_letter_text_list = [coor_A_text, coor_B_text, coor_C_text, coor_D_text, coor_E_text, coor_F_text, coor_G_text, coor_H_text]
@@ -1918,12 +1928,12 @@ def main():
             for text in range(0,len(coor_number_text_list)):
                 SCREEN.blit(coor_number_text_list[text], (X_GRID_START-X_GRID_WIDTH/2, Y_GRID_START+Y_GRID_HEIGHT/4+(Y_GRID_HEIGHT*text)))
                 SCREEN.blit(coor_number_text_list[text], (X_GRID_END+X_GRID_WIDTH/3, Y_GRID_START+Y_GRID_HEIGHT/4+(Y_GRID_HEIGHT*text)))
-            if(game_mode == PLAY_MODE):
-                if WHOSETURN == WHITE_TO_MOVE:
+            if(game_controller.game_mode == game_controller.PLAY_MODE):
+                if game_controller.WHOSETURN == game_controller.WHITE_TO_MOVE:
                     whose_turn_text = arial_font.render("White's move to turn", 1, (0, 0, 0))
-                elif WHOSETURN == BLACK_TO_MOVE:
+                elif game_controller.WHOSETURN == game_controller.BLACK_TO_MOVE:
                     whose_turn_text = arial_font.render("Black's move to turn", 1, (0, 0, 0))
-                pin_check_text = arial_font.render(CHECKTEXT, 1, (0, 0, 0))
+                pin_check_text = arial_font.render(game_controller.CHECKTEXT, 1, (0, 0, 0))
                 SCREEN.blit(whose_turn_text, (X_GRID_END+X_GRID_WIDTH, SCREEN_HEIGHT/2))
                 SCREEN.blit(pin_check_text, (X_GRID_END+X_GRID_WIDTH, 200))
             pygame.display.update()
