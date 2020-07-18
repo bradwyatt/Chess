@@ -240,13 +240,13 @@ def deactivate_piece(coord, pin):
                 
 # Projected Bishop Path
 def bishop_projected(piece, col):
-    global CHECKTEXT
-    def south_west():
+    def bishop_direction(x, y):
+        global CHECKTEXT
         pieces_in_way = 0 #Pieces between the bishop and the enemy King
         king_counter = 0 #Checks to see if there's a king in a direction
-        for i in range(1, 8): #southwest
+        for i in range(1, 8):
             for grid in Grid.grid_list:
-                if ord(grid.coordinate[0]) == ord(piece.coordinate[0])-i and grid.coordinate[1] == piece.coordinate[1]-i:
+                if ord(grid.coordinate[0]) == ord(piece.coordinate[0])+(x*i) and grid.coordinate[1] == piece.coordinate[1]+(y*i):
                     if(grid.occupied == 1): #Counts pieces that are in bishops projected range
                         if(king_counter < 1): #Ignoring pieces that are past the king
                             pieces_in_way += 1
@@ -271,91 +271,10 @@ def bishop_projected(piece, col):
         else:
             pieces_in_way = 0
             king_counter = 0
-    south_west()
-    def north_west():
-        pieces_in_way = 0 #Pieces between the bishop and the enemy King
-        king_counter = 0 #Checks to see if there's a king in a direction
-        for i in range(1,8): #northwest
-            for grid in Grid.grid_list:
-                if ord(grid.coordinate[0]) == ord(piece.coordinate[0])-i and grid.coordinate[1] == piece.coordinate[1]+i:
-                    if(grid.occupied == 1):
-                        if(king_counter < 1): #Ignoring pieces that are past the king
-                            pieces_in_way += 1
-                            if(grid.occupied_piece_color != col):
-                                if(grid.occ_king == 1 and grid.occupied_piece_color != col): #Finds the king
-                                    king_counter += 1
-                                else:
-                                    deactivate_piece(grid.coordinate, True)
-                    grid.white_bishop_path = True
-        if(pieces_in_way == 2 and king_counter == 1):
-            CHECKTEXT = "Pinned"
-            return
-        elif(pieces_in_way == 1 and king_counter == 1):
-            CHECKTEXT = "Check"
-            return
-        elif(king_counter == 0 or pieces_in_way > 2):
-            deactivate_piece(grid.coordinate, False)
-            CHECKTEXT = ""
-        else:
-            pieces_in_way = 0
-            king_counter = 0
-    north_west()
-    def south_west():
-        pieces_in_way = 0 #Pieces between the bishop and the enemy King
-        king_counter = 0 #Checks to see if there's a king in a direction
-        for i in range(1,8): #southwest
-            for grid in Grid.grid_list:
-                if ord(grid.coordinate[0]) == ord(piece.coordinate[0])+i and grid.coordinate[1] == piece.coordinate[1]-i:
-                    if(grid.occupied == 1):
-                        if(king_counter < 1): #Ignoring pieces that are past the king
-                            pieces_in_way += 1
-                            if(grid.occupied_piece_color != col):
-                                if(grid.occ_king == 1 and grid.occupied_piece_color != col): #Finds the king
-                                    king_counter += 1
-                                else:
-                                    deactivate_piece(grid.coordinate, True)
-                    grid.white_bishop_path = True
-        if(pieces_in_way == 2 and king_counter == 1):
-            CHECKTEXT = "Pinned"
-            return
-        elif(pieces_in_way == 1 and king_counter == 1):
-            CHECKTEXT = "Check"
-            return
-        elif(king_counter == 0 or pieces_in_way > 2): 
-            deactivate_piece(grid.coordinate, False)
-            CHECKTEXT = ""
-        else:
-            pieces_in_way = 0
-            king_counter = 0
-    south_west()
-    def north_east():
-        pieces_in_way = 0 #Pieces between the bishop and the enemy King
-        king_counter = 0 #Checks to see if there's a king in a direction
-        for i in range(1,8): #northeast
-            for grid in Grid.grid_list:
-                if ord(grid.coordinate[0]) == ord(piece.coordinate[0])+i and grid.coordinate[1] == piece.coordinate[1]+i:
-                    if(grid.occupied == 1):
-                        if(king_counter < 1): #Ignoring pieces that are past the king
-                            pieces_in_way += 1
-                            if(grid.occupied_piece_color != col):
-                                if(grid.occ_king == 1 and grid.occupied_piece_color != col): #Finds the king
-                                    king_counter += 1
-                                else:
-                                    deactivate_piece(grid.coordinate, True)
-                    grid.white_bishop_path = True
-        if(pieces_in_way == 2 and king_counter == 1):
-            CHECKTEXT = "Pinned"
-            raise
-        elif(pieces_in_way == 1 and king_counter == 1):
-            CHECKTEXT = "Check"
-            raise
-        elif(king_counter == 0 or pieces_in_way > 2):
-            deactivate_piece(grid.coordinate, False)
-            CHECKTEXT = ""
-        else:
-            pieces_in_way = 0
-            king_counter = 0
-    north_east()
+    bishop_direction(-1, -1) #southwest
+    bishop_direction(-1, 1) #northwest
+    bishop_direction(1, -1) #southeast
+    bishop_direction(1, 1) #northeast
     
 # ProjectedRookPath
 def rook_projected(piece, col):
@@ -714,7 +633,7 @@ class PlayPawn(pygame.sprite.Sprite):
             elif(self.color == "black"):
                 self.image = IMAGES["SPR_BLACK_PAWN"]
             self.select = False
-    def move(self):
+    def spaces_available(self):
         if(self.pinned == False and self.taken_off_board != True):
             if(self.color == "white"):
                 for grid in Grid.grid_list:
@@ -775,7 +694,6 @@ class PlayBishop(pygame.sprite.Sprite):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
                 self.coordinate = grid.coordinate
-        bishop_projected(self, self.color)
     def projected(self):
         bishop_projected(self, self.color)
     def captured(self):
@@ -789,7 +707,7 @@ class PlayBishop(pygame.sprite.Sprite):
             elif(self.color == "black"):
                 self.image = IMAGES["SPR_BLACK_BISHOP_HIGHLIGHTED"]
             self.select = True
-    def move(self):
+    def spaces_available(self):
         if(self.pinned == False and self.taken_off_board != True):
             def bishop_direction(x, y):
                 for i in range(1,8):
@@ -846,7 +764,7 @@ class PlayKnight(pygame.sprite.Sprite):
             elif(self.color == "black"):
                 self.image = IMAGES["SPR_BLACK_KNIGHT_HIGHLIGHTED"]
             self.select = True
-    def move(self):
+    def spaces_available(self):
         if(self.pinned == False and self.taken_off_board != True):
             for grid in Grid.grid_list:
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-2 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
@@ -927,7 +845,7 @@ class PlayRook(pygame.sprite.Sprite):
         elif(self.color == "black"):
             self.image = IMAGES["SPR_BLACK_ROOK_HIGHLIGHTED"]
         self.select = True
-    def move(self):
+    def spaces_available(self):
         if(self.pinned == False):
             def rook_direction(x, y):
                 for i in range(1,8):
@@ -1090,7 +1008,7 @@ class PlayKing(pygame.sprite.Sprite):
         elif(self.color == "black"):
             self.image = IMAGES["SPR_BLACK_KING_HIGHLIGHTED"]
         self.select = 1
-    def move(self):
+    def spaces_available(self):
         for grid in Grid.grid_list:
             if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-1 and \
                 (grid.occupied == 0 or grid.occupied_piece_color != self.color):
@@ -1438,6 +1356,7 @@ def remove_all_play():
         grid.no_highlight()
 
 def main():    
+    global WHOSETURN, BLACK_TO_MOVE, WHITE_TO_MOVE
     #Tk box for color
     root = tk.Tk()
     root.withdraw()
@@ -1463,7 +1382,6 @@ def main():
     
     BLACK_TO_MOVE, WHITE_TO_MOVE = 0, 1
     WHOSETURN = WHITE_TO_MOVE
-    
     CHECKTEXT = ""
     
     RUNNING, DEBUG = 0, 1
@@ -1748,39 +1666,45 @@ def main():
                     dragging_to_placed_no_dups()
                                 
                     # Moves piece
-                    for grid in Grid.grid_list:
-                        for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
-                                           PlayKnight.white_knight_list, PlayRook.white_rook_list, 
-                                           PlayQueen.white_queen_list, PlayKing.white_king_list,
-                                           PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
-                                           PlayKnight.black_knight_list, PlayRook.black_rook_list, 
-                                           PlayQueen.black_queen_list, PlayKing.black_king_list]:
-                            for piece in piece_list:
-                                if (grid.rect.collidepoint(MOUSEPOS) and grid.highlighted==True and piece.select==True):
-                                    # Taking a piece by checking if highlighted grid is opposite color of piece
-                                    # And iterating through all pieces to check if coordinates of that grid
-                                    # are the same as any of the pieces
-                                    if((piece.color == "white" and grid.occupied_piece_color == "black") or
-                                        (piece.color == "black" and grid.occupied_piece_color == "white")):
-                                        for piece_captured_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
-                                                                    PlayKnight.white_knight_list, PlayRook.white_rook_list, 
-                                                                    PlayQueen.white_queen_list, PlayKing.white_king_list,
-                                                                    PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
-                                                                    PlayKnight.black_knight_list, PlayRook.black_rook_list, 
-                                                                    PlayQueen.black_queen_list, PlayKing.black_king_list]:
-                                            for piece_captured in piece_captured_list:
-                                                if piece_captured.coordinate == grid.coordinate:
-                                                    piece_captured.captured()
-                                    # Moving piece, removing piece and grid highlights, changing Turn
-                                    piece.rect.topleft = grid.rect.topleft
-                                    grid.occupied = True
-                                    piece.no_highlight()
-                                    grid.no_highlight()
-                                    grid.reset_projected_paths()
-                                    if(WHOSETURN == WHITE_TO_MOVE):
-                                        WHOSETURN = BLACK_TO_MOVE
-                                    elif(WHOSETURN == BLACK_TO_MOVE):
-                                        WHOSETURN = WHITE_TO_MOVE
+                    def move_piece_on_grid():
+                        global WHOSETURN, WHITE_TO_MOVE, BLACK_TO_MOVE
+                        for grid in Grid.grid_list:
+                            for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
+                                               PlayKnight.white_knight_list, PlayRook.white_rook_list, 
+                                               PlayQueen.white_queen_list, PlayKing.white_king_list,
+                                               PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
+                                               PlayKnight.black_knight_list, PlayRook.black_rook_list, 
+                                               PlayQueen.black_queen_list, PlayKing.black_king_list]:
+                                for piece in piece_list:
+                                    if (grid.rect.collidepoint(MOUSEPOS) and grid.highlighted==True and piece.select==True):
+                                        # Taking a piece by checking if highlighted grid is opposite color of piece
+                                        # And iterating through all pieces to check if coordinates of that grid
+                                        # are the same as any of the pieces
+                                        if((piece.color == "white" and grid.occupied_piece_color == "black") or
+                                            (piece.color == "black" and grid.occupied_piece_color == "white")):
+                                            for piece_captured_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
+                                                                        PlayKnight.white_knight_list, PlayRook.white_rook_list, 
+                                                                        PlayQueen.white_queen_list, PlayKing.white_king_list,
+                                                                        PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
+                                                                        PlayKnight.black_knight_list, PlayRook.black_rook_list, 
+                                                                        PlayQueen.black_queen_list, PlayKing.black_king_list]:
+                                                for piece_captured in piece_captured_list:
+                                                    if piece_captured.coordinate == grid.coordinate:
+                                                        piece_captured.captured()
+                                        # Moving piece, removing piece and grid highlights, changing Turn
+                                        piece.rect.topleft = grid.rect.topleft
+                                        grid.occupied = True
+                                        piece.no_highlight()
+                                        grid.no_highlight()
+                                        grid.reset_projected_paths()
+                                        if(WHOSETURN == WHITE_TO_MOVE):
+                                            WHOSETURN = BLACK_TO_MOVE
+                                        elif(WHOSETURN == BLACK_TO_MOVE):
+                                            WHOSETURN = WHITE_TO_MOVE
+                                        for grid_outer_scope in Grid.grid_list:
+                                            grid_outer_scope.no_highlight()
+                                        return
+                    move_piece_on_grid()
     
                     clicked_piece = None
                     # Selecting and unselecting white pieces
@@ -1812,7 +1736,7 @@ def main():
                     # Just do this last, since we know only one piece will be selected
                     if clicked_piece is not None:
                         clicked_piece.highlight()
-                        clicked_piece.move()
+                        clicked_piece.spaces_available()
                         clicked_piece = None
 
                 #################
