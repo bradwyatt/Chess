@@ -1346,10 +1346,8 @@ class Game_Controller():
         self.EDIT_MODE, self.PLAY_MODE = 0, 1
         self.game_mode = self.EDIT_MODE
     def reset_board(self):
-        self.BLACK_TO_MOVE, self.WHITE_TO_MOVE = 0, 1
         self.WHOSETURN = self.WHITE_TO_MOVE
         self.CHECKTEXT = ""
-        self.EDIT_MODE, self.PLAY_MODE = 0, 1
         self.game_mode = self.EDIT_MODE
         for spr_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                  PlayKnight.white_knight_list, PlayRook.white_rook_list,
@@ -1373,6 +1371,23 @@ class Game_Controller():
         PlayKing.black_king_list = []
         for grid in Grid.grid_list:
             grid.reset_board()
+    def switch_turn(self, color_turn):
+        for grid in Grid.grid_list:
+            grid.reset_projected_paths()
+            grid.no_highlight()
+        self.WHOSETURN = color_turn
+        """
+        for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
+                           PlayKnight.white_knight_list, PlayRook.white_rook_list,
+                           PlayQueen.white_queen_list, PlayKing.white_king_list, 
+                           PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
+                           PlayKnight.black_knight_list, PlayRook.black_rook_list,
+                           PlayQueen.black_queen_list, PlayKing.black_king_list]:
+        """
+        for piece_list in [PlayBishop.white_bishop_list]:
+            for piece in piece_list:
+                piece.projected()
+                print("coord: " + str(piece.coordinate))
     
 
 def main():    
@@ -1703,16 +1718,13 @@ def main():
                                                         piece_captured.captured()
                                         # Moving piece, removing piece and grid highlights, changing Turn
                                         piece.rect.topleft = grid.rect.topleft
+                                        piece.coordinate = grid.coordinate
                                         grid.occupied = True
                                         piece.no_highlight()
-                                        grid.no_highlight()
-                                        grid.reset_projected_paths()
                                         if(game_controller.WHOSETURN == game_controller.WHITE_TO_MOVE):
-                                            game_controller.WHOSETURN = game_controller.BLACK_TO_MOVE
+                                            game_controller.switch_turn(game_controller.BLACK_TO_MOVE)
                                         elif(game_controller.WHOSETURN == game_controller.BLACK_TO_MOVE):
-                                            game_controller.WHOSETURN = game_controller.WHITE_TO_MOVE
-                                        for grid_outer_scope in Grid.grid_list:
-                                            grid_outer_scope.no_highlight()
+                                            game_controller.switch_turn(game_controller.WHITE_TO_MOVE)
                                         return
                     move_piece_on_grid()
     
@@ -1767,7 +1779,7 @@ def main():
                     if PLAY_EDIT_SWITCH_BUTTON.rect.collidepoint(MOUSEPOS) and game_controller.game_mode == game_controller.EDIT_MODE: 
                         # Makes clicking play again unclickable    
                         game_controller.game_mode = game_controller.PLAY_MODE
-                        PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(game_controller.game_mode)  
+                        PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(game_controller.game_mode)
                         game_controller.WHOSETURN = game_controller.WHITE_TO_MOVE
                         print("Play Mode Activated")
     
