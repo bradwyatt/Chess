@@ -255,14 +255,17 @@ def bishop_projected(piece, col):
                                     king_counter += 1
                                 else:
                                     deactivate_piece(grid.coordinate, True)
-                    grid.white_bishop_path = True
+                    grid.white_bishop_path += 1
+                    # Pinned and if another white bishop's path is not obstructed
+                    if(pieces_in_way >= 2):
+                        grid.white_bishop_path -= 1
         if(pieces_in_way == 2 and king_counter == 1): #2 Pieces in way, includes 1 king
             CHECKTEXT = "Pinned"
             return
         elif(pieces_in_way == 1 and king_counter == 1):
             CHECKTEXT = "Check"
             return
-        elif(king_counter == 50 or pieces_in_way > 2): # Either no pin, or too many pieces in the way of a potential pin
+        elif(king_counter == 0 or pieces_in_way > 2): # Either no pin, or too many pieces in the way of a potential pin
             deactivate_piece(grid.coordinate, False)
             CHECKTEXT = ""
         else:
@@ -507,48 +510,6 @@ def rook_move(piece, col):
                         grid.highlight()
                     return
     south()
-
-def bishop_move(piece, col):
-    def south_west():
-        for i in range(1,8): #southwest
-            for grid in Grid.grid_list:
-                if ord(grid.coordinate[0]) == ord(piece.coordinate[0])-i and grid.coordinate[1] == piece.coordinate[1]-i and grid.occupied == 0:
-                    grid.highlight()
-                elif ord(grid.coordinate[0]) == ord(piece.coordinate[0])-i and grid.coordinate[1] == piece.coordinate[1]-i and grid.occupied == 1:
-                    if(grid.occupied_piece_color != col): # Highlights when enemy piece in path
-                        grid.highlight()
-                    return
-    south_west()
-    def north_west():
-        for i in range(1,8): #northwest
-            for grid in Grid.grid_list:
-                if ord(grid.coordinate[0]) == ord(piece.coordinate[0])-i and grid.coordinate[1] == piece.coordinate[1]+i and grid.occupied == 0:
-                    grid.highlight()
-                elif ord(grid.coordinate[0]) == ord(piece.coordinate[0])-i and grid.coordinate[1] == piece.coordinate[1]+i and grid.occupied == 1:
-                    if(grid.occupied_piece_color != col): # Highlights when enemy piece in path
-                        grid.highlight()
-                    return
-    north_west()
-    def south_west():
-        for i in range(1,8): #southwest
-            for grid in Grid.grid_list:
-                if ord(grid.coordinate[0]) == ord(piece.coordinate[0])+i and grid.coordinate[1] == piece.coordinate[1]-i and grid.occupied == 0:
-                    grid.highlight()
-                elif ord(grid.coordinate[0]) == ord(piece.coordinate[0])+i and grid.coordinate[1] == piece.coordinate[1]-i and grid.occupied == 1:
-                    if(grid.occupied_piece_color != col): # Highlights when enemy piece in path
-                        grid.highlight()
-                    return
-    south_west()
-    def north_east():
-        for i in range(1,8): #northeast
-            for grid in Grid.grid_list:
-                if ord(grid.coordinate[0]) == ord(piece.coordinate[0])+i and grid.coordinate[1] == piece.coordinate[1]+i and grid.occupied == 0:
-                    grid.highlight()
-                elif ord(grid.coordinate[0]) == ord(piece.coordinate[0])+i and grid.coordinate[1] == piece.coordinate[1]+i and grid.occupied == 1:
-                    if(grid.occupied_piece_color != col): # Highlights when enemy piece in path
-                        grid.highlight()
-                    return
-    north_east()
     
 def queen_move(piece, col):
     rook_move(piece, col)
@@ -801,7 +762,7 @@ class PlayPawn(pygame.sprite.Sprite):
             elif(self.color == "black"):
                 self.image = IMAGES["SPR_BLACK_PAWN"]
             self.select = False
-    def projected(self):
+    def move(self):
         if(self.pinned == False and self.taken_off_board != True):
             if(self.color == "white"):
                 for grid in Grid.grid_list:
@@ -862,8 +823,9 @@ class PlayBishop(pygame.sprite.Sprite):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
                 self.coordinate = grid.coordinate
-        if(self.select == False): # Projected Spaces Attacked
-            bishop_projected(self, self.color)
+        bishop_projected(self, self.color)
+    def projected(self):
+        bishop_projected(self, self.color)
     def captured(self):
         self.taken_off_board = True
         self.coordinate = None
@@ -875,9 +837,21 @@ class PlayBishop(pygame.sprite.Sprite):
             elif(self.color == "black"):
                 self.image = IMAGES["SPR_BLACK_BISHOP_HIGHLIGHTED"]
             self.select = True
-    def projected(self):
+    def move(self):
         if(self.pinned == False and self.taken_off_board != True):
-            bishop_move(self, self.color)
+            def bishop_direction(x, y):
+                for i in range(1,8):
+                    for grid in Grid.grid_list:
+                        if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 0:
+                            grid.highlight()
+                        elif ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 1:
+                            if(grid.occupied_piece_color != self.col): # Highlights when enemy piece in path
+                                grid.highlight()
+                            return
+            bishop_direction(-1, -1) #southwest
+            bishop_direction(-1, 1) #northwest
+            bishop_direction(1, -1) #southeast
+            bishop_direction(1, 1) #northeast
     def no_highlight(self):
         if self.taken_off_board != True:
             if(self.color == "white"):
@@ -920,7 +894,7 @@ class PlayKnight(pygame.sprite.Sprite):
             elif(self.color == "black"):
                 self.image = IMAGES["SPR_BLACK_KNIGHT_HIGHLIGHTED"]
             self.select = True
-    def projected(self):
+    def move(self):
         if(self.pinned == False and self.taken_off_board != True):
             for grid in Grid.grid_list:
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-2 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
@@ -1001,7 +975,7 @@ class PlayRook(pygame.sprite.Sprite):
         elif(self.color == "black"):
             self.image = IMAGES["SPR_BLACK_ROOK_HIGHLIGHTED"]
         self.select = True
-    def projected(self):
+    def move(self):
         if(self.pinned == False):
             rook_move(self, self.color)
     def no_highlight(self):
@@ -1045,7 +1019,7 @@ class PlayQueen(pygame.sprite.Sprite):
             if(self.color == "black"):
                 self.image = IMAGES["SPR_BLACK_QUEEN_HIGHLIGHTED"]
             self.select = True
-    def projected(self):
+    def move(self):
         if(self.pinned == False and self.taken_off_board != True):
             queen_move(self, self.color)
     def no_highlight(self):
@@ -1127,7 +1101,7 @@ class PlayKing(pygame.sprite.Sprite):
         elif(self.color == "black"):
             self.image = IMAGES["SPR_BLACK_KING_HIGHLIGHTED"]
         self.select = 1
-    def projected(self):
+    def move(self):
         for grid in Grid.grid_list:
             if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-1 and \
                 (grid.occupied == 0 or grid.occupied_piece_color != self.color):
@@ -1199,7 +1173,7 @@ class Grid(pygame.sprite.Sprite):
         self.occ_king = False
         Grid.grid_list.append(self)
         Grid.grid_dict["".join([self.coordinate[0],str(self.coordinate[1])])] = self
-        self.white_bishop_path = False
+        self.white_bishop_path = 0
     def update(self):
         def grid_occupied_by_piece():
             for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
@@ -1220,6 +1194,8 @@ class Grid(pygame.sprite.Sprite):
                 self.occupied = False
                 self.occupied_piece_color = ""
         grid_occupied_by_piece()
+    def reset_projected_paths(self):
+        self.white_bishop_path = 0
     """
         for whiteKing in play.white_king_list:
             if self.coordinate == whiteKing.coordinate:
@@ -1811,6 +1787,7 @@ def main():
                                     grid.occupied = True
                                     piece.no_highlight()
                                     grid.no_highlight()
+                                    grid.reset_projected_paths()
                                     if(WHOSETURN == WHITE_TO_MOVE):
                                         WHOSETURN = BLACK_TO_MOVE
                                     elif(WHOSETURN == BLACK_TO_MOVE):
@@ -1846,7 +1823,7 @@ def main():
                     # Just do this last, since we know only one piece will be selected
                     if clicked_piece is not None:
                         clicked_piece.highlight()
-                        clicked_piece.projected()
+                        clicked_piece.move()
                         clicked_piece = None
 
                 #################
