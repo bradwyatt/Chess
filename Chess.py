@@ -468,48 +468,6 @@ def rook_projected(piece, col):
 #############
 # MOVING PIECES
 #############
-
-def rook_move(piece, col):
-    def west():
-        for i in range(1,8): #west
-            for grid in Grid.grid_list:
-                if ord(grid.coordinate[0]) == ord(piece.coordinate[0])-i and grid.coordinate[1] == piece.coordinate[1] and grid.occupied == 0:
-                    grid.highlight()
-                elif ord(grid.coordinate[0]) == ord(piece.coordinate[0])-i and grid.coordinate[1] == piece.coordinate[1] and grid.occupied == 1:
-                    if(grid.occupied_piece_color != col): # Highlights when enemy piece in path
-                        grid.highlight()
-                    return
-    west()
-    def east():
-        for i in range(1,8): #east
-            for grid in Grid.grid_list:
-                if ord(grid.coordinate[0]) == ord(piece.coordinate[0])+i and grid.coordinate[1] == piece.coordinate[1] and grid.occupied == 0:
-                    grid.highlight()
-                elif ord(grid.coordinate[0]) == ord(piece.coordinate[0])+i and grid.coordinate[1] == piece.coordinate[1] and grid.occupied == 1:
-                    if(grid.occupied_piece_color != col): # Highlights when enemy piece in path
-                        grid.highlight()
-                    return
-    east()
-    def north():
-        for i in range(1,8): #north
-            for grid in Grid.grid_list:
-                if ord(grid.coordinate[0]) == ord(piece.coordinate[0]) and grid.coordinate[1] == piece.coordinate[1]+i and grid.occupied == 0:
-                    grid.highlight()
-                elif ord(grid.coordinate[0]) == ord(piece.coordinate[0]) and grid.coordinate[1] == piece.coordinate[1]+i and grid.occupied == 1:
-                    if(grid.occupied_piece_color != col): # Highlights when enemy piece in path
-                        grid.highlight()
-                    return
-    north()
-    def south():
-        for i in range(1,8): #south
-            for grid in Grid.grid_list:
-                if ord(grid.coordinate[0]) == ord(piece.coordinate[0]) and grid.coordinate[1] == piece.coordinate[1]-i and grid.occupied == 0:
-                    grid.highlight()
-                elif ord(grid.coordinate[0]) == ord(piece.coordinate[0]) and grid.coordinate[1] == piece.coordinate[1]-i and grid.occupied == 1:
-                    if(grid.occupied_piece_color != col): # Highlights when enemy piece in path
-                        grid.highlight()
-                    return
-    south()
     
 def queen_move(piece, col):
     rook_move(piece, col)
@@ -977,7 +935,19 @@ class PlayRook(pygame.sprite.Sprite):
         self.select = True
     def move(self):
         if(self.pinned == False):
-            rook_move(self, self.color)
+            def rook_direction(x, y):
+                for i in range(1,8):
+                    for grid in Grid.grid_list:
+                        if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 0:
+                            grid.highlight()
+                        elif ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 1:
+                            if(grid.occupied_piece_color != self.col): # Highlights when enemy piece in path
+                                grid.highlight()
+                            return
+            rook_direction(-1, 0) #west
+            rook_direction(1, 0) #east
+            rook_direction(0, 1) #north
+            rook_direction(0, -1) #south
     def no_highlight(self):
         if(self.color == "white"):
             self.image = IMAGES["SPR_WHITE_ROOK"]
