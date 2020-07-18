@@ -468,12 +468,6 @@ def rook_projected(piece, col):
 #############
 # MOVING PIECES
 #############
-    
-def queen_move(piece, col):
-    rook_move(piece, col)
-    bishop_move(piece, col)
-            
-
             
 class StartBlankBox(pygame.sprite.Sprite):
     def __init__(self):
@@ -991,7 +985,32 @@ class PlayQueen(pygame.sprite.Sprite):
             self.select = True
     def move(self):
         if(self.pinned == False and self.taken_off_board != True):
-            queen_move(self, self.color)
+            def bishop_direction(x, y):
+                for i in range(1,8):
+                    for grid in Grid.grid_list:
+                        if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 0:
+                            grid.highlight()
+                        elif ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 1:
+                            if(grid.occupied_piece_color != self.col): # Highlights when enemy piece in path
+                                grid.highlight()
+                            return
+            bishop_direction(-1, -1) #southwest
+            bishop_direction(-1, 1) #northwest
+            bishop_direction(1, -1) #southeast
+            bishop_direction(1, 1) #northeast
+            def rook_direction(x, y):
+                for i in range(1,8):
+                    for grid in Grid.grid_list:
+                        if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 0:
+                            grid.highlight()
+                        elif ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 1:
+                            if(grid.occupied_piece_color != self.col): # Highlights when enemy piece in path
+                                grid.highlight()
+                            return
+            rook_direction(-1, 0) #west
+            rook_direction(1, 0) #east
+            rook_direction(0, 1) #north
+            rook_direction(0, -1) #south
     def no_highlight(self):
         if self.taken_off_board != True:
             if(self.color == "white"):
