@@ -583,7 +583,6 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                             if(grid.occupied == 1 and king_count < 1): #Counting pieces and Ignoring pieces that are past the king
                                 pieces_in_way += 1
                                 if(grid.occ_king == 1 and grid.occupied_piece_color != self.color):
-                                    print("King found on coordinate " + str(grid.coordinate))
                                     king_count += 1
                             if(pieces_in_way == 2 and king_count == 1): #2 Pieces in way, includes 1 king
                                 print("Pinned for " + str(grid.coordinate))
@@ -827,20 +826,37 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
         self.rect.topleft = 650, 600
     def projected(self):
         if self.taken_off_board == False:
-            def bishop_direction(x, y):
-                for i in range(1,8):
+            def bishop_direction(self, x, y):
+                global CHECKTEXT
+                pieces_in_way = 0 #Pieces between the bishop and the enemy King
+                king_count = 0 #Checks to see if there's a king in a direction
+                for i in range(1, 8):
                     for grid in Grid.grid_list:
-                        if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) \
-                               and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 0:
+                        if(ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) \
+                           and (grid.occupied == 0 or grid.occupied_piece_color != self.color)):
                             grid.attack_count_increment(self.color, 1)
-                        elif ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 1:
-                            if(grid.occupied_piece_color != self.color): # Highlights when enemy piece in path
-                                grid.attack_count_increment(self.color, 1)
-                            return
-            bishop_direction(-1, -1) #southwest
-            bishop_direction(-1, 1) #northwest
-            bishop_direction(1, -1) #southeast
-            bishop_direction(1, 1) #northeast
+                            if(grid.occupied == 1 and king_count < 1): #Counting pieces and Ignoring pieces that are past the king
+                                pieces_in_way += 1
+                                if(grid.occ_king == 1 and grid.occupied_piece_color != self.color):
+                                    king_count += 1
+                            if(pieces_in_way == 2 and king_count == 1): #2 Pieces in way, includes 1 king
+                                print("Pinned for " + str(grid.coordinate))
+                                CHECKTEXT = "Pinned"
+                                grid.pin_piece_coordinate = True
+                                #deactivate_piece
+                                return
+                            elif(pieces_in_way == 1 and king_count == 1):
+                                print("Check for coordinate " + str(grid.coordinate))
+                                CHECKTEXT = "Check"
+                            elif(king_count == 0 and pieces_in_way >= 2): # Either no pin, or too many pieces in the way of a potential pin
+                                # print("No pin or too many pieces in the way. This is for coord " + str(grid.coordinate))
+                                grid.attack_count_increment(self.color, -1)
+                                CHECKTEXT = ""
+                                return
+            bishop_direction(self, -1, -1) #southwest
+            bishop_direction(self, -1, 1) #northwest
+            bishop_direction(self, 1, -1) #southeast
+            bishop_direction(self, 1, 1) #northeast
             def rook_direction(x, y):
                 for i in range(1,8):
                     for grid in Grid.grid_list:
