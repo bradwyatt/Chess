@@ -456,8 +456,8 @@ class ChessPiece:
         self.select = False
         self.pinned = False
         self.taken_off_board = False
-        self.attacker = False
         self.coordinate = self.get_coordinate()
+        self.projected() # Initialize child class projected function
     def get_coordinate(self):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
@@ -498,7 +498,7 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                 self.image = IMAGES["SPR_BLACK_PAWN"]
             self.select = False
     def projected(self):
-        if self.taken_off_board == False:
+        if(self.pinned == False and self.taken_off_board != True):
             if(self.color == "white"):
                 for grid in Grid.grid_list:
                     # Enemy pieces
@@ -570,7 +570,7 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
             if self.rect.colliderect(grid):
                 self.coordinate = grid.coordinate
     def projected(self):
-        if self.taken_off_board == False:
+        if(self.pinned == False and self.taken_off_board != True):
             def bishop_direction(self, x, y):
                 global CHECKTEXT
                 pieces_in_way = 0 #Pieces between the bishop and the enemy King
@@ -656,7 +656,7 @@ class PlayKnight(ChessPiece, pygame.sprite.Sprite):
             if self.rect.colliderect(grid):
                 self.coordinate = grid.coordinate
     def projected(self):
-        if self.taken_off_board == False:
+        if(self.pinned == False and self.taken_off_board != True):
             for grid in Grid.grid_list:
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-2 \
                     and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
@@ -743,7 +743,7 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
         self.coordinate = None
         self.rect.topleft = 550, 600
     def projected(self):
-        if self.taken_off_board == False:
+        if(self.pinned == False and self.taken_off_board != True):
             def rook_direction(x, y):
                 for i in range(1, 8):
                     for grid in Grid.grid_list:
@@ -825,7 +825,7 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
         self.coordinate = None
         self.rect.topleft = 650, 600
     def projected(self):
-        if self.taken_off_board == False:
+        if(self.pinned == False and self.taken_off_board != True):
             def bishop_direction(self, x, y):
                 global CHECKTEXT
                 pieces_in_way = 0 #Pieces between the bishop and the enemy King
