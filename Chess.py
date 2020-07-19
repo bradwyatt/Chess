@@ -791,7 +791,7 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
                         if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 0:
                             grid.highlight()
                         elif ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 1:
-                            if(grid.occupied_piece_color != self.col): # Highlights when enemy piece in path
+                            if(grid.occupied_piece_color != self.color): # Highlights when enemy piece in path
                                 grid.highlight()
                             return
             rook_direction(-1, 0) #west
@@ -945,13 +945,13 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
             if(rook.coordinate == ['a', ranknum]):
                 #left_clear_way = [0, 0, 0]
                 for grid in Grid.grid_list:
-                    if(grid.coordinate == ['b', ranknum] and Grid.grid_list.occupied == 0):
+                    if(grid.coordinate == ['b', ranknum] and grid.occupied == 0):
                         self.left_clear_way[0] = 1
                 for grid in Grid.grid_list:
-                    if(grid.coordinate == ['c', ranknum] and Grid.grid_list.occupied == 0):
+                    if(grid.coordinate == ['c', ranknum] and grid.occupied == 0):
                         self.left_clear_way[1] = 1
                 for grid in Grid.grid_list:
-                    if(grid.coordinate == ['d', ranknum] and Grid.grid_list.occupied == 0):
+                    if(grid.coordinate == ['d', ranknum] and grid.occupied == 0):
                         self.left_clear_way[2] = 1
                 if(self.left_clear_way == [1, 1, 1]):
                     self.left_castle_ability = 1
@@ -1913,7 +1913,7 @@ def main():
             #Update all sprites
             START_SPRITES.update()
             PLACED_SPRITES.update()
-            #PLAY_SPRITES.update()
+            PLAY_SPRITES.update()
             SCREEN.fill(COLORKEY)
             GAME_MODE_SPRITES.draw(SCREEN)
             GRID_SPRITES.draw(SCREEN)
