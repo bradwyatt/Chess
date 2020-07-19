@@ -237,44 +237,6 @@ def deactivate_piece(coord, pin):
                         piece.pinned = True
                     else:
                         piece.pinned = False
-                
-# Projected Bishop Path
-def bishop_projected(piece, col):
-    def bishop_direction(x, y):
-        global CHECKTEXT
-        pieces_in_way = 0 #Pieces between the bishop and the enemy King
-        king_counter = 0 #Checks to see if there's a king in a direction
-        for i in range(1, 8):
-            for grid in Grid.grid_list:
-                if ord(grid.coordinate[0]) == ord(piece.coordinate[0])+(x*i) and grid.coordinate[1] == piece.coordinate[1]+(y*i):
-                    if(grid.occupied == 1): #Counts pieces that are in bishops projected range
-                        if(king_counter < 1): #Ignoring pieces that are past the king
-                            pieces_in_way += 1
-                            if(grid.occupied_piece_color != col):
-                                if(grid.occ_king == 1): #Finds the king
-                                    king_counter += 1
-                                else:
-                                    deactivate_piece(grid.coordinate, True)
-                    grid.white_bishop_path += 1
-                    # Pinned and if another white bishop's path is not obstructed
-                    if(pieces_in_way >= 2):
-                        grid.white_bishop_path -= 1
-        if(pieces_in_way == 2 and king_counter == 1): #2 Pieces in way, includes 1 king
-            CHECKTEXT = "Pinned"
-            return
-        elif(pieces_in_way == 1 and king_counter == 1):
-            CHECKTEXT = "Check"
-            return
-        elif(king_counter == 0 or pieces_in_way > 2): # Either no pin, or too many pieces in the way of a potential pin
-            deactivate_piece(grid.coordinate, False)
-            CHECKTEXT = ""
-        else:
-            pieces_in_way = 0
-            king_counter = 0
-    bishop_direction(-1, -1) #southwest
-    bishop_direction(-1, 1) #northwest
-    bishop_direction(1, -1) #southeast
-    bishop_direction(1, 1) #northeast
     
 # ProjectedRookPath
 def rook_projected(piece, col):
@@ -686,16 +648,55 @@ class PlayBishop(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         PLAY_SPRITES.add(self)
-        self.coordinate = None #blank coordinate, will change once it updates
+        self.coordinate = self.get_coordinate() #blank coordinate, will change once it updates
         self.select = False
         self.pinned = False
         self.taken_off_board = False
+        self.projected(self.color)
+    def get_coordinate(self):
+        for grid in Grid.grid_list:
+            if self.rect.colliderect(grid):
+                return grid.coordinate
     def update(self):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
                 self.coordinate = grid.coordinate
-    def projected(self):
-        bishop_projected(self, self.color)
+    def projected(self, col):
+        def bishop_direction(self, x, y):
+            global CHECKTEXT
+            pieces_in_way = 0 #Pieces between the bishop and the enemy King
+            king_counter = 0 #Checks to see if there's a king in a direction
+            for i in range(1, 8):
+                for grid in Grid.grid_list:
+                    if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i):
+                        if(grid.occupied == 1): #Counts pieces that are in bishops projected range
+                            if(king_counter < 1): #Ignoring pieces that are past the king
+                                pieces_in_way += 1
+                                if(grid.occupied_piece_color != col):
+                                    if(grid.occ_king == 1): #Finds the king
+                                        king_counter += 1
+                                    else:
+                                        deactivate_piece(grid.coordinate, True)
+                        grid.white_bishop_path += 1
+                        # Pinned and if another white bishop's path is not obstructed
+                        if(pieces_in_way >= 2):
+                            grid.white_bishop_path -= 1
+            if(pieces_in_way == 2 and king_counter == 1): #2 Pieces in way, includes 1 king
+                CHECKTEXT = "Pinned"
+                return
+            elif(pieces_in_way == 1 and king_counter == 1):
+                CHECKTEXT = "Check"
+                return
+            elif(king_counter == 0 or pieces_in_way > 2): # Either no pin, or too many pieces in the way of a potential pin
+                deactivate_piece(grid.coordinate, False)
+                CHECKTEXT = ""
+            else:
+                pieces_in_way = 0
+                king_counter = 0
+        bishop_direction(self, -1, -1) #southwest
+        bishop_direction(self, -1, 1) #northwest
+        bishop_direction(self, 1, -1) #southeast
+        bishop_direction(self, 1, 1) #northeast
     def captured(self):
         self.taken_off_board = True
         self.coordinate = None
@@ -1386,10 +1387,9 @@ class Game_Controller():
         """
         for piece_list in [PlayBishop.white_bishop_list]:
             for piece in piece_list:
-                piece.projected()
+                piece.projected("white")
                 print("coord: " + str(piece.coordinate))
     
-
 def main():    
     #Tk box for color
     root = tk.Tk()
@@ -1779,6 +1779,7 @@ def main():
                     if PLAY_EDIT_SWITCH_BUTTON.rect.collidepoint(MOUSEPOS) and game_controller.game_mode == game_controller.EDIT_MODE: 
                         # Makes clicking play again unclickable    
                         game_controller.game_mode = game_controller.PLAY_MODE
+                        game_controller.switch_turn(game_controller.WHITE_TO_MOVE)
                         PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(game_controller.game_mode)
                         game_controller.WHOSETURN = game_controller.WHITE_TO_MOVE
                         print("Play Mode Activated")
