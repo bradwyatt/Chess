@@ -669,7 +669,7 @@ class PlayBishop(pygame.sprite.Sprite):
             for i in range(1, 8):
                 for grid in Grid.grid_list:
                     if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i):
-                        grid.white_attack = 1
+                        grid.white_attack += 1
                         if(grid.occupied == 1 and king_count < 1): #Counting pieces and Ignoring pieces that are past the king
                             pieces_in_way += 1
                             print("Piece found on " + str(grid.coordinate))
@@ -687,7 +687,7 @@ class PlayBishop(pygame.sprite.Sprite):
                             CHECKTEXT = "Check"
                         elif(king_count == 0 and pieces_in_way >= 2): # Either no pin, or too many pieces in the way of a potential pin
                             print("No pin or too many pieces in the way. This is for coord " + str(grid.coordinate))
-                            grid.white_attack = 0
+                            grid.white_attack -= 1
                             CHECKTEXT = ""
                             return
                         print("coord " + str(grid.coordinate) + " piecesinway: " + str(pieces_in_way) + " kingcounter: " + str(king_count))
@@ -744,7 +744,7 @@ class PlayKnight(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         PLAY_SPRITES.add(self)
-        self.coordinate = None #blank coordinate, will change once it updates
+        self.coordinate = self.get_coordinate()
         self.select = False
         self.pinned = False
         self.taken_off_board = False
@@ -752,6 +752,29 @@ class PlayKnight(pygame.sprite.Sprite):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
                 self.coordinate = grid.coordinate
+    def get_coordinate(self):
+        for grid in Grid.grid_list:
+            if self.rect.colliderect(grid):
+                return grid.coordinate
+    def projected(self, col):
+        for grid in Grid.grid_list:
+            if self.color == "white":
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-2 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                    grid.white_attack += 1
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]+2 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                    grid.white_attack += 1
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-2 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                    grid.white_attack += 1
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]+2 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                    grid.white_attack += 1
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-2 and grid.coordinate[1] == self.coordinate[1]-1 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                    grid.white_attack += 1
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-2 and grid.coordinate[1] == self.coordinate[1]+1 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                    grid.white_attack += 1
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and grid.coordinate[1] == self.coordinate[1]-1 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                    grid.white_attack += 1
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and grid.coordinate[1] == self.coordinate[1]+1 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                    grid.white_attack += 1
     def captured(self):
         self.taken_off_board = True
         self.coordinate = None
@@ -1369,7 +1392,7 @@ class Game_Controller():
         for grid in Grid.grid_list:
             grid.no_highlight()
             grid.white_attack = 0
-        for piece_list in [PlayBishop.white_bishop_list]:
+        for piece_list in [PlayBishop.white_bishop_list, PlayKnight.white_knight_list]:
             for piece in piece_list:
                 piece.projected("white")
 
@@ -1807,7 +1830,6 @@ def main():
                             PlayKing(placed_black_king.rect.topleft, PLAY_SPRITES, "black")
                         GRID_SPRITES.update(game_controller)
                         game_controller.switch_turn(game_controller.WHITE_TO_MOVE)
-                        print("meow")
                     #################
                     # LEFT CLICK (RELEASE) STOP BUTTON
                     #################
