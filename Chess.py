@@ -669,7 +669,7 @@ class PlayBishop(pygame.sprite.Sprite):
             for i in range(1, 8):
                 for grid in Grid.grid_list:
                     if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i):
-                        grid.white_bishop_path = 1
+                        grid.white_attack = 1
                         if(grid.occupied == 1 and king_count < 1): #Counting pieces and Ignoring pieces that are past the king
                             pieces_in_way += 1
                             print("Piece found on " + str(grid.coordinate))
@@ -680,7 +680,6 @@ class PlayBishop(pygame.sprite.Sprite):
                             print("Pinned for " + str(grid.coordinate))
                             CHECKTEXT = "Pinned"
                             grid.pin_piece_coordinate = True
-                            self.attacker = True
                             #deactivate_piece
                             return
                         elif(pieces_in_way == 1 and king_count == 1):
@@ -688,10 +687,10 @@ class PlayBishop(pygame.sprite.Sprite):
                             CHECKTEXT = "Check"
                         elif(king_count == 0 and pieces_in_way >= 2): # Either no pin, or too many pieces in the way of a potential pin
                             print("No pin or too many pieces in the way. This is for coord " + str(grid.coordinate))
-                            grid.white_bishop_path = 0
+                            grid.white_attack = 0
                             CHECKTEXT = ""
                             return
-                        print("coord " + str(grid.coordinate) + " piecesinway: " + str(pieces_in_way) + " kingcounter: " + str(king_counter))
+                        print("coord " + str(grid.coordinate) + " piecesinway: " + str(pieces_in_way) + " kingcounter: " + str(king_count))
         bishop_direction(self, -1, -1) #southwest
         bishop_direction(self, -1, 1) #northwest
         bishop_direction(self, 1, -1) #southeast
@@ -1080,14 +1079,13 @@ class Grid(pygame.sprite.Sprite):
         self.occ_king = False
         Grid.grid_list.append(self)
         Grid.grid_dict["".join([self.coordinate[0],str(self.coordinate[1])])] = self
-        self.white_bishop_path = 0
-        self.attack_piece_coordinate
+        self.white_attack = 0
         self.pin_piece_coordinate = False
     def reset_board(self):
         self.no_highlight()
-        self.white_bishop_path = 0
+        self.white_attack = 0
     def reset_projected(self):
-        self.white_bishop_path = 0
+        self.white_attack = 0
     def update(self, game_controller):
         if game_controller.game_mode == game_controller.PLAY_MODE:
             def grid_occupied_by_piece():
@@ -1368,11 +1366,13 @@ class Game_Controller():
             grid.reset_projected()
     def switch_turn(self, color_turn):
         self.WHOSETURN = color_turn
+        for grid in Grid.grid_list:
+            grid.no_highlight()
+            grid.white_attack = 0
         for piece_list in [PlayBishop.white_bishop_list]:
             for piece in piece_list:
                 piece.projected("white")
-        for grid in Grid.grid_list:
-            grid.no_highlight()
+
         """
         for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                            PlayKnight.white_knight_list, PlayRook.white_rook_list,
@@ -1831,7 +1831,7 @@ def main():
                         if grid.rect.collidepoint(MOUSEPOS):
                             print("Coordinate: " + str(grid.coordinate) + ", and Occupied:" \
                                    + str(grid.occupied) + ", whiteorblack: " + str(grid.occupied_piece_color) \
-                                   + ", White Bishop Path: " + str(grid.white_bishop_path) \
+                                   + ", White Bishop Path: " + str(grid.white_attack) \
                                    + ", Occupy king: " + str(grid.occ_king))
                             
             ##################
@@ -1922,7 +1922,7 @@ def main():
             #Update all sprites
             START_SPRITES.update()
             PLACED_SPRITES.update()
-            PLAY_SPRITES.update()
+            #PLAY_SPRITES.update()
             SCREEN.fill(COLORKEY)
             GAME_MODE_SPRITES.draw(SCREEN)
             GRID_SPRITES.draw(SCREEN)
