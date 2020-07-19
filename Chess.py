@@ -237,115 +237,7 @@ def deactivate_piece(coord, pin):
                         piece.pinned = True
                     else:
                         piece.pinned = False
-    
-# ProjectedRookPath
-def rook_projected(piece, col):
-    global CHECKTEXT
-    pass
-    """
-    pieces_in_way = 0 #Pieces between the rook and the enemy King
-    king_counter = 0 #Checks to see if there's a king in a direction
-    try:
-        for i in range(1,8): #West
-            for grid in Grid.grid_list:
-                if ord(grid.coordinate[0]) == ord(piece.coordinate[0])-i and grid.coordinate[1] == piece.coordinate[1]:
-                    if(grid.occupied == 1): #Counts pieces that are in rook's projected range
-                        if(king_counter < 1): #Ignoring pieces that are past the king
-                            pieces_in_way += 1
-                            if(grid.occupied_piece_color != col):
-                                if(grid.occ_king == 1): #Finds the king
-                                    king_counter += 1
-                                else:
-                                    deactivate_piece(grid.coordinate, True)
-                    #grid.image = IMAGES["SPR_HIGHLIGHT_PROJECTED"]
-        if(pieces_in_way == 2 and king_counter == 1): #2 Pieces in way, includes 1 king
-            CHECKTEXT = "Pinned"
-            raise
-        elif(pieces_in_way == 1 and king_counter == 1):
-            CHECKTEXT = "Check"
-            raise
-        elif(king_counter == 0 or pieces_in_way > 2): # Either no pin, or too many pieces in the way of a potential pin
-            deactivate_piece(grid.coordinate, False)
-            CHECKTEXT = ""
-        else:
-            pieces_in_way = 0
-            king_counter = 0
-        for i in range(1,8): #east
-            for grid in Grid.grid_list:
-                if ord(grid.coordinate[0]) == ord(piece.coordinate[0])+i and grid.coordinate[1] == piece.coordinate[1]:
-                    if(grid.occupied == 1):
-                        if(king_counter < 1): #Ignoring pieces that are past the king
-                            pieces_in_way += 1
-                            if(grid.occupied_piece_color != col):
-                                if(grid.occ_king == 1 and grid.occupied_piece_color != col): #Finds the king
-                                    king_counter += 1
-                                else:
-                                    deactivate_piece(grid.coordinate, True)
-                    #grid.image = IMAGES["SPR_HIGHLIGHT_PROJECTED"]
 
-        if(pieces_in_way == 2 and king_counter == 1):
-            CHECKTEXT = "Pinned"
-            raise
-        elif(pieces_in_way == 1 and king_counter == 1):
-            CHECKTEXT = "Check"
-            raise
-        elif(king_counter == 0 or pieces_in_way > 2):
-            deactivate_piece(grid.coordinate, False)
-            CHECKTEXT = ""
-        else:
-            pieces_in_way = 0
-            king_counter = 0
-        for i in range(1,8): #north
-            for grid in Grid.grid_list:
-                if ord(grid.coordinate[0]) == ord(piece.coordinate[0]) and grid.coordinate[1] == piece.coordinate[1]+i:
-                    if(grid.occupied == 1):
-                        if(king_counter < 1): #Ignoring pieces that are past the king
-                            pieces_in_way += 1
-                            if(grid.occupied_piece_color != col):
-                                if(grid.occ_king == 1 and grid.occupied_piece_color != col): #Finds the king
-                                    king_counter += 1
-                                else:
-                                    deactivate_piece(grid.coordinate, True)
-                    #grid.image = IMAGES["SPR_HIGHLIGHT_PROJECTED"]
-        if(pieces_in_way == 2 and king_counter == 1):
-            CHECKTEXT = "Pinned"
-            raise
-        elif(pieces_in_way == 1 and king_counter == 1):
-            CHECKTEXT = "Check"
-            raise
-        elif(king_counter == 0 or pieces_in_way > 2): 
-            deactivate_piece(grid.coordinate, False)
-            CHECKTEXT = ""
-        else:
-            pieces_in_way = 0
-            king_counter = 0
-        for i in range(1,8): #south
-            for grid in Grid.grid_list:
-                if ord(grid.coordinate[0]) == ord(piece.coordinate[0]) and grid.coordinate[1] == piece.coordinate[1]-i:
-                    if(grid.occupied == 1):
-                        if(king_counter < 1): #Ignoring pieces that are past the king
-                            pieces_in_way += 1
-                            if(grid.occupied_piece_color != col):
-                                if(grid.occ_king == 1 and grid.occupied_piece_color != col): #Finds the king
-                                    king_counter += 1
-                                else:
-                                    deactivate_piece(grid.coordinate, True)
-                    #grid.image = IMAGES["SPR_HIGHLIGHT_PROJECTED"]
-        if(pieces_in_way == 2 and king_counter == 1):
-            CHECKTEXT = "Pinned"
-            raise
-        elif(pieces_in_way == 1 and king_counter == 1):
-            CHECKTEXT = "Check"
-            raise
-        elif(king_counter == 0 or pieces_in_way > 2):
-            deactivate_piece(grid.coordinate, False)
-            CHECKTEXT = ""
-        else:
-            pieces_in_way = 0
-            king_counter = 0
-    except:
-        pass
-    """
 #############
 # MOVING PIECES
 #############
@@ -606,26 +498,23 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                 self.image = IMAGES["SPR_BLACK_PAWN"]
             self.select = False
     def projected(self):
-        if(self.color == "white"):
-            for grid in Grid.grid_list:
-                # Enemy pieces
-                if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]+1 and \
-                grid.occupied_piece_color == "black"):
-                    print("grid to attack: " + str(grid.coordinate))
-                    grid.attack_count_increment(self.color, 1)
-                if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]+1 and \
-                grid.occupied_piece_color == "black"):
-                    grid.attack_count_increment(self.color, 1)
-                    print("grid to attack: " + str(grid.coordinate))
-        elif(self.color == "black"):
-            for grid in Grid.grid_list:
-                # Enemy pieces
-                if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-1 and \
-                grid.occupied_piece_color == "white"):
-                    grid.attack_count_increment(self.color, 1)
-                if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-1 and \
-                grid.occupied_piece_color == "white"):
-                    grid.attack_count_increment(self.color, 1)
+        if self.taken_off_board == False:
+            if(self.color == "white"):
+                for grid in Grid.grid_list:
+                    # Enemy pieces
+                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]+1 \
+                        and (grid.occupied == 0 or grid.occupied_piece_color != self.color)):
+                        grid.attack_count_increment(self.color, 1)
+                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]+1 \
+                        and (grid.occupied == 0 or grid.occupied_piece_color != self.color)):
+                        grid.attack_count_increment(self.color, 1)
+            elif(self.color == "black"):
+                for grid in Grid.grid_list:
+                    # Enemy pieces
+                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-1):
+                        grid.attack_count_increment(self.color, 1)
+                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-1):
+                        grid.attack_count_increment(self.color, 1)
     def spaces_available(self):
         if(self.pinned == False and self.taken_off_board != True):
             if(self.color == "white"):
@@ -681,38 +570,40 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
             if self.rect.colliderect(grid):
                 self.coordinate = grid.coordinate
     def projected(self):
-        def bishop_direction(self, x, y):
-            global CHECKTEXT
-            pieces_in_way = 0 #Pieces between the bishop and the enemy King
-            king_count = 0 #Checks to see if there's a king in a direction
-            for i in range(1, 8):
-                for grid in Grid.grid_list:
-                    if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i):
-                        grid.attack_count_increment(self.color, 1)
-                        if(grid.occupied == 1 and king_count < 1): #Counting pieces and Ignoring pieces that are past the king
-                            pieces_in_way += 1
-                            if(grid.occ_king == 1 and grid.occupied_piece_color != self.color):
-                                print("King found on coordinate " + str(grid.coordinate))
-                                king_count += 1
-                        if(pieces_in_way == 2 and king_count == 1): #2 Pieces in way, includes 1 king
-                            print("Pinned for " + str(grid.coordinate))
-                            CHECKTEXT = "Pinned"
-                            grid.pin_piece_coordinate = True
-                            #deactivate_piece
-                            return
-                        elif(pieces_in_way == 1 and king_count == 1):
-                            print("Check for coordinate " + str(grid.coordinate))
-                            CHECKTEXT = "Check"
-                        elif(king_count == 0 and pieces_in_way >= 2): # Either no pin, or too many pieces in the way of a potential pin
-                            print("No pin or too many pieces in the way. This is for coord " + str(grid.coordinate))
-                            grid.attack_count_increment(self.color, -1)
-                            CHECKTEXT = ""
-                            return
-                        #print("coord " + str(grid.coordinate) + " piecesinway: " + str(pieces_in_way) + " kingcounter: " + str(king_count))
-        bishop_direction(self, -1, -1) #southwest
-        bishop_direction(self, -1, 1) #northwest
-        bishop_direction(self, 1, -1) #southeast
-        bishop_direction(self, 1, 1) #northeast
+        if self.taken_off_board == False:
+            def bishop_direction(self, x, y):
+                global CHECKTEXT
+                pieces_in_way = 0 #Pieces between the bishop and the enemy King
+                king_count = 0 #Checks to see if there's a king in a direction
+                for i in range(1, 8):
+                    for grid in Grid.grid_list:
+                        if(ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) \
+                           and (grid.occupied == 0 or grid.occupied_piece_color != self.color)):
+                            grid.attack_count_increment(self.color, 1)
+                            if(grid.occupied == 1 and king_count < 1): #Counting pieces and Ignoring pieces that are past the king
+                                pieces_in_way += 1
+                                if(grid.occ_king == 1 and grid.occupied_piece_color != self.color):
+                                    print("King found on coordinate " + str(grid.coordinate))
+                                    king_count += 1
+                            if(pieces_in_way == 2 and king_count == 1): #2 Pieces in way, includes 1 king
+                                print("Pinned for " + str(grid.coordinate))
+                                CHECKTEXT = "Pinned"
+                                grid.pin_piece_coordinate = True
+                                #deactivate_piece
+                                return
+                            elif(pieces_in_way == 1 and king_count == 1):
+                                print("Check for coordinate " + str(grid.coordinate))
+                                CHECKTEXT = "Check"
+                            elif(king_count == 0 and pieces_in_way >= 2): # Either no pin, or too many pieces in the way of a potential pin
+                                # print("No pin or too many pieces in the way. This is for coord " + str(grid.coordinate))
+                                grid.attack_count_increment(self.color, -1)
+                                CHECKTEXT = ""
+                                return
+                            #print("coord " + str(grid.coordinate) + " piecesinway: " + str(pieces_in_way) + " kingcounter: " + str(king_count))
+            bishop_direction(self, -1, -1) #southwest
+            bishop_direction(self, -1, 1) #northwest
+            bishop_direction(self, 1, -1) #southeast
+            bishop_direction(self, 1, 1) #northeast
     def captured(self):
         self.taken_off_board = True
         self.coordinate = None
@@ -729,9 +620,11 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
             def bishop_direction(x, y):
                 for i in range(1,8):
                     for grid in Grid.grid_list:
-                        if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 0:
+                        if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) \
+                               and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 0:
                             grid.highlight()
-                        elif ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 1:
+                        elif ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and \
+                                 grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 1:
                             if(grid.occupied_piece_color != self.color): # Highlights when enemy piece in path
                                 grid.highlight()
                             return
@@ -764,23 +657,32 @@ class PlayKnight(ChessPiece, pygame.sprite.Sprite):
             if self.rect.colliderect(grid):
                 self.coordinate = grid.coordinate
     def projected(self):
-        for grid in Grid.grid_list:
-            if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-2 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                grid.attack_count_increment(self.color, 1)
-            if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]+2 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                grid.attack_count_increment(self.color, 1)
-            if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-2 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                grid.attack_count_increment(self.color, 1)
-            if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]+2 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                grid.attack_count_increment(self.color, 1)
-            if ord(grid.coordinate[0]) == ord(self.coordinate[0])-2 and grid.coordinate[1] == self.coordinate[1]-1 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                grid.attack_count_increment(self.color, 1)
-            if ord(grid.coordinate[0]) == ord(self.coordinate[0])-2 and grid.coordinate[1] == self.coordinate[1]+1 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                grid.attack_count_increment(self.color, 1)
-            if ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and grid.coordinate[1] == self.coordinate[1]-1 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                grid.attack_count_increment(self.color, 1)
-            if ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and grid.coordinate[1] == self.coordinate[1]+1 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                grid.attack_count_increment(self.color, 1)
+        if self.taken_off_board == False:
+            for grid in Grid.grid_list:
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-2 \
+                    and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                    grid.attack_count_increment(self.color, 1)
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]+2 \
+                    and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                    grid.attack_count_increment(self.color, 1)
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-2 \
+                    and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                    grid.attack_count_increment(self.color, 1)
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]+2 \
+                    and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                    grid.attack_count_increment(self.color, 1)
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-2 and grid.coordinate[1] == self.coordinate[1]-1 \
+                    and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                    grid.attack_count_increment(self.color, 1)
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-2 and grid.coordinate[1] == self.coordinate[1]+1 \
+                    and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                    grid.attack_count_increment(self.color, 1)
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and grid.coordinate[1] == self.coordinate[1]-1 \
+                    and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                    grid.attack_count_increment(self.color, 1)
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and grid.coordinate[1] == self.coordinate[1]+1 \
+                    and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                    grid.attack_count_increment(self.color, 1)
     def captured(self):
         self.taken_off_board = True
         self.coordinate = None
@@ -837,26 +739,27 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
                 self.coordinate = grid.coordinate
-        if(self.select == False): # Projected Spaces Attacked
-            rook_projected(self)
     def captured(self):
         self.taken_off_board = True
         self.coordinate = None
         self.rect.topleft = 550, 600
     def projected(self):
-        def rook_direction(x, y):
-            for i in range(1, 8):
-                for grid in Grid.grid_list:
-                    if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 0:
-                        grid.attack_count_increment(self.color, 1)
-                    elif ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 1:
-                        if(grid.occupied_piece_color != self.color):
+        if self.taken_off_board == False:
+            def rook_direction(x, y):
+                for i in range(1, 8):
+                    for grid in Grid.grid_list:
+                        if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) \
+                               and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 0:
                             grid.attack_count_increment(self.color, 1)
-                        return
-        rook_direction(-1, 0) #west
-        rook_direction(1, 0) #east
-        rook_direction(0, 1) #north
-        rook_direction(0, -1) #south
+                        elif ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) \
+                                 and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 1:
+                            if(grid.occupied_piece_color != self.color):
+                                grid.attack_count_increment(self.color, 1)
+                            return
+            rook_direction(-1, 0) #west
+            rook_direction(1, 0) #east
+            rook_direction(0, 1) #north
+            rook_direction(0, -1) #south
     def move_square(self, coordinate_parameter, castle=False):
         if castle == False:
             for grid in Grid.grid_list:
@@ -923,32 +826,34 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
         self.coordinate = None
         self.rect.topleft = 650, 600
     def projected(self):
-        def bishop_direction(x, y):
-            for i in range(1,8):
-                for grid in Grid.grid_list:
-                    if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 0:
-                        grid.attack_count_increment(self.color, 1)
-                    elif ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 1:
-                        if(grid.occupied_piece_color != self.color): # Highlights when enemy piece in path
+        if self.taken_off_board == False:
+            def bishop_direction(x, y):
+                for i in range(1,8):
+                    for grid in Grid.grid_list:
+                        if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) \
+                               and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 0:
                             grid.attack_count_increment(self.color, 1)
-                        return
-        bishop_direction(-1, -1) #southwest
-        bishop_direction(-1, 1) #northwest
-        bishop_direction(1, -1) #southeast
-        bishop_direction(1, 1) #northeast
-        def rook_direction(x, y):
-            for i in range(1,8):
-                for grid in Grid.grid_list:
-                    if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 0:
-                        grid.attack_count_increment(self.color, 1)
-                    elif ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 1:
-                        if(grid.occupied_piece_color != self.color): # Highlights when enemy piece in path
+                        elif ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 1:
+                            if(grid.occupied_piece_color != self.color): # Highlights when enemy piece in path
+                                grid.attack_count_increment(self.color, 1)
+                            return
+            bishop_direction(-1, -1) #southwest
+            bishop_direction(-1, 1) #northwest
+            bishop_direction(1, -1) #southeast
+            bishop_direction(1, 1) #northeast
+            def rook_direction(x, y):
+                for i in range(1,8):
+                    for grid in Grid.grid_list:
+                        if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 0:
                             grid.attack_count_increment(self.color, 1)
-                        return
-        rook_direction(-1, 0) #west
-        rook_direction(1, 0) #east
-        rook_direction(0, 1) #north
-        rook_direction(0, -1) #south
+                        elif ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 1:
+                            if(grid.occupied_piece_color != self.color): # Highlights when enemy piece in path
+                                grid.attack_count_increment(self.color, 1)
+                            return
+            rook_direction(-1, 0) #west
+            rook_direction(1, 0) #east
+            rook_direction(0, 1) #north
+            rook_direction(0, -1) #south
     def highlight(self):
         if self.taken_off_board != True:
             if(self.color == "white"):
@@ -964,7 +869,7 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
                         if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 0:
                             grid.highlight()
                         elif ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 1:
-                            if(grid.occupied_piece_color != self.col): # Highlights when enemy piece in path
+                            if(grid.occupied_piece_color != self.color): # Highlights when enemy piece in path
                                 grid.highlight()
                             return
             bishop_direction(-1, -1) #southwest
@@ -977,7 +882,7 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
                         if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 0:
                             grid.highlight()
                         elif ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 1:
-                            if(grid.occupied_piece_color != self.col): # Highlights when enemy piece in path
+                            if(grid.occupied_piece_color != self.color): # Highlights when enemy piece in path
                                 grid.highlight()
                             return
             rook_direction(-1, 0) #west
@@ -1059,39 +964,40 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_KING_HIGHLIGHTED"]
         self.select = 1
     def projected(self):
-        for grid in Grid.grid_list:
-            if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-1 and \
-                (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                grid.attack_count_increment(self.color, 1)
-            if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1] and \
-                (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                grid.attack_count_increment(self.color, 1)
-            if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]+1 and \
-                (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                grid.attack_count_increment(self.color, 1)
-            if ord(grid.coordinate[0]) == ord(self.coordinate[0]) and grid.coordinate[1] == self.coordinate[1]-1 and \
-                (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                grid.attack_count_increment(self.color, 1)
-            if ord(grid.coordinate[0]) == ord(self.coordinate[0]) and grid.coordinate[1] == self.coordinate[1]+1 and \
-                (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                grid.attack_count_increment(self.color, 1)
-            if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-1 and \
-                (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                grid.attack_count_increment(self.color, 1)
-            if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1] and \
-                (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                grid.attack_count_increment(self.color, 1)
-            if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]+1 and \
-                (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                grid.attack_count_increment(self.color, 1)
-            if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and grid.coordinate[1] == self.coordinate[1] and \
-                (grid.occupied == 0 or grid.occupied_piece_color != self.color) and
-                self.right_castle_ability == 1 and (self.coordinate[1] == 1 or self.coordinate[1]==8)):
+        if self.taken_off_board == False:
+            for grid in Grid.grid_list:
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-1 and \
+                    (grid.occupied == 0 or grid.occupied_piece_color != self.color):
                     grid.attack_count_increment(self.color, 1)
-            if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-2 and grid.coordinate[1] == self.coordinate[1] and \
-                (grid.occupied == 0 or grid.occupied_piece_color != self.color) and
-                self.left_castle_ability == 1 and (self.coordinate[1] == 1 or self.coordinate[1]==8)):
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1] and \
+                    (grid.occupied == 0 or grid.occupied_piece_color != self.color):
                     grid.attack_count_increment(self.color, 1)
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]+1 and \
+                    (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                    grid.attack_count_increment(self.color, 1)
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0]) and grid.coordinate[1] == self.coordinate[1]-1 and \
+                    (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                    grid.attack_count_increment(self.color, 1)
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0]) and grid.coordinate[1] == self.coordinate[1]+1 and \
+                    (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                    grid.attack_count_increment(self.color, 1)
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-1 and \
+                    (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                    grid.attack_count_increment(self.color, 1)
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1] and \
+                    (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                    grid.attack_count_increment(self.color, 1)
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]+1 and \
+                    (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                    grid.attack_count_increment(self.color, 1)
+                if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and grid.coordinate[1] == self.coordinate[1] and \
+                    (grid.occupied == 0 or grid.occupied_piece_color != self.color) and
+                    self.right_castle_ability == 1 and (self.coordinate[1] == 1 or self.coordinate[1]==8)):
+                        grid.attack_count_increment(self.color, 1)
+                if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-2 and grid.coordinate[1] == self.coordinate[1] and \
+                    (grid.occupied == 0 or grid.occupied_piece_color != self.color) and
+                    self.left_castle_ability == 1 and (self.coordinate[1] == 1 or self.coordinate[1]==8)):
+                        grid.attack_count_increment(self.color, 1)
     def spaces_available(self):
         for grid in Grid.grid_list:
             if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-1 and \
@@ -1866,7 +1772,6 @@ def main():
                         game_controller.game_mode = game_controller.PLAY_MODE
                         game_controller.switch_turn(game_controller.WHITE_TO_MOVE)
                         PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(game_controller.game_mode)
-                        game_controller.WHOSETURN = game_controller.WHITE_TO_MOVE
                         print("Play Mode Activated")
     
                         for placed_white_pawn in PlacedPawn.white_pawn_list:
@@ -1894,7 +1799,6 @@ def main():
                         for placed_black_king in PlacedKing.black_king_list:
                             PlayKing(placed_black_king.rect.topleft, PLAY_SPRITES, "black")
                         GRID_SPRITES.update(game_controller)
-                        game_controller.switch_turn(game_controller.WHITE_TO_MOVE)
                     #################
                     # LEFT CLICK (RELEASE) STOP BUTTON
                     #################
@@ -1919,7 +1823,7 @@ def main():
                             print("Coordinate: " + str(grid.coordinate) \
                                    + ", Num White Pieces Attacking: " + str(grid.white_attack) \
                                    + ", Num Black Pieces Attacking: " + str(grid.black_attack) \
-                                   + ", Occupy king: " + str(grid.occ_king))
+                                   + ", Occupy piece color: " + str(grid.occupied_piece_color))
                             
             ##################
             # ALL EDIT ACTIONS
