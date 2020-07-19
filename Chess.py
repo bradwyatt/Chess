@@ -652,7 +652,6 @@ class PlayBishop(pygame.sprite.Sprite):
         self.select = False
         self.pinned = False
         self.taken_off_board = False
-        self.projected(self.color)
     def get_coordinate(self):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
@@ -669,34 +668,28 @@ class PlayBishop(pygame.sprite.Sprite):
             for i in range(1, 8):
                 for grid in Grid.grid_list:
                     if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i):
-                        if(grid.occupied == 1): #Counts pieces that are in bishops projected range
-                            if(king_counter < 1): #Ignoring pieces that are past the king
-                                pieces_in_way += 1
-                                print("Piece found on " + str(grid.coordinate))
-                                if(grid.occupied_piece_color != col):
-                                    if(grid.occ_king == 1): #Finds the king
-                                        print("King found on coordinate " + str(grid.coordinate))
-                                        king_counter += 1
-                                    else:
-                                        print("Piece deactivated on coordinate " + str(grid.coordinate))
-                                        deactivate_piece(grid.coordinate, True)
                         grid.white_bishop_path = 1
-                        # Pinned and if another white bishop's path is not obstructed
-                        if(pieces_in_way > 2):
-                            print("Two or more pieces found")
+                        if(grid.occupied == 1 and king_counter < 1): #Counting pieces and Ignoring pieces that are past the king
+                            pieces_in_way += 1
+                            print("Piece found on " + str(grid.coordinate))
+                            if(grid.occ_king == 1 and grid.occupied_piece_color != col):
+                                print("King found on coordinate " + str(grid.coordinate))
+                                king_counter += 1
+                        if(pieces_in_way == 2 and king_counter == 1): #2 Pieces in way, includes 1 king
+                            print("Pinned for " + str(grid.coordinate))
                             grid.white_bishop_path = 0
-            if(pieces_in_way == 2 and king_counter == 1): #2 Pieces in way, includes 1 king
-                CHECKTEXT = "Pinned"
-                return
-            elif(pieces_in_way == 1 and king_counter == 1):
-                CHECKTEXT = "Check"
-                return
-            elif(king_counter == 0 or pieces_in_way > 2): # Either no pin, or too many pieces in the way of a potential pin
-                deactivate_piece(grid.coordinate, False)
-                CHECKTEXT = ""
-            else:
-                pieces_in_way = 0
-                king_counter = 0
+                            CHECKTEXT = "Pinned"
+                            return
+                        elif(pieces_in_way == 1 and king_counter == 1):
+                            print("Check for coordinate " + str(grid.coordinate))
+                            CHECKTEXT = "Check"
+                        elif(king_counter == 0 and pieces_in_way >= 2): # Either no pin, or too many pieces in the way of a potential pin
+                            print("No pin or too many pieces in the way. This is for coord " + str(grid.coordinate))
+                            grid.white_bishop_path = 0
+                            #deactivate_piece(grid.coordinate, False)
+                            CHECKTEXT = ""
+                            return
+                        print("coord " + str(grid.coordinate) + " piecesinway: " + str(pieces_in_way) + " kingcounter: " + str(king_counter))
         bishop_direction(self, -1, -1) #southwest
         bishop_direction(self, -1, 1) #northwest
         bishop_direction(self, 1, -1) #southeast
@@ -1810,6 +1803,7 @@ def main():
                             PlayKing(placed_black_king.rect.topleft, PLAY_SPRITES, "black")
                         GRID_SPRITES.update(game_controller)
                         game_controller.switch_turn(game_controller.WHITE_TO_MOVE)
+                        print("meow")
                     #################
                     # LEFT CLICK (RELEASE) STOP BUTTON
                     #################
