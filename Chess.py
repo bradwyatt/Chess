@@ -648,7 +648,7 @@ class PlayBishop(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         PLAY_SPRITES.add(self)
-        self.coordinate = self.get_coordinate() #blank coordinate, will change once it updates
+        self.coordinate = self.get_coordinate()
         self.select = False
         self.pinned = False
         self.taken_off_board = False
@@ -672,15 +672,19 @@ class PlayBishop(pygame.sprite.Sprite):
                         if(grid.occupied == 1): #Counts pieces that are in bishops projected range
                             if(king_counter < 1): #Ignoring pieces that are past the king
                                 pieces_in_way += 1
+                                print("Piece found on " + str(grid.coordinate))
                                 if(grid.occupied_piece_color != col):
                                     if(grid.occ_king == 1): #Finds the king
+                                        print("King found on coordinate " + str(grid.coordinate))
                                         king_counter += 1
                                     else:
+                                        print("Piece deactivated on coordinate " + str(grid.coordinate))
                                         deactivate_piece(grid.coordinate, True)
-                        grid.white_bishop_path += 1
+                        grid.white_bishop_path = 1
                         # Pinned and if another white bishop's path is not obstructed
-                        if(pieces_in_way >= 2):
-                            grid.white_bishop_path -= 1
+                        if(pieces_in_way > 2):
+                            print("Two or more pieces found")
+                            grid.white_bishop_path = 0
             if(pieces_in_way == 2 and king_counter == 1): #2 Pieces in way, includes 1 king
                 CHECKTEXT = "Pinned"
                 return
@@ -1084,9 +1088,8 @@ class Grid(pygame.sprite.Sprite):
         self.white_bishop_path = 0
     def reset_board(self):
         self.no_highlight()
-        self.occupied = False
-        self.occupied_piece_color = ""
-        self.occ_king = False
+        self.white_bishop_path = 0
+    def reset_projected(self):
         self.white_bishop_path = 0
     def update(self, game_controller):
         if game_controller.game_mode == game_controller.PLAY_MODE:
@@ -1109,8 +1112,6 @@ class Grid(pygame.sprite.Sprite):
                     self.occupied = False
                     self.occupied_piece_color = ""
             grid_occupied_by_piece()
-    def reset_projected_paths(self):
-        self.white_bishop_path = 0
     """
         for whiteKing in play.white_king_list:
             if self.coordinate == whiteKing.coordinate:
@@ -1372,11 +1373,14 @@ class Game_Controller():
         PlayKing.black_king_list = []
         for grid in Grid.grid_list:
             grid.reset_board()
+            grid.reset_projected()
     def switch_turn(self, color_turn):
-        for grid in Grid.grid_list:
-            grid.reset_projected_paths()
-            grid.no_highlight()
         self.WHOSETURN = color_turn
+        for piece_list in [PlayBishop.white_bishop_list]:
+            for piece in piece_list:
+                piece.projected("white")
+        for grid in Grid.grid_list:
+            grid.no_highlight()
         """
         for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                            PlayKnight.white_knight_list, PlayRook.white_rook_list,
@@ -1385,10 +1389,7 @@ class Game_Controller():
                            PlayKnight.black_knight_list, PlayRook.black_rook_list,
                            PlayQueen.black_queen_list, PlayKing.black_king_list]:
         """
-        for piece_list in [PlayBishop.white_bishop_list]:
-            for piece in piece_list:
-                piece.projected("white")
-                print("coord: " + str(piece.coordinate))
+
     
 def main():    
     #Tk box for color
@@ -1716,6 +1717,10 @@ def main():
                                                 for piece_captured in piece_captured_list:
                                                     if piece_captured.coordinate == grid.coordinate:
                                                         piece_captured.captured()
+                                        # Grid is no longer occupied by a piece
+                                        for old_grid in Grid.grid_list:
+                                            if old_grid.coordinate == piece.coordinate:
+                                                old_grid.occupied = False
                                         # Moving piece, removing piece and grid highlights, changing Turn
                                         piece.rect.topleft = grid.rect.topleft
                                         piece.coordinate = grid.coordinate
@@ -1808,7 +1813,8 @@ def main():
                             PlayQueen(placed_black_queen.rect.topleft, PLAY_SPRITES, "black")    
                         for placed_black_king in PlacedKing.black_king_list:
                             PlayKing(placed_black_king.rect.topleft, PLAY_SPRITES, "black")
-                                
+                        GRID_SPRITES.update(game_controller)
+                        game_controller.switch_turn(game_controller.WHITE_TO_MOVE)
                     #################
                     # LEFT CLICK (RELEASE) STOP BUTTON
                     #################
