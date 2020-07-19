@@ -632,31 +632,34 @@ class PlayPawn(pygame.sprite.Sprite):
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-1 and \
                     grid.occupied_piece_color == "white"):
                         grid.highlight()
-
-class PlayBishop(pygame.sprite.Sprite):
-    white_bishop_list = []
-    black_bishop_list = []
-    def __init__(self, pos, PLAY_SPRITES, col):
-        pygame.sprite.Sprite.__init__(self)
-        self.color = col
-        if(self.color == "white"):
-            self.image = IMAGES["SPR_WHITE_BISHOP"]
-            PlayBishop.white_bishop_list.append(self)
-        elif(self.color == "black"):
-            self.image = IMAGES["SPR_BLACK_BISHOP"]
-            PlayBishop.black_bishop_list.append(self)
+                        
+class ChessPiece:
+    def __init__(self, pos, PLAY_SPRITES, image, col):
+        PLAY_SPRITES.add(self)
+        self.image = image
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
-        PLAY_SPRITES.add(self)
-        self.coordinate = self.get_coordinate()
+        self.color = col
         self.select = False
         self.pinned = False
         self.taken_off_board = False
         self.attacker = False
+        self.coordinate = self.get_coordinate()
     def get_coordinate(self):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
                 return grid.coordinate
+
+class PlayBishop(ChessPiece, pygame.sprite.Sprite):
+    white_bishop_list = []
+    black_bishop_list = []
+    def __init__(self, pos, PLAY_SPRITES, image, col):
+        pygame.sprite.Sprite.__init__(self)
+        super().__init__(pos, PLAY_SPRITES, image, "white")
+        if(self.color == "white"):
+            PlayBishop.white_bishop_list.append(self)
+        elif(self.color == "black"):
+            PlayBishop.black_bishop_list.append(self)
     def update(self):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
@@ -690,7 +693,7 @@ class PlayBishop(pygame.sprite.Sprite):
                             grid.white_attack -= 1
                             CHECKTEXT = ""
                             return
-                        print("coord " + str(grid.coordinate) + " piecesinway: " + str(pieces_in_way) + " kingcounter: " + str(king_count))
+                        #print("coord " + str(grid.coordinate) + " piecesinway: " + str(pieces_in_way) + " kingcounter: " + str(king_count))
         bishop_direction(self, -1, -1) #southwest
         bishop_direction(self, -1, 1) #northwest
         bishop_direction(self, 1, -1) #southeast
@@ -759,6 +762,23 @@ class PlayKnight(pygame.sprite.Sprite):
     def projected(self, col):
         for grid in Grid.grid_list:
             if self.color == "white":
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-2 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                    grid.white_attack += 1
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]+2 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                    grid.white_attack += 1
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-2 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                    grid.white_attack += 1
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]+2 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                    grid.white_attack += 1
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-2 and grid.coordinate[1] == self.coordinate[1]-1 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                    grid.white_attack += 1
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-2 and grid.coordinate[1] == self.coordinate[1]+1 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                    grid.white_attack += 1
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and grid.coordinate[1] == self.coordinate[1]-1 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                    grid.white_attack += 1
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and grid.coordinate[1] == self.coordinate[1]+1 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                    grid.white_attack += 1
+            if self.color == "black":
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-2 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
                     grid.white_attack += 1
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]+2 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
@@ -1807,7 +1827,7 @@ def main():
                         for placed_white_pawn in PlacedPawn.white_pawn_list:
                             PlayPawn(placed_white_pawn.rect.topleft, PLAY_SPRITES, "white")
                         for placed_white_bishop in PlacedBishop.white_bishop_list:
-                            PlayBishop(placed_white_bishop.rect.topleft, PLAY_SPRITES, "white")
+                            PlayBishop(placed_white_bishop.rect.topleft, PLAY_SPRITES, IMAGES["SPR_WHITE_BISHOP"], "white")
                         for placed_white_knight in PlacedKnight.white_knight_list:
                             PlayKnight(placed_white_knight.rect.topleft, PLAY_SPRITES, "white")
                         for placed_white_rook in PlacedRook.white_rook_list:
