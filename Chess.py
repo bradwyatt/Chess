@@ -1107,19 +1107,14 @@ class Grid(pygame.sprite.Sprite):
                                 self.occupied_piece_color = "white"
                             elif piece.color == "black":
                                 self.occupied_piece_color = "black"
+                            if(piece in PlayKing.white_king_list or piece in PlayKing.black_king_list):
+                                self.occ_king = True
                             return
                 else:
+                    self.occ_king = False
                     self.occupied = False
                     self.occupied_piece_color = ""
             grid_occupied_by_piece()
-    """
-        for whiteKing in play.white_king_list:
-            if self.coordinate == whiteKing.coordinate:
-                self.occ_king = 1
-        for blackKing in play.black_king_list:
-            if self.coordinate == blackKing.coordinate:
-                self.occ_king = 1
-    """
     def highlight(self):
         self.image = IMAGES["SPR_HIGHLIGHT"]
         self.highlighted = True
@@ -1836,9 +1831,10 @@ def main():
                 if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[1]:
                     for grid in Grid.grid_list:
                         if grid.rect.collidepoint(MOUSEPOS):
-                            print("Coordinate: " + str(grid.coordinate) + " and Occupied:" \
-                                   + str(grid.occupied) + " whiteorblack: " + str(grid.occupied_piece_color) \
-                                   + " White Bishop Path: " + str(grid.white_bishop_path))
+                            print("Coordinate: " + str(grid.coordinate) + ", and Occupied:" \
+                                   + str(grid.occupied) + ", whiteorblack: " + str(grid.occupied_piece_color) \
+                                   + ", White Bishop Path: " + str(grid.white_bishop_path) \
+                                   + ", Occupy king: " + str(grid.occ_king))
                             
             ##################
             # ALL EDIT ACTIONS
