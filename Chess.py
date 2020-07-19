@@ -652,6 +652,7 @@ class PlayBishop(pygame.sprite.Sprite):
         self.select = False
         self.pinned = False
         self.taken_off_board = False
+        self.attacker = False
     def get_coordinate(self):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
@@ -664,29 +665,30 @@ class PlayBishop(pygame.sprite.Sprite):
         def bishop_direction(self, x, y):
             global CHECKTEXT
             pieces_in_way = 0 #Pieces between the bishop and the enemy King
-            king_counter = 0 #Checks to see if there's a king in a direction
+            king_count = 0 #Checks to see if there's a king in a direction
             for i in range(1, 8):
                 for grid in Grid.grid_list:
                     if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i):
                         grid.white_bishop_path = 1
-                        if(grid.occupied == 1 and king_counter < 1): #Counting pieces and Ignoring pieces that are past the king
+                        if(grid.occupied == 1 and king_count < 1): #Counting pieces and Ignoring pieces that are past the king
                             pieces_in_way += 1
                             print("Piece found on " + str(grid.coordinate))
                             if(grid.occ_king == 1 and grid.occupied_piece_color != col):
                                 print("King found on coordinate " + str(grid.coordinate))
-                                king_counter += 1
-                        if(pieces_in_way == 2 and king_counter == 1): #2 Pieces in way, includes 1 king
+                                king_count += 1
+                        if(pieces_in_way == 2 and king_count == 1): #2 Pieces in way, includes 1 king
                             print("Pinned for " + str(grid.coordinate))
-                            grid.white_bishop_path = 0
                             CHECKTEXT = "Pinned"
+                            grid.pin_piece_coordinate = True
+                            self.attacker = True
+                            #deactivate_piece
                             return
-                        elif(pieces_in_way == 1 and king_counter == 1):
+                        elif(pieces_in_way == 1 and king_count == 1):
                             print("Check for coordinate " + str(grid.coordinate))
                             CHECKTEXT = "Check"
-                        elif(king_counter == 0 and pieces_in_way >= 2): # Either no pin, or too many pieces in the way of a potential pin
+                        elif(king_count == 0 and pieces_in_way >= 2): # Either no pin, or too many pieces in the way of a potential pin
                             print("No pin or too many pieces in the way. This is for coord " + str(grid.coordinate))
                             grid.white_bishop_path = 0
-                            #deactivate_piece(grid.coordinate, False)
                             CHECKTEXT = ""
                             return
                         print("coord " + str(grid.coordinate) + " piecesinway: " + str(pieces_in_way) + " kingcounter: " + str(king_counter))
@@ -1079,6 +1081,8 @@ class Grid(pygame.sprite.Sprite):
         Grid.grid_list.append(self)
         Grid.grid_dict["".join([self.coordinate[0],str(self.coordinate[1])])] = self
         self.white_bishop_path = 0
+        self.attack_piece_coordinate
+        self.pin_piece_coordinate = False
     def reset_board(self):
         self.no_highlight()
         self.white_bishop_path = 0
