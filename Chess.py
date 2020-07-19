@@ -605,6 +605,27 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
             elif(self.color == "black"):
                 self.image = IMAGES["SPR_BLACK_PAWN"]
             self.select = False
+    def projected(self):
+        if(self.color == "white"):
+            for grid in Grid.grid_list:
+                # Enemy pieces
+                if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]+1 and \
+                grid.occupied_piece_color == "black"):
+                    print("grid to attack: " + str(grid.coordinate))
+                    grid.attack_count_increment(self.color, 1)
+                if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]+1 and \
+                grid.occupied_piece_color == "black"):
+                    grid.attack_count_increment(self.color, 1)
+                    print("grid to attack: " + str(grid.coordinate))
+        elif(self.color == "black"):
+            for grid in Grid.grid_list:
+                # Enemy pieces
+                if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-1 and \
+                grid.occupied_piece_color == "white"):
+                    grid.attack_count_increment(self.color, 1)
+                if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-1 and \
+                grid.occupied_piece_color == "white"):
+                    grid.attack_count_increment(self.color, 1)
     def spaces_available(self):
         if(self.pinned == False and self.taken_off_board != True):
             if(self.color == "white"):
@@ -829,7 +850,7 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
                     if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 0:
                         grid.attack_count_increment(self.color, 1)
                     elif ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 1:
-                        if(grid.occupied_piece_color != self.col):
+                        if(grid.occupied_piece_color != self.color):
                             grid.attack_count_increment(self.color, 1)
                         return
         rook_direction(-1, 0) #west
@@ -881,12 +902,11 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_ROOK"]
         self.select = False
 
-class PlayQueen(pygame.sprite.Sprite):
+class PlayQueen(ChessPiece, pygame.sprite.Sprite):
     white_queen_list = []
     black_queen_list = []
     def __init__(self, pos, PLAY_SPRITES, col):
         pygame.sprite.Sprite.__init__(self)
-        self.color = col
         if(col == "white"):
             self.image = IMAGES["SPR_WHITE_QUEEN"]
             PlayQueen.white_queen_list.append(self)
@@ -1896,9 +1916,9 @@ def main():
                 if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[1]:
                     for grid in Grid.grid_list:
                         if grid.rect.collidepoint(MOUSEPOS):
-                            print("Coordinate: " + str(grid.coordinate) + ", and Occupied:" \
-                                   + str(grid.occupied) + ", whiteorblack: " + str(grid.occupied_piece_color) \
-                                   + ", White Bishop Path: " + str(grid.white_attack) \
+                            print("Coordinate: " + str(grid.coordinate) \
+                                   + ", Num White Pieces Attacking: " + str(grid.white_attack) \
+                                   + ", Num Black Pieces Attacking: " + str(grid.black_attack) \
                                    + ", Occupy king: " + str(grid.occ_king))
                             
             ##################
