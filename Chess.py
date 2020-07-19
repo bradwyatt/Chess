@@ -553,26 +553,36 @@ class PlacedKing(pygame.sprite.Sprite):
         elif self.col == "black":
             PlacedKing.black_king_list.remove(self)
         self.kill()
+        
+class ChessPiece:
+    def __init__(self, pos, PLAY_SPRITES, image, col):
+        PLAY_SPRITES.add(self)
+        self.image = image
+        self.rect = self.image.get_rect()
+        self.rect.topleft = pos
+        self.color = col
+        self.select = False
+        self.pinned = False
+        self.taken_off_board = False
+        self.attacker = False
+        self.coordinate = self.get_coordinate()
+    def get_coordinate(self):
+        for grid in Grid.grid_list:
+            if self.rect.colliderect(grid):
+                return grid.coordinate
 
-class PlayPawn(pygame.sprite.Sprite):
+class PlayPawn(ChessPiece, pygame.sprite.Sprite):
     white_pawn_list = []
     black_pawn_list = []
     def __init__(self, pos, PLAY_SPRITES, col):
         pygame.sprite.Sprite.__init__(self)
-        self.color = col
-        if(self.color == "white"):
+        if(col == "white"):
             self.image = IMAGES["SPR_WHITE_PAWN"]
             PlayPawn.white_pawn_list.append(self)
-        elif(self.color == "black"):
+        elif(col == "black"):
             self.image = IMAGES["SPR_BLACK_PAWN"]
             PlayPawn.black_pawn_list.append(self)
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        PLAY_SPRITES.add(self)
-        self.coordinate = None #blank coordinate, will change once it updates
-        self.select = False
-        self.pinned = False
-        self.taken_off_board = False
+        super().__init__(pos, PLAY_SPRITES, self.image, col)
     def update(self):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
@@ -632,34 +642,19 @@ class PlayPawn(pygame.sprite.Sprite):
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-1 and \
                     grid.occupied_piece_color == "white"):
                         grid.highlight()
-                        
-class ChessPiece:
-    def __init__(self, pos, PLAY_SPRITES, image, col):
-        PLAY_SPRITES.add(self)
-        self.image = image
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        self.color = col
-        self.select = False
-        self.pinned = False
-        self.taken_off_board = False
-        self.attacker = False
-        self.coordinate = self.get_coordinate()
-    def get_coordinate(self):
-        for grid in Grid.grid_list:
-            if self.rect.colliderect(grid):
-                return grid.coordinate
 
 class PlayBishop(ChessPiece, pygame.sprite.Sprite):
     white_bishop_list = []
     black_bishop_list = []
-    def __init__(self, pos, PLAY_SPRITES, image, col):
+    def __init__(self, pos, PLAY_SPRITES, col):
         pygame.sprite.Sprite.__init__(self)
-        super().__init__(pos, PLAY_SPRITES, image, "white")
-        if(self.color == "white"):
+        if(col == "white"):
+            self.image = IMAGES["SPR_WHITE_BISHOP"]
             PlayBishop.white_bishop_list.append(self)
-        elif(self.color == "black"):
+        elif(col == "black"):
+            self.image = IMAGES["SPR_BLACK_BISHOP"]
             PlayBishop.black_bishop_list.append(self)
+        super().__init__(pos, PLAY_SPRITES, self.image, col)
     def update(self):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
@@ -732,33 +727,22 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                 self.image = IMAGES["SPR_BLACK_BISHOP"]
             self.select = False
         
-class PlayKnight(pygame.sprite.Sprite):
+class PlayKnight(ChessPiece, pygame.sprite.Sprite):
     white_knight_list = []
     black_knight_list = []
     def __init__(self, pos, PLAY_SPRITES, col):
         pygame.sprite.Sprite.__init__(self)
-        self.color = col
-        if(self.color == "white"):
+        if(col == "white"):
             self.image = IMAGES["SPR_WHITE_KNIGHT"]
             PlayKnight.white_knight_list.append(self)
-        elif(self.color == "black"):
+        elif(col == "black"):
             self.image = IMAGES["SPR_BLACK_KNIGHT"]
             PlayKnight.black_knight_list.append(self)
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        PLAY_SPRITES.add(self)
-        self.coordinate = self.get_coordinate()
-        self.select = False
-        self.pinned = False
-        self.taken_off_board = False
+        super().__init__(pos, PLAY_SPRITES, self.image, col)
     def update(self):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
                 self.coordinate = grid.coordinate
-    def get_coordinate(self):
-        for grid in Grid.grid_list:
-            if self.rect.colliderect(grid):
-                return grid.coordinate
     def projected(self, col):
         for grid in Grid.grid_list:
             if self.color == "white":
@@ -833,27 +817,20 @@ class PlayKnight(pygame.sprite.Sprite):
                 self.image = IMAGES["SPR_BLACK_KNIGHT"]
             self.select = False
         
-class PlayRook(pygame.sprite.Sprite):
+class PlayRook(ChessPiece, pygame.sprite.Sprite):
     white_rook_list = []
     black_rook_list = []
     def __init__(self, pos, PLAY_SPRITES, col):
         pygame.sprite.Sprite.__init__(self)
-        self.color = col
-        if(self.color == "white"):
+        if(col == "white"):
             self.image = IMAGES["SPR_WHITE_ROOK"]
             PlayRook.white_rook_list.append(self)
             self.ranknum = 1
-        elif(self.color == "black"):
+        elif(col == "black"):
             self.image = IMAGES["SPR_BLACK_ROOK"]
             PlayRook.black_rook_list.append(self)
             self.ranknum = 8
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        PLAY_SPRITES.add(self)
-        self.coordinate = None #blank coordinate, will change once it updates
-        self.select = False
-        self.pinned = False
-        self.taken_off_board = False
+        super().__init__(pos, PLAY_SPRITES, self.image, col)
     def update(self):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
@@ -915,19 +892,13 @@ class PlayQueen(pygame.sprite.Sprite):
     def __init__(self, pos, PLAY_SPRITES, col):
         pygame.sprite.Sprite.__init__(self)
         self.color = col
-        if(self.color == "white"):
+        if(col == "white"):
             self.image = IMAGES["SPR_WHITE_QUEEN"]
             PlayQueen.white_queen_list.append(self)
-        elif(self.color == "black"):
+        elif(col == "black"):
             self.image = IMAGES["SPR_BLACK_QUEEN"]
             PlayQueen.black_queen_list.append(self)
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        PLAY_SPRITES.add(self)
-        self.coordinate = None #blank coordinate, will change once it updates
-        self.select = False
-        self.pinned = False
-        self.taken_off_board = False
+        super().__init__(pos, PLAY_SPRITES, self.image, col)
     def update(self):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
@@ -979,27 +950,22 @@ class PlayQueen(pygame.sprite.Sprite):
                 self.image = IMAGES["SPR_BLACK_QUEEN"]
             self.select = False
 
-class PlayKing(pygame.sprite.Sprite):
+class PlayKing(ChessPiece, pygame.sprite.Sprite):
     white_king_list = []
     black_king_list = []
     def __init__(self, pos, PLAY_SPRITES, col):
         pygame.sprite.Sprite.__init__(self)
-        self.color = col
-        if(self.color == "white"):
+        if(col == "white"):
             self.image = IMAGES["SPR_WHITE_KING"]
             PlayKing.white_king_list.append(self)
-        elif(self.color == "black"):
+        elif(col == "black"):
             self.image = IMAGES["SPR_BLACK_KING"]
             PlayKing.black_king_list.append(self)
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        PLAY_SPRITES.add(self)
-        self.coordinate = None #blank coordinate, will change once it updates
-        self.select = False
         self.left_castle_ability = 0
         self.right_castle_ability = 0
         self.right_clear_way = [0, 0]
         self.left_clear_way = [0, 0, 0]
+        super().__init__(pos, PLAY_SPRITES, self.image, col)
     def update(self):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
@@ -1827,7 +1793,7 @@ def main():
                         for placed_white_pawn in PlacedPawn.white_pawn_list:
                             PlayPawn(placed_white_pawn.rect.topleft, PLAY_SPRITES, "white")
                         for placed_white_bishop in PlacedBishop.white_bishop_list:
-                            PlayBishop(placed_white_bishop.rect.topleft, PLAY_SPRITES, IMAGES["SPR_WHITE_BISHOP"], "white")
+                            PlayBishop(placed_white_bishop.rect.topleft, PLAY_SPRITES, "white")
                         for placed_white_knight in PlacedKnight.white_knight_list:
                             PlayKnight(placed_white_knight.rect.topleft, PLAY_SPRITES, "white")
                         for placed_white_rook in PlacedRook.white_rook_list:
