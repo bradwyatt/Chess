@@ -4,8 +4,9 @@ Python 3
 
 To-Do (long-term):
 Recording moves on right side
+PGN format?
 Pinning
-Castling (can't do it through check) --> Need to be aware of left and right rook (if they moved or not)
+Castling (can't do it through check)
 En Passant
 Check
 Checkmate
@@ -137,11 +138,21 @@ def get_color():
     color = askcolor()
     return [color[0][0], color[0][1], color[0][2]]
 
-def load_file(PLACED_SPRITES, colorkey):
-    request_file_name = askopenfilename(defaultextension=".lvl")
-    open_file = open(request_file_name, "r")
-    loaded_file = open_file.read()
-    loaded_dict = literal_eval(loaded_file)
+def load_file(PLACED_SPRITES, colorkey, restart=False):
+    open_file = None
+    if restart == True:
+        loaded_dict = {'white_pawn': [(48, 384), (96, 384), (144, 384), (192, 384), (240, 384), (288, 384), (336, 384), (384, 384)],
+                       'white_bishop': [(288, 432), (144, 432)], 'white_knight': [(336, 432), (96, 432)],
+                       'white_rook': [(384, 432), (48, 432)], 'white_queen': [(192, 432)], 'white_king': [(240, 432)],
+                       'black_pawn': [(48, 144), (96, 144), (144, 144), (192, 144), (240, 144), (288, 144), (336, 144), (384, 144)],
+                       'black_bishop': [(144, 96), (288, 96)], 'black_knight': [(336, 96), (96, 96)],
+                       'black_rook': [(384, 96), (48, 96)], 'black_queen': [(192, 96)], 'black_king': [(240, 96)],
+                       'RGB': colorkey}
+    else:
+        request_file_name = askopenfilename(defaultextension=".lvl")
+        open_file = open(request_file_name, "r")
+        loaded_file = open_file.read()
+        loaded_dict = literal_eval(loaded_file)
             
     for play_white_pawn in PlayPawn.white_pawn_list:
         play_white_pawn.destroy()
@@ -167,7 +178,8 @@ def load_file(PLACED_SPRITES, colorkey):
         play_black_queen.destroy()
     for play_black_king in PlayKing.black_king_list:
         play_black_king.destroy()
-    open_file.close()
+    if open_file:
+        open_file.close()
     
     # Removes all placed lists
     remove_all_placed()
@@ -1545,7 +1557,10 @@ def main():
                 if(ord(grid.coordinate[0]) == i and grid.coordinate[1] == j):
                     grid.image = IMAGES["SPR_GREEN_GRID"]
                     grid.color = "green"
-
+                    
+    # Load the starting positions of chessboard first
+    load_file(PLACED_SPRITES, COLORKEY, restart=True)
+        
     while True:
         CLOCK.tick(60)
         MOUSEPOS = pygame.mouse.get_pos()
@@ -1563,6 +1578,7 @@ def main():
             START.black_rook.rect.topleft = STARTPOS['black_rook']
             START.black_queen.rect.topleft = STARTPOS['black_queen']
             START.black_king.rect.topleft = STARTPOS['black_king']
+            
     
             for event in pygame.event.get():
                 if event.type == QUIT:
