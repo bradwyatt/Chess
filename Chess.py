@@ -469,12 +469,16 @@ class ChessPiece:
         self.select = False
         self.pinned = False
         self.taken_off_board = False
+        self.attack_piece_coordinate = None
         self.coordinate = self.get_coordinate()
         self.projected() # Initialize child class projected function
     def get_coordinate(self):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
                 return grid.coordinate
+    def pinned_restrict(self, attack_piece_coordinate):
+        self.pinned = True
+        self.attack_piece_coordinate = attack_piece_coordinate
 
 class PlayPawn(ChessPiece, pygame.sprite.Sprite):
     white_pawn_list = []
@@ -528,43 +532,60 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                         grid.attack_count_increment(self.color, 1)
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-1):
                         grid.attack_count_increment(self.color, 1)
+                
     def spaces_available(self):
-        if(self.pinned == False and self.taken_off_board != True):
+        if(self.taken_off_board != True):
             if(self.color == "white"):
                 for grid in Grid.grid_list:
                     # Move one space up
                     if (grid.coordinate[0] == self.coordinate[0] and \
                         grid.coordinate[1] == self.coordinate[1]+1 and \
-                        grid.occupied == False): 
+                        grid.occupied == False and self.pinned == False): 
                         grid.highlight()
                     # Move two spaces up
                     if (self.coordinate[1] == 2 and grid.coordinate[0] == self.coordinate[0] and \
-                        grid.coordinate[1] == 4 and grid.occupied == False):
+                        grid.coordinate[1] == 4 and grid.occupied == False and self.pinned == False):
                         grid.highlight()
                     # Enemy pieces
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]+1 and \
                     grid.occupied_piece_color == "black"):
-                        grid.highlight()
+                        if self.pinned == False:
+                            grid.highlight()
+                        # If attacker is causing pin
+                        elif self.pinned == True and grid.coordinate == self.attack_piece_coordinate:
+                            grid.highlight()
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]+1 and \
                     grid.occupied_piece_color == "black"):
-                        grid.highlight()
+                        if self.pinned == False:
+                            grid.highlight()
+                        # If attacker is causing pin
+                        elif self.pinned == True and grid.coordinate == self.attack_piece_coordinate:
+                            grid.highlight()
             elif(self.color == "black"):
                 for grid in Grid.grid_list:
                     # Move one space up
                     if (grid.coordinate[0] == self.coordinate[0] and grid.coordinate[1] == self.coordinate[1]-1 and \
-                        grid.occupied == False): 
+                        grid.occupied == False and self.pinned == False): 
                         grid.highlight()
                     # Move two spaces up
                     if (self.coordinate[1] == 7 and grid.coordinate[0] == self.coordinate[0] and \
-                        grid.coordinate[1] == 5 and grid.occupied == False):
+                        grid.coordinate[1] == 5 and grid.occupied == False and self.pinned == False):
                         grid.highlight()
                     # Enemy pieces
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-1 and \
                     grid.occupied_piece_color == "white"):
-                        grid.highlight()
+                        if self.pinned == False:
+                            grid.highlight()
+                        # If attacker is causing pin
+                        elif self.pinned == True and grid.coordinate == self.attack_piece_coordinate:
+                            grid.highlight()
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-1 and \
                     grid.occupied_piece_color == "white"):
-                        grid.highlight()
+                        if self.pinned == False:
+                            grid.highlight()
+                        # If attacker is causing pin
+                        elif self.pinned == True and grid.coordinate == self.attack_piece_coordinate:
+                            grid.highlight()
 
 class PlayBishop(ChessPiece, pygame.sprite.Sprite):
     white_bishop_list = []
@@ -585,9 +606,10 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
     def projected(self):
         if(self.pinned == False and self.taken_off_board != True):
             def bishop_direction(self, x, y):
-                global CHECKTEXT
+                global CHECKTEXT, game_controller
                 pieces_in_way = 0 #Pieces between the bishop and the enemy King
                 king_count = 0 #Checks to see if there's a king in a direction
+                pinned_piece_coord = None
                 for i in range(1, 8):
                     for grid in Grid.grid_list:
                         if(ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) \
@@ -597,11 +619,12 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                                 pieces_in_way += 1
                                 if(grid.occupied_piece == "king" and grid.occupied_piece_color != self.color):
                                     king_count += 1
+                                else:
+                                    pinned_piece_coord = grid.coordinate
                             if(pieces_in_way == 2 and king_count == 1): #2 Pieces in way, includes 1 king
                                 print("Pinned for " + str(grid.coordinate))
                                 CHECKTEXT = "Pinned"
-                                grid.pin_piece_coordinate = True
-                                #deactivate_piece
+                                game_controller.pinned_piece(pinned_piece_coord, self.coordinate)
                                 return
                             elif(pieces_in_way == 1 and king_count == 1):
                                 print("Check for coordinate " + str(grid.coordinate))
@@ -838,8 +861,7 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
                             if(pieces_in_way == 2 and king_count == 1): #2 Pieces in way, includes 1 king
                                 print("Pinned for " + str(grid.coordinate))
                                 CHECKTEXT = "Pinned"
-                                grid.pin_piece_coordinate = True
-                                #deactivate_piece
+                                grid.pinned_piece(self.coordinate)
                                 return
                             elif(pieces_in_way == 1 and king_count == 1):
                                 print("Check for coordinate " + str(grid.coordinate))
@@ -866,6 +888,7 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
             rook_direction(1, 0) #east
             rook_direction(0, 1) #north
             rook_direction(0, -1) #south
+    
     def highlight(self):
         if self.taken_off_board != True:
             if(self.color == "white"):
@@ -1072,7 +1095,6 @@ class Grid(pygame.sprite.Sprite):
         Grid.grid_list.append(self)
         Grid.grid_dict["".join(map(str, (coordinate)))] = self
         self.white_attack = 0
-        self.pin_piece_coordinate = False
     def reset_board(self):
         self.no_highlight()
         self.white_attack = 0
@@ -1387,8 +1409,21 @@ class Game_Controller():
                            PlayQueen.black_queen_list, PlayKing.black_king_list]:
             for piece in piece_list:
                 piece.projected()
+    def pinned_piece(self, pinned_piece_coordinate, attack_piece_coordinate):
+        # Iterates through all pieces to find the one that matches
+        # the coordinate with the pin
+        for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
+                           PlayKnight.white_knight_list, PlayRook.white_rook_list, 
+                           PlayQueen.white_queen_list, PlayKing.white_king_list,
+                           PlayPawn.black_pawn_list, PlayBishop.black_bishop_list,
+                           PlayKnight.black_knight_list, PlayRook.black_rook_list,
+                           PlayQueen.black_queen_list, PlayKing.black_king_list]:
+            for piece in piece_list:
+                if Grid.grid_dict["".join(map(str, (pinned_piece_coordinate)))].coordinate == piece.coordinate:
+                    piece.pinned_restrict(attack_piece_coordinate)
 
 def main():    
+    global game_controller
     #Tk box for color
     root = tk.Tk()
     root.withdraw()
