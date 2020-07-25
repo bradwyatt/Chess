@@ -926,8 +926,6 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
             PlayKing.black_king_list.append(self)
         self.left_castle_ability = 0
         self.right_castle_ability = 0
-        self.right_clear_way = [0, 0]
-        self.left_clear_way = [0, 0, 0]
         super().__init__(pos, PLAY_SPRITES, self.image, col)
     def update(self):
         for grid in Grid.grid_list:
@@ -937,42 +935,32 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
             self.left_castle_ability = 2
             self.right_castle_ability = 2
         elif((self.color == "white" and self.coordinate == ['e', 1]) or (self.color == "black" and self.coordinate == ['e', 8])):
-            self.castle_check(self.color)
-    def castle_check(self, color):
-        if color == "white":
-            self.rook_list = PlayRook.white_rook_list
-            ranknum = 1
-        elif color == "black":
-            self.rook_list = PlayRook.black_rook_list
-            ranknum = 8
-        for rook in self.rook_list:
-            if(rook.coordinate == ['h', ranknum]):
-                self.right_clear_way = [0, 0]
-                for grid in Grid.grid_list:
-                    if(grid.coordinate == ['f', ranknum] and grid.occupied == 0):
-                        self.right_clear_way[0] = 1
-                for grid in Grid.grid_list:
-                    if(grid.coordinate == ['g', ranknum] and grid.occupied == 0):
-                        self.right_clear_way[1] = 1
-                if(self.right_clear_way == [1, 1]):
-                    self.right_castle_ability = 1
-                else:
-                    self.right_castle_ability = 0
-            if(rook.coordinate == ['a', ranknum]):
-                #left_clear_way = [0, 0, 0]
-                for grid in Grid.grid_list:
-                    if(grid.coordinate == ['b', ranknum] and grid.occupied == 0):
-                        self.left_clear_way[0] = 1
-                for grid in Grid.grid_list:
-                    if(grid.coordinate == ['c', ranknum] and grid.occupied == 0):
-                        self.left_clear_way[1] = 1
-                for grid in Grid.grid_list:
-                    if(grid.coordinate == ['d', ranknum] and grid.occupied == 0):
-                        self.left_clear_way[2] = 1
-                if(self.left_clear_way == [1, 1, 1]):
-                    self.left_castle_ability = 1
-                else:
-                    self.left_castle_ability = 0
+            self.castle_check()
+    def castle_check(self):
+        if self.color == "white":
+            for white_rook in PlayRook.white_rook_list:
+                if(white_rook.coordinate == ['a', 1]):
+                    if(Grid.grid_dict['b1'].occupied == 0 and Grid.grid_dict['c1'].occupied == 0 and Grid.grid_dict['d1'].occupied == 0):
+                        self.left_castle_ability = 1
+                    else:
+                        self.left_castle_ability = 0
+                if(white_rook.coordinate == ['h', 1]):
+                    if(Grid.grid_dict['f1'].occupied == 0 and Grid.grid_dict['g1'].occupied == 0):
+                        self.right_castle_ability = 1
+                    else:
+                        self.right_castle_ability = 0
+        elif self.color == "black":
+            for black_rook in PlayRook.black_rook_list:
+                if(black_rook.coordinate == ['a', 8]):
+                    if(Grid.grid_dict['b8'].occupied == 0 and Grid.grid_dict['c8'].occupied == 0 and Grid.grid_dict['d8'].occupied == 0):
+                        self.left_castle_ability = 1
+                    else:
+                        self.left_castle_ability = 0
+                if(black_rook.coordinate == ['h', 8]):
+                    if(Grid.grid_dict['f8'].occupied == 0 and Grid.grid_dict['g8'].occupied == 0):
+                        self.right_castle_ability = 1
+                    else:
+                        self.right_castle_ability = 0
     def highlight(self):
         if(self.color == "white"):
             self.image = IMAGES["SPR_WHITE_KING_HIGHLIGHTED"]
@@ -1085,7 +1073,7 @@ class Grid(pygame.sprite.Sprite):
         self.occupied_piece_color = ""
         self.occ_king = False
         Grid.grid_list.append(self)
-        Grid.grid_dict["".join([self.coordinate[0],str(self.coordinate[1])])] = self
+        Grid.grid_dict["".join(map(str, (coordinate)))] = self
         self.white_attack = 0
         self.pin_piece_coordinate = False
     def reset_board(self):
