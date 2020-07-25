@@ -534,7 +534,7 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                         grid.attack_count_increment(self.color, 1)
                 
     def spaces_available(self):
-        if(self.taken_off_board != True):
+        if self.taken_off_board != True:
             if(self.color == "white"):
                 for grid in Grid.grid_list:
                     # Move one space up
@@ -610,11 +610,12 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                 pieces_in_way = 0 #Pieces between the bishop and the enemy King
                 king_count = 0 #Checks to see if there's a king in a direction
                 pinned_piece_coord = None
+                attacking_coordinates = [self.coordinate]
                 for i in range(1, 8):
-                    attacking_coordinates = [self.coordinate]
                     for grid in Grid.grid_list:
                         if(ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) \
                            and (grid.occupied == 0 or grid.occupied_piece_color != self.color)):
+                            attacking_coordinates.append(grid.coordinate) # Counting allowable squares
                             grid.attack_count_increment(self.color, 1)
                             if(grid.occupied == 1 and king_count < 1): #Counting pieces and Ignoring pieces that are past the king
                                 pieces_in_way += 1
@@ -635,7 +636,6 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                                 grid.attack_count_increment(self.color, -1)
                                 CHECKTEXT = ""
                                 return
-                            #print("coord " + str(grid.coordinate) + " piecesinway: " + str(pieces_in_way) + " kingcounter: " + str(king_count))
             bishop_direction(self, -1, -1) #southwest
             bishop_direction(self, -1, 1) #northwest
             bishop_direction(self, 1, -1) #southeast
@@ -668,6 +668,11 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
             bishop_direction(-1, 1) #northwest
             bishop_direction(1, -1) #southeast
             bishop_direction(1, 1) #northeast
+        # When it is pinned, only allow movement in the direction where the captureis coming from
+        elif(self.pinned == True and self.taken_off_board != True):
+            for grid in Grid.grid_list:
+                if(grid.coordinate in self.attacking_coordinates and grid.occupied_piece != 'king'):
+                    grid.highlight()
     def no_highlight(self):
         if self.taken_off_board != True:
             if(self.color == "white"):
