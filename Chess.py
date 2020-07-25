@@ -582,7 +582,7 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                             grid.attack_count_increment(self.color, 1)
                             if(grid.occupied == 1 and king_count < 1): #Counting pieces and Ignoring pieces that are past the king
                                 pieces_in_way += 1
-                                if(grid.occ_king == 1 and grid.occupied_piece_color != self.color):
+                                if(grid.occupied_piece == "king" and grid.occupied_piece_color != self.color):
                                     king_count += 1
                             if(pieces_in_way == 2 and king_count == 1): #2 Pieces in way, includes 1 king
                                 print("Pinned for " + str(grid.coordinate))
@@ -837,7 +837,7 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
                             grid.attack_count_increment(self.color, 1)
                             if(grid.occupied == 1 and king_count < 1): #Counting pieces and Ignoring pieces that are past the king
                                 pieces_in_way += 1
-                                if(grid.occ_king == 1 and grid.occupied_piece_color != self.color):
+                                if(grid.occupied_piece == "king" and grid.occupied_piece_color != self.color):
                                     king_count += 1
                             if(pieces_in_way == 2 and king_count == 1): #2 Pieces in way, includes 1 king
                                 print("Pinned for " + str(grid.coordinate))
@@ -1071,8 +1071,8 @@ class Grid(pygame.sprite.Sprite):
         self.highlighted = False
         self.occupied = False
         self.color = None
+        self.occupied_piece = ""
         self.occupied_piece_color = ""
-        self.occ_king = False
         Grid.grid_list.append(self)
         Grid.grid_dict["".join(map(str, (coordinate)))] = self
         self.white_attack = 0
@@ -1105,12 +1105,22 @@ class Grid(pygame.sprite.Sprite):
                                 self.occupied_piece_color = "white"
                             elif piece.color == "black":
                                 self.occupied_piece_color = "black"
-                            if(piece in PlayKing.white_king_list or piece in PlayKing.black_king_list):
-                                self.occ_king = True
+                            if(piece in PlayPawn.white_pawn_list or piece in PlayPawn.black_pawn_list):
+                                self.occupied_piece = "pawn"
+                            elif(piece in PlayBishop.white_bishop_list or piece in PlayBishop.black_bishop_list):
+                                self.occupied_piece = "bishop"
+                            elif(piece in PlayKnight.white_knight_list or piece in PlayKnight.black_knight_list):
+                                self.occupied_piece = "knight"
+                            elif(piece in PlayRook.white_rook_list or piece in PlayRook.black_rook_list):
+                                self.occupied_piece = "rook"
+                            elif(piece in PlayQueen.white_queen_list or piece in PlayQueen.black_queen_list):
+                                self.occupied_piece = "queen"
+                            elif(piece in PlayKing.white_king_list or piece in PlayKing.black_king_list):
+                                self.occupied_piece = "king"
                             return
                 else:
-                    self.occ_king = False
                     self.occupied = False
+                    self.occupied_piece = ""
                     self.occupied_piece_color = ""
             grid_occupied_by_piece()
     def highlight(self):
