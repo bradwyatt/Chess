@@ -3,6 +3,7 @@ Chess created by Brad Wyatt
 Python 3
 
 To-Do (long-term):
+Recording moves on right side
 Pinning
 Castling (can't do it through check) --> Need to be aware of left and right rook (if they moved or not)
 En Passant
@@ -1729,8 +1730,28 @@ def main():
                                         piece.no_highlight()
                                         
                                         # Strips king's ability to castle again after moving once
-                                        if piece in PlayKing.white_king_list or piece in PlayKing.black_king_list:
+                                        if piece in PlayKing.white_king_list:
                                             piece.castled = True
+                                            for rook in PlayRook.white_rook_list:
+                                                if rook.coordinate == ['a', 1] and piece.coordinate == ['c', 1]:
+                                                    rook.rect.topleft = Grid.grid_dict['d1'].rect.topleft
+                                                    rook.coordinate = Grid.grid_dict['d1'].coordinate
+                                                    Grid.grid_dict['d1'].occupied = True
+                                                elif rook.coordinate == ['h', 1] and piece.coordinate == ['g', 1]:
+                                                    rook.rect.topleft = Grid.grid_dict['f1'].rect.topleft
+                                                    rook.coordinate = Grid.grid_dict['f1'].coordinate
+                                                    Grid.grid_dict['f1'].occupied = True
+                                        elif piece in PlayKing.black_king_list:
+                                            piece.castled = True
+                                            for rook in PlayRook.black_rook_list:
+                                                if rook.coordinate == ['a', 8] and piece.coordinate == ['c', 8]:
+                                                    rook.rect.topleft = Grid.grid_dict['d8'].rect.topleft
+                                                    rook.coordinate = Grid.grid_dict['d8'].coordinate
+                                                    Grid.grid_dict['d8'].occupied = True
+                                                elif rook.coordinate == ['h', 8] and piece.coordinate == ['g', 8]:
+                                                    rook.rect.topleft = Grid.grid_dict['f8'].rect.topleft
+                                                    rook.coordinate = Grid.grid_dict['f8'].coordinate
+                                                    Grid.grid_dict['f8'].occupied = True
                                         
                                         # Switch turns
                                         if(game_controller.WHOSETURN == game_controller.WHITE_TO_MOVE):
