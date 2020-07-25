@@ -138,9 +138,9 @@ def get_color():
     color = askcolor()
     return [color[0][0], color[0][1], color[0][2]]
 
-def load_file(PLACED_SPRITES, colorkey, restart=False):
+def load_file(PLACED_SPRITES, colorkey, reset=False):
     open_file = None
-    if restart == True:
+    if reset == True:
         loaded_dict = {'white_pawn': [(48, 384), (96, 384), (144, 384), (192, 384), (240, 384), (288, 384), (336, 384), (384, 384)],
                        'white_bishop': [(288, 432), (144, 432)], 'white_knight': [(336, 432), (96, 432)],
                        'white_rook': [(384, 432), (48, 432)], 'white_queen': [(192, 432)], 'white_king': [(240, 432)],
@@ -772,23 +772,6 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
             rook_direction(1, 0) #east
             rook_direction(0, 1) #north
             rook_direction(0, -1) #south
-    def move_square(self, coordinate_parameter, castle=False):
-        if castle == False:
-            for grid in Grid.grid_list:
-                if grid.coordinate == coordinate_parameter:
-                    self.rect.topleft = grid.rect.topleft
-        if castle == True and self.coordinate == ['h', self.ranknum]:
-            if PlayKing.white_king_list[0].right_castle_ability == 1 and PlayKing.white_king_list[0].coordinate == ['g', 1]:
-                for grid in Grid.grid_list:
-                    if grid.coordinate == ['f', self.ranknum]:
-                        self.rect.topleft = grid.rect.topleft
-                        self.coordinate = grid.coordinate
-        if castle == True and self.coordinate == ['a', self.ranknum]:
-            if PlayKing.white_king_list[0].left_castle_ability == 1 and PlayKing.white_king_list[0].coordinate == ['c', 1]:
-                for grid in Grid.grid_list:
-                    if grid.coordinate == ['d', self.ranknum]:
-                        self.rect.topleft = grid.rect.topleft
-                        self.coordinate = grid.coordinate
     def highlight(self):
         if(self.color == "white"):
             self.image = IMAGES["SPR_WHITE_ROOK_HIGHLIGHTED"]
@@ -1559,7 +1542,7 @@ def main():
                     grid.color = "green"
                     
     # Load the starting positions of chessboard first
-    load_file(PLACED_SPRITES, COLORKEY, restart=True)
+    load_file(PLACED_SPRITES, COLORKEY, reset=True)
         
     while True:
         CLOCK.tick(60)
