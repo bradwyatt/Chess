@@ -671,7 +671,7 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
         # When it is pinned, only allow movement in the direction where the captureis coming from
         elif(self.pinned == True and self.taken_off_board != True):
             for grid in Grid.grid_list:
-                if(grid.coordinate in self.attacking_coordinates and grid.occupied_piece != 'king'):
+                if(grid.coordinate in self.attacking_coordinates and grid.occupied_piece != 'king' and grid.coordinate != self.coordinate):
                     grid.highlight()
     def no_highlight(self):
         if self.taken_off_board != True:
