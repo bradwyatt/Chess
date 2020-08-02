@@ -886,13 +886,18 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
                            and (grid.occupied == 0 or grid.occupied_piece_color != self.color)):
                             attacking_coordinates.append(grid.coordinate) # Counting allowable squares
                             if pinned_piece_coord is None:
-                                grid.attack_count_increment(self.color, 1)
+                                grid.attack_count_increment(self.color, self.coordinate)
                             if(grid.occupied == 1 and king_count < 1): #Counting pieces and Ignoring pieces that are past the king
                                 pieces_in_way += 1
                                 if(grid.occupied_piece == "king" and grid.occupied_piece_color != self.color):
                                     king_count += 1
                                 else:
-                                    pinned_piece_coord = grid.coordinate
+                                    # If there's already no pin
+                                    if pinned_piece_coord is None:
+                                        pinned_piece_coord = grid.coordinate
+                                    # 2 pieces without a king
+                                    else:
+                                        return
                             if(pieces_in_way == 2 and king_count == 1): #2 Pieces in way, includes 1 king
                                 print("King is pinned on coordinate " + str(grid.coordinate))
                                 CHECKTEXT = "Pinned"
@@ -901,11 +906,6 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
                             elif(pieces_in_way == 1 and king_count == 1):
                                 print("Check for coordinate " + str(grid.coordinate))
                                 CHECKTEXT = "Check"
-                            elif(king_count == 0 and pieces_in_way >= 2): # Either no pin, or too many pieces in the way of a potential pin
-                                # print("No pin or too many pieces in the way. This is for coord " + str(grid.coordinate))
-                                grid.attack_count_increment(self.color, -1)
-                                CHECKTEXT = ""
-                                return
             bishop_direction(self, -1, -1) #southwest
             bishop_direction(self, -1, 1) #northwest
             bishop_direction(self, 1, -1) #southeast
