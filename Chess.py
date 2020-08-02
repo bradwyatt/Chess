@@ -1103,30 +1103,19 @@ class Grid(pygame.sprite.Sprite):
         Grid.grid_list.append(self)
         Grid.grid_dict["".join(map(str, (coordinate)))] = self
         self.num_of_white_pieces_attacking = 0
-        self.diagonal_white_pieces_attacking = 0
         self.num_of_black_pieces_attacking = 0
-        self.diagonal_black_pieces_attacking = 0
     def reset_board(self):
         self.no_highlight()
         self.num_of_white_pieces_attacking = 0
-        self.diagonal_white_pieces_attacking = 0
         self.num_of_black_pieces_attacking = 0
-        self.diagonal_black_pieces_attacking = 0
     def attack_count_reset(self):
         self.num_of_white_pieces_attacking = 0
-        self.diagonal_white_pieces_attacking = 0
         self.num_of_black_pieces_attacking = 0
-        self.diagonal_black_pieces_attacking = 0
     def attack_count_increment(self, color, number):
         if color == "white":
             self.num_of_white_pieces_attacking = self.num_of_white_pieces_attacking + number
         elif color == "black":
             self.num_of_black_pieces_attacking = self.num_of_black_pieces_attacking + number
-    def diagonal_attack_increment(self, color, number):
-        if color == "white":
-            self.diagonal_white_pieces_attacking = self.diagonal_white_pieces_attacking + number
-        elif color == "black":
-            self.diagonal_black_pieces_attacking = self.diagonal_black_pieces_attacking + number
     def update(self, GAME_CONTROLLER):
         if GAME_CONTROLLER.game_mode == GAME_CONTROLLER.PLAY_MODE:
             def grid_occupied_by_piece():
@@ -1421,9 +1410,7 @@ class Game_Controller():
         for grid in Grid.grid_list:
             grid.no_highlight()
             grid.num_of_white_pieces_attacking = 0
-            grid.diagonal_white_pieces_attacking = 0
             grid.num_of_black_pieces_attacking = 0
-            grid.diagonal_black_pieces_attacking = 0
         # Setting all pins to False since switching turns
         for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                            PlayKnight.white_knight_list, PlayRook.white_rook_list, 
@@ -1931,9 +1918,7 @@ def main():
                         if grid.rect.collidepoint(MOUSEPOS):
                             print("Coordinate: " + str(grid.coordinate) \
                                    + ", White Pieces Attacking: " + str(grid.num_of_white_pieces_attacking) \
-                                   + ", Black Pieces Attacking: " + str(grid.num_of_black_pieces_attacking) \
-                                   + ", White Diagonal Attack: " + str(grid.diagonal_white_pieces_attacking) \
-                                   + ", Black Diagonal Attack: " + str(grid.diagonal_black_pieces_attacking))
+                                   + ", Black Pieces Attacking: " + str(grid.num_of_black_pieces_attacking))
                             
             ##################
             # ALL EDIT ACTIONS
