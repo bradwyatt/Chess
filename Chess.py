@@ -618,7 +618,7 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                             # If King is already in check and it's iterating to next occupied grid space
                             if(pieces_in_way == 1 and king_count == 1 and grid.occupied == 1):
                                 return
-                            # Incrementing the count for allowable squares for this piece to move
+                            # Incrementing the count for allowable grids that this piece moves
                             attacking_coordinates.append(grid.coordinate) 
                             # Passing this piece's coordinate to this grid
                             if pinned_piece_coord is None:
@@ -804,11 +804,17 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
                 for i in range(1, 8):
                     for grid in Grid.grid_list:
                         if(ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) \
-                           and grid.coordinate[1] == self.coordinate[1]+(y*i) \
-                           and (grid.occupied == 0 or grid.occupied_piece_color != self.color)):
+                           and grid.coordinate[1] == self.coordinate[1]+(y*i)):
+                            # If King is already in check and it's iterating to next occupied grid space
+                            if(pieces_in_way == 1 and king_count == 1 and grid.occupied == 1):
+                                return
+                            # Incrementing the count for allowable grids that this piece moves
+                            attacking_coordinates.append(grid.coordinate)
+                            # Passing this piece's coordinate to this grid
                             if pinned_piece_coord is None:
                                 grid.attack_count_increment(self.color, self.coordinate)
-                            if(grid.occupied == 1 and king_count < 1): #Counting pieces and Ignoring pieces that are past the king
+                            # Counting pieces and Ignoring pieces that are past the king
+                            if(grid.occupied == 1 and king_count < 1): 
                                 pieces_in_way += 1
                                 if(grid.occupied_piece == "king" and grid.occupied_piece_color != self.color):
                                     king_count += 1
@@ -824,7 +830,7 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
                                 CHECKTEXT = "Pinned"
                                 GAME_CONTROLLER.pinned_piece(pinned_piece_coord, attacking_coordinates)
                                 return
-                            elif(pieces_in_way == 1 and king_count == 1):
+                            elif(pieces_in_way == 1 and king_count == 1 and grid.occupied_piece == "king"):
                                 print("Check for coordinate " + str(grid.coordinate))
                                 CHECKTEXT = "Check"
             rook_direction(-1, 0) #west
@@ -889,10 +895,13 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
                 attacking_coordinates = [self.coordinate]
                 for i in range(1, 8):
                     for grid in Grid.grid_list:
-                        if(ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) \
-                           and (grid.occupied == 0 or grid.occupied_piece_color != self.color)):
-                            # Counting allowable squares
+                        if(ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i)):
+                            # If King is already in check and it's iterating to next occupied grid space
+                            if(pieces_in_way == 1 and king_count == 1 and grid.occupied == 1):
+                                return
+                            # Incrementing the count for allowable squares for this piece to move
                             attacking_coordinates.append(grid.coordinate) 
+                            # Passing this piece's coordinate to this grid
                             if pinned_piece_coord is None:
                                 grid.attack_count_increment(self.color, self.coordinate)
                             # Counting pieces and Ignoring pieces that are past the king
@@ -913,8 +922,8 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
                                 CHECKTEXT = "Pinned"
                                 GAME_CONTROLLER.pinned_piece(pinned_piece_coord, attacking_coordinates)
                                 return
-                            # Only king in way
-                            elif(pieces_in_way == 1 and king_count == 1):
+                            # 1 Piece in way which is King
+                            elif(pieces_in_way == 1 and king_count == 1 and grid.occupied_piece == "king"):
                                 print("Check for coordinate " + str(grid.coordinate))
                                 CHECKTEXT = "Check"
             bishop_direction(self, -1, -1) #southwest
@@ -930,29 +939,35 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
                 for i in range(1, 8):
                     for grid in Grid.grid_list:
                         if(ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) \
-                           and grid.coordinate[1] == self.coordinate[1]+(y*i) \
-                           and (grid.occupied == 0 or grid.occupied_piece_color != self.color)):
+                           and grid.coordinate[1] == self.coordinate[1]+(y*i)):
+                            # If King is already in check and it's iterating to next occupied grid space
+                            if(pieces_in_way == 1 and king_count == 1 and grid.occupied == 1):
+                                return
+                            # Incrementing the count for allowable grids that this piece moves
+                            attacking_coordinates.append(grid.coordinate)
+                            # Passing this piece's coordinate to this grid
                             if pinned_piece_coord is None:
-                                grid.attack_count_increment(self.color, 1)
-                            if(grid.occupied == 1 and king_count < 1): #Counting pieces and Ignoring pieces that are past the king
+                                grid.attack_count_increment(self.color, self.coordinate)
+                            # Counting pieces and Ignoring pieces that are past the king
+                            if(grid.occupied == 1 and king_count < 1): 
                                 pieces_in_way += 1
                                 if(grid.occupied_piece == "king" and grid.occupied_piece_color != self.color):
                                     king_count += 1
                                 else:
-                                    pinned_piece_coord = grid.coordinate
+                                    # If there's already no pin
+                                    if pinned_piece_coord is None:
+                                        pinned_piece_coord = grid.coordinate
+                                    # 2 pieces without a king
+                                    else:
+                                        return
                             if(pieces_in_way == 2 and king_count == 1): #2 Pieces in way, includes 1 king
                                 print("King is pinned on coordinate " + str(grid.coordinate))
                                 CHECKTEXT = "Pinned"
                                 GAME_CONTROLLER.pinned_piece(pinned_piece_coord, attacking_coordinates)
                                 return
-                            elif(pieces_in_way == 1 and king_count == 1):
+                            elif(pieces_in_way == 1 and king_count == 1 and grid.occupied_piece == "king"):
                                 print("Check for coordinate " + str(grid.coordinate))
                                 CHECKTEXT = "Check"
-                            elif(king_count == 0 and pieces_in_way >= 2): # Either no pin, or too many pieces in the way of a potential pin
-                                # print("No pin or too many pieces in the way. This is for coord " + str(grid.coordinate))
-                                grid.attack_count_increment(self.color, -1)
-                                CHECKTEXT = ""
-                                return
             rook_direction(-1, 0) #west
             rook_direction(1, 0) #east
             rook_direction(0, 1) #north
