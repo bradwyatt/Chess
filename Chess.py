@@ -3,6 +3,7 @@ Chess created by Brad Wyatt
 Python 3
 
 To-Do (long-term):
+attacking_coordinates is in every piece. Should we also include another variable for current coordinate? For bishop current system works but for other pieces it might not
 Recording moves on right side
 PGN format?
 Pinning
@@ -616,7 +617,8 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                         if(ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) \
                            and (grid.occupied == 0 or grid.occupied_piece_color != self.color)):
                             attacking_coordinates.append(grid.coordinate) # Counting allowable squares
-                            grid.attack_count_increment(self.color, 1)
+                            if pinned_piece_coord is None:
+                                grid.attack_count_increment(self.color, 1)
                             if(grid.occupied == 1 and king_count < 1): #Counting pieces and Ignoring pieces that are past the king
                                 pieces_in_way += 1
                                 if(grid.occupied_piece == "king" and grid.occupied_piece_color != self.color):
@@ -1100,19 +1102,31 @@ class Grid(pygame.sprite.Sprite):
         self.occupied_piece_color = ""
         Grid.grid_list.append(self)
         Grid.grid_dict["".join(map(str, (coordinate)))] = self
-        self.white_attack = 0
+        self.num_of_white_pieces_attacking = 0
+        self.diagonal_white_pieces_attacking = 0
+        self.num_of_black_pieces_attacking = 0
+        self.diagonal_black_pieces_attacking = 0
     def reset_board(self):
         self.no_highlight()
-        self.white_attack = 0
-        self.black_attack = 0
+        self.num_of_white_pieces_attacking = 0
+        self.diagonal_white_pieces_attacking = 0
+        self.num_of_black_pieces_attacking = 0
+        self.diagonal_black_pieces_attacking = 0
     def attack_count_reset(self):
-        self.white_attack = 0
-        self.black_attack = 0
+        self.num_of_white_pieces_attacking = 0
+        self.diagonal_white_pieces_attacking = 0
+        self.num_of_black_pieces_attacking = 0
+        self.diagonal_black_pieces_attacking = 0
     def attack_count_increment(self, color, number):
         if color == "white":
-            self.white_attack = self.white_attack + number
+            self.num_of_white_pieces_attacking = self.num_of_white_pieces_attacking + number
         elif color == "black":
-            self.black_attack = self.black_attack + number
+            self.num_of_black_pieces_attacking = self.num_of_black_pieces_attacking + number
+    def diagonal_attack_increment(self, color, number):
+        if color == "white":
+            self.diagonal_white_pieces_attacking = self.diagonal_white_pieces_attacking + number
+        elif color == "black":
+            self.diagonal_black_pieces_attacking = self.diagonal_black_pieces_attacking + number
     def update(self, GAME_CONTROLLER):
         if GAME_CONTROLLER.game_mode == GAME_CONTROLLER.PLAY_MODE:
             def grid_occupied_by_piece():
@@ -1406,8 +1420,10 @@ class Game_Controller():
         # No highlights and ensuring that attacking squares (used by diagonal pieces) are set to 0
         for grid in Grid.grid_list:
             grid.no_highlight()
-            grid.white_attack = 0
-            grid.black_attack = 0
+            grid.num_of_white_pieces_attacking = 0
+            grid.diagonal_white_pieces_attacking = 0
+            grid.num_of_black_pieces_attacking = 0
+            grid.diagonal_black_pieces_attacking = 0
         # Setting all pins to False since switching turns
         for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                            PlayKnight.white_knight_list, PlayRook.white_rook_list, 
@@ -1914,9 +1930,10 @@ def main():
                     for grid in Grid.grid_list:
                         if grid.rect.collidepoint(MOUSEPOS):
                             print("Coordinate: " + str(grid.coordinate) \
-                                   + ", Num White Pieces Attacking: " + str(grid.white_attack) \
-                                   + ", Num Black Pieces Attacking: " + str(grid.black_attack) \
-                                   + ", Occupy piece color: " + str(grid.occupied_piece_color))
+                                   + ", White Pieces Attacking: " + str(grid.num_of_white_pieces_attacking) \
+                                   + ", Black Pieces Attacking: " + str(grid.num_of_black_pieces_attacking) \
+                                   + ", White Diagonal Attack: " + str(grid.diagonal_white_pieces_attacking) \
+                                   + ", Black Diagonal Attack: " + str(grid.diagonal_black_pieces_attacking))
                             
             ##################
             # ALL EDIT ACTIONS
