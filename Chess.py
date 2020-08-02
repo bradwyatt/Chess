@@ -472,7 +472,6 @@ class ChessPiece:
         self.taken_off_board = False
         self.attack_piece_coordinate = None
         self.coordinate = self.get_coordinate()
-        self.projected() # Initialize child class projected function
     def get_coordinate(self):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
@@ -1074,36 +1073,36 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
             for grid in Grid.grid_list:
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-1 and \
                     (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                    grid.attack_count_increment(self.color, 1)
+                    grid.attack_count_increment(self.color, self.coordinate)
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1] and \
                     (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                    grid.attack_count_increment(self.color, 1)
+                    grid.attack_count_increment(self.color, self.coordinate)
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]+1 and \
                     (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                    grid.attack_count_increment(self.color, 1)
+                    grid.attack_count_increment(self.color, self.coordinate)
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0]) and grid.coordinate[1] == self.coordinate[1]-1 and \
                     (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                    grid.attack_count_increment(self.color, 1)
+                    grid.attack_count_increment(self.color, self.coordinate)
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0]) and grid.coordinate[1] == self.coordinate[1]+1 and \
                     (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                    grid.attack_count_increment(self.color, 1)
+                    grid.attack_count_increment(self.color, self.coordinate)
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-1 and \
                     (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                    grid.attack_count_increment(self.color, 1)
+                    grid.attack_count_increment(self.color, self.coordinate)
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1] and \
                     (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                    grid.attack_count_increment(self.color, 1)
+                    grid.attack_count_increment(self.color, self.coordinate)
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]+1 and \
                     (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                    grid.attack_count_increment(self.color, 1)
+                    grid.attack_count_increment(self.color, self.coordinate)
                 if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and grid.coordinate[1] == self.coordinate[1] and \
                     (grid.occupied == 0 or grid.occupied_piece_color != self.color) and
                     self.right_castle_ability == 1 and (self.coordinate[1] == 1 or self.coordinate[1]==8)):
-                        grid.attack_count_increment(self.color, 1)
+                        grid.attack_count_increment(self.color, self.coordinate)
                 if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-2 and grid.coordinate[1] == self.coordinate[1] and \
                     (grid.occupied == 0 or grid.occupied_piece_color != self.color) and
                     self.left_castle_ability == 1 and (self.coordinate[1] == 1 or self.coordinate[1]==8)):
-                        grid.attack_count_increment(self.color, 1)
+                        grid.attack_count_increment(self.color, self.coordinate)
     def spaces_available(self):
         for grid in Grid.grid_list:
             if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-1 and \
@@ -1499,6 +1498,7 @@ class Game_Controller():
                            PlayQueen.black_queen_list, PlayKing.black_king_list]:
             for piece in piece_list:
                 piece.pinned = False
+    def projected_update(self):
         # Project pieces attacking movements starting now
         for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                            PlayKnight.white_knight_list, PlayRook.white_rook_list,
@@ -1889,8 +1889,10 @@ def main():
                                         # Switch turns
                                         if(GAME_CONTROLLER.WHOSETURN == GAME_CONTROLLER.WHITE_TO_MOVE):
                                             GAME_CONTROLLER.switch_turn(GAME_CONTROLLER.BLACK_TO_MOVE)
+                                            GAME_CONTROLLER.projected_update()
                                         elif(GAME_CONTROLLER.WHOSETURN == GAME_CONTROLLER.BLACK_TO_MOVE):
                                             GAME_CONTROLLER.switch_turn(GAME_CONTROLLER.WHITE_TO_MOVE)
+                                            GAME_CONTROLLER.projected_update()
                                         return
                     move_piece_on_grid()
     
@@ -1974,6 +1976,7 @@ def main():
                         for placed_black_king in PlacedKing.black_king_list:
                             PlayKing(placed_black_king.rect.topleft, PLAY_SPRITES, "black")
                         GRID_SPRITES.update(GAME_CONTROLLER)
+                        GAME_CONTROLLER.projected_update()
                     #################
                     # LEFT CLICK (RELEASE) STOP BUTTON
                     #################
