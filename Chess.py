@@ -789,16 +789,37 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
     def projected(self):
         if(self.pinned == False and self.taken_off_board != True):
             def rook_direction(x, y):
+                global CHECKTEXT, GAME_CONTROLLER
+                pieces_in_way = 0 #Pieces between the rook and the enemy King
+                king_count = 0 #Checks to see if there's a king in a direction
+                pinned_piece_coord = None
+                attacking_coordinates = [self.coordinate]
                 for i in range(1, 8):
                     for grid in Grid.grid_list:
-                        if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) \
-                               and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 0:
-                            grid.attack_count_increment(self.color, 1)
-                        elif ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) \
-                                 and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 1:
-                            if(grid.occupied_piece_color != self.color):
+                        if(ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) \
+                           and grid.coordinate[1] == self.coordinate[1]+(y*i) \
+                           and (grid.occupied == 0 or grid.occupied_piece_color != self.color)):
+                            if pinned_piece_coord is None:
                                 grid.attack_count_increment(self.color, 1)
-                            return
+                            if(grid.occupied == 1 and king_count < 1): #Counting pieces and Ignoring pieces that are past the king
+                                pieces_in_way += 1
+                                if(grid.occupied_piece == "king" and grid.occupied_piece_color != self.color):
+                                    king_count += 1
+                                else:
+                                    pinned_piece_coord = grid.coordinate
+                            if(pieces_in_way == 2 and king_count == 1): #2 Pieces in way, includes 1 king
+                                print("King is pinned on coordinate " + str(grid.coordinate))
+                                CHECKTEXT = "Pinned"
+                                GAME_CONTROLLER.pinned_piece(pinned_piece_coord, attacking_coordinates)
+                                return
+                            elif(pieces_in_way == 1 and king_count == 1):
+                                print("Check for coordinate " + str(grid.coordinate))
+                                CHECKTEXT = "Check"
+                            elif(king_count == 0 and pieces_in_way >= 2): # Either no pin, or too many pieces in the way of a potential pin
+                                # print("No pin or too many pieces in the way. This is for coord " + str(grid.coordinate))
+                                grid.attack_count_increment(self.color, -1)
+                                CHECKTEXT = ""
+                                return
             rook_direction(-1, 0) #west
             rook_direction(1, 0) #east
             rook_direction(0, 1) #north
@@ -890,14 +911,37 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
             bishop_direction(self, 1, -1) #southeast
             bishop_direction(self, 1, 1) #northeast
             def rook_direction(x, y):
-                for i in range(1,8):
+                global CHECKTEXT, GAME_CONTROLLER
+                pieces_in_way = 0 #Pieces between the rook and the enemy King
+                king_count = 0 #Checks to see if there's a king in a direction
+                pinned_piece_coord = None
+                attacking_coordinates = [self.coordinate]
+                for i in range(1, 8):
                     for grid in Grid.grid_list:
-                        if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 0:
-                            grid.attack_count_increment(self.color, 1)
-                        elif ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 1:
-                            if(grid.occupied_piece_color != self.color): # Highlights when enemy piece in path
+                        if(ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) \
+                           and grid.coordinate[1] == self.coordinate[1]+(y*i) \
+                           and (grid.occupied == 0 or grid.occupied_piece_color != self.color)):
+                            if pinned_piece_coord is None:
                                 grid.attack_count_increment(self.color, 1)
-                            return
+                            if(grid.occupied == 1 and king_count < 1): #Counting pieces and Ignoring pieces that are past the king
+                                pieces_in_way += 1
+                                if(grid.occupied_piece == "king" and grid.occupied_piece_color != self.color):
+                                    king_count += 1
+                                else:
+                                    pinned_piece_coord = grid.coordinate
+                            if(pieces_in_way == 2 and king_count == 1): #2 Pieces in way, includes 1 king
+                                print("King is pinned on coordinate " + str(grid.coordinate))
+                                CHECKTEXT = "Pinned"
+                                GAME_CONTROLLER.pinned_piece(pinned_piece_coord, attacking_coordinates)
+                                return
+                            elif(pieces_in_way == 1 and king_count == 1):
+                                print("Check for coordinate " + str(grid.coordinate))
+                                CHECKTEXT = "Check"
+                            elif(king_count == 0 and pieces_in_way >= 2): # Either no pin, or too many pieces in the way of a potential pin
+                                # print("No pin or too many pieces in the way. This is for coord " + str(grid.coordinate))
+                                grid.attack_count_increment(self.color, -1)
+                                CHECKTEXT = ""
+                                return
             rook_direction(-1, 0) #west
             rook_direction(1, 0) #east
             rook_direction(0, 1) #north
