@@ -3,7 +3,7 @@ Chess created by Brad Wyatt
 Python 3
 
 To-Do (long-term):
-attacking_coordinates is in every piece. Should we also include another variable for current coordinate? For bishop current system works but for other pieces it might not
+Save positions rather than restarting when pressing stop button
 Recording moves on right side
 PGN format?
 Pinning
@@ -710,28 +710,28 @@ class PlayKnight(ChessPiece, pygame.sprite.Sprite):
             for grid in Grid.grid_list:
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-2 \
                     and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                    grid.attack_count_increment(self.color, 1)
+                    grid.attack_count_increment(self.color, self.coordinate)
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]+2 \
                     and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                    grid.attack_count_increment(self.color, 1)
+                    grid.attack_count_increment(self.color, self.coordinate)
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-2 \
                     and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                    grid.attack_count_increment(self.color, 1)
+                    grid.attack_count_increment(self.color, self.coordinate)
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]+2 \
                     and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                    grid.attack_count_increment(self.color, 1)
+                    grid.attack_count_increment(self.color, self.coordinate)
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])-2 and grid.coordinate[1] == self.coordinate[1]-1 \
                     and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                    grid.attack_count_increment(self.color, 1)
+                    grid.attack_count_increment(self.color, self.coordinate)
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])-2 and grid.coordinate[1] == self.coordinate[1]+1 \
                     and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                    grid.attack_count_increment(self.color, 1)
+                    grid.attack_count_increment(self.color, self.coordinate)
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and grid.coordinate[1] == self.coordinate[1]-1 \
                     and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                    grid.attack_count_increment(self.color, 1)
+                    grid.attack_count_increment(self.color, self.coordinate)
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and grid.coordinate[1] == self.coordinate[1]+1 \
                     and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                    grid.attack_count_increment(self.color, 1)
+                    grid.attack_count_increment(self.color, self.coordinate)
     def captured(self):
         self.taken_off_board = True
         self.coordinate = None
@@ -1104,40 +1104,56 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
                     self.left_castle_ability == 1 and (self.coordinate[1] == 1 or self.coordinate[1]==8)):
                         grid.attack_count_increment(self.color, self.coordinate)
     def spaces_available(self):
+
         for grid in Grid.grid_list:
+            # Space available refers to if there are any attacking pieces
+            if self.color == "white":
+                space_available = len(grid.num_of_black_pieces_attacking) == 0
+            elif self.color == "black":
+                space_available = len(grid.num_of_white_pieces_attacking) == 0
+            # King can have only one move in all directions
             if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-1 and \
-                (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                (grid.occupied == 0 or grid.occupied_piece_color != self.color) and \
+                space_available == True:
                 grid.highlight()
             if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1] and \
-                (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                (grid.occupied == 0 or grid.occupied_piece_color != self.color) and \
+                space_available == True:
                 grid.highlight()
             if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]+1 and \
-                (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                (grid.occupied == 0 or grid.occupied_piece_color != self.color) and \
+                space_available == True:
                 grid.highlight()
             if ord(grid.coordinate[0]) == ord(self.coordinate[0]) and grid.coordinate[1] == self.coordinate[1]-1 and \
-                (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                (grid.occupied == 0 or grid.occupied_piece_color != self.color) and \
+                space_available == True:
                 grid.highlight()
             if ord(grid.coordinate[0]) == ord(self.coordinate[0]) and grid.coordinate[1] == self.coordinate[1]+1 and \
-                (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                (grid.occupied == 0 or grid.occupied_piece_color != self.color) and \
+                space_available == True:
                 grid.highlight()
             if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-1 and \
-                (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                (grid.occupied == 0 or grid.occupied_piece_color != self.color) and \
+                space_available == True:
                 grid.highlight()
             if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1] and \
-                (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                (grid.occupied == 0 or grid.occupied_piece_color != self.color) and \
+                space_available == True:
                 grid.highlight()
             if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]+1 and \
-                (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                (grid.occupied == 0 or grid.occupied_piece_color != self.color) and \
+                space_available == True:
                 grid.highlight()
-            if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and grid.coordinate[1] == self.coordinate[1] and \
+            # Castle
+            if(ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and grid.coordinate[1] == self.coordinate[1] and \
                 (grid.occupied == 0 or grid.occupied_piece_color != self.color) and
                 self.right_castle_ability == 1 and (self.coordinate[1] == 1 or self.coordinate[1]==8) and \
-                self.castled == False):
+                self.castled == False and space_available == True):
                     grid.highlight()
-            if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-2 and grid.coordinate[1] == self.coordinate[1] and \
+            if(ord(grid.coordinate[0]) == ord(self.coordinate[0])-2 and grid.coordinate[1] == self.coordinate[1] and \
                 (grid.occupied == 0 or grid.occupied_piece_color != self.color) and
                 self.left_castle_ability == 1 and (self.coordinate[1] == 1 or self.coordinate[1]==8) and \
-                self.castled == False):
+                self.castled == False and space_available == True):
                     grid.highlight()
     def no_highlight(self):
         if(self.color == "white"):
