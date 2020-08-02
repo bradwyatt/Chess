@@ -6,8 +6,7 @@ To-Do (long-term):
 Save positions rather than restarting when pressing stop button
 Recording moves on right side
 PGN format?
-Pinning
-Castling (can't do it through check)
+Pinning (deactivate piece only when )
 En Passant
 Check
 Checkmate
@@ -606,7 +605,7 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
     def projected(self):
         if(self.pinned == False and self.taken_off_board != True):
             def bishop_direction(self, x, y):
-                global CHECKTEXT, GAME_CONTROLLER
+                global GAME_CONTROLLER
                 pieces_in_way = 0 #Pieces between the bishop and the enemy King
                 king_count = 0 #Checks to see if there's a king in a direction
                 pinned_piece_coord = None
@@ -614,11 +613,12 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                 for i in range(1, 8):
                     for grid in Grid.grid_list:
                         if(ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i)):
-                            # If King is already in check and it's iterating to next occupied grid space
-                            if(pieces_in_way == 1 and king_count == 1 and grid.occupied == 1):
-                                return
                             # Incrementing the count for allowable grids that this piece moves
                             attacking_coordinates.append(grid.coordinate) 
+                            # If King is already in check and it's iterating to next occupied grid space
+                            if(pieces_in_way == 1 and king_count == 1 and grid.occupied == 1):
+                                GAME_CONTROLLER.king_in_check(self.coordinate, attacking_coordinates)
+                                return
                             # Passing this piece's coordinate to this grid
                             if pinned_piece_coord is None:
                                 grid.attack_count_increment(self.color, self.coordinate)
@@ -637,13 +637,15 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                             # 2 Pieces in way, includes 1 king
                             if(pieces_in_way == 2 and king_count == 1): 
                                 print("King is pinned on coordinate " + str(grid.coordinate))
-                                CHECKTEXT = "Pinned"
+                                GAME_CONTROLLER.CHECKTEXT = "Pinned"
                                 GAME_CONTROLLER.pinned_piece(pinned_piece_coord, attacking_coordinates)
                                 return
                             # 1 Piece in way which is King
+                            # This is check, we will iterate one more time to cover the next square king is not allowed to go to
                             elif(pieces_in_way == 1 and king_count == 1 and grid.occupied_piece == "king"):
                                 print("Check for coordinate " + str(grid.coordinate))
-                                CHECKTEXT = "Check"
+                                GAME_CONTROLLER.CHECKTEXT = "Check"
+                                
             bishop_direction(self, -1, -1) #southwest
             bishop_direction(self, -1, 1) #northwest
             bishop_direction(self, 1, -1) #southeast
@@ -795,7 +797,7 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
     def projected(self):
         if(self.pinned == False and self.taken_off_board != True):
             def rook_direction(x, y):
-                global CHECKTEXT, GAME_CONTROLLER
+                global GAME_CONTROLLER
                 pieces_in_way = 0 #Pieces between the rook and the enemy King
                 king_count = 0 #Checks to see if there's a king in a direction
                 pinned_piece_coord = None
@@ -826,12 +828,12 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
                                         return
                             if(pieces_in_way == 2 and king_count == 1): #2 Pieces in way, includes 1 king
                                 print("King is pinned on coordinate " + str(grid.coordinate))
-                                CHECKTEXT = "Pinned"
+                                GAME_CONTROLLER.CHECKTEXT = "Pinned"
                                 GAME_CONTROLLER.pinned_piece(pinned_piece_coord, attacking_coordinates)
                                 return
                             elif(pieces_in_way == 1 and king_count == 1 and grid.occupied_piece == "king"):
                                 print("Check for coordinate " + str(grid.coordinate))
-                                CHECKTEXT = "Check"
+                                GAME_CONTROLLER.CHECKTEXT = "Check"
             rook_direction(-1, 0) #west
             rook_direction(1, 0) #east
             rook_direction(0, 1) #north
@@ -887,7 +889,7 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
     def projected(self):
         if(self.pinned == False and self.taken_off_board != True):
             def bishop_direction(self, x, y):
-                global CHECKTEXT, GAME_CONTROLLER
+                global GAME_CONTROLLER
                 pieces_in_way = 0 #Pieces between the bishop and the enemy King
                 king_count = 0 #Checks to see if there's a king in a direction
                 pinned_piece_coord = None
@@ -918,19 +920,19 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
                             # 2 Pieces in way, includes 1 king
                             if(pieces_in_way == 2 and king_count == 1): 
                                 print("King is pinned on coordinate " + str(grid.coordinate))
-                                CHECKTEXT = "Pinned"
+                                GAME_CONTROLLER.CHECKTEXT = "Pinned"
                                 GAME_CONTROLLER.pinned_piece(pinned_piece_coord, attacking_coordinates)
                                 return
                             # 1 Piece in way which is King
                             elif(pieces_in_way == 1 and king_count == 1 and grid.occupied_piece == "king"):
                                 print("Check for coordinate " + str(grid.coordinate))
-                                CHECKTEXT = "Check"
+                                GAME_CONTROLLER.CHECKTEXT = "Check"
             bishop_direction(self, -1, -1) #southwest
             bishop_direction(self, -1, 1) #northwest
             bishop_direction(self, 1, -1) #southeast
             bishop_direction(self, 1, 1) #northeast
             def rook_direction(x, y):
-                global CHECKTEXT, GAME_CONTROLLER
+                global GAME_CONTROLLER
                 pieces_in_way = 0 #Pieces between the rook and the enemy King
                 king_count = 0 #Checks to see if there's a king in a direction
                 pinned_piece_coord = None
@@ -961,12 +963,12 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
                                         return
                             if(pieces_in_way == 2 and king_count == 1): #2 Pieces in way, includes 1 king
                                 print("King is pinned on coordinate " + str(grid.coordinate))
-                                CHECKTEXT = "Pinned"
+                                GAME_CONTROLLER.CHECKTEXT = "Pinned"
                                 GAME_CONTROLLER.pinned_piece(pinned_piece_coord, attacking_coordinates)
                                 return
                             elif(pieces_in_way == 1 and king_count == 1 and grid.occupied_piece == "king"):
                                 print("Check for coordinate " + str(grid.coordinate))
-                                CHECKTEXT = "Check"
+                                GAME_CONTROLLER.CHECKTEXT = "Check"
             rook_direction(-1, 0) #west
             rook_direction(1, 0) #east
             rook_direction(0, 1) #north
@@ -1506,6 +1508,7 @@ class Game_Controller():
             grid.attack_count_reset()
     def switch_turn(self, color_turn):
         self.WHOSETURN = color_turn
+        self.CHECKTEXT = ""
         # No highlights and ensuring that attacking squares (used by diagonal pieces) are set to 0
         for grid in Grid.grid_list:
             grid.no_highlight()
@@ -1542,7 +1545,15 @@ class Game_Controller():
             for piece in piece_list:
                 if Grid.grid_dict["".join(map(str, (pinned_piece_coordinate)))].coordinate == piece.coordinate:
                     piece.pinned_restrict(attacking_coordinates)
-
+    def king_in_check(self, attacking_piece_coord, attacking_coordinates):
+        for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
+                           PlayKnight.white_knight_list, PlayRook.white_rook_list, 
+                           PlayQueen.white_queen_list, PlayKing.white_king_list,
+                           PlayPawn.black_pawn_list, PlayBishop.black_bishop_list,
+                           PlayKnight.black_knight_list, PlayRook.black_rook_list,
+                           PlayQueen.black_queen_list, PlayKing.black_king_list]:
+            for piece in piece_list:
+                pass
 def main():    
     global GAME_CONTROLLER
     #Tk box for color
