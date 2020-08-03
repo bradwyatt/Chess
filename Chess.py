@@ -662,13 +662,17 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                 self.image = IMAGES["SPR_BLACK_BISHOP_HIGHLIGHTED"]
             self.select = True
     def spaces_available(self):
-        if(self.pinned == False and self.taken_off_board != True):
+        if(self.taken_off_board != True):
             def bishop_direction(x, y):
                 for i in range(1,8):
                     for grid in Grid.grid_list:
                         if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) \
                                and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 0:
-                            grid.highlight()
+                            if self.pinned == False:
+                                grid.highlight()
+                            # If pinned and grid is within the attacking coordinates restraint
+                            elif(grid.coordinate in self.attacking_coordinates and grid.occupied_piece != 'king' and grid.coordinate != self.coordinate):
+                                grid.highlight()            
                         elif ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and \
                                  grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 1:
                             if(grid.occupied_piece_color != self.color): # Highlights when enemy piece in path
@@ -678,11 +682,6 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
             bishop_direction(-1, 1) #northwest
             bishop_direction(1, -1) #southeast
             bishop_direction(1, 1) #northeast
-        # When it is pinned, only allow movement in the direction where the captureis coming from
-        elif(self.pinned == True and self.taken_off_board != True):
-            for grid in Grid.grid_list:
-                if(grid.coordinate in self.attacking_coordinates and grid.occupied_piece != 'king' and grid.coordinate != self.coordinate):
-                    grid.highlight()
     def no_highlight(self):
         if self.taken_off_board != True:
             if(self.color == "white"):
