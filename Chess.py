@@ -3,12 +3,13 @@ Chess created by Brad Wyatt
 Python 3
 
 To-Do (long-term):
+Check (White and Black) --> different labels rather than just "CHECK"
+Blocking Check
+Pinning (deactivate piece only when )
 Save positions rather than restarting when pressing stop button
 Recording moves on right side
 PGN format?
-Pinning (deactivate piece only when )
 En Passant
-Check
 Checkmate
 Reset button for reset the board
 Customized Turns for black and white
@@ -617,6 +618,7 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                             proj_attacking_coordinates.append(grid.coordinate) 
                             # If King is already in check and it's iterating to next occupied grid space
                             if(pieces_in_way == 1 and king_count == 1):
+                                game_controller.CHECKTEXT = "Check"
                                 game_controller.king_in_check(self.coordinate, proj_attacking_coordinates)
                                 return
                             # Passing this piece's coordinate to this grid
@@ -1479,6 +1481,18 @@ class Game_Controller():
         self.CHECKTEXT = ""
         self.EDIT_MODE, self.PLAY_MODE = 0, 1
         self.game_mode = self.EDIT_MODE
+        self.check_piece_coordinate = None
+        self.check_attacking_coordinates = None
+    def update_checktext(self):
+        white_attackers_counter = 0
+        black_attackers_counter = 0
+        for grid in Grid.grid_list:
+            if num_of_white_pieces_attacking != []:
+                self.CHECKTEXT = "Pinned"
+            if num_of_black_pieces_attacking != []:
+                self.CHECKTEXT = "Pinned"
+        else:
+            self.CHECKTEXT = ""
     def reset_board(self):
         self.WHOSETURN = self.WHITE_TO_MOVE
         self.CHECKTEXT = ""
@@ -1508,7 +1522,6 @@ class Game_Controller():
             grid.attack_count_reset()
     def switch_turn(self, color_turn):
         self.WHOSETURN = color_turn
-        self.CHECKTEXT = ""
         # No highlights and ensuring that attacking squares (used by diagonal pieces) are set to 0
         for grid in Grid.grid_list:
             grid.no_highlight()
@@ -1550,6 +1563,8 @@ class Game_Controller():
                 if Grid.grid_dict["".join(map(str, (pinned_piece_coordinate)))].coordinate == piece.coordinate:
                     piece.pinned_restrict(pin_attacking_coordinates)
     def king_in_check(self, check_piece_coordinate, check_attacking_coordinates):
+        self.check_piece_coordinate = check_piece_coordinate
+        self.check_attacking_coordinates = check_attacking_coordinates
         for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                            PlayKnight.white_knight_list, PlayRook.white_rook_list, 
                            PlayQueen.white_queen_list, PlayKing.white_king_list,
@@ -1557,8 +1572,9 @@ class Game_Controller():
                            PlayKnight.black_knight_list, PlayRook.black_rook_list,
                            PlayQueen.black_queen_list, PlayKing.black_king_list]:
             for piece in piece_list:
-                if Grid.grid_dict["".join(map(str, (check_piece_coordinate)))].coordinate == piece.coordinate:
-                    piece.check_restrict(check_attacking_coordinates)
+                for check_spaces in check_attacking_coordinates:
+                    if Grid.grid_dict["".join(map(str, (check_spaces)))].coordinate == piece.coordinate:
+                        piece.check_restrict(check_attacking_coordinates)
 def main():    
     #Tk box for color
     root = tk.Tk()
