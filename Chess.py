@@ -14,6 +14,9 @@ Checkmate
 Reset button for reset the board
 Customized Turns for black and white
 """
+from start_objects import *
+from load_images_sounds import *
+from placed_objects import *
 import random
 import sys
 import os
@@ -33,46 +36,9 @@ STARTPOS = {'white_pawn': (480, 390), 'white_bishop':(480, 340), 'white_knight':
              'white_rook':(480, 240), 'white_queen':(480, 190), 'white_king':(480, 140),
              'black_pawn': (540, 390), 'black_bishop':(540, 340), 'black_knight':(540, 290),
              'black_rook':(540, 240), 'black_queen':(540, 190), 'black_king':(540, 140)}
-IMAGES = {}
-SOUNDS = {}
-SCREEN_WIDTH, SCREEN_HEIGHT = 936, 650
+
+
 START_SPRITES = pygame.sprite.Group()
-
-def adjust_to_correct_appdir():
-    try:
-        appdir = sys.argv[0] #feel free to use __file__
-        if not appdir:
-            raise ValueError
-        appdir = os.path.abspath(os.path.dirname(sys.argv[0]))
-        os.chdir(appdir)
-        if not appdir in sys.path:
-            sys.path.insert(0, appdir)
-    except:
-        #placeholder for feedback, adjust to your app.
-        #remember to use only python and python standard libraries
-        #not any resource or module into the appdir 
-        #a window in Tkinter can be adequate for apps without console
-        #a simple print with a timeout can be enough for console apps
-        print('Please run from an OS console.')
-        import time
-        time.sleep(10)
-        sys.exit(1)
-adjust_to_correct_appdir()
-
-def load_sound(file, name):
-    sound = pygame.mixer.Sound(file)
-    SOUNDS[name] = sound
-    
-def load_image(file, name, transparent, alpha):
-    new_image = pygame.image.load(file)
-    if alpha == True:
-        new_image = new_image.convert_alpha()
-    else:
-        new_image = new_image.convert()
-    if transparent:
-        colorkey = new_image.get_at((0, 0))
-        new_image.set_colorkey(colorkey, RLEACCEL)
-    IMAGES[name] = new_image
 
 class InfoScreen():
     def __init__(self,screen):
@@ -256,209 +222,9 @@ def deactivate_piece(coord, pin):
 # MOVING PIECES
 #############
             
-class StartBlankBox(pygame.sprite.Sprite):
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = IMAGES["SPR_BLANKBOX"]
-        self.rect = self.image.get_rect()
-    def update(self):
-        pass
-    def flip_start_sprite(self, DRAGGING, pos):
-        self.rect.topleft = pos
-        if DRAGGING.white_pawn:
-            self.image = IMAGES["SPR_WHITE_PAWN"]
-        elif DRAGGING.white_bishop:
-            self.image = IMAGES["SPR_WHITE_BISHOP"]
-        elif DRAGGING.white_knight:
-            self.image = IMAGES["SPR_WHITE_KNIGHT"]
-        elif DRAGGING.white_rook:
-            self.image = IMAGES["SPR_WHITE_ROOK"]
-        elif DRAGGING.white_queen:
-            self.image = IMAGES["SPR_WHITE_QUEEN"]
-        elif DRAGGING.white_king:
-            self.image = IMAGES["SPR_WHITE_KING"]
-        elif DRAGGING.black_pawn:
-            self.image = IMAGES["SPR_BLACK_PAWN"]
-        elif DRAGGING.black_bishop:
-            self.image = IMAGES["SPR_BLACK_BISHOP"]
-        elif DRAGGING.black_knight:
-            self.image = IMAGES["SPR_BLACK_KNIGHT"]
-        elif DRAGGING.black_rook:
-            self.image = IMAGES["SPR_BLACK_ROOK"]
-        elif DRAGGING.black_queen:
-            self.image = IMAGES["SPR_BLACK_QUEEN"]
-        elif DRAGGING.black_king:
-            self.image = IMAGES["SPR_BLACK_KING"]
-        else:
-            self.image = IMAGES["SPR_BLANKBOX"]
+
              
-class PlacedPawn(pygame.sprite.Sprite):
-    white_pawn_list = []
-    black_pawn_list = []
-    def __init__(self, pos, PLACED_SPRITES, col):
-        pygame.sprite.Sprite.__init__(self)
-        self.col = col
-        if self.col == "white":
-            self.image = IMAGES["SPR_WHITE_PAWN"]
-            PLACED_SPRITES.add(self)
-            PlacedPawn.white_pawn_list.append(self)
-        elif self.col == "black":
-            self.image = IMAGES["SPR_BLACK_PAWN"]
-            PLACED_SPRITES.add(self)
-            PlacedPawn.black_pawn_list.append(self)
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        self.coordinate = None
-    def update(self):
-        for grid in Grid.grid_list:
-            if self.rect.colliderect(grid):
-                self.coordinate = grid.coordinate
-    def destroy(self):
-        if self.col == "white":
-            PlacedPawn.white_pawn_list.remove(self)
-        elif self.col == "black":
-            PlacedPawn.black_pawn_list.remove(self)
-        self.kill()
 
-class PlacedBishop(pygame.sprite.Sprite):
-    white_bishop_list = []
-    black_bishop_list = []
-    def __init__(self, pos, PLACED_SPRITES, col):
-        pygame.sprite.Sprite.__init__(self)
-        self.col = col
-        if self.col == "white":
-            self.image = IMAGES["SPR_WHITE_BISHOP"]
-            PLACED_SPRITES.add(self)
-            PlacedBishop.white_bishop_list.append(self)
-        elif self.col == "black":
-            self.image = IMAGES["SPR_BLACK_BISHOP"]
-            PLACED_SPRITES.add(self)
-            PlacedBishop.black_bishop_list.append(self)
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        self.coordinate = None
-    def update(self):
-        for grid in Grid.grid_list:
-            if self.rect.colliderect(grid):
-                self.coordinate = grid.coordinate
-    def destroy(self):
-        if self.col == "white":
-            PlacedBishop.white_bishop_list.remove(self)
-        elif self.col == "black":
-            PlacedBishop.black_bishop_list.remove(self)
-        self.kill()
-
-class PlacedKnight(pygame.sprite.Sprite):
-    white_knight_list = []
-    black_knight_list = []
-    def __init__(self, pos, PLACED_SPRITES, col):
-        pygame.sprite.Sprite.__init__(self)
-        self.col = col
-        if self.col == "white":
-            self.image = IMAGES["SPR_WHITE_KNIGHT"]
-            PLACED_SPRITES.add(self)
-            PlacedKnight.white_knight_list.append(self)
-        elif self.col == "black":
-            self.image = IMAGES["SPR_BLACK_KNIGHT"]
-            PLACED_SPRITES.add(self)
-            PlacedKnight.black_knight_list.append(self)
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        self.coordinate = None
-    def update(self):
-        for grid in Grid.grid_list:
-            if self.rect.colliderect(grid):
-                self.coordinate = grid.coordinate
-    def destroy(self):
-        if self.col == "white":
-            PlacedKnight.white_knight_list.remove(self)
-        elif self.col == "black":
-            PlacedKnight.black_knight_list.remove(self)
-        self.kill()
-        
-class PlacedRook(pygame.sprite.Sprite):
-    white_rook_list = []
-    black_rook_list = []
-    def __init__(self, pos, PLACED_SPRITES, col):
-        pygame.sprite.Sprite.__init__(self)
-        self.col = col
-        if self.col == "white":
-            self.image = IMAGES["SPR_WHITE_ROOK"]
-            PLACED_SPRITES.add(self)
-            PlacedRook.white_rook_list.append(self)
-        elif self.col == "black":
-            self.image = IMAGES["SPR_BLACK_ROOK"]
-            PLACED_SPRITES.add(self)
-            PlacedRook.black_rook_list.append(self)
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        self.coordinate = None
-    def update(self):
-        for grid in Grid.grid_list:
-            if self.rect.colliderect(grid):
-                self.coordinate = grid.coordinate
-    def destroy(self):
-        if self.col == "white":
-            PlacedRook.white_rook_list.remove(self)
-        elif self.col == "black":
-            PlacedRook.black_rook_list.remove(self)
-        self.kill()
-        
-class PlacedQueen(pygame.sprite.Sprite):
-    white_queen_list = []
-    black_queen_list = []
-    def __init__(self, pos, PLACED_SPRITES, col):
-        pygame.sprite.Sprite.__init__(self)
-        self.col = col
-        if self.col == "white":
-            self.image = IMAGES["SPR_WHITE_QUEEN"]
-            PLACED_SPRITES.add(self)
-            PlacedQueen.white_queen_list.append(self)
-        elif self.col == "black":
-            self.image = IMAGES["SPR_BLACK_QUEEN"]
-            PLACED_SPRITES.add(self)
-            PlacedQueen.black_queen_list.append(self)
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        self.coordinate = None
-    def update(self):
-        for grid in Grid.grid_list:
-            if self.rect.colliderect(grid):
-                self.coordinate = grid.coordinate
-    def destroy(self):
-        if self.col == "white":
-            PlacedQueen.white_queen_list.remove(self)
-        elif self.col == "black":
-            PlacedQueen.black_queen_list.remove(self)
-        self.kill()
-        
-class PlacedKing(pygame.sprite.Sprite):
-    white_king_list = []
-    black_king_list = []
-    def __init__(self, pos, PLACED_SPRITES, col):
-        pygame.sprite.Sprite.__init__(self)
-        self.col = col
-        if self.col == "white":
-            self.image = IMAGES["SPR_WHITE_KING"]
-            PLACED_SPRITES.add(self)
-            PlacedKing.white_king_list.append(self)
-        elif self.col == "black":
-            self.image = IMAGES["SPR_BLACK_KING"]
-            PLACED_SPRITES.add(self)
-            PlacedKing.black_king_list.append(self)
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        self.coordinate = None
-    def update(self):
-        for grid in Grid.grid_list:
-            if self.rect.colliderect(grid):
-                self.coordinate = grid.coordinate
-    def destroy(self):
-        if self.col == "white":
-            PlacedKing.white_king_list.remove(self)
-        elif self.col == "black":
-            PlacedKing.black_king_list.remove(self)
-        self.kill()
         
 class ChessPiece:
     def __init__(self, pos, PLAY_SPRITES, image, col):
@@ -1359,78 +1125,6 @@ class Start():
         START_SPRITES.add(self.black_queen)        
         self.black_king = StartKing("black")
         START_SPRITES.add(self.black_king)            
-        
-class StartPawn(pygame.sprite.Sprite):
-    def __init__(self, col):
-        pygame.sprite.Sprite.__init__(self)
-        self.col = col
-        if self.col == "white":
-            self.image = IMAGES["SPR_WHITE_PAWN"]
-        elif self.col == "black":
-            self.image = IMAGES["SPR_BLACK_PAWN"]
-        self.rect = self.image.get_rect() 
-    def update(self):
-        pass
-
-class StartBishop(pygame.sprite.Sprite):
-    def __init__(self, col):
-        pygame.sprite.Sprite.__init__(self)
-        self.col = col
-        if self.col == "white":
-            self.image = IMAGES["SPR_WHITE_BISHOP"]
-        elif self.col == "black":
-            self.image = IMAGES["SPR_BLACK_BISHOP"]
-        self.rect = self.image.get_rect()
-    def update(self):
-        pass
-    
-class StartKnight(pygame.sprite.Sprite):
-    def __init__(self, col):
-        pygame.sprite.Sprite.__init__(self)
-        self.col = col
-        if self.col == "white":
-            self.image = IMAGES["SPR_WHITE_KNIGHT"]
-        elif self.col == "black":
-            self.image = IMAGES["SPR_BLACK_KNIGHT"]
-        self.rect = self.image.get_rect()
-    def update(self):
-        pass
-
-class StartRook(pygame.sprite.Sprite):
-    def __init__(self, col):
-        pygame.sprite.Sprite.__init__(self)
-        self.col = col
-        if self.col == "white":
-            self.image = IMAGES["SPR_WHITE_ROOK"]
-        elif self.col == "black":
-            self.image = IMAGES["SPR_BLACK_ROOK"]
-        self.rect = self.image.get_rect()
-    def update(self):
-        pass
-    
-class StartQueen(pygame.sprite.Sprite):
-    def __init__(self, col):
-        pygame.sprite.Sprite.__init__(self)
-        self.col = col
-        if self.col == "white":
-            self.image = IMAGES["SPR_WHITE_QUEEN"]
-        elif self.col == "black":
-            self.image = IMAGES["SPR_BLACK_QUEEN"]
-        self.rect = self.image.get_rect()
-    def update(self):
-        pass
-
-class StartKing(pygame.sprite.Sprite):
-    def __init__(self, col):
-        pygame.sprite.Sprite.__init__(self)
-        self.col = col
-        if self.col == "white":
-            self.image = IMAGES["SPR_WHITE_KING"]
-        elif self.col == "black":
-            self.image = IMAGES["SPR_BLACK_KING"]
-        self.rect = self.image.get_rect()
-    def update(self):
-        pass
             
 # Returns the tuples of each objects' positions within all classes
 def get_dict_rect_positions():
@@ -1567,7 +1261,6 @@ def main():
     root.withdraw()
     #Global variables
     MENUON = 1
-    SCREEN = None
     
     #################
     # USER CAN SET BELOW PARAMETERS
@@ -1591,9 +1284,7 @@ def main():
     
     GAME_CONTROLLER = Game_Controller()
     
-    #Init
-    pygame.init()
-    SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT)) #, pygame.FULLSCREEN for fullscreen
+
     
     GAME_MODE_SPRITES = pygame.sprite.Group()
     GRID_SPRITES = pygame.sprite.Group()
@@ -1603,45 +1294,7 @@ def main():
     
     #Fonts
     arial_font = pygame.font.SysFont('Arial', 24)
-    #Sprites
-    load_image("Sprites/blankbox.png", "SPR_BLANKBOX", True, False)
-    load_image("Sprites/Chess/white_pawn.png", "SPR_WHITE_PAWN", True, True)
-    load_image("Sprites/Chess/white_pawn_highlighted.png", "SPR_WHITE_PAWN_HIGHLIGHTED", True, True)
-    load_image("Sprites/Chess/white_bishop.png", "SPR_WHITE_BISHOP", True, True)
-    load_image("Sprites/Chess/white_bishop_highlighted.png", "SPR_WHITE_BISHOP_HIGHLIGHTED", True, True)
-    load_image("Sprites/Chess/white_knight.png", "SPR_WHITE_KNIGHT", True, True)
-    load_image("Sprites/Chess/white_knight_highlighted.png", "SPR_WHITE_KNIGHT_HIGHLIGHTED", True, True)
-    load_image("Sprites/Chess/white_rook.png", "SPR_WHITE_ROOK", True, True)
-    load_image("Sprites/Chess/white_rook_highlighted.png", "SPR_WHITE_ROOK_HIGHLIGHTED", True, True)
-    load_image("Sprites/Chess/white_queen.png", "SPR_WHITE_QUEEN", True, True)
-    load_image("Sprites/Chess/white_queen_highlighted.png", "SPR_WHITE_QUEEN_HIGHLIGHTED", True, True)
-    load_image("Sprites/Chess/white_king.png", "SPR_WHITE_KING", True, True)
-    load_image("Sprites/Chess/white_king_highlighted.png", "SPR_WHITE_KING_HIGHLIGHTED", True, True)
-    load_image("Sprites/Chess/black_pawn.png", "SPR_BLACK_PAWN", True, True)
-    load_image("Sprites/Chess/black_pawn_highlighted.png", "SPR_BLACK_PAWN_HIGHLIGHTED", True, True)
-    load_image("Sprites/Chess/black_bishop.png", "SPR_BLACK_BISHOP", True, True)
-    load_image("Sprites/Chess/black_bishop_highlighted.png", "SPR_BLACK_BISHOP_HIGHLIGHTED", True, True)
-    load_image("Sprites/Chess/black_knight.png", "SPR_BLACK_KNIGHT", True, True)
-    load_image("Sprites/Chess/black_knight_highlighted.png", "SPR_BLACK_KNIGHT_HIGHLIGHTED", True, True)
-    load_image("Sprites/Chess/black_rook.png", "SPR_BLACK_ROOK", True, True)
-    load_image("Sprites/Chess/black_rook_highlighted.png", "SPR_BLACK_ROOK_HIGHLIGHTED", True, True)
-    load_image("Sprites/Chess/black_queen.png", "SPR_BLACK_QUEEN", True, True)
-    load_image("Sprites/Chess/black_queen_highlighted.png", "SPR_BLACK_QUEEN_HIGHLIGHTED", True, True)
-    load_image("Sprites/Chess/black_king.png", "SPR_BLACK_KING", True, True)
-    load_image("Sprites/Chess/black_king_highlighted.png", "SPR_BLACK_KING_HIGHLIGHTED", True, True)
-    load_image("Sprites/grid.png", "SPR_GRID", True, True)
-    load_image("Sprites/whiteGrid.png", "SPR_WHITE_GRID", True, True)
-    load_image("Sprites/greenGrid.png", "SPR_GREEN_GRID", True, True)
-    load_image("Sprites/Chess/highlight.png", "SPR_HIGHLIGHT", True, True)
-    load_image("Sprites/Chess/highlight2.png", "SPR_HIGHLIGHT_PROJECTED", True, True)
-    load_image("Sprites/play_button.png", "SPR_PLAY_BUTTON", True, True)
-    load_image("Sprites/stopbutton.png", "SPR_STOP_BUTTON", True, True)
-    load_image("Sprites/clear.png", "SPR_CLEAR_BUTTON", True, True)
-    load_image("Sprites/infobutton.png", "SPR_INFO_BUTTON", True, True)
-    load_image("Sprites/restart.png", "SPR_RESTART_BUTTON", True, True)
-    load_image("Sprites/colorbutton.png", "SPR_COLOR_BUTTON", True, True)
-    load_image("Sprites/savefile.png", "SPR_SAVE_FILE_BUTTON", True, True)
-    load_image("Sprites/loadfile.png", "SPR_LOAD_FILE_BUTTON", True, True)
+
     
     #Start (Menu) Objects
     START = Start()
@@ -2129,7 +1782,7 @@ def main():
             
             #Update all sprites
             START_SPRITES.update()
-            PLACED_SPRITES.update()
+            PLACED_SPRITES.update(Grid.grid_list)
             PLAY_SPRITES.update()
             SCREEN.fill(COLORKEY)
             GAME_MODE_SPRITES.draw(SCREEN)
