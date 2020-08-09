@@ -619,7 +619,7 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                             # If King is already in check and it's iterating to next occupied grid space
                             if(pieces_in_way == 1 and king_count == 1):
                                 game_controller.CHECKTEXT = "Check"
-                                game_controller.king_in_check(self.coordinate, proj_attacking_coordinates)
+                                game_controller.king_in_check(self.coordinate, proj_attacking_coordinates, self.color)
                                 return
                             # Passing this piece's coordinate to this grid
                             if pinned_piece_coord is None:
@@ -639,7 +639,6 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                             # 2 Pieces in way, includes 1 king
                             if(pieces_in_way == 2 and king_count == 1): 
                                 print("King is pinned on coordinate " + str(grid.coordinate))
-                                game_controller.CHECKTEXT = "Pinned"
                                 game_controller.pinned_piece(pinned_piece_coord, proj_attacking_coordinates)
                                 return
                             # 1 Piece in way which is King
@@ -832,7 +831,6 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
                                         return
                             if(pieces_in_way == 2 and king_count == 1): #2 Pieces in way, includes 1 king
                                 print("King is pinned on coordinate " + str(grid.coordinate))
-                                game_controller.CHECKTEXT = "Pinned"
                                 game_controller.pinned_piece(pinned_piece_coord, proj_attacking_coordinates)
                                 return
                             elif(pieces_in_way == 1 and king_count == 1 and grid.occupied_piece == "king"):
@@ -923,7 +921,6 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
                             # 2 Pieces in way, includes 1 king
                             if(pieces_in_way == 2 and king_count == 1): 
                                 print("King is pinned on coordinate " + str(grid.coordinate))
-                                game_controller.CHECKTEXT = "Pinned"
                                 game_controller.pinned_piece(pinned_piece_coord, proj_attacking_coordinates)
                                 return
                             # 1 Piece in way which is King
@@ -965,7 +962,6 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
                                         return
                             if(pieces_in_way == 2 and king_count == 1): #2 Pieces in way, includes 1 king
                                 print("King is pinned on coordinate " + str(grid.coordinate))
-                                game_controller.CHECKTEXT = "Pinned"
                                 game_controller.pinned_piece(pinned_piece_coord, proj_attacking_coordinates)
                                 return
                             elif(pieces_in_way == 1 and king_count == 1 and grid.occupied_piece == "king"):
@@ -1483,16 +1479,6 @@ class Game_Controller():
         self.game_mode = self.EDIT_MODE
         self.check_piece_coordinate = None
         self.check_attacking_coordinates = None
-    def update_checktext(self):
-        white_attackers_counter = 0
-        black_attackers_counter = 0
-        for grid in Grid.grid_list:
-            if num_of_white_pieces_attacking != []:
-                self.CHECKTEXT = "Pinned"
-            if num_of_black_pieces_attacking != []:
-                self.CHECKTEXT = "Pinned"
-        else:
-            self.CHECKTEXT = ""
     def reset_board(self):
         self.WHOSETURN = self.WHITE_TO_MOVE
         self.CHECKTEXT = ""
@@ -2166,9 +2152,10 @@ def main():
             if(GAME_CONTROLLER.game_mode == GAME_CONTROLLER.PLAY_MODE):
                 if GAME_CONTROLLER.WHOSETURN == GAME_CONTROLLER.WHITE_TO_MOVE:
                     whose_turn_text = arial_font.render("White's move to turn", 1, (0, 0, 0))
+                    pin_check_text = arial_font.render(GAME_CONTROLLER.CHECKTEXT, 1, (0, 0, 0))
                 elif GAME_CONTROLLER.WHOSETURN == GAME_CONTROLLER.BLACK_TO_MOVE:
                     whose_turn_text = arial_font.render("Black's move to turn", 1, (0, 0, 0))
-                pin_check_text = arial_font.render(GAME_CONTROLLER.CHECKTEXT, 1, (0, 0, 0))
+                    pin_check_text = arial_font.render(GAME_CONTROLLER.CHECKTEXT, 1, (0, 0, 0))
                 SCREEN.blit(whose_turn_text, (X_GRID_END+X_GRID_WIDTH, SCREEN_HEIGHT/2))
                 SCREEN.blit(pin_check_text, (X_GRID_END+X_GRID_WIDTH, 200))
             pygame.display.update()
