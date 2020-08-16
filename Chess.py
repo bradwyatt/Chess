@@ -15,8 +15,9 @@ Reset button for reset the board
 Customized Turns for black and white
 """
 from start_objects import *
-from load_images_sounds import *
 from placed_objects import *
+from load_images_sounds import *
+from menu_buttons import *
 import random
 import sys
 import os
@@ -39,27 +40,6 @@ STARTPOS = {'white_pawn': (480, 390), 'white_bishop':(480, 340), 'white_knight':
 
 
 START_SPRITES = pygame.sprite.Group()
-
-class InfoScreen():
-    def __init__(self,screen):
-        self.screen = screen
-        self.title = INFO_SCREEN
-        self.clock = pygame.time.Clock()
-        self.main_loop()
-
-    def main_loop(self):
-        global MENUON
-        while MENUON == 2:
-            self.clock.tick(60)
-            self.screen.blit(self.title, (0, 0))
-            events = pygame.event.get()
-            pygame.display.flip()
-            for event in events:
-                if event.type == QUIT:
-                    sys.exit()
-                if event.type == pygame.KEYDOWN:
-                    if event.key == K_ESCAPE:
-                        MENUON = 1
 
 def snap_to_grid(pos, x_range, y_range):
     best_num_X, best_num_Y = x_range[0], y_range[0] #So Y doesn't go above the menu
@@ -221,11 +201,7 @@ def deactivate_piece(coord, pin):
 #############
 # MOVING PIECES
 #############
-            
 
-             
-
-        
 class ChessPiece:
     def __init__(self, pos, PLAY_SPRITES, image, col):
         PLAY_SPRITES.add(self)
@@ -876,7 +852,6 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
                     self.left_castle_ability == 1 and (self.coordinate[1] == 1 or self.coordinate[1]==8)):
                         grid.attack_count_increment(self.color, self.coordinate)
     def spaces_available(self, game_controller):
-
         for grid in Grid.grid_list:
             # Space available refers to if there are any attacking pieces
             if self.color == "white":
@@ -1025,49 +1000,6 @@ class Grid(pygame.sprite.Sprite):
         elif(self.color == "white"):
             self.image = IMAGES["SPR_WHITE_GRID"]
         self.highlighted = False
-            
-class ClearButton(pygame.sprite.Sprite):
-    def __init__(self, pos):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = IMAGES["SPR_CLEAR_BUTTON"]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-    
-class InfoButton(pygame.sprite.Sprite):
-    def __init__(self, pos):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = IMAGES["SPR_INFO_BUTTON"]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-    
-class RestartButton(pygame.sprite.Sprite):
-    def __init__(self, pos, PLAY_SPRITES):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = IMAGES["SPR_RESTART_BUTTON"]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        PLAY_SPRITES.add(self)
-    
-class ColorButton(pygame.sprite.Sprite):
-    def __init__(self, pos):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = IMAGES["SPR_COLOR_BUTTON"]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        
-class SaveFileButton(pygame.sprite.Sprite):
-    def __init__(self, pos):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = IMAGES["SPR_SAVE_FILE_BUTTON"]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-    
-class LoadFileButton(pygame.sprite.Sprite):
-    def __init__(self, pos):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = IMAGES["SPR_LOAD_FILE_BUTTON"]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
     
 class Dragging():
     def __init__(self):
@@ -1242,19 +1174,27 @@ class Game_Controller():
             for piece in piece_list:
                 if Grid.grid_dict["".join(map(str, (pinned_piece_coordinate)))].coordinate == piece.coordinate:
                     piece.pinned_restrict(pin_attacking_coordinates)
-    def king_in_check(self, check_piece_coordinate, check_attacking_coordinates):
+    def king_in_check(self, check_piece_coordinate, check_attacking_coordinates, color):
+        # Call restrict function on the pinned piece when that pinned piece's king is in check
         self.check_piece_coordinate = check_piece_coordinate
         self.check_attacking_coordinates = check_attacking_coordinates
-        for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
-                           PlayKnight.white_knight_list, PlayRook.white_rook_list, 
-                           PlayQueen.white_queen_list, PlayKing.white_king_list,
-                           PlayPawn.black_pawn_list, PlayBishop.black_bishop_list,
-                           PlayKnight.black_knight_list, PlayRook.black_rook_list,
-                           PlayQueen.black_queen_list, PlayKing.black_king_list]:
-            for piece in piece_list:
-                for check_spaces in check_attacking_coordinates:
-                    if Grid.grid_dict["".join(map(str, (check_spaces)))].coordinate == piece.coordinate:
-                        piece.check_restrict(check_attacking_coordinates)
+        if color == "white":
+            for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
+                               PlayKnight.white_knight_list, PlayRook.white_rook_list, 
+                               PlayQueen.white_queen_list, PlayKing.white_king_list]:
+                for piece in piece_list:
+                    for check_spaces in check_attacking_coordinates:
+                        if Grid.grid_dict["".join(map(str, (check_spaces)))].coordinate == piece.coordinate:
+                            piece.check_restrict(check_attacking_coordinates)
+        elif color == "black":
+            for piece_list in [PlayPawn.black_pawn_list, PlayBishop.black_bishop_list,
+                               PlayKnight.black_knight_list, PlayRook.black_rook_list,
+                               PlayQueen.black_queen_list, PlayKing.black_king_list]:
+                for piece in piece_list:
+                    for check_spaces in check_attacking_coordinates:
+                        if Grid.grid_dict["".join(map(str, (check_spaces)))].coordinate == piece.coordinate:
+                            piece.check_restrict(check_attacking_coordinates)
+                            
 def main():    
     #Tk box for color
     root = tk.Tk()
@@ -1284,8 +1224,6 @@ def main():
     
     GAME_CONTROLLER = Game_Controller()
     
-
-    
     GAME_MODE_SPRITES = pygame.sprite.Group()
     GRID_SPRITES = pygame.sprite.Group()
     PLACED_SPRITES = pygame.sprite.Group()
@@ -1295,7 +1233,6 @@ def main():
     #Fonts
     arial_font = pygame.font.SysFont('Arial', 24)
 
-    
     #Start (Menu) Objects
     START = Start()
     #DRAGGING Variables
@@ -1805,10 +1742,10 @@ def main():
             if(GAME_CONTROLLER.game_mode == GAME_CONTROLLER.PLAY_MODE):
                 if GAME_CONTROLLER.WHOSETURN == GAME_CONTROLLER.WHITE_TO_MOVE:
                     whose_turn_text = arial_font.render("White's move to turn", 1, (0, 0, 0))
-                    pin_check_text = arial_font.render(GAME_CONTROLLER.CHECKTEXT, 1, (0, 0, 0))
+                    pin_check_text = arial_font.render(game_controller.CHECKTEXT, 1, (0, 0, 0))
                 elif GAME_CONTROLLER.WHOSETURN == GAME_CONTROLLER.BLACK_TO_MOVE:
                     whose_turn_text = arial_font.render("Black's move to turn", 1, (0, 0, 0))
-                    pin_check_text = arial_font.render(GAME_CONTROLLER.CHECKTEXT, 1, (0, 0, 0))
+                    pin_check_text = arial_font.render(game_controller.CHECKTEXT, 1, (0, 0, 0))
                 SCREEN.blit(whose_turn_text, (X_GRID_END+X_GRID_WIDTH, SCREEN_HEIGHT/2))
                 SCREEN.blit(pin_check_text, (X_GRID_END+X_GRID_WIDTH, 200))
             pygame.display.update()
