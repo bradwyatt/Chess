@@ -213,6 +213,7 @@ class ChessPiece:
         self.pinned = False
         self.taken_off_board = False
         self.coordinate = self.get_coordinate()
+        self.check_attacking_coordinates = []
     def get_coordinate(self):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
@@ -863,35 +864,35 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
             # King can have only one move in all directions
             if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-1 and \
                 (grid.occupied == 0 or grid.occupied_piece_color != self.color) and \
-                space_available == True:
+                space_available == True and grid.coordinate not in self.check_attacking_coordinates:
                 grid.highlight()
             if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1] and \
                 (grid.occupied == 0 or grid.occupied_piece_color != self.color) and \
-                space_available == True:
+                space_available == True and grid.coordinate not in self.check_attacking_coordinates:
                 grid.highlight()
             if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]+1 and \
                 (grid.occupied == 0 or grid.occupied_piece_color != self.color) and \
-                space_available == True:
+                space_available == True and grid.coordinate not in self.check_attacking_coordinates:
                 grid.highlight()
             if ord(grid.coordinate[0]) == ord(self.coordinate[0]) and grid.coordinate[1] == self.coordinate[1]-1 and \
                 (grid.occupied == 0 or grid.occupied_piece_color != self.color) and \
-                space_available == True:
+                space_available == True and grid.coordinate not in self.check_attacking_coordinates:
                 grid.highlight()
             if ord(grid.coordinate[0]) == ord(self.coordinate[0]) and grid.coordinate[1] == self.coordinate[1]+1 and \
                 (grid.occupied == 0 or grid.occupied_piece_color != self.color) and \
-                space_available == True:
+                space_available == True and grid.coordinate not in self.check_attacking_coordinates:
                 grid.highlight()
             if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-1 and \
                 (grid.occupied == 0 or grid.occupied_piece_color != self.color) and \
-                space_available == True:
+                space_available == True and grid.coordinate not in self.check_attacking_coordinates:
                 grid.highlight()
             if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1] and \
                 (grid.occupied == 0 or grid.occupied_piece_color != self.color) and \
-                space_available == True:
+                space_available == True and grid.coordinate not in self.check_attacking_coordinates:
                 grid.highlight()
             if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]+1 and \
                 (grid.occupied == 0 or grid.occupied_piece_color != self.color) and \
-                space_available == True:
+                space_available == True and grid.coordinate not in self.check_attacking_coordinates:
                 grid.highlight()
             # Castle
             if(ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and grid.coordinate[1] == self.coordinate[1] and \
@@ -1105,8 +1106,6 @@ class Game_Controller():
         self.CHECKTEXT = ""
         self.EDIT_MODE, self.PLAY_MODE = 0, 1
         self.game_mode = self.EDIT_MODE
-        self.check_piece_coordinate = None
-        self.check_attacking_coordinates = None
     def reset_board(self):
         self.WHOSETURN = self.WHITE_TO_MOVE
         self.CHECKTEXT = ""
@@ -1178,8 +1177,6 @@ class Game_Controller():
                     piece.pinned_restrict(pin_attacking_coordinates)
     def king_in_check(self, check_piece_coordinate, check_attacking_coordinates, color):
         # Call restrict function on the pinned piece when that pinned piece's king is in check
-        self.check_piece_coordinate = check_piece_coordinate
-        self.check_attacking_coordinates = check_attacking_coordinates
         print(color)
         if color == "black":
             for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
@@ -1188,7 +1185,6 @@ class Game_Controller():
                 for piece in piece_list:
                     for check_spaces in check_attacking_coordinates:
                         if piece.coordinate in Grid.grid_dict["".join(map(str, (check_spaces)))].num_of_white_pieces_attacking:
-                            print("piece coordinate " + str(piece.coordinate))
                             piece.check_restrict(check_attacking_coordinates)
         elif color == "white":
             for piece_list in [PlayPawn.black_pawn_list, PlayBishop.black_bishop_list,
@@ -1524,16 +1520,20 @@ def main():
                                             game_controller.switch_turn(game_controller.BLACK_TO_MOVE)
                                             game_controller.projected_black_update()
                                             game_controller.projected_white_update()
+                                            # If black king is not in check, reset CHECKTEXT
                                             for black_king in PlayKing.black_king_list:
                                                 if Grid.grid_dict["".join(map(str, (black_king.coordinate)))].num_of_white_pieces_attacking == []:
                                                     game_controller.CHECKTEXT = ""
+                                                    black_king.check_attacking_coordinates = []
                                         elif(game_controller.WHOSETURN == game_controller.BLACK_TO_MOVE):
                                             game_controller.switch_turn(game_controller.WHITE_TO_MOVE)
                                             game_controller.projected_white_update()
                                             game_controller.projected_black_update()
+                                            # If white king is not in check, reset CHECKTEXT
                                             for white_king in PlayKing.white_king_list:
                                                 if Grid.grid_dict["".join(map(str, (white_king.coordinate)))].num_of_black_pieces_attacking == []:
                                                     game_controller.CHECKTEXT = ""
+                                                    white_king.check_attacking_coordinates = []
                                         return
                     move_piece_on_grid()
     
