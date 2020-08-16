@@ -199,7 +199,7 @@ def deactivate_piece(coord, pin):
                         piece.pinned = False
 
 #############
-# MOVING PIECES
+# PLAY PIECES
 #############
 
 class ChessPiece:
@@ -360,7 +360,7 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                             proj_attacking_coordinates.append(grid.coordinate) 
                             # If King is already in check and it's iterating to next occupied grid space
                             if(pieces_in_way == 1 and king_count == 1):
-                                game_controller.CHECKTEXT = "Check"
+                                game_controller.CHECKTEXT = self.color
                                 game_controller.king_in_check(self.coordinate, proj_attacking_coordinates, self.color)
                                 return
                             # Passing this piece's coordinate to this grid
@@ -387,7 +387,7 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                             # This is check, we will iterate one more time to cover the next square king is not allowed to go to
                             elif(pieces_in_way == 1 and king_count == 1 and grid.occupied_piece == "king"):
                                 print("Check for coordinate " + str(grid.coordinate))
-                                game_controller.CHECKTEXT = "Check"
+                                game_controller.CHECKTEXT = self.color
                                 
             bishop_direction(self, -1, -1) #southwest
             bishop_direction(self, -1, 1) #northwest
@@ -411,9 +411,11 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                     for grid in Grid.grid_list:
                         if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) \
                                and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 0:
-                            if self.pinned == False and game_controller.CHECKTEXT != 'Check':
+                            # If current king not in check and this piece is not pinned
+                            if self.pinned == False and (game_controller.CHECKTEXT == self.color or game_controller.CHECKTEXT == ""):
                                 grid.highlight()
-                            elif game_controller.CHECKTEXT == 'Check':
+                            # If current king is in check
+                            elif game_controller.CHECKTEXT != self.color and game_controller.CHECKTEXT != "":
                                 if grid.coordinate in self.check_attacking_coordinates:
                                     grid.highlight()
                             # If pinned and grid is within the attacking coordinates restraint
@@ -577,7 +579,7 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
                                 return
                             elif(pieces_in_way == 1 and king_count == 1 and grid.occupied_piece == "king"):
                                 print("Check for coordinate " + str(grid.coordinate))
-                                game_controller.CHECKTEXT = "Check"
+                                game_controller.CHECKTEXT = self.color
             rook_direction(-1, 0) #west
             rook_direction(1, 0) #east
             rook_direction(0, 1) #north
@@ -668,7 +670,7 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
                             # 1 Piece in way which is King
                             elif(pieces_in_way == 1 and king_count == 1 and grid.occupied_piece == "king"):
                                 print("Check for coordinate " + str(grid.coordinate))
-                                game_controller.CHECKTEXT = "Check"
+                                game_controller.CHECKTEXT = self.color
             bishop_direction(self, -1, -1) #southwest
             bishop_direction(self, -1, 1) #northwest
             bishop_direction(self, 1, -1) #southeast
@@ -708,7 +710,7 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
                                 return
                             elif(pieces_in_way == 1 and king_count == 1 and grid.occupied_piece == "king"):
                                 print("Check for coordinate " + str(grid.coordinate))
-                                game_controller.CHECKTEXT = "Check"
+                                game_controller.CHECKTEXT = self.color
             rook_direction(-1, 0) #west
             rook_direction(1, 0) #east
             rook_direction(0, 1) #north
@@ -957,8 +959,8 @@ class Grid(pygame.sprite.Sprite):
             self.num_of_white_pieces_attacking.append(attack_coord)
         elif color == "black":
             self.num_of_black_pieces_attacking.append(attack_coord)
-    def update(self, GAME_CONTROLLER):
-        if GAME_CONTROLLER.game_mode == GAME_CONTROLLER.PLAY_MODE:
+    def update(self, game_controller):
+        if game_controller.game_mode == game_controller.PLAY_MODE:
             def grid_occupied_by_piece():
                 for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                                    PlayKnight.white_knight_list, PlayRook.white_rook_list, 
@@ -1178,21 +1180,26 @@ class Game_Controller():
         # Call restrict function on the pinned piece when that pinned piece's king is in check
         self.check_piece_coordinate = check_piece_coordinate
         self.check_attacking_coordinates = check_attacking_coordinates
-        if color == "white":
+        print(color)
+        if color == "black":
             for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                                PlayKnight.white_knight_list, PlayRook.white_rook_list, 
                                PlayQueen.white_queen_list, PlayKing.white_king_list]:
                 for piece in piece_list:
                     for check_spaces in check_attacking_coordinates:
-                        if Grid.grid_dict["".join(map(str, (check_spaces)))].coordinate == piece.coordinate:
+                        print("counting all piece coords: " + str(piece.coordinate))
+                        print("grid num white pieces attacking: " + str(Grid.grid_dict["".join(map(str, (check_spaces)))].num_of_white_pieces_attacking))
+                        if piece.coordinate in Grid.grid_dict["".join(map(str, (check_spaces)))].num_of_white_pieces_attacking:
+                            print("piece coordinate " + str(piece.coordinate))
                             piece.check_restrict(check_attacking_coordinates)
-        elif color == "black":
+        elif color == "white":
             for piece_list in [PlayPawn.black_pawn_list, PlayBishop.black_bishop_list,
                                PlayKnight.black_knight_list, PlayRook.black_rook_list,
                                PlayQueen.black_queen_list, PlayKing.black_king_list]:
                 for piece in piece_list:
                     for check_spaces in check_attacking_coordinates:
-                        if Grid.grid_dict["".join(map(str, (check_spaces)))].coordinate == piece.coordinate:
+                        if piece.coordinate in Grid.grid_dict["".join(map(str, (check_spaces)))].num_of_black_pieces_attacking:
+                            print("piece coordinate " + str(piece.coordinate))
                             piece.check_restrict(check_attacking_coordinates)
                             
 def main():    
@@ -1222,7 +1229,7 @@ def main():
     state = RUNNING
     debug_message = 0
     
-    GAME_CONTROLLER = Game_Controller()
+    game_controller = Game_Controller()
     
     GAME_MODE_SPRITES = pygame.sprite.Group()
     GRID_SPRITES = pygame.sprite.Group()
@@ -1340,7 +1347,7 @@ def main():
                         state = DEBUG
                 #DRAG (only for menu and inanimate buttons at top)
                 if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and MOUSEPOS[0] > X_GRID_END:
-                    if GAME_CONTROLLER.game_mode == GAME_CONTROLLER.EDIT_MODE: #Checks if in Editing Mode
+                    if game_controller.game_mode == game_controller.EDIT_MODE: #Checks if in Editing Mode
                         #BUTTONS
                         if COLOR_BUTTON.rect.collidepoint(MOUSEPOS):
                             COLORKEY = get_color()
@@ -1516,18 +1523,20 @@ def main():
                                                     Grid.grid_dict['f8'].occupied = True
                                         
                                         # Switch turns
-                                        if(GAME_CONTROLLER.WHOSETURN == GAME_CONTROLLER.WHITE_TO_MOVE):
-                                            GAME_CONTROLLER.switch_turn(GAME_CONTROLLER.BLACK_TO_MOVE)
-                                            GAME_CONTROLLER.projected_white_update()
-                                        elif(GAME_CONTROLLER.WHOSETURN == GAME_CONTROLLER.BLACK_TO_MOVE):
-                                            GAME_CONTROLLER.switch_turn(GAME_CONTROLLER.WHITE_TO_MOVE)
-                                            GAME_CONTROLLER.projected_black_update()
+                                        if(game_controller.WHOSETURN == game_controller.WHITE_TO_MOVE):
+                                            game_controller.switch_turn(game_controller.BLACK_TO_MOVE)
+                                            game_controller.projected_black_update()
+                                            game_controller.projected_white_update()
+                                        elif(game_controller.WHOSETURN == game_controller.BLACK_TO_MOVE):
+                                            game_controller.switch_turn(game_controller.WHITE_TO_MOVE)
+                                            game_controller.projected_white_update()
+                                            game_controller.projected_black_update()
                                         return
                     move_piece_on_grid()
     
                     clicked_piece = None
                     # Selecting and unselecting white pieces
-                    if GAME_CONTROLLER.WHOSETURN == GAME_CONTROLLER.WHITE_TO_MOVE:
+                    if game_controller.WHOSETURN == game_controller.WHITE_TO_MOVE:
                         for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                                            PlayKnight.white_knight_list, PlayRook.white_rook_list, 
                                            PlayQueen.white_queen_list, PlayKing.white_king_list]:
@@ -1541,7 +1550,7 @@ def main():
                                     for grid in Grid.grid_list:
                                         grid.no_highlight()
                     # Selecting and unselecting black pieces
-                    elif GAME_CONTROLLER.WHOSETURN == GAME_CONTROLLER.BLACK_TO_MOVE:
+                    elif game_controller.WHOSETURN == game_controller.BLACK_TO_MOVE:
                         for piece_list in [PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
                                            PlayKnight.black_knight_list, PlayRook.black_rook_list, 
                                            PlayQueen.black_queen_list, PlayKing.black_king_list]:
@@ -1555,14 +1564,14 @@ def main():
                     # Just do this last, since we know only one piece will be selected
                     if clicked_piece is not None:
                         clicked_piece.highlight()
-                        clicked_piece.spaces_available(GAME_CONTROLLER)
+                        clicked_piece.spaces_available(game_controller)
                         clicked_piece = None
 
                 #################
                 # CLICK (RELEASE)
                 ################# 
                 
-                if GAME_CONTROLLER.game_mode == GAME_CONTROLLER.EDIT_MODE:
+                if game_controller.game_mode == game_controller.EDIT_MODE:
                     # Right click on obj, destroy
                     if(event.type == MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[2]):   
                         DRAGGING.dragging_all_false()
@@ -1573,11 +1582,11 @@ def main():
                     #################
                     # PLAY BUTTON
                     #################
-                    if PLAY_EDIT_SWITCH_BUTTON.rect.collidepoint(MOUSEPOS) and GAME_CONTROLLER.game_mode == GAME_CONTROLLER.EDIT_MODE: 
+                    if PLAY_EDIT_SWITCH_BUTTON.rect.collidepoint(MOUSEPOS) and game_controller.game_mode == game_controller.EDIT_MODE: 
                         # Makes clicking play again unclickable    
-                        GAME_CONTROLLER.game_mode = GAME_CONTROLLER.PLAY_MODE
-                        GAME_CONTROLLER.switch_turn(GAME_CONTROLLER.WHITE_TO_MOVE)
-                        PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(GAME_CONTROLLER.game_mode)
+                        game_controller.game_mode = game_controller.PLAY_MODE
+                        game_controller.switch_turn(game_controller.WHITE_TO_MOVE)
+                        PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(game_controller.game_mode)
                         print("Play Mode Activated")
     
                         for placed_white_pawn in PlacedPawn.white_pawn_list:
@@ -1604,23 +1613,23 @@ def main():
                             PlayQueen(placed_black_queen.rect.topleft, PLAY_SPRITES, "black")    
                         for placed_black_king in PlacedKing.black_king_list:
                             PlayKing(placed_black_king.rect.topleft, PLAY_SPRITES, "black")
-                        GRID_SPRITES.update(GAME_CONTROLLER)
-                        GAME_CONTROLLER.projected_white_update()
-                        GAME_CONTROLLER.projected_black_update()
+                        GRID_SPRITES.update(game_controller)
+                        game_controller.projected_white_update()
+                        game_controller.projected_black_update()
                     #################
                     # LEFT CLICK (RELEASE) STOP BUTTON
                     #################
-                    elif PLAY_EDIT_SWITCH_BUTTON.rect.collidepoint(MOUSEPOS) and GAME_CONTROLLER.game_mode == GAME_CONTROLLER.PLAY_MODE:
+                    elif PLAY_EDIT_SWITCH_BUTTON.rect.collidepoint(MOUSEPOS) and game_controller.game_mode == game_controller.PLAY_MODE:
                         print("Editing Mode Activated")
-                        GAME_CONTROLLER.game_mode = GAME_CONTROLLER.EDIT_MODE
-                        PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(GAME_CONTROLLER.game_mode)
-                        GAME_CONTROLLER.reset_board()
+                        game_controller.game_mode = game_controller.EDIT_MODE
+                        PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(game_controller.game_mode)
+                        game_controller.reset_board()
                     if RESTART_BUTTON.rect.collidepoint(MOUSEPOS):
                         pass
                     if INFO_BUTTON.rect.collidepoint(MOUSEPOS):
                         MENUON = 2
                     if CLEAR_BUTTON.rect.collidepoint(MOUSEPOS):
-                        if GAME_CONTROLLER.game_mode == GAME_CONTROLLER.EDIT_MODE: #Editing mode
+                        if game_controller.game_mode == game_controller.EDIT_MODE: #Editing mode
                             START = restart_start_objects(START)
                             # REMOVE ALL SPRITES
                             remove_all_placed()
@@ -1636,7 +1645,7 @@ def main():
             # ALL EDIT ACTIONS
             ##################
             # Replace start sprite with blank box in top menu
-            if GAME_CONTROLLER.game_mode == GAME_CONTROLLER.EDIT_MODE:
+            if game_controller.game_mode == game_controller.EDIT_MODE:
                 if DRAGGING.white_pawn:
                     START.blank_box.rect.topleft = STARTPOS['white_pawn'] # Replaces in Menu
                     START.white_pawn.rect.topleft = (MOUSEPOS[0]-(START.white_pawn.image.get_width()/2),
@@ -1713,7 +1722,7 @@ def main():
             ##################
             # IN-GAME ACTIONS
             ##################
-            if GAME_CONTROLLER.game_mode == GAME_CONTROLLER.PLAY_MODE:
+            if game_controller.game_mode == game_controller.PLAY_MODE:
                 pass
             #FOR DEBUGGING PURPOSES, PUT TEST CODE BELOW
             
@@ -1724,11 +1733,11 @@ def main():
             SCREEN.fill(COLORKEY)
             GAME_MODE_SPRITES.draw(SCREEN)
             GRID_SPRITES.draw(SCREEN)
-            GRID_SPRITES.update(GAME_CONTROLLER)
-            if(GAME_CONTROLLER.game_mode == GAME_CONTROLLER.EDIT_MODE): #Only draw placed sprites in editing mode
+            GRID_SPRITES.update(game_controller)
+            if(game_controller.game_mode == game_controller.EDIT_MODE): #Only draw placed sprites in editing mode
                 START_SPRITES.draw(SCREEN)
                 PLACED_SPRITES.draw(SCREEN)    
-            elif(GAME_CONTROLLER.game_mode == GAME_CONTROLLER.PLAY_MODE): #Only draw play sprites in play mode
+            elif(game_controller.game_mode == game_controller.PLAY_MODE): #Only draw play sprites in play mode
                 PLAY_SPRITES.draw(SCREEN)
             # Board Coordinates Drawing
             coor_letter_text_list = [coor_A_text, coor_B_text, coor_C_text, coor_D_text, coor_E_text, coor_F_text, coor_G_text, coor_H_text]
@@ -1739,15 +1748,19 @@ def main():
             for text in range(0,len(coor_number_text_list)):
                 SCREEN.blit(coor_number_text_list[text], (X_GRID_START-X_GRID_WIDTH/2, Y_GRID_START+Y_GRID_HEIGHT/4+(Y_GRID_HEIGHT*text)))
                 SCREEN.blit(coor_number_text_list[text], (X_GRID_END+X_GRID_WIDTH/3, Y_GRID_START+Y_GRID_HEIGHT/4+(Y_GRID_HEIGHT*text)))
-            if(GAME_CONTROLLER.game_mode == GAME_CONTROLLER.PLAY_MODE):
-                if GAME_CONTROLLER.WHOSETURN == GAME_CONTROLLER.WHITE_TO_MOVE:
+            if(game_controller.game_mode == game_controller.PLAY_MODE):
+                if game_controller.CHECKTEXT == "":
+                    pin_check_text = ""
+                else:
+                    pin_check_text = game_controller.CHECKTEXT + " piece checking"
+                pin_check_text_render = arial_font.render(pin_check_text, 1, (0, 0, 0))
+                if game_controller.WHOSETURN == game_controller.WHITE_TO_MOVE:
                     whose_turn_text = arial_font.render("White's move to turn", 1, (0, 0, 0))
-                    pin_check_text = arial_font.render(game_controller.CHECKTEXT, 1, (0, 0, 0))
-                elif GAME_CONTROLLER.WHOSETURN == GAME_CONTROLLER.BLACK_TO_MOVE:
+                    pin_check_text_render = arial_font.render(pin_check_text, 1, (0, 0, 0))
+                elif game_controller.WHOSETURN == game_controller.BLACK_TO_MOVE:
                     whose_turn_text = arial_font.render("Black's move to turn", 1, (0, 0, 0))
-                    pin_check_text = arial_font.render(game_controller.CHECKTEXT, 1, (0, 0, 0))
                 SCREEN.blit(whose_turn_text, (X_GRID_END+X_GRID_WIDTH, SCREEN_HEIGHT/2))
-                SCREEN.blit(pin_check_text, (X_GRID_END+X_GRID_WIDTH, 200))
+                SCREEN.blit(pin_check_text_render, (X_GRID_END+X_GRID_WIDTH, 200))
             pygame.display.update()
         elif state == DEBUG:
             if debug_message == 1:
