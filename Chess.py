@@ -1187,8 +1187,6 @@ class Game_Controller():
                                PlayQueen.white_queen_list, PlayKing.white_king_list]:
                 for piece in piece_list:
                     for check_spaces in check_attacking_coordinates:
-                        print("counting all piece coords: " + str(piece.coordinate))
-                        print("grid num white pieces attacking: " + str(Grid.grid_dict["".join(map(str, (check_spaces)))].num_of_white_pieces_attacking))
                         if piece.coordinate in Grid.grid_dict["".join(map(str, (check_spaces)))].num_of_white_pieces_attacking:
                             print("piece coordinate " + str(piece.coordinate))
                             piece.check_restrict(check_attacking_coordinates)
@@ -1199,7 +1197,6 @@ class Game_Controller():
                 for piece in piece_list:
                     for check_spaces in check_attacking_coordinates:
                         if piece.coordinate in Grid.grid_dict["".join(map(str, (check_spaces)))].num_of_black_pieces_attacking:
-                            print("piece coordinate " + str(piece.coordinate))
                             piece.check_restrict(check_attacking_coordinates)
                             
 def main():    
@@ -1527,10 +1524,16 @@ def main():
                                             game_controller.switch_turn(game_controller.BLACK_TO_MOVE)
                                             game_controller.projected_black_update()
                                             game_controller.projected_white_update()
+                                            for black_king in PlayKing.black_king_list:
+                                                if Grid.grid_dict["".join(map(str, (black_king.coordinate)))].num_of_white_pieces_attacking == []:
+                                                    game_controller.CHECKTEXT = ""
                                         elif(game_controller.WHOSETURN == game_controller.BLACK_TO_MOVE):
                                             game_controller.switch_turn(game_controller.WHITE_TO_MOVE)
                                             game_controller.projected_white_update()
                                             game_controller.projected_black_update()
+                                            for white_king in PlayKing.white_king_list:
+                                                if Grid.grid_dict["".join(map(str, (white_king.coordinate)))].num_of_black_pieces_attacking == []:
+                                                    game_controller.CHECKTEXT = ""
                                         return
                     move_piece_on_grid()
     
