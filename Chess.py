@@ -3,8 +3,7 @@ Chess created by Brad Wyatt
 Python 3
 
 To-Do (long-term):
-Check (White and Black) --> different labels rather than just "CHECK"
-Blocking Check
+Blocking Check- Each piece has self.check_attacking_coordinates to help block
 Pinning (deactivate piece only when )
 Save positions rather than restarting when pressing stop button
 Recording moves on right side
@@ -387,7 +386,7 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                             # This is check, we will iterate one more time to cover the next square king is not allowed to go to
                             elif(pieces_in_way == 1 and king_count == 1 and grid.occupied_piece == "king"):
                                 print("Check for coordinate " + str(grid.coordinate))
-                                # If the grid is at the last attacking square, there won't be a next iteration, so return
+                                # If the grid is at the last attacking square, there won't be a next iteration, so call king_in_check
                                 if i == 8:
                                     game_controller.king_in_check(self.coordinate, proj_attacking_coordinates, self.color)
                                     return
@@ -1202,21 +1201,28 @@ class Game_Controller():
         print(str(color) + " checking")
         self.CHECKTEXT = color
         if color == "black":
+            # How to treat pieces when their king is in check
             for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                                PlayKnight.white_knight_list, PlayRook.white_rook_list, 
-                               PlayQueen.white_queen_list, PlayKing.white_king_list]:
+                               PlayQueen.white_queen_list]:
                 for piece in piece_list:
-                    for check_spaces in check_attacking_coordinates:
-                        if piece.coordinate in Grid.grid_dict["".join(map(str, (check_spaces)))].num_of_white_pieces_attacking:
-                            piece.check_restrict(check_attacking_coordinates)
+                    piece.check_attacking_coordinates = check_attacking_coordinates
+            # Treat king differently from other pieces (used for debugging)
+            # Future edge case double check
+            for king_piece_list in [PlayKing.white_king_list]:
+                for white_king in king_piece_list:
+                    white_king.check_attacking_coordinates = check_attacking_coordinates
         elif color == "white":
             for piece_list in [PlayPawn.black_pawn_list, PlayBishop.black_bishop_list,
                                PlayKnight.black_knight_list, PlayRook.black_rook_list,
-                               PlayQueen.black_queen_list, PlayKing.black_king_list]:
+                               PlayQueen.black_queen_list]:
                 for piece in piece_list:
                     for check_spaces in check_attacking_coordinates:
                         if piece.coordinate in Grid.grid_dict["".join(map(str, (check_spaces)))].num_of_black_pieces_attacking:
                             piece.check_restrict(check_attacking_coordinates)
+            for king_piece_list in [PlayKing.black_king_list]:
+                for black_king in king_piece_list:
+                    black_king.check_attacking_coordinates = check_attacking_coordinates
                             
 def main():    
     #Tk box for color
