@@ -361,7 +361,6 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                             proj_attacking_coordinates.append(grid.coordinate) 
                             # If King is already in check and it's iterating to next occupied grid space
                             if(pieces_in_way == 1 and king_count == 1):
-                                game_controller.CHECKTEXT = self.color
                                 game_controller.king_in_check(self.coordinate, proj_attacking_coordinates, self.color)
                                 return
                             # Passing this piece's coordinate to this grid
@@ -388,7 +387,10 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                             # This is check, we will iterate one more time to cover the next square king is not allowed to go to
                             elif(pieces_in_way == 1 and king_count == 1 and grid.occupied_piece == "king"):
                                 print("Check for coordinate " + str(grid.coordinate))
-                                game_controller.CHECKTEXT = self.color
+                                # If the grid is at the last attacking square, there won't be a next iteration, so return
+                                if i == 8:
+                                    game_controller.king_in_check(self.coordinate, proj_attacking_coordinates, self.color)
+                                    return
                                 
             bishop_direction(self, -1, -1) #southwest
             bishop_direction(self, -1, 1) #northwest
@@ -1149,6 +1151,22 @@ class Game_Controller():
                            PlayQueen.black_queen_list, PlayKing.black_king_list]:
             for piece in piece_list:
                 piece.pinned = False
+        self.projected_white_update()
+        self.projected_black_update()
+        # If white king is not in check, reset CHECKTEXT
+        for white_king in PlayKing.white_king_list:
+            if Grid.grid_dict["".join(map(str, (white_king.coordinate)))].num_of_black_pieces_attacking == []:
+                self.CHECKTEXT = ""
+                white_king.check_attacking_coordinates = []
+            else:
+                self.CHECKTEXT = "black"
+        # If black king is not in check, reset CHECKTEXT
+        for black_king in PlayKing.black_king_list:
+            if Grid.grid_dict["".join(map(str, (black_king.coordinate)))].num_of_white_pieces_attacking == []:
+                self.CHECKTEXT = ""
+                black_king.check_attacking_coordinates = []
+            else:
+                self.CHECKTEXT = "white"
     def projected_white_update(self):
         # Project pieces attacking movements starting now
         for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
@@ -1177,7 +1195,7 @@ class Game_Controller():
                     piece.pinned_restrict(pin_attacking_coordinates)
     def king_in_check(self, check_piece_coordinate, check_attacking_coordinates, color):
         # Call restrict function on the pinned piece when that pinned piece's king is in check
-        print(color)
+        print(str(color) + " checking")
         if color == "black":
             for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                                PlayKnight.white_knight_list, PlayRook.white_rook_list, 
@@ -1514,26 +1532,11 @@ def main():
                                                     rook.rect.topleft = Grid.grid_dict['f8'].rect.topleft
                                                     rook.coordinate = Grid.grid_dict['f8'].coordinate
                                                     Grid.grid_dict['f8'].occupied = True
-                                        
                                         # Switch turns
                                         if(game_controller.WHOSETURN == game_controller.WHITE_TO_MOVE):
                                             game_controller.switch_turn(game_controller.BLACK_TO_MOVE)
-                                            game_controller.projected_black_update()
-                                            game_controller.projected_white_update()
-                                            # If black king is not in check, reset CHECKTEXT
-                                            for black_king in PlayKing.black_king_list:
-                                                if Grid.grid_dict["".join(map(str, (black_king.coordinate)))].num_of_white_pieces_attacking == []:
-                                                    game_controller.CHECKTEXT = ""
-                                                    black_king.check_attacking_coordinates = []
                                         elif(game_controller.WHOSETURN == game_controller.BLACK_TO_MOVE):
                                             game_controller.switch_turn(game_controller.WHITE_TO_MOVE)
-                                            game_controller.projected_white_update()
-                                            game_controller.projected_black_update()
-                                            # If white king is not in check, reset CHECKTEXT
-                                            for white_king in PlayKing.white_king_list:
-                                                if Grid.grid_dict["".join(map(str, (white_king.coordinate)))].num_of_black_pieces_attacking == []:
-                                                    game_controller.CHECKTEXT = ""
-                                                    white_king.check_attacking_coordinates = []
                                         return
                     move_piece_on_grid()
     
