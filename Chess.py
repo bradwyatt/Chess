@@ -1151,8 +1151,12 @@ class Game_Controller():
                            PlayQueen.black_queen_list, PlayKing.black_king_list]:
             for piece in piece_list:
                 piece.pinned = False
-        self.projected_white_update()
-        self.projected_black_update()
+        if self.WHOSETURN == self.WHITE_TO_MOVE:
+            self.projected_black_update()
+            self.projected_white_update()
+        elif self.WHOSETURN == self.BLACK_TO_MOVE:
+            self.projected_white_update()
+            self.projected_black_update()
         # If white king is not in check, reset CHECKTEXT
         for white_king in PlayKing.white_king_list:
             if Grid.grid_dict["".join(map(str, (white_king.coordinate)))].num_of_black_pieces_attacking == []:
@@ -1196,6 +1200,7 @@ class Game_Controller():
     def king_in_check(self, check_piece_coordinate, check_attacking_coordinates, color):
         # Call restrict function on the pinned piece when that pinned piece's king is in check
         print(str(color) + " checking")
+        self.CHECKTEXT = color
         if color == "black":
             for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                                PlayKnight.white_knight_list, PlayRook.white_rook_list, 
