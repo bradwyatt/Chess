@@ -210,7 +210,7 @@ class ChessPiece:
         self.color = col
         COLOR_POSSIBILITIES = ["white", "black"]
         OTHER_COLOR_INDEX = (COLOR_POSSIBILITIES.index(self.color)+1)%2
-        self.other_color = COLOR_POSSIBILITIES[OTHER_COLOR_INDEX]
+        self.enemy_color = COLOR_POSSIBILITIES[OTHER_COLOR_INDEX]
         self.select = False
         self.pinned = False
         self.taken_off_board = False
@@ -418,10 +418,10 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                                and grid.coordinate[1] == self.coordinate[1]+(y*i):
                             if grid.occupied == 0:
                                 # If current king not in check and this piece is not pinned
-                                if self.pinned == False and (game_controller.checking_color != self.other_color):
+                                if self.pinned == False and (game_controller.checking_color != self.enemy_color):
                                     grid.highlight()
                                 # If current king is in check
-                                elif game_controller.checking_color == self.other_color:
+                                elif game_controller.checking_color == self.enemy_color:
                                     if grid.coordinate in self.check_attacking_coordinates:
                                         grid.highlight()
                                         return
@@ -429,9 +429,11 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                                 elif(self.pinned == True and grid.coordinate in self.pin_attacking_coordinates \
                                      and grid.occupied_piece != 'king' and grid.coordinate != self.coordinate):
                                     grid.highlight()
+                                else:
+                                    return
                             elif grid.occupied == 1 and grid.occupied_piece_color != self.color:
                                 # Check_Attacking_Coordinates only exists when there is check
-                                if game_controller.checking_color == self.other_color:
+                                if game_controller.checking_color == self.enemy_color:
                                     if grid.coordinate in self.check_attacking_coordinates:
                                         grid.highlight()
                                 # If pinned and grid is within the attacking coordinates restraint
