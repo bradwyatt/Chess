@@ -416,22 +416,26 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                     for grid in Grid.grid_list:
                         if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) \
                                and grid.coordinate[1] == self.coordinate[1]+(y*i):
+                            # If no enemy piece on grid
                             if grid.occupied == 0:
                                 # If current king not in check and this piece is not pinned
-                                if self.pinned == False and (game_controller.checking_color != self.enemy_color):
+                                if game_controller.checking_color != self.enemy_color and self.pinned == False:
                                     grid.highlight()
                                 # If current king is in check
                                 elif game_controller.checking_color == self.enemy_color:
                                     if grid.coordinate in self.check_attacking_coordinates:
                                         grid.highlight()
                                         return
-                                # If pinned and grid is within the attacking coordinates restraint
+                                # If pinned and the grid is within the attacking coordinates restraint
+                                # Includes grid.coordinate != self.coordinate so that staying at same coordinate doesn't count as move
                                 elif(self.pinned == True and grid.coordinate in self.pin_attacking_coordinates \
                                      and grid.occupied_piece != 'king' and grid.coordinate != self.coordinate):
                                     grid.highlight()
                                 else:
+                                    # When all the above conditions aren't met, then the bishop can't move further
                                     return
-                            elif grid.occupied == 1 and grid.occupied_piece_color != self.color:
+                            # If enemy piece on grid
+                            elif grid.occupied == 1 and grid.occupied_piece_color == self.enemy_color:
                                 # Check_Attacking_Coordinates only exists when there is check
                                 if game_controller.checking_color == self.enemy_color:
                                     if grid.coordinate in self.check_attacking_coordinates:
@@ -439,9 +443,14 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                                 # If pinned and grid is within the attacking coordinates restraint
                                 elif(self.pinned == True and grid.coordinate in self.pin_attacking_coordinates \
                                      and grid.occupied_piece != 'king'):
+                                    print("pin coords! " + str(grid.coordinate))
                                     grid.highlight()      
                                 else:
+                                    # In all other cases where no check and no pin
                                     grid.highlight()
+                                return
+                            # If same color piece in the way
+                            elif grid.occupied == 1 and grid.occupied_piece_color == self.color:
                                 return
             bishop_direction(-1, -1) #southwest
             bishop_direction(-1, 1) #northwest
