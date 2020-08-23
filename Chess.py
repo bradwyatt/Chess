@@ -600,7 +600,7 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_ROOK_HIGHLIGHTED"]
         self.select = True
     def spaces_available(self, game_controller):
-        if(self.pinned == False):
+        if(self.taken_off_board != True):
             def rook_direction(x, y):
                 for i in range(1,8):
                     for grid in Grid.grid_list:
@@ -864,12 +864,17 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
                         grid.attack_count_increment(self.color, self.coordinate)
     def spaces_available(self, game_controller):
         for grid in Grid.grid_list:
+            # WORK IN PROGRESS: Finding only grids within range of movement, then basing logic off that range of movement
+            range_of_movement = []
+            print("self attacking coords:", str(self.check_attacking_coordinates))
             # Space available refers to if there are any attacking pieces
             if self.color == "white":
                 space_available = len(grid.num_of_black_pieces_attacking) == 0
             elif self.color == "black":
                 space_available = len(grid.num_of_white_pieces_attacking) == 0
             # King can have only one move in all directions
+            # AND If grid is not occupied OR if grid is occupied by other piece
+            # AND If number of opposite color pieces attacking is 0 and grid coordinate is not in check attacking coordinates
             if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-1 and \
                 (grid.occupied == 0 or grid.occupied_piece_color != self.color) and \
                 space_available == True and grid.coordinate not in self.check_attacking_coordinates:
