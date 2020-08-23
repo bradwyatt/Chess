@@ -417,7 +417,7 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                             # If no enemy piece on grid
                             if grid.occupied == 0:
                                 # If current king not in check and this piece is not pinned
-                                if game_controller.color_in_check != self.color and self.pinned == False:
+                                if(game_controller.color_in_check != self.color and self.pinned == False):
                                     grid.highlight()
                                 # If current king is in check
                                 elif game_controller.color_in_check == self.color:
@@ -579,7 +579,7 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
                             proj_attacking_coordinates.append(grid.coordinate)
                             # If King is already in check and it's iterating to next occupied grid space
                             if(pieces_in_way == 1 and king_count == 1):
-                                game_controller.king_in_check(self.coordinate, proj_attacking_coordinates, self.color)
+                                game_controller.king_in_check(self.coordinate, proj_attacking_coordinates, self.enemy_color)
                                 return
                             # Passing this piece's coordinate to this grid
                             if pinned_piece_coord is None:
@@ -587,7 +587,7 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
                             # Counting pieces and Ignoring pieces that are past the king
                             if(grid.occupied == 1 and king_count < 1): 
                                 pieces_in_way += 1
-                                if(grid.occupied_piece == "king" and grid.occupied_piece_color != self.color):
+                                if(grid.occupied_piece == "king" and grid.occupied_piece_color == self.enemy_color):
                                     king_count += 1
                                 else:
                                     # If there's already no pin
@@ -607,7 +607,7 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
                                 print("Check for coordinate " + str(grid.coordinate))
                                 # If the grid is at the last attacking square, there won't be a next iteration, so call king_in_check
                                 if i == 8:
-                                    game_controller.king_in_check(self.coordinate, proj_attacking_coordinates, self.color)
+                                    game_controller.king_in_check(self.coordinate, proj_attacking_coordinates, self.enemy_color)
                                     return
             rook_direction(-1, 0) #west
             rook_direction(1, 0) #east
@@ -624,22 +624,41 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
             def rook_direction(x, y):
                 for i in range(1,8):
                     for grid in Grid.grid_list:
-                        if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 0:
-                            # If current king not in check and this piece is not pinned
-                            if(self.pinned == False and game_controller.color_in_check != self.color):
-                                grid.highlight()
-                            # If current king is in check
-                            elif game_controller.color_in_check == self.color:
-                                if grid.coordinate in self.check_attacking_coordinates:
+                        if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i):
+                            # If no enemy piece on grid
+                            if grid.occupied == 0:
+                                # If current king not in check and this piece is not pinned
+                                if(game_controller.color_in_check != self.color and self.pinned == False):
                                     grid.highlight()
-                            # If pinned and grid is within the attacking coordinates restraint
-                            elif(self.pinned == True and grid.coordinate in self.pin_attacking_coordinates \
-                                 and grid.occupied_piece != 'king' and grid.coordinate != self.coordinate):
-                                grid.highlight() 
-                        elif ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 1:
-                            if(grid.occupied_piece_color != self.color): # Highlights when enemy piece in path
-                                grid.highlight()
-                            return
+                                # If current king is in check
+                                elif game_controller.color_in_check == self.color:
+                                    if grid.coordinate in self.check_attacking_coordinates:
+                                        grid.highlight()
+                                        return
+                                # If pinned and grid is within the attacking coordinates restraint
+                                elif(self.pinned == True and grid.coordinate in self.pin_attacking_coordinates \
+                                     and grid.occupied_piece != 'king' and grid.coordinate != self.coordinate):
+                                    grid.highlight() 
+                                else:
+                                    # When all the above conditions aren't met, then the bishop can't move further
+                                    return
+                            # If enemy piece on grid
+                            elif grid.occupied == 1 and grid.occupied_piece_color == self.enemy_color:
+                                # Check_Attacking_Coordinates only exists when there is check
+                                if game_controller.color_in_check == self.color:
+                                    if grid.coordinate in self.check_attacking_coordinates:
+                                        grid.highlight()
+                                # If pinned and grid is within the attacking coordinates restraint
+                                elif(self.pinned == True and grid.coordinate in self.pin_attacking_coordinates \
+                                     and grid.occupied_piece != 'king'):
+                                    grid.highlight()      
+                                else:
+                                    # In all other cases where no check and no pin
+                                    grid.highlight()
+                                return
+                            # If same color piece in the way
+                            elif grid.occupied == 1 and grid.occupied_piece_color == self.color:
+                                return
             rook_direction(-1, 0) #west
             rook_direction(1, 0) #east
             rook_direction(0, 1) #north
@@ -901,12 +920,11 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
                 direct_enemy_threat = len(grid.num_of_white_pieces_attacking) > 0
             # Projected Enemy Threat refers to threatening squares past the king
             projected_enemy_threat = grid.coordinate in self.check_attacking_coordinates
-
-            # If grid is not being directly attacked by enemy pieces AND
-            # If grid is not occupied OR if grid is occupied by opposing piece OR if it's not being threatened by enemy piece projection (ie square past King)
-            # If number of opposite color pieces attacking is 0 and grid coordinate is not in check attacking coordinates
-            if(direct_enemy_threat == False and \
-               (grid.occupied == 0 or grid.occupied_piece_color == self.enemy_color or projected_enemy_threat == False)):
+            # If square is not being directly attacked by enemy pieces AND
+            # If square is not occupied AND it's not being threatened by enemy piece projection (ie square past King) OR
+            # If square is occupied by opposing piece
+            if((grid.occupied == 0 or grid.occupied_piece_color == self.enemy_color) and direct_enemy_threat == False and \
+               (projected_enemy_threat == False or grid.occupied_piece_color == self.enemy_color)):
                 # King can have only one move in all directions
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-1:
                     grid.highlight()
