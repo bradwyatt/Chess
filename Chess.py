@@ -223,8 +223,6 @@ class ChessPiece:
     def pinned_restrict(self, pin_attacking_coordinates):
         self.pinned = True
         self.pin_attacking_coordinates = pin_attacking_coordinates
-    def check_restrict(self, check_attacking_coordinates):
-        self.check_attacking_coordinates = check_attacking_coordinates
 
 class PlayPawn(ChessPiece, pygame.sprite.Sprite):
     white_pawn_list = []
@@ -896,60 +894,58 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
                         grid.attack_count_increment(self.color, self.coordinate)
     def spaces_available(self, game_controller):
         for grid in Grid.grid_list:
-            # WORK IN PROGRESS: Finding only grids within range of movement, then basing logic off that range of movement
-            range_of_movement = []
-            #print("self attacking coords:", str(self.check_attacking_coordinates))
-            # Space available refers to if there are any attacking pieces
+            # Direct Enemy Threat refers to how many opposing color pieces are attacking square
             if self.color == "white":
-                space_available = len(grid.num_of_black_pieces_attacking) == 0
+                direct_enemy_threat = len(grid.num_of_black_pieces_attacking) > 0
             elif self.color == "black":
-                space_available = len(grid.num_of_white_pieces_attacking) == 0
+                direct_enemy_threat = len(grid.num_of_white_pieces_attacking) > 0
+            # Projected Enemy Threat refers to threatening squares past the king
+            projected_enemy_threat = grid.coordinate in self.check_attacking_coordinates
             # King can have only one move in all directions
             # AND If grid is not occupied OR if grid is occupied by other piece
             # AND If number of opposite color pieces attacking is 0 and grid coordinate is not in check attacking coordinates
-            if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-1 and \
-                (grid.occupied == 0 or grid.occupied_piece_color != self.color) and \
-                space_available == True and grid.coordinate not in self.check_attacking_coordinates:
-                grid.highlight()
-            if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1] and \
-                (grid.occupied == 0 or grid.occupied_piece_color != self.color) and \
-                space_available == True and grid.coordinate not in self.check_attacking_coordinates:
-                grid.highlight()
-            if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]+1 and \
-                (grid.occupied == 0 or grid.occupied_piece_color != self.color) and \
-                space_available == True and grid.coordinate not in self.check_attacking_coordinates:
-                grid.highlight()
-            if ord(grid.coordinate[0]) == ord(self.coordinate[0]) and grid.coordinate[1] == self.coordinate[1]-1 and \
-                (grid.occupied == 0 or grid.occupied_piece_color != self.color) and \
-                space_available == True and grid.coordinate not in self.check_attacking_coordinates:
-                grid.highlight()
-            if ord(grid.coordinate[0]) == ord(self.coordinate[0]) and grid.coordinate[1] == self.coordinate[1]+1 and \
-                (grid.occupied == 0 or grid.occupied_piece_color != self.color) and \
-                space_available == True and grid.coordinate not in self.check_attacking_coordinates:
-                grid.highlight()
-            if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-1 and \
-                (grid.occupied == 0 or grid.occupied_piece_color != self.color) and \
-                space_available == True and grid.coordinate not in self.check_attacking_coordinates:
-                grid.highlight()
-            if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1] and \
-                (grid.occupied == 0 or grid.occupied_piece_color != self.color) and \
-                space_available == True and grid.coordinate not in self.check_attacking_coordinates:
-                grid.highlight()
-            if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]+1 and \
-                (grid.occupied == 0 or grid.occupied_piece_color != self.color) and \
-                space_available == True and grid.coordinate not in self.check_attacking_coordinates:
-                grid.highlight()
-            # Castle
-            if(ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and grid.coordinate[1] == self.coordinate[1] and \
-                (grid.occupied == 0 or grid.occupied_piece_color != self.color) and
-                self.right_castle_ability == 1 and (self.coordinate[1] == 1 or self.coordinate[1]==8) and \
-                self.castled == False and space_available == True):
-                    grid.highlight()
-            if(ord(grid.coordinate[0]) == ord(self.coordinate[0])-2 and grid.coordinate[1] == self.coordinate[1] and \
-                (grid.occupied == 0 or grid.occupied_piece_color != self.color) and
-                self.left_castle_ability == 1 and (self.coordinate[1] == 1 or self.coordinate[1]==8) and \
-                self.castled == False and space_available == True):
-                    grid.highlight()
+            if(grid.occupied == 0 or grid.occupied_piece_color == self.enemy_color):
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-1 and \
+                    direct_enemy_threat == False:
+                        if(projected_enemy_threat == False or grid.occupied_piece_color == self.enemy_color):
+                            grid.highlight()
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1] and \
+                    direct_enemy_threat == False:
+                        if(projected_enemy_threat == False or grid.occupied_piece_color == self.enemy_color):
+                            grid.highlight()
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]+1 and \
+                    direct_enemy_threat == False:
+                        if(projected_enemy_threat == False or grid.occupied_piece_color == self.enemy_color):
+                            grid.highlight()
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0]) and grid.coordinate[1] == self.coordinate[1]-1 and \
+                    direct_enemy_threat == False:
+                        if(projected_enemy_threat == False or grid.occupied_piece_color == self.enemy_color):
+                            grid.highlight()
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0]) and grid.coordinate[1] == self.coordinate[1]+1 and \
+                    direct_enemy_threat == False:
+                        if(projected_enemy_threat == False or grid.occupied_piece_color == self.enemy_color):
+                            grid.highlight()
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-1 and \
+                    direct_enemy_threat == False:
+                        if(projected_enemy_threat == False or grid.occupied_piece_color == self.enemy_color):
+                            grid.highlight()
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1] and \
+                    direct_enemy_threat == False:
+                        if(projected_enemy_threat == False or grid.occupied_piece_color == self.enemy_color):
+                            grid.highlight()
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]+1 and \
+                    direct_enemy_threat == False:
+                        if(projected_enemy_threat == False or grid.occupied_piece_color == self.enemy_color):
+                            grid.highlight()
+                # Castle
+                if(ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and grid.coordinate[1] == self.coordinate[1] and \
+                    self.right_castle_ability == 1 and (self.coordinate[1] == 1 or self.coordinate[1]==8) and \
+                    self.castled == False and direct_enemy_threat == False and projected_enemy_threat == False):
+                        grid.highlight()
+                if(ord(grid.coordinate[0]) == ord(self.coordinate[0])-2 and grid.coordinate[1] == self.coordinate[1] and \
+                    self.left_castle_ability == 1 and (self.coordinate[1] == 1 or self.coordinate[1]==8) and \
+                    self.castled == False and direct_enemy_threat == False and projected_enemy_threat == False):
+                        grid.highlight()
     def no_highlight(self):
         if(self.color == "white"):
             self.image = IMAGES["SPR_WHITE_KING"]
@@ -1242,7 +1238,7 @@ class Game_Controller():
                     piece.pinned_restrict(pin_attacking_coordinates)
     def king_in_check(self, check_piece_coordinate, check_attacking_coordinates, color):
         # Call restrict function on the pinned piece when that pinned piece's king is in check
-        print(str(color) + " checking")
+        print(str(color) + " checked")
         self.color_in_check = color
         if color == "white":
             # How to treat pieces when their king is in check
@@ -1811,7 +1807,7 @@ def main():
                 if game_controller.color_in_check == "":
                     pin_check_text = ""
                 else:
-                    pin_check_text = game_controller.color_in_check + " piece checking"
+                    pin_check_text = game_controller.color_in_check + " piece checked"
                 pin_check_text_render = arial_font.render(pin_check_text, 1, (0, 0, 0))
                 if game_controller.WHOSETURN == game_controller.WHITE_TO_MOVE:
                     whose_turn_text = arial_font.render("White's move to turn", 1, (0, 0, 0))
