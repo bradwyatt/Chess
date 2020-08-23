@@ -208,6 +208,9 @@ class ChessPiece:
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         self.color = col
+        COLOR_POSSIBILITIES = ["white", "black"]
+        OTHER_COLOR_INDEX = (COLOR_POSSIBILITIES.index(self.color)+1)%2
+        self.other_color = COLOR_POSSIBILITIES[OTHER_COLOR_INDEX]
         self.select = False
         self.pinned = False
         self.taken_off_board = False
@@ -412,23 +415,32 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                 for i in range(1,8):
                     for grid in Grid.grid_list:
                         if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) \
-                               and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 0:
-                            # If current king not in check and this piece is not pinned
-                            if self.pinned == False and (game_controller.CHECKTEXT == self.color or game_controller.CHECKTEXT == ""):
-                                grid.highlight()
-                            # If current king is in check
-                            elif game_controller.CHECKTEXT != self.color and game_controller.CHECKTEXT != "":
-                                if grid.coordinate in self.check_attacking_coordinates:
+                               and grid.coordinate[1] == self.coordinate[1]+(y*i):
+                            if grid.occupied == 0:
+                                # If current king not in check and this piece is not pinned
+                                if self.pinned == False and (game_controller.checking_color != self.other_color):
                                     grid.highlight()
-                            # If pinned and grid is within the attacking coordinates restraint
-                            elif(self.pinned == True and grid.coordinate in self.pin_attacking_coordinates \
-                                 and grid.occupied_piece != 'king' and grid.coordinate != self.coordinate):
-                                grid.highlight()            
-                        elif ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and \
-                                 grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 1:
-                            if(grid.occupied_piece_color != self.color): # Highlights when enemy piece in path
-                                grid.highlight()
-                            return
+                                # If current king is in check
+                                elif game_controller.checking_color == self.other_color:
+                                    if grid.coordinate in self.check_attacking_coordinates:
+                                        grid.highlight()
+                                        return
+                                # If pinned and grid is within the attacking coordinates restraint
+                                elif(self.pinned == True and grid.coordinate in self.pin_attacking_coordinates \
+                                     and grid.occupied_piece != 'king' and grid.coordinate != self.coordinate):
+                                    grid.highlight()
+                            elif grid.occupied == 1 and grid.occupied_piece_color != self.color:
+                                # Check_Attacking_Coordinates only exists when there is check
+                                if game_controller.checking_color == self.other_color:
+                                    if grid.coordinate in self.check_attacking_coordinates:
+                                        grid.highlight()
+                                # If pinned and grid is within the attacking coordinates restraint
+                                elif(self.pinned == True and grid.coordinate in self.pin_attacking_coordinates \
+                                     and grid.occupied_piece != 'king'):
+                                    grid.highlight()      
+                                else:
+                                    grid.highlight()
+                                return
             bishop_direction(-1, -1) #southwest
             bishop_direction(-1, 1) #northwest
             bishop_direction(1, -1) #southeast
@@ -605,7 +617,17 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
                 for i in range(1,8):
                     for grid in Grid.grid_list:
                         if ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 0:
-                            grid.highlight()
+                            # If current king not in check and this piece is not pinned
+                            if self.pinned == False and (game_controller.checking_color == self.color or game_controller.checking_color == ""):
+                                grid.highlight()
+                            # If current king is in check
+                            elif game_controller.checking_color != self.color and game_controller.checking_color != "":
+                                if grid.coordinate in self.check_attacking_coordinates:
+                                    grid.highlight()
+                            # If pinned and grid is within the attacking coordinates restraint
+                            elif(self.pinned == True and grid.coordinate in self.pin_attacking_coordinates \
+                                 and grid.occupied_piece != 'king' and grid.coordinate != self.coordinate):
+                                grid.highlight() 
                         elif ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) and grid.coordinate[1] == self.coordinate[1]+(y*i) and grid.occupied == 1:
                             if(grid.occupied_piece_color != self.color): # Highlights when enemy piece in path
                                 grid.highlight()
@@ -679,7 +701,7 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
                             # 1 Piece in way which is King
                             elif(pieces_in_way == 1 and king_count == 1 and grid.occupied_piece == "king"):
                                 print("Check for coordinate " + str(grid.coordinate))
-                                game_controller.CHECKTEXT = self.color
+                                game_controller.checking_color = self.color
             bishop_direction(self, -1, -1) #southwest
             bishop_direction(self, -1, 1) #northwest
             bishop_direction(self, 1, -1) #southeast
@@ -719,7 +741,7 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
                                 return
                             elif(pieces_in_way == 1 and king_count == 1 and grid.occupied_piece == "king"):
                                 print("Check for coordinate " + str(grid.coordinate))
-                                game_controller.CHECKTEXT = self.color
+                                game_controller.checking_color = self.color
             rook_direction(-1, 0) #west
             rook_direction(1, 0) #east
             rook_direction(0, 1) #north
@@ -866,7 +888,7 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
         for grid in Grid.grid_list:
             # WORK IN PROGRESS: Finding only grids within range of movement, then basing logic off that range of movement
             range_of_movement = []
-            print("self attacking coords:", str(self.check_attacking_coordinates))
+            #print("self attacking coords:", str(self.check_attacking_coordinates))
             # Space available refers to if there are any attacking pieces
             if self.color == "white":
                 space_available = len(grid.num_of_black_pieces_attacking) == 0
@@ -1116,12 +1138,12 @@ class Game_Controller():
     def __init__(self):
         self.BLACK_TO_MOVE, self.WHITE_TO_MOVE = 0, 1
         self.WHOSETURN = self.WHITE_TO_MOVE
-        self.CHECKTEXT = ""
+        self.checking_color = ""
         self.EDIT_MODE, self.PLAY_MODE = 0, 1
         self.game_mode = self.EDIT_MODE
     def reset_board(self):
         self.WHOSETURN = self.WHITE_TO_MOVE
-        self.CHECKTEXT = ""
+        self.checking_color = ""
         self.game_mode = self.EDIT_MODE
         for spr_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                  PlayKnight.white_knight_list, PlayRook.white_rook_list,
@@ -1168,20 +1190,20 @@ class Game_Controller():
         elif self.WHOSETURN == self.BLACK_TO_MOVE:
             self.projected_white_update()
             self.projected_black_update()
-        # If white king is not in check, reset CHECKTEXT
+        # If white king is not in check, reset checking_color
         for white_king in PlayKing.white_king_list:
             if Grid.grid_dict["".join(map(str, (white_king.coordinate)))].num_of_black_pieces_attacking == []:
-                self.CHECKTEXT = ""
+                self.checking_color = ""
                 white_king.check_attacking_coordinates = []
             else:
-                self.CHECKTEXT = "black"
-        # If black king is not in check, reset CHECKTEXT
+                self.checking_color = "black"
+        # If black king is not in check, reset checking_color
         for black_king in PlayKing.black_king_list:
             if Grid.grid_dict["".join(map(str, (black_king.coordinate)))].num_of_white_pieces_attacking == []:
-                self.CHECKTEXT = ""
+                self.checking_color = ""
                 black_king.check_attacking_coordinates = []
             else:
-                self.CHECKTEXT = "white"
+                self.checking_color = "white"
     def projected_white_update(self):
         # Project pieces attacking movements starting now
         for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
@@ -1211,7 +1233,7 @@ class Game_Controller():
     def king_in_check(self, check_piece_coordinate, check_attacking_coordinates, color):
         # Call restrict function on the pinned piece when that pinned piece's king is in check
         print(str(color) + " checking")
-        self.CHECKTEXT = color
+        self.checking_color = color
         if color == "black":
             # How to treat pieces when their king is in check
             for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
@@ -1776,10 +1798,10 @@ def main():
                 SCREEN.blit(coor_number_text_list[text], (X_GRID_START-X_GRID_WIDTH/2, Y_GRID_START+Y_GRID_HEIGHT/4+(Y_GRID_HEIGHT*text)))
                 SCREEN.blit(coor_number_text_list[text], (X_GRID_END+X_GRID_WIDTH/3, Y_GRID_START+Y_GRID_HEIGHT/4+(Y_GRID_HEIGHT*text)))
             if(game_controller.game_mode == game_controller.PLAY_MODE):
-                if game_controller.CHECKTEXT == "":
+                if game_controller.checking_color == "":
                     pin_check_text = ""
                 else:
-                    pin_check_text = game_controller.CHECKTEXT + " piece checking"
+                    pin_check_text = game_controller.checking_color + " piece checking"
                 pin_check_text_render = arial_font.render(pin_check_text, 1, (0, 0, 0))
                 if game_controller.WHOSETURN == game_controller.WHITE_TO_MOVE:
                     whose_turn_text = arial_font.render("White's move to turn", 1, (0, 0, 0))
