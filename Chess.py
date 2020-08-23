@@ -555,11 +555,12 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
                     for grid in Grid.grid_list:
                         if(ord(grid.coordinate[0]) == ord(self.coordinate[0])+(x*i) \
                            and grid.coordinate[1] == self.coordinate[1]+(y*i)):
-                            # If King is already in check and it's iterating to next occupied grid space
-                            if(pieces_in_way == 1 and king_count == 1 and grid.occupied == 1):
-                                return
                             # Incrementing the count for allowable grids that this piece moves
                             proj_attacking_coordinates.append(grid.coordinate)
+                            # If King is already in check and it's iterating to next occupied grid space
+                            if(pieces_in_way == 1 and king_count == 1):
+                                game_controller.king_in_check(self.coordinate, proj_attacking_coordinates, self.color)
+                                return
                             # Passing this piece's coordinate to this grid
                             if pinned_piece_coord is None:
                                 grid.attack_count_increment(self.color, self.coordinate)
@@ -575,13 +576,19 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
                                     # 2 pieces without a king
                                     else:
                                         return
+                            # 2 Pieces in way, includes 1 king
                             if(pieces_in_way == 2 and king_count == 1): #2 Pieces in way, includes 1 king
                                 print("King is pinned on coordinate " + str(grid.coordinate))
                                 game_controller.pinned_piece(pinned_piece_coord, proj_attacking_coordinates)
                                 return
+                            # 1 Piece in way which is King
+                            # This is check, we will iterate one more time to cover the next square king is not allowed to go to
                             elif(pieces_in_way == 1 and king_count == 1 and grid.occupied_piece == "king"):
                                 print("Check for coordinate " + str(grid.coordinate))
-                                game_controller.CHECKTEXT = self.color
+                                # If the grid is at the last attacking square, there won't be a next iteration, so call king_in_check
+                                if i == 8:
+                                    game_controller.king_in_check(self.coordinate, proj_attacking_coordinates, self.color)
+                                    return
             rook_direction(-1, 0) #west
             rook_direction(1, 0) #east
             rook_direction(0, 1) #north
@@ -1217,9 +1224,7 @@ class Game_Controller():
                                PlayKnight.black_knight_list, PlayRook.black_rook_list,
                                PlayQueen.black_queen_list]:
                 for piece in piece_list:
-                    for check_spaces in check_attacking_coordinates:
-                        if piece.coordinate in Grid.grid_dict["".join(map(str, (check_spaces)))].num_of_black_pieces_attacking:
-                            piece.check_restrict(check_attacking_coordinates)
+                    piece.check_attacking_coordinates = check_attacking_coordinates
             for king_piece_list in [PlayKing.black_king_list]:
                 for black_king in king_piece_list:
                     black_king.check_attacking_coordinates = check_attacking_coordinates
