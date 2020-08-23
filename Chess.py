@@ -920,10 +920,10 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
                 direct_enemy_threat = len(grid.num_of_white_pieces_attacking) > 0
             # Projected Enemy Threat refers to threatening squares past the king
             projected_enemy_threat = grid.coordinate in self.check_attacking_coordinates
-            # If square is not being directly attacked by enemy pieces AND
-            # If square is not occupied AND it's not being threatened by enemy piece projection (ie square past King) OR
-            # If square is occupied by opposing piece
-            if((grid.occupied == 0 or grid.occupied_piece_color == self.enemy_color) and direct_enemy_threat == False and \
+            # If square does not have same color piece on it
+            # If square is not directly threatened by opposing piece
+            # If square is not in enemy piece projection OR if enemy piece in reach to be take-able
+            if(grid.occupied_piece_color != self.color and direct_enemy_threat == False and \
                (projected_enemy_threat == False or grid.occupied_piece_color == self.enemy_color)):
                 # King can have only one move in all directions
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-1:
