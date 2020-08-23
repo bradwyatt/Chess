@@ -836,9 +836,7 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
                 self.coordinate = grid.coordinate
-        if((self.color == "white" and self.coordinate == ['e', 1]) or (self.color == "black" and self.coordinate == ['e', 8])):
-            self.castle_check()
-    def castle_check(self):
+    def castle_check(self, game_controller):
         if self.castled == False:
             if self.color == "white":
                 for white_rook in PlayRook.white_rook_list:
@@ -912,6 +910,8 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
                     self.left_castle_ability == 1 and (self.coordinate[1] == 1 or self.coordinate[1]==8)):
                         grid.attack_count_increment(self.color, self.coordinate)
     def spaces_available(self, game_controller):
+        if((self.color == "white" and self.coordinate == ['e', 1]) or (self.color == "black" and self.coordinate == ['e', 8])):
+            self.castle_check(game_controller)
         for grid in Grid.grid_list:
             # Direct Enemy Threat refers to how many opposing color pieces are attacking square
             if self.color == "white":
@@ -945,11 +945,11 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
                 # Castle
                 if(ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and grid.coordinate[1] == self.coordinate[1] and \
                     self.right_castle_ability == 1 and (self.coordinate[1] == 1 or self.coordinate[1]==8) and \
-                    self.castled == False and direct_enemy_threat == False and projected_enemy_threat == False):
+                    self.castled == False):
                         grid.highlight()
                 if(ord(grid.coordinate[0]) == ord(self.coordinate[0])-2 and grid.coordinate[1] == self.coordinate[1] and \
                     self.left_castle_ability == 1 and (self.coordinate[1] == 1 or self.coordinate[1]==8) and \
-                    self.castled == False and direct_enemy_threat == False and projected_enemy_threat == False):
+                    self.castled == False):
                         grid.highlight()
     def no_highlight(self):
         if(self.color == "white"):
@@ -1243,7 +1243,6 @@ class Game_Controller():
                     piece.pinned_restrict(pin_attacking_coordinates)
     def king_in_check(self, check_piece_coordinate, check_attacking_coordinates, color):
         # Call restrict function on the pinned piece when that pinned piece's king is in check
-        print(str(color) + " checked")
         self.color_in_check = color
         if color == "white":
             # How to treat pieces when their king is in check
