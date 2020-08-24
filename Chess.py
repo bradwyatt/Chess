@@ -3,6 +3,7 @@ Chess created by Brad Wyatt
 Python 3
 
 To-Do (long-term):
+Double check forces King to move (you can't use another piece to block)
 Blocking Check- Each piece has self.check_attacking_coordinates to help block
 Pinning (deactivate piece only when )
 Save positions rather than restarting when pressing stop button
@@ -388,7 +389,9 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                             elif(pieces_in_way == 1 and king_count == 1 and grid.occupied_piece == "king"):
                                 print("Check for coordinate " + str(grid.coordinate))
                                 # If the grid is at the last attacking square, there won't be a next iteration, so call king_in_check
-                                if i == 8:
+                                # Corner case where king is on the edge of the board
+                                if((grid.coordinate[0] == 'a' and x == -1) or (grid.coordinate[0] == 'h' and x == 1) or \
+                                   (grid.coordinate[1] == 8 and y == 1) or (grid.coordinate[1] == 1 and y == -1)):
                                     game_controller.king_in_check(self.coordinate, proj_attacking_coordinates, self.enemy_color)
                                     return
                                 
@@ -441,7 +444,7 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                                 # If pinned and grid is within the attacking coordinates restraint
                                 elif(self.pinned == True and grid.coordinate in self.pin_attacking_coordinates \
                                      and grid.occupied_piece != 'king'):
-                                    grid.highlight()      
+                                    grid.highlight()     
                                 else:
                                     # In all other cases where no check and no pin
                                     grid.highlight()
@@ -564,7 +567,7 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
         self.coordinate = None
         self.rect.topleft = 550, 600
     def projected(self, game_controller):
-        if(self.pinned == False and self.taken_off_board != True):
+        if(self.taken_off_board != True):
             def rook_direction(x, y):
                 pieces_in_way = 0 #Pieces between the rook and the enemy King
                 king_count = 0 #Checks to see if there's a king in a direction
@@ -579,6 +582,7 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
                             # If King is already in check and it's iterating to next occupied grid space
                             if(pieces_in_way == 1 and king_count == 1):
                                 game_controller.king_in_check(self.coordinate, proj_attacking_coordinates, self.enemy_color)
+                                print("these proj attacking coordinates should move over ! " + str(proj_attacking_coordinates))
                                 return
                             # Passing this piece's coordinate to this grid
                             if pinned_piece_coord is None:
@@ -605,9 +609,11 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
                             elif(pieces_in_way == 1 and king_count == 1 and grid.occupied_piece == "king"):
                                 print("Check for coordinate " + str(grid.coordinate))
                                 # If the grid is at the last attacking square, there won't be a next iteration, so call king_in_check
-                                if i == 8:
+                                if((grid.coordinate[0] == 'a' and y == 0) or (grid.coordinate[0] == 'h' and y == 0) or \
+                                   (grid.coordinate[1] == 1 and x == 0) or (grid.coordinate[1] == 8 and x == 0)):
                                     game_controller.king_in_check(self.coordinate, proj_attacking_coordinates, self.enemy_color)
                                     return
+                return
             rook_direction(-1, 0) #west
             rook_direction(1, 0) #east
             rook_direction(0, 1) #north
@@ -1593,8 +1599,10 @@ def main():
                                             piece.allowed_to_castle = False
                                         # Switch turns
                                         if(game_controller.WHOSETURN == "white"):
+                                            print("\n BLACK TURN \n")
                                             game_controller.switch_turn("black")
                                         elif(game_controller.WHOSETURN == "black"):
+                                            print("\n WHITE TURN \n")
                                             game_controller.switch_turn("white")
                                         return
                     move_piece_on_grid()
