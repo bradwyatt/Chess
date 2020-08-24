@@ -349,7 +349,7 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
             if self.rect.colliderect(grid):
                 self.coordinate = grid.coordinate
     def projected(self, game_controller):
-        if(self.pinned == False and self.taken_off_board != True):
+        if(self.taken_off_board != True):
             def bishop_direction(self, x, y):
                 pieces_in_way = 0 #Pieces between the bishop and the enemy King
                 king_count = 0 #Checks to see if there's a king in a direction
@@ -519,7 +519,7 @@ class PlayKnight(ChessPiece, pygame.sprite.Sprite):
                 self.image = IMAGES["SPR_BLACK_KNIGHT_HIGHLIGHTED"]
             self.select = True
     def spaces_available(self, game_controller):
-        if(self.pinned == False and self.taken_off_board != True):
+        if(self.taken_off_board != True):
             for grid in Grid.grid_list:
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-2 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
                     grid.highlight()
@@ -696,7 +696,7 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
         self.coordinate = None
         self.rect.topleft = 650, 600
     def projected(self, game_controller):
-        if(self.pinned == False and self.taken_off_board != True):
+        if(self.taken_off_board != True):
             def bishop_direction(self, x, y):
                 pieces_in_way = 0 #Pieces between the bishop and the enemy King
                 king_count = 0 #Checks to see if there's a king in a direction
