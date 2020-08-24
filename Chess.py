@@ -1148,13 +1148,12 @@ def remove_all_placed():
 
 class Game_Controller():
     def __init__(self):
-        self.BLACK_TO_MOVE, self.WHITE_TO_MOVE = 0, 1
-        self.WHOSETURN = self.WHITE_TO_MOVE
+        self.WHOSETURN = "white"
         self.color_in_check = ""
         self.EDIT_MODE, self.PLAY_MODE = 0, 1
         self.game_mode = self.EDIT_MODE
     def reset_board(self):
-        self.WHOSETURN = self.WHITE_TO_MOVE
+        self.WHOSETURN = "white"
         self.color_in_check = ""
         self.game_mode = self.EDIT_MODE
         for spr_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
@@ -1196,7 +1195,7 @@ class Game_Controller():
                            PlayQueen.black_queen_list, PlayKing.black_king_list]:
             for piece in piece_list:
                 piece.pinned = False
-        if self.WHOSETURN == self.WHITE_TO_MOVE:
+        if self.WHOSETURN == "white":
             self.projected_black_update()
             self.projected_white_update()
             # If white king is not in check, reset color_in_check
@@ -1206,7 +1205,7 @@ class Game_Controller():
                     white_king.check_attacking_coordinates = []
                 else:
                     self.color_in_check = "white"
-        elif self.WHOSETURN == self.BLACK_TO_MOVE:
+        elif self.WHOSETURN == "black":
             self.projected_white_update()
             self.projected_black_update()
             # If black king is not in check, reset color_in_check
@@ -1593,16 +1592,16 @@ def main():
                                         elif piece in PlayRook.white_rook_list or PlayRook.black_rook_list:
                                             piece.allowed_to_castle = False
                                         # Switch turns
-                                        if(game_controller.WHOSETURN == game_controller.WHITE_TO_MOVE):
-                                            game_controller.switch_turn(game_controller.BLACK_TO_MOVE)
-                                        elif(game_controller.WHOSETURN == game_controller.BLACK_TO_MOVE):
-                                            game_controller.switch_turn(game_controller.WHITE_TO_MOVE)
+                                        if(game_controller.WHOSETURN == "white"):
+                                            game_controller.switch_turn("black")
+                                        elif(game_controller.WHOSETURN == "black"):
+                                            game_controller.switch_turn("white")
                                         return
                     move_piece_on_grid()
     
                     clicked_piece = None
                     # Selecting and unselecting white pieces
-                    if game_controller.WHOSETURN == game_controller.WHITE_TO_MOVE:
+                    if game_controller.WHOSETURN == "white":
                         for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                                            PlayKnight.white_knight_list, PlayRook.white_rook_list, 
                                            PlayQueen.white_queen_list, PlayKing.white_king_list]:
@@ -1616,7 +1615,7 @@ def main():
                                     for grid in Grid.grid_list:
                                         grid.no_highlight()
                     # Selecting and unselecting black pieces
-                    elif game_controller.WHOSETURN == game_controller.BLACK_TO_MOVE:
+                    elif game_controller.WHOSETURN == "black":
                         for piece_list in [PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
                                            PlayKnight.black_knight_list, PlayRook.black_rook_list, 
                                            PlayQueen.black_queen_list, PlayKing.black_king_list]:
@@ -1651,7 +1650,7 @@ def main():
                     if PLAY_EDIT_SWITCH_BUTTON.rect.collidepoint(MOUSEPOS) and game_controller.game_mode == game_controller.EDIT_MODE: 
                         # Makes clicking play again unclickable    
                         game_controller.game_mode = game_controller.PLAY_MODE
-                        game_controller.switch_turn(game_controller.WHITE_TO_MOVE)
+                        game_controller.switch_turn("white")
                         PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(game_controller.game_mode)
                         print("Play Mode Activated")
     
@@ -1820,10 +1819,10 @@ def main():
                 else:
                     pin_check_text = game_controller.color_in_check + " piece checked"
                 pin_check_text_render = arial_font.render(pin_check_text, 1, (0, 0, 0))
-                if game_controller.WHOSETURN == game_controller.WHITE_TO_MOVE:
+                if game_controller.WHOSETURN == "white":
                     whose_turn_text = arial_font.render("White's move to turn", 1, (0, 0, 0))
                     pin_check_text_render = arial_font.render(pin_check_text, 1, (0, 0, 0))
-                elif game_controller.WHOSETURN == game_controller.BLACK_TO_MOVE:
+                elif game_controller.WHOSETURN == "black":
                     whose_turn_text = arial_font.render("Black's move to turn", 1, (0, 0, 0))
                 SCREEN.blit(whose_turn_text, (X_GRID_END+X_GRID_WIDTH, SCREEN_HEIGHT/2))
                 SCREEN.blit(pin_check_text_render, (X_GRID_END+X_GRID_WIDTH, 200))
