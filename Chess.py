@@ -550,12 +550,11 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
         if(col == "white"):
             self.image = IMAGES["SPR_WHITE_ROOK"]
             PlayRook.white_rook_list.append(self)
-            self.ranknum = 1
         elif(col == "black"):
             self.image = IMAGES["SPR_BLACK_ROOK"]
             PlayRook.black_rook_list.append(self)
-            self.ranknum = 8
         super().__init__(pos, PLAY_SPRITES, self.image, col)
+        self.allowed_to_castle = True
     def update(self):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
@@ -837,37 +836,39 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
             if self.rect.colliderect(grid):
                 self.coordinate = grid.coordinate
     def castle_check(self, game_controller):
-        if self.castled == False:
+        if self.castled == False and game_controller.color_in_check != self.color:
             if self.color == "white":
                 for white_rook in PlayRook.white_rook_list:
-                    if(white_rook.coordinate == ['a', 1]):
-                        if(Grid.grid_dict['b1'].occupied == 0 and Grid.grid_dict['c1'].occupied == 0 and Grid.grid_dict['d1'].occupied == 0 \
-                           and len(Grid.grid_dict['b1'].num_of_black_pieces_attacking) == 0 and len(Grid.grid_dict['c1'].num_of_black_pieces_attacking) == 0 \
-                           and len(Grid.grid_dict['d1'].num_of_black_pieces_attacking) == 0):
-                            self.left_castle_ability = True
-                        else:
-                            self.left_castle_ability = False
-                    if(white_rook.coordinate == ['h', 1]):
-                        if(Grid.grid_dict['f1'].occupied == 0 and Grid.grid_dict['g1'].occupied == 0 \
-                           and len(Grid.grid_dict['f1'].num_of_black_pieces_attacking) == 0 and len(Grid.grid_dict['g1'].num_of_black_pieces_attacking) == 0):
-                            self.right_castle_ability = True
-                        else:
-                            self.right_castle_ability = False
+                    if white_rook.allowed_to_castle == True:
+                        if(white_rook.coordinate == ['a', 1]):
+                            if(Grid.grid_dict['b1'].occupied == 0 and Grid.grid_dict['c1'].occupied == 0 and Grid.grid_dict['d1'].occupied == 0 \
+                               and len(Grid.grid_dict['b1'].num_of_black_pieces_attacking) == 0 and len(Grid.grid_dict['c1'].num_of_black_pieces_attacking) == 0 \
+                               and len(Grid.grid_dict['d1'].num_of_black_pieces_attacking) == 0):
+                                self.left_castle_ability = True
+                            else:
+                                self.left_castle_ability = False
+                        if(white_rook.coordinate == ['h', 1]):
+                            if(Grid.grid_dict['f1'].occupied == 0 and Grid.grid_dict['g1'].occupied == 0 \
+                               and len(Grid.grid_dict['f1'].num_of_black_pieces_attacking) == 0 and len(Grid.grid_dict['g1'].num_of_black_pieces_attacking) == 0):
+                                self.right_castle_ability = True
+                            else:
+                                self.right_castle_ability = False
             elif self.color == "black":
                 for black_rook in PlayRook.black_rook_list:
-                    if(black_rook.coordinate == ['a', 8]):
-                        if(Grid.grid_dict['b8'].occupied == 0 and Grid.grid_dict['c8'].occupied == 0 and Grid.grid_dict['d8'].occupied == 0 \
-                           and len(Grid.grid_dict['b8'].num_of_white_pieces_attacking) == 0 and len(Grid.grid_dict['c8'].num_of_white_pieces_attacking) == 0 \
-                           and len(Grid.grid_dict['d8'].num_of_white_pieces_attacking) == 0):
-                            self.left_castle_ability = True
-                        else:
-                            self.left_castle_ability = False
-                    if(black_rook.coordinate == ['h', 8]):
-                        if(Grid.grid_dict['f8'].occupied == 0 and Grid.grid_dict['g8'].occupied == 0 \
-                           and len(Grid.grid_dict['f8'].num_of_white_pieces_attacking) == 0 and len(Grid.grid_dict['g8'].num_of_white_pieces_attacking) == 0):
-                            self.right_castle_ability = True
-                        else:
-                            self.right_castle_ability = False
+                    if black_rook.allowed_to_castle == True:
+                        if(black_rook.coordinate == ['a', 8]):
+                            if(Grid.grid_dict['b8'].occupied == 0 and Grid.grid_dict['c8'].occupied == 0 and Grid.grid_dict['d8'].occupied == 0 \
+                               and len(Grid.grid_dict['b8'].num_of_white_pieces_attacking) == 0 and len(Grid.grid_dict['c8'].num_of_white_pieces_attacking) == 0 \
+                               and len(Grid.grid_dict['d8'].num_of_white_pieces_attacking) == 0):
+                                self.left_castle_ability = True
+                            else:
+                                self.left_castle_ability = False
+                        if(black_rook.coordinate == ['h', 8]):
+                            if(Grid.grid_dict['f8'].occupied == 0 and Grid.grid_dict['g8'].occupied == 0 \
+                               and len(Grid.grid_dict['f8'].num_of_white_pieces_attacking) == 0 and len(Grid.grid_dict['g8'].num_of_white_pieces_attacking) == 0):
+                                self.right_castle_ability = True
+                            else:
+                                self.right_castle_ability = False
     def highlight(self):
         if(self.color == "white"):
             self.image = IMAGES["SPR_WHITE_KING_HIGHLIGHTED"]
@@ -1566,25 +1567,31 @@ def main():
                                         if piece in PlayKing.white_king_list:
                                             piece.castled = True
                                             for rook in PlayRook.white_rook_list:
-                                                if rook.coordinate == ['a', 1] and piece.coordinate == ['c', 1]:
-                                                    rook.rect.topleft = Grid.grid_dict['d1'].rect.topleft
-                                                    rook.coordinate = Grid.grid_dict['d1'].coordinate
-                                                    Grid.grid_dict['d1'].occupied = True
-                                                elif rook.coordinate == ['h', 1] and piece.coordinate == ['g', 1]:
-                                                    rook.rect.topleft = Grid.grid_dict['f1'].rect.topleft
-                                                    rook.coordinate = Grid.grid_dict['f1'].coordinate
-                                                    Grid.grid_dict['f1'].occupied = True
+                                                if rook.allowed_to_castle == True:
+                                                    if rook.coordinate == ['a', 1] and piece.coordinate == ['c', 1]:
+                                                        rook.rect.topleft = Grid.grid_dict['d1'].rect.topleft
+                                                        rook.coordinate = Grid.grid_dict['d1'].coordinate
+                                                        Grid.grid_dict['d1'].occupied = True
+                                                        rook.allowed_to_castle = False
+                                                    elif rook.coordinate == ['h', 1] and piece.coordinate == ['g', 1]:
+                                                        rook.rect.topleft = Grid.grid_dict['f1'].rect.topleft
+                                                        rook.coordinate = Grid.grid_dict['f1'].coordinate
+                                                        Grid.grid_dict['f1'].occupied = True
+                                                        rook.allowed_to_castle = False
                                         elif piece in PlayKing.black_king_list:
                                             piece.castled = True
                                             for rook in PlayRook.black_rook_list:
-                                                if rook.coordinate == ['a', 8] and piece.coordinate == ['c', 8]:
-                                                    rook.rect.topleft = Grid.grid_dict['d8'].rect.topleft
-                                                    rook.coordinate = Grid.grid_dict['d8'].coordinate
-                                                    Grid.grid_dict['d8'].occupied = True
-                                                elif rook.coordinate == ['h', 8] and piece.coordinate == ['g', 8]:
-                                                    rook.rect.topleft = Grid.grid_dict['f8'].rect.topleft
-                                                    rook.coordinate = Grid.grid_dict['f8'].coordinate
-                                                    Grid.grid_dict['f8'].occupied = True
+                                                if rook.allowed_to_castle == True:
+                                                    if rook.coordinate == ['a', 8] and piece.coordinate == ['c', 8]:
+                                                        rook.rect.topleft = Grid.grid_dict['d8'].rect.topleft
+                                                        rook.coordinate = Grid.grid_dict['d8'].coordinate
+                                                        Grid.grid_dict['d8'].occupied = True
+                                                    elif rook.coordinate == ['h', 8] and piece.coordinate == ['g', 8]:
+                                                        rook.rect.topleft = Grid.grid_dict['f8'].rect.topleft
+                                                        rook.coordinate = Grid.grid_dict['f8'].coordinate
+                                                        Grid.grid_dict['f8'].occupied = True
+                                        elif piece in PlayRook.white_rook_list or PlayRook.black_rook_list:
+                                            piece.allowed_to_castle = False
                                         # Switch turns
                                         if(game_controller.WHOSETURN == game_controller.WHITE_TO_MOVE):
                                             game_controller.switch_turn(game_controller.BLACK_TO_MOVE)
