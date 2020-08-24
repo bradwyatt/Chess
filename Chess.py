@@ -1199,23 +1199,23 @@ class Game_Controller():
         if self.WHOSETURN == self.WHITE_TO_MOVE:
             self.projected_black_update()
             self.projected_white_update()
+            # If white king is not in check, reset color_in_check
+            for white_king in PlayKing.white_king_list:
+                if Grid.grid_dict["".join(map(str, (white_king.coordinate)))].num_of_black_pieces_attacking == []:
+                    self.color_in_check = ""
+                    white_king.check_attacking_coordinates = []
+                else:
+                    self.color_in_check = "white"
         elif self.WHOSETURN == self.BLACK_TO_MOVE:
             self.projected_white_update()
             self.projected_black_update()
-        # If white king is not in check, reset color_in_check
-        for white_king in PlayKing.white_king_list:
-            if Grid.grid_dict["".join(map(str, (white_king.coordinate)))].num_of_black_pieces_attacking == []:
-                self.color_in_check = ""
-                white_king.check_attacking_coordinates = []
-            else:
-                self.color_in_check = "white"
-        # If black king is not in check, reset color_in_check
-        for black_king in PlayKing.black_king_list:
-            if Grid.grid_dict["".join(map(str, (black_king.coordinate)))].num_of_white_pieces_attacking == []:
-                self.color_in_check = ""
-                black_king.check_attacking_coordinates = []
-            else:
-                self.color_in_check = "black"
+            # If black king is not in check, reset color_in_check
+            for black_king in PlayKing.black_king_list:
+                if Grid.grid_dict["".join(map(str, (black_king.coordinate)))].num_of_white_pieces_attacking == []:
+                    self.color_in_check = ""
+                    black_king.check_attacking_coordinates = []
+                else:
+                    self.color_in_check = "black"
     def projected_white_update(self):
         # Project pieces attacking movements starting now
         for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
