@@ -3,6 +3,7 @@ Chess created by Brad Wyatt
 Python 3
 
 To-Do (long-term):
+Queen to be same as rook and bishop
 Double check forces King to move (you can't use another piece to block)
 Blocking Check- Each piece has self.check_attacking_coordinates to help block
 Pinning (deactivate piece only when )
