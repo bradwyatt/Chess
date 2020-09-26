@@ -1620,7 +1620,10 @@ def main():
                         elif DRAGGING.white_queen:
                             PlacedQueen(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
                         elif DRAGGING.white_king:
-                            PlacedKing(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
+                            if not PlacedKing.white_king_list:
+                                PlacedKing(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
+                            else:
+                                print("You can only have one white king.")
                         elif DRAGGING.black_pawn:
                             for grid in Grid.grid_list:
                                 if grid.rect.topleft == snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE):
@@ -1637,7 +1640,10 @@ def main():
                         elif DRAGGING.black_queen:
                             PlacedQueen(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
                         elif DRAGGING.black_king:
-                            PlacedKing(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
+                            if not PlacedKing.black_king_list:
+                                PlacedKing(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
+                            else:
+                                print("You can only have one black king.")
                         
                     dragging_to_placed_no_dups()
                                 
