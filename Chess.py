@@ -3,6 +3,7 @@ Chess created by Brad Wyatt
 Python 3
 
 To-Do (long-term):
+Knight doesn't look done
 Double check forces King to move (you can't use another piece to block)
 Pawn movement with ckecking (and en passant?)
 Blocking Check- Each piece has self.check_attacking_coordinates to help block
@@ -482,32 +483,25 @@ class PlayKnight(ChessPiece, pygame.sprite.Sprite):
             if self.rect.colliderect(grid):
                 self.coordinate = grid.coordinate
     def projected(self, game_controller):
-        if(self.pinned == False and self.taken_off_board != True):
-            for grid in Grid.grid_list:
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-2 \
-                    and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                    grid.attack_count_increment(self.color, self.coordinate)
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]+2 \
-                    and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                    grid.attack_count_increment(self.color, self.coordinate)
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-2 \
-                    and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                    grid.attack_count_increment(self.color, self.coordinate)
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]+2 \
-                    and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                    grid.attack_count_increment(self.color, self.coordinate)
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-2 and grid.coordinate[1] == self.coordinate[1]-1 \
-                    and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                    grid.attack_count_increment(self.color, self.coordinate)
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-2 and grid.coordinate[1] == self.coordinate[1]+1 \
-                    and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                    grid.attack_count_increment(self.color, self.coordinate)
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and grid.coordinate[1] == self.coordinate[1]-1 \
-                    and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                    grid.attack_count_increment(self.color, self.coordinate)
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and grid.coordinate[1] == self.coordinate[1]+1 \
-                    and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                    grid.attack_count_increment(self.color, self.coordinate)
+        if(self.taken_off_board != True):
+            self.proj_attacking_coordinates = [self.coordinate]
+            def knight_direction(x, y):
+                for grid in Grid.grid_list:
+                    if ord(grid.coordinate[0]) == ord(self.coordinate[0])+x and grid.coordinate[1] == self.coordinate[1]+y \
+                        and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                        grid.attack_count_increment(self.color, self.coordinate)
+                        self.proj_attacking_coordinates.append(grid.coordinate)
+                        if grid.occupied_piece == "king":
+                            print("Check for coordinate " + str(grid.coordinate))
+                            game_controller.king_in_check(self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
+            knight_direction(-1, -2)
+            knight_direction(-1, 2)
+            knight_direction(1, -2)
+            knight_direction(1, 2)
+            knight_direction(-2, -1)
+            knight_direction(-2, 1)
+            knight_direction(2, -1)
+            knight_direction(2, 1)
     def captured(self):
         self.taken_off_board = True
         self.coordinate = None
@@ -1289,7 +1283,10 @@ class Game_Controller():
                 for piece in piece_list:
                     piece.check_attacking_coordinates = []
             self.projected_black_update()
+            print("what color is in check? part 1: " + self.color_in_check)
+            print("coord black king!: " + str(PlayKing.black_king_list))
             self.projected_white_update()
+            print("what color is in check? part 2 " + self.color_in_check)
             # If white king is not in check, reset color_in_check
             for white_king in PlayKing.white_king_list:
                 if Grid.grid_dict["".join(map(str, (white_king.coordinate)))].num_of_black_pieces_attacking == []:
@@ -1774,7 +1771,6 @@ def main():
                     if PLAY_EDIT_SWITCH_BUTTON.rect.collidepoint(MOUSEPOS) and game_controller.game_mode == game_controller.EDIT_MODE: 
                         # Makes clicking play again unclickable    
                         game_controller.game_mode = game_controller.PLAY_MODE
-                        game_controller.switch_turn("white")
                         PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(game_controller.game_mode)
                         print("Play Mode Activated")
     
@@ -1802,6 +1798,7 @@ def main():
                             PlayQueen(placed_black_queen.rect.topleft, PLAY_SPRITES, "black")    
                         for placed_black_king in PlacedKing.black_king_list:
                             PlayKing(placed_black_king.rect.topleft, PLAY_SPRITES, "black")
+                        game_controller.switch_turn("white")
                         GRID_SPRITES.update(game_controller)
                         game_controller.projected_white_update()
                         game_controller.projected_black_update()
