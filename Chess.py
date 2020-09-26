@@ -1341,7 +1341,6 @@ class Game_Controller():
                 if Grid.grid_dict["".join(map(str, (pinned_piece_coordinate)))].coordinate == piece.coordinate:
                     piece.pinned_restrict(pin_attacking_coordinates)
     def king_in_check(self, check_piece_coordinate, check_attacking_coordinates, color):
-        print("hellyah " + str(check_piece_coordinate))
         self.color_in_check = color
         if color == "white":
             # How to treat pieces when their king is in check
