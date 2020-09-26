@@ -492,7 +492,7 @@ class PlayKnight(ChessPiece, pygame.sprite.Sprite):
                         grid.attack_count_increment(self.color, self.coordinate)
                         self.proj_attacking_coordinates.append(grid.coordinate)
                         if grid.occupied_piece == "king":
-                            print("Check for coordinate KNIGHT" + str(grid.coordinate))
+                            print("Check for coordinate " + str(grid.coordinate))
                             game_controller.king_in_check(self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
             knight_direction(-1, -2)
             knight_direction(-1, 2)
@@ -1605,7 +1605,12 @@ def main():
                                 if piece.rect.topleft == snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE):
                                     return
                         if DRAGGING.white_pawn:
-                            PlacedPawn(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
+                            for grid in Grid.grid_list:
+                                if grid.rect.topleft == snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE):
+                                    if grid.coordinate[1] != 1 and grid.coordinate[1] != 8:
+                                        PlacedPawn(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
+                                    else:
+                                        print("You are not allowed to place a pawn on rank " + str(grid.coordinate[1]))
                         elif DRAGGING.white_bishop:
                             PlacedBishop(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
                         elif DRAGGING.white_knight:
@@ -1617,7 +1622,12 @@ def main():
                         elif DRAGGING.white_king:
                             PlacedKing(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
                         elif DRAGGING.black_pawn:
-                            PlacedPawn(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
+                            for grid in Grid.grid_list:
+                                if grid.rect.topleft == snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE):
+                                    if grid.coordinate[1] != 1 and grid.coordinate[1] != 8:
+                                        PlacedPawn(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
+                                    else:
+                                        print("You are not allowed to place a pawn on rank " + str(grid.coordinate[1]))
                         elif DRAGGING.black_bishop:
                             PlacedBishop(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
                         elif DRAGGING.black_knight:
