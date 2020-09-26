@@ -3,14 +3,13 @@ Chess created by Brad Wyatt
 Python 3
 
 To-Do (long-term):
-Queen to be same as rook and bishop
 Double check forces King to move (you can't use another piece to block)
+Pawn movement with ckecking (and en passant?)
 Blocking Check- Each piece has self.check_attacking_coordinates to help block
 Pinning (deactivate piece only when )
 Save positions rather than restarting when pressing stop button
 Recording moves on right side
 PGN format?
-En Passant
 Checkmate
 Reset button for reset the board
 Customized Turns for black and white
@@ -215,6 +214,7 @@ class ChessPiece:
         self.enemy_color = COLOR_POSSIBILITIES[OTHER_COLOR_INDEX]
         self.select = False
         self.pinned = False
+        self.disable_from_double_check = False
         self.taken_off_board = False
         self.coordinate = self.get_coordinate()
         self.check_attacking_coordinates = []
@@ -280,7 +280,7 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                         grid.attack_count_increment(self.color, self.coordinate)
                 
     def spaces_available(self, game_controller):
-        if self.taken_off_board != True:
+        if(self.taken_off_board != True and self.disable_from_double_check == False):
             if(self.color == "white"):
                 for grid in Grid.grid_list:
                     # Move one space up
@@ -412,7 +412,7 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                 self.image = IMAGES["SPR_BLACK_BISHOP_HIGHLIGHTED"]
             self.select = True
     def spaces_available(self, game_controller):
-        if(self.taken_off_board != True):
+        if(self.taken_off_board != True and self.disable_from_double_check == False):
             def bishop_direction(x, y):
                 for i in range(1,8):
                     for grid in Grid.grid_list:
@@ -520,7 +520,7 @@ class PlayKnight(ChessPiece, pygame.sprite.Sprite):
                 self.image = IMAGES["SPR_BLACK_KNIGHT_HIGHLIGHTED"]
             self.select = True
     def spaces_available(self, game_controller):
-        if(self.taken_off_board != True):
+        if(self.taken_off_board != True and self.disable_from_double_check == False):
             for grid in Grid.grid_list:
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-2 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
                     grid.highlight()
@@ -583,7 +583,6 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
                             # If King is already in check and it's iterating to next occupied grid space
                             if(pieces_in_way == 1 and king_count == 1):
                                 game_controller.king_in_check(self.coordinate, proj_attacking_coordinates, self.enemy_color)
-                                print("these proj attacking coordinates should move over ! " + str(proj_attacking_coordinates))
                                 return
                             # Passing this piece's coordinate to this grid
                             if pinned_piece_coord is None:
@@ -626,7 +625,7 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_ROOK_HIGHLIGHTED"]
         self.select = True
     def spaces_available(self, game_controller):
-        if(self.taken_off_board != True):
+        if(self.taken_off_board != True and self.disable_from_double_check == False):
             def rook_direction(x, y):
                 for i in range(1,8):
                     for grid in Grid.grid_list:
@@ -761,7 +760,6 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
                             # If King is already in check and it's iterating to next occupied grid space
                             if(pieces_in_way == 1 and king_count == 1):
                                 game_controller.king_in_check(self.coordinate, proj_attacking_coordinates, self.enemy_color)
-                                print("these proj attacking coordinates should move over ! " + str(proj_attacking_coordinates))
                                 return
                             # Passing this piece's coordinate to this grid
                             if pinned_piece_coord is None:
@@ -806,7 +804,7 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
                 self.image = IMAGES["SPR_BLACK_QUEEN_HIGHLIGHTED"]
             self.select = True
     def spaces_available(self, game_controller):
-        if(self.taken_off_board != True):
+        if(self.taken_off_board != True and self.disable_from_double_check == False):
             def bishop_direction(x, y):
                 for i in range(1,8):
                     for grid in Grid.grid_list:
@@ -921,7 +919,7 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
             if self.rect.colliderect(grid):
                 self.coordinate = grid.coordinate
     def castle_check(self, game_controller):
-        if self.castled == False and game_controller.color_in_check != self.color:
+        if(self.castled == False and game_controller.color_in_check != self.color):
             if self.color == "white":
                 for white_rook in PlayRook.white_rook_list:
                     if white_rook.allowed_to_castle == True:
@@ -1280,7 +1278,16 @@ class Game_Controller():
                            PlayQueen.black_queen_list, PlayKing.black_king_list]:
             for piece in piece_list:
                 piece.pinned = False
+                piece.disable_from_double_check = False
         if self.WHOSETURN == "white":
+            # Since black just moved, there are no check attacking pieces from white
+            if self.color_in_check == "black":
+                self.color_in_check = ""
+            for piece_list in [PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
+                               PlayKnight.black_knight_list, PlayRook.black_rook_list, 
+                               PlayQueen.black_queen_list, PlayKing.black_king_list]:
+                for piece in piece_list:
+                    piece.check_attacking_coordinates = []
             self.projected_black_update()
             self.projected_white_update()
             # If white king is not in check, reset color_in_check
@@ -1290,7 +1297,24 @@ class Game_Controller():
                     white_king.check_attacking_coordinates = []
                 else:
                     self.color_in_check = "white"
+                    # Disable pieces if their king is in double-check
+                    if len(Grid.grid_dict["".join(map(str, (white_king.coordinate)))].num_of_black_pieces_attacking) > 1:
+                        for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
+                                           PlayKnight.white_knight_list, PlayRook.white_rook_list, 
+                                           PlayQueen.white_queen_list]:
+                            for piece in piece_list:
+                                piece.disable_from_double_check = True
+                                print(str(piece))
         elif self.WHOSETURN == "black":
+            # Since black just moved, there are no check attacking pieces from white
+            if self.color_in_check == "white":
+                self.color_in_check = ""
+            for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
+                               PlayKnight.white_knight_list, PlayRook.white_rook_list, 
+                               PlayQueen.white_queen_list, PlayKing.white_king_list]:
+                for piece in piece_list:
+                    piece.check_attacking_coordinates = []
+            # Project squares for white and black pieces
             self.projected_white_update()
             self.projected_black_update()
             # If black king is not in check, reset color_in_check
@@ -1300,6 +1324,14 @@ class Game_Controller():
                     black_king.check_attacking_coordinates = []
                 else:
                     self.color_in_check = "black"
+                    # Disable pieces if their king is in double-check
+                    if len(Grid.grid_dict["".join(map(str, (black_king.coordinate)))].num_of_white_pieces_attacking) > 1:
+                        for piece_list in [PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
+                                           PlayKnight.black_knight_list, PlayRook.black_rook_list, 
+                                           PlayQueen.black_queen_list]:
+                            for piece in piece_list:
+                                piece.disable_from_double_check = True
+                                print("piece at coord is disabled " + str(piece.coordinate))
     def projected_white_update(self):
         # Project pieces attacking movements starting now
         for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
@@ -1327,7 +1359,6 @@ class Game_Controller():
                 if Grid.grid_dict["".join(map(str, (pinned_piece_coordinate)))].coordinate == piece.coordinate:
                     piece.pinned_restrict(pin_attacking_coordinates)
     def king_in_check(self, check_piece_coordinate, check_attacking_coordinates, color):
-        # Call restrict function on the pinned piece when that pinned piece's king is in check
         self.color_in_check = color
         if color == "white":
             # How to treat pieces when their king is in check
@@ -1335,21 +1366,27 @@ class Game_Controller():
                                PlayKnight.white_knight_list, PlayRook.white_rook_list, 
                                PlayQueen.white_queen_list]:
                 for piece in piece_list:
-                    piece.check_attacking_coordinates = check_attacking_coordinates
+                    if not piece.check_attacking_coordinates:
+                        piece.check_attacking_coordinates = check_attacking_coordinates
+                    else:
+                        piece.check_attacking_coordinates = []
             # Treat king differently from other pieces (used for debugging)
             # Future edge case double check
             for king_piece_list in [PlayKing.white_king_list]:
                 for white_king in king_piece_list:
-                    white_king.check_attacking_coordinates = check_attacking_coordinates
+                    white_king.check_attacking_coordinates.extend(check_attacking_coordinates)
         elif color == "black":
             for piece_list in [PlayPawn.black_pawn_list, PlayBishop.black_bishop_list,
                                PlayKnight.black_knight_list, PlayRook.black_rook_list,
                                PlayQueen.black_queen_list]:
                 for piece in piece_list:
-                    piece.check_attacking_coordinates = check_attacking_coordinates
+                    if not piece.check_attacking_coordinates:
+                        piece.check_attacking_coordinates = check_attacking_coordinates
+                    else:
+                        piece.check_attacking_coordinates = []
             for king_piece_list in [PlayKing.black_king_list]:
                 for black_king in king_piece_list:
-                    black_king.check_attacking_coordinates = check_attacking_coordinates
+                    black_king.check_attacking_coordinates.extend(check_attacking_coordinates)
                             
 def main():    
     #Tk box for color
