@@ -492,7 +492,7 @@ class PlayKnight(ChessPiece, pygame.sprite.Sprite):
                         grid.attack_count_increment(self.color, self.coordinate)
                         self.proj_attacking_coordinates.append(grid.coordinate)
                         if grid.occupied_piece == "king":
-                            print("Check for coordinate " + str(grid.coordinate))
+                            print("Check for coordinate KNIGHT" + str(grid.coordinate))
                             game_controller.king_in_check(self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
             knight_direction(-1, -2)
             knight_direction(-1, 2)
@@ -1256,13 +1256,14 @@ class Game_Controller():
         for grid in Grid.grid_list:
             grid.reset_board()
             grid.attack_count_reset()
-    def switch_turn(self, color_turn):
+    def switch_turn(self, color_turn, GRID_SPRITES):
         self.WHOSETURN = color_turn
         # No highlights and ensuring that attacking squares (used by diagonal pieces) are set to 0
         for grid in Grid.grid_list:
             grid.no_highlight()
             grid.num_of_white_pieces_attacking = []
             grid.num_of_black_pieces_attacking = []
+        GRID_SPRITES.update(self)
         # Setting all pins to False since switching turns
         for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                            PlayKnight.white_knight_list, PlayRook.white_rook_list, 
@@ -1283,10 +1284,7 @@ class Game_Controller():
                 for piece in piece_list:
                     piece.check_attacking_coordinates = []
             self.projected_black_update()
-            print("what color is in check? part 1: " + self.color_in_check)
-            print("coord black king!: " + str(PlayKing.black_king_list))
             self.projected_white_update()
-            print("what color is in check? part 2 " + self.color_in_check)
             # If white king is not in check, reset color_in_check
             for white_king in PlayKing.white_king_list:
                 if Grid.grid_dict["".join(map(str, (white_king.coordinate)))].num_of_black_pieces_attacking == []:
@@ -1301,7 +1299,6 @@ class Game_Controller():
                                            PlayQueen.white_queen_list]:
                             for piece in piece_list:
                                 piece.disable_from_double_check = True
-                                print(str(piece))
         elif self.WHOSETURN == "black":
             # Since black just moved, there are no check attacking pieces from white
             if self.color_in_check == "white":
@@ -1356,6 +1353,7 @@ class Game_Controller():
                 if Grid.grid_dict["".join(map(str, (pinned_piece_coordinate)))].coordinate == piece.coordinate:
                     piece.pinned_restrict(pin_attacking_coordinates)
     def king_in_check(self, check_piece_coordinate, check_attacking_coordinates, color):
+        print("hellyah " + str(check_piece_coordinate))
         self.color_in_check = color
         if color == "white":
             # How to treat pieces when their king is in check
@@ -1713,10 +1711,10 @@ def main():
                                         # Switch turns
                                         if(game_controller.WHOSETURN == "white"):
                                             print("\n BLACK TURN \n")
-                                            game_controller.switch_turn("black")
+                                            game_controller.switch_turn("black", GRID_SPRITES)
                                         elif(game_controller.WHOSETURN == "black"):
                                             print("\n WHITE TURN \n")
-                                            game_controller.switch_turn("white")
+                                            game_controller.switch_turn("white", GRID_SPRITES)
                                         return
                     move_piece_on_grid()
     
@@ -1798,7 +1796,7 @@ def main():
                             PlayQueen(placed_black_queen.rect.topleft, PLAY_SPRITES, "black")    
                         for placed_black_king in PlacedKing.black_king_list:
                             PlayKing(placed_black_king.rect.topleft, PLAY_SPRITES, "black")
-                        game_controller.switch_turn("white")
+                        game_controller.switch_turn("white", GRID_SPRITES)
                         GRID_SPRITES.update(game_controller)
                         game_controller.projected_white_update()
                         game_controller.projected_black_update()
