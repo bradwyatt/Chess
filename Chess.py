@@ -326,15 +326,9 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                     grid.en_passant_skipover == True):
                         if self.pinned == False:
                             grid.highlight()
-                        # If attacker is causing pin
-                        elif self.pinned == True and grid.coordinate in self.pin_attacking_coordinates:
-                            grid.highlight()
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]+1 and \
                     grid.en_passant_skipover == True):
                         if self.pinned == False:
-                            grid.highlight()
-                        # If attacker is causing pin
-                        elif self.pinned == True and grid.coordinate in self.pin_attacking_coordinates:
                             grid.highlight()
             elif(self.color == "black"):
                 for grid in Grid.grid_list:
@@ -366,15 +360,9 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                     grid.en_passant_skipover == True):
                         if self.pinned == False:
                             grid.highlight()
-                        # If attacker is causing pin
-                        elif self.pinned == True and grid.coordinate in self.pin_attacking_coordinates:
-                            grid.highlight()
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-1 and \
                     grid.en_passant_skipover == True):
                         if self.pinned == False:
-                            grid.highlight()
-                        # If attacker is causing pin
-                        elif self.pinned == True and grid.coordinate in self.pin_attacking_coordinates:
                             grid.highlight()
 
 class PlayBishop(ChessPiece, pygame.sprite.Sprite):
@@ -1707,6 +1695,7 @@ def main():
                                                 for piece_captured in piece_captured_list:
                                                     if piece_captured.coordinate == grid.coordinate:
                                                         piece_captured.captured()
+
                                         # Grid is no longer occupied by a piece
                                         for old_grid in Grid.grid_list:
                                             if old_grid.coordinate == piece.coordinate:
@@ -1717,6 +1706,20 @@ def main():
                                         piece.coordinate = grid.coordinate
                                         grid.occupied = True
                                         piece.no_highlight()
+                                        
+                                        # En Passant Capture
+                                        if grid.en_passant_skipover == True:
+                                            if piece in PlayPawn.white_pawn_list:
+                                                for black_pawn in PlayPawn.black_pawn_list:
+                                                    if black_pawn.coordinate[0] == grid.coordinate[0] and \
+                                                        black_pawn.coordinate[1] == 5:
+                                                            black_pawn.captured()
+                                            elif piece in PlayPawn.black_pawn_list:
+                                                for white_pawn in PlayPawn.white_pawn_list:
+                                                    if white_pawn.coordinate[0] == grid.coordinate[0] and \
+                                                        white_pawn.coordinate[1] == 4:
+                                                            white_pawn.captured()
+                                        grid.en_passant_skipover = False
                                         
                                         # Enpassant Rules for Pawns, enpassant_allowed can only be changed after one move
                                         if piece in PlayPawn.white_pawn_list:
@@ -1889,7 +1892,7 @@ def main():
                             print("Coordinate: " + str(grid.coordinate) \
                                    + ", White Pieces Attacking: " + str(grid.num_of_white_pieces_attacking) \
                                    + ", Black Pieces Attacking: " + str(grid.num_of_black_pieces_attacking) \
-                                   + ", Grid occupied? " + str(grid.occupied_piece))
+                                   + ", Grid occupied? " + str(grid.en_passant_skipover))
                             
             ##################
             # ALL EDIT ACTIONS
