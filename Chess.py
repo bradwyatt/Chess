@@ -3,7 +3,7 @@ Chess created by Brad Wyatt
 Python 3
 
 To-Do (long-term):
-Pawn movement with en passant
+Pawn promotion to queen (long-term choose piece)
 Where taken pieces go
 Save positions rather than restarting when pressing stop button
 Recording moves on right side
