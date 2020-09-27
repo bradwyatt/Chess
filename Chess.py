@@ -967,29 +967,21 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
     def projected(self, game_controller):
         if self.taken_off_board == False:
             for grid in Grid.grid_list:
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-1 and \
-                    (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-1:
                     grid.attack_count_increment(self.color, self.coordinate)
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1] and \
-                    (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]:
                     grid.attack_count_increment(self.color, self.coordinate)
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]+1 and \
-                    (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]+1:
                     grid.attack_count_increment(self.color, self.coordinate)
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0]) and grid.coordinate[1] == self.coordinate[1]-1 and \
-                    (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0]) and grid.coordinate[1] == self.coordinate[1]-1:
                     grid.attack_count_increment(self.color, self.coordinate)
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0]) and grid.coordinate[1] == self.coordinate[1]+1 and \
-                    (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0]) and grid.coordinate[1] == self.coordinate[1]+1:
                     grid.attack_count_increment(self.color, self.coordinate)
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-1 and \
-                    (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-1:
                     grid.attack_count_increment(self.color, self.coordinate)
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1] and \
-                    (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]:
                     grid.attack_count_increment(self.color, self.coordinate)
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]+1 and \
-                    (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]+1:
                     grid.attack_count_increment(self.color, self.coordinate)
                 if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and grid.coordinate[1] == self.coordinate[1] and \
                     (grid.occupied == 0 or grid.occupied_piece_color != self.color) and
