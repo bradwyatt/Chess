@@ -268,32 +268,27 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]+1 \
                         and (grid.occupied == 0 or grid.occupied_piece_color != self.color)):
                         grid.attack_count_increment(self.color, self.coordinate)
-                        self.proj_attacking_coordinates.append(grid.coordinate)
                         if grid.occupied_piece == "king":
                             print("Check for coordinate " + str(grid.coordinate))
                             game_controller.king_in_check(self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]+1 \
                         and (grid.occupied == 0 or grid.occupied_piece_color != self.color)):
                         grid.attack_count_increment(self.color, self.coordinate)
-                        self.proj_attacking_coordinates.append(grid.coordinate)
                         if grid.occupied_piece == "king":
                             print("Check for coordinate " + str(grid.coordinate))
                             game_controller.king_in_check(self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
-                    print("testing123 " + str(self.proj_attacking_coordinates))
             elif(self.color == "black"):
                 for grid in Grid.grid_list:
                     # Enemy pieces
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-1 \
                         and (grid.occupied == 0 or grid.occupied_piece_color != self.color)):
                         grid.attack_count_increment(self.color, self.coordinate)
-                        self.proj_attacking_coordinates.append(grid.coordinate)
                         if grid.occupied_piece == "king":
                             print("Check for coordinate " + str(grid.coordinate))
                             game_controller.king_in_check(self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-1 \
                         and (grid.occupied == 0 or grid.occupied_piece_color != self.color)):
                         grid.attack_count_increment(self.color, self.coordinate)
-                        self.proj_attacking_coordinates.append(grid.coordinate)
                         if grid.occupied_piece == "king":
                             print("Check for coordinate " + str(grid.coordinate))
                             game_controller.king_in_check(self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
