@@ -3,9 +3,8 @@ Chess created by Brad Wyatt
 Python 3
 
 To-Do (long-term):
-Knight doesn't look done
-Double check forces King to move (you can't use another piece to block)
-Pawn movement with ckecking (and en passant?)
+Pawn movement with en passant
+Where taken pieces go
 Save positions rather than restarting when pressing stop button
 Recording moves on right side
 PGN format?
@@ -237,6 +236,7 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_PAWN"]
             PlayPawn.black_pawn_list.append(self)
         super().__init__(pos, PLAY_SPRITES, self.image, col)
+        self.enpassant_allowed = False
     def update(self):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
@@ -321,6 +321,21 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                         # If attacker is causing pin
                         elif self.pinned == True and grid.coordinate in self.pin_attacking_coordinates:
                             grid.highlight()
+                    # En Passant
+                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]+1 and \
+                    grid.en_passant_skipover == True):
+                        if self.pinned == False:
+                            grid.highlight()
+                        # If attacker is causing pin
+                        elif self.pinned == True and grid.coordinate in self.pin_attacking_coordinates:
+                            grid.highlight()
+                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]+1 and \
+                    grid.en_passant_skipover == True):
+                        if self.pinned == False:
+                            grid.highlight()
+                        # If attacker is causing pin
+                        elif self.pinned == True and grid.coordinate in self.pin_attacking_coordinates:
+                            grid.highlight()
             elif(self.color == "black"):
                 for grid in Grid.grid_list:
                     # Move one space up
@@ -341,6 +356,21 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                             grid.highlight()
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-1 and \
                     grid.occupied_piece_color == "white"):
+                        if self.pinned == False:
+                            grid.highlight()
+                        # If attacker is causing pin
+                        elif self.pinned == True and grid.coordinate in self.pin_attacking_coordinates:
+                            grid.highlight()
+                    # En Passant
+                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-1 and \
+                    grid.en_passant_skipover == True):
+                        if self.pinned == False:
+                            grid.highlight()
+                        # If attacker is causing pin
+                        elif self.pinned == True and grid.coordinate in self.pin_attacking_coordinates:
+                            grid.highlight()
+                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-1 and \
+                    grid.en_passant_skipover == True):
                         if self.pinned == False:
                             grid.highlight()
                         # If attacker is causing pin
@@ -1073,6 +1103,7 @@ class Grid(pygame.sprite.Sprite):
         Grid.grid_dict["".join(map(str, (coordinate)))] = self
         self.num_of_white_pieces_attacking = []
         self.num_of_black_pieces_attacking = []
+        self.en_passant_skipover = False
     def reset_board(self):
         self.no_highlight()
         self.num_of_white_pieces_attacking = []
@@ -1680,11 +1711,36 @@ def main():
                                         for old_grid in Grid.grid_list:
                                             if old_grid.coordinate == piece.coordinate:
                                                 old_grid.occupied = False
+                                                previous_coordinate = old_grid.coordinate
                                         # Moving piece, removing piece and grid highlights, changing Turn
                                         piece.rect.topleft = grid.rect.topleft
                                         piece.coordinate = grid.coordinate
                                         grid.occupied = True
                                         piece.no_highlight()
+                                        
+                                        # Enpassant Rules for Pawns, enpassant_allowed can only be changed after one move
+                                        if piece in PlayPawn.white_pawn_list:
+                                            # Detects that pawn was just moved
+                                            if piece.coordinate[1] == 4 and previous_coordinate[0] == piece.coordinate[0] and \
+                                                previous_coordinate[1] == 2:
+                                                for sub_grid in Grid.grid_list:
+                                                    if sub_grid.coordinate[0] == piece.coordinate[0] and sub_grid.coordinate[1] == piece.coordinate[1]-1:
+                                                        sub_grid.en_passant_skipover = True
+                                                    else:
+                                                        sub_grid.en_passant_skipover = False 
+                                            else:
+                                                grid.en_passant_skipover = False
+                                        elif piece in PlayPawn.black_pawn_list:
+                                            # Detects that pawn was just moved
+                                            if piece.coordinate[1] == 5 and previous_coordinate[0] == piece.coordinate[0] and \
+                                                previous_coordinate[1] == 7:
+                                                for sub_grid in Grid.grid_list:
+                                                    if sub_grid.coordinate[0] == piece.coordinate[0] and sub_grid.coordinate[1] == piece.coordinate[1]+1:
+                                                        sub_grid.en_passant_skipover = True
+                                                    else:
+                                                        sub_grid.en_passant_skipover = False
+                                            else:
+                                                grid.en_passant_skipover = False
                                         
                                         # Strips king's ability to castle again after moving once
                                         if piece in PlayKing.white_king_list:
