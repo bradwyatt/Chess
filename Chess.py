@@ -6,8 +6,6 @@ To-Do (long-term):
 Knight doesn't look done
 Double check forces King to move (you can't use another piece to block)
 Pawn movement with ckecking (and en passant?)
-Blocking Check- Each piece has self.check_attacking_coordinates to help block
-Pinning (deactivate piece only when )
 Save positions rather than restarting when pressing stop button
 Recording moves on right side
 PGN format?
@@ -263,22 +261,42 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
             self.select = False
     def projected(self, game_controller):
         if self.taken_off_board != True:
+            self.proj_attacking_coordinates = [self.coordinate]
             if(self.color == "white"):
                 for grid in Grid.grid_list:
                     # Enemy pieces
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]+1 \
                         and (grid.occupied == 0 or grid.occupied_piece_color != self.color)):
                         grid.attack_count_increment(self.color, self.coordinate)
+                        self.proj_attacking_coordinates.append(grid.coordinate)
+                        if grid.occupied_piece == "king":
+                            print("Check for coordinate " + str(grid.coordinate))
+                            game_controller.king_in_check(self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]+1 \
                         and (grid.occupied == 0 or grid.occupied_piece_color != self.color)):
                         grid.attack_count_increment(self.color, self.coordinate)
+                        self.proj_attacking_coordinates.append(grid.coordinate)
+                        if grid.occupied_piece == "king":
+                            print("Check for coordinate " + str(grid.coordinate))
+                            game_controller.king_in_check(self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
+                    print("testing123 " + str(self.proj_attacking_coordinates))
             elif(self.color == "black"):
                 for grid in Grid.grid_list:
                     # Enemy pieces
-                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-1):
+                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-1 \
+                        and (grid.occupied == 0 or grid.occupied_piece_color != self.color)):
                         grid.attack_count_increment(self.color, self.coordinate)
-                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-1):
+                        self.proj_attacking_coordinates.append(grid.coordinate)
+                        if grid.occupied_piece == "king":
+                            print("Check for coordinate " + str(grid.coordinate))
+                            game_controller.king_in_check(self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
+                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-1 \
+                        and (grid.occupied == 0 or grid.occupied_piece_color != self.color)):
                         grid.attack_count_increment(self.color, self.coordinate)
+                        self.proj_attacking_coordinates.append(grid.coordinate)
+                        if grid.occupied_piece == "king":
+                            print("Check for coordinate " + str(grid.coordinate))
+                            game_controller.king_in_check(self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
                 
     def spaces_available(self, game_controller):
         if(self.taken_off_board != True and self.disable_from_double_check == False):
@@ -490,7 +508,6 @@ class PlayKnight(ChessPiece, pygame.sprite.Sprite):
                     if ord(grid.coordinate[0]) == ord(self.coordinate[0])+x and grid.coordinate[1] == self.coordinate[1]+y \
                         and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
                         grid.attack_count_increment(self.color, self.coordinate)
-                        self.proj_attacking_coordinates.append(grid.coordinate)
                         if grid.occupied_piece == "king":
                             print("Check for coordinate " + str(grid.coordinate))
                             game_controller.king_in_check(self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
@@ -1828,7 +1845,8 @@ def main():
                         if grid.rect.collidepoint(MOUSEPOS):
                             print("Coordinate: " + str(grid.coordinate) \
                                    + ", White Pieces Attacking: " + str(grid.num_of_white_pieces_attacking) \
-                                   + ", Black Pieces Attacking: " + str(grid.num_of_black_pieces_attacking))
+                                   + ", Black Pieces Attacking: " + str(grid.num_of_black_pieces_attacking) \
+                                   + ", Grid occupied? " + str(grid.occupied_piece))
                             
             ##################
             # ALL EDIT ACTIONS
