@@ -236,7 +236,6 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_PAWN"]
             PlayPawn.black_pawn_list.append(self)
         super().__init__(pos, PLAY_SPRITES, self.image, col)
-        self.enpassant_allowed = False
     def update(self):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
@@ -1719,9 +1718,12 @@ def main():
                                                     if white_pawn.coordinate[0] == grid.coordinate[0] and \
                                                         white_pawn.coordinate[1] == 4:
                                                             white_pawn.captured()
-                                        grid.en_passant_skipover = False
+                                                            
+                                        # Reset en passant skipover for all squares
+                                        for sub_grid in Grid.grid_list:
+                                            sub_grid.en_passant_skipover = False
                                         
-                                        # Enpassant Rules for Pawns, enpassant_allowed can only be changed after one move
+                                        # Enpassant Rule for Pawns
                                         if piece in PlayPawn.white_pawn_list:
                                             # Detects that pawn was just moved
                                             if piece.coordinate[1] == 4 and previous_coordinate[0] == piece.coordinate[0] and \
