@@ -186,21 +186,6 @@ def quit():
     print('Thanks for playing')
     sys.exit()
 
-def deactivate_piece(coord, pin):
-    #pin parameter determines whether we want pinned piece to be able to move
-    for grid in Grid.grid_list:
-        for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
-                           PlayKnight.white_knight_list, PlayRook.white_rook_list, 
-                           PlayQueen.white_queen_list, PlayKing.white_king_list,
-                           PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
-                           PlayKnight.black_knight_list, PlayRook.black_rook_list, 
-                           PlayQueen.black_queen_list, PlayKing.black_king_list]:
-                for piece in piece_list:
-                    if(piece.coordinate == coord and pin == True):
-                        piece.pinned = True
-                    else:
-                        piece.pinned = False
-
 #############
 # PLAY PIECES
 #############
@@ -406,7 +391,7 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                             # 2 Pieces in way, includes 1 king
                             if(pieces_in_way == 2 and king_count == 1): 
                                 print("King is pinned on coordinate " + str(grid.coordinate))
-                                game_controller.pinned_piece(pinned_piece_coord, proj_attacking_coordinates)
+                                game_controller.pinned_piece(pinned_piece_coord, proj_attacking_coordinates, self.enemy_color)
                                 return
                             # 1 Piece in way which is King
                             # This is check, we will iterate one more time to cover the next square king is not allowed to go to
@@ -619,7 +604,7 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
                             # 2 Pieces in way, includes 1 king
                             if(pieces_in_way == 2 and king_count == 1): #2 Pieces in way, includes 1 king
                                 print("King is pinned on coordinate " + str(grid.coordinate))
-                                game_controller.pinned_piece(pinned_piece_coord, proj_attacking_coordinates)
+                                game_controller.pinned_piece(pinned_piece_coord, proj_attacking_coordinates, self.enemy_color)
                                 return
                             # 1 Piece in way which is King
                             # This is check, we will iterate one more time to cover the next square king is not allowed to go to
@@ -746,7 +731,7 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
                             # 2 Pieces in way, includes 1 king
                             if(pieces_in_way == 2 and king_count == 1): 
                                 print("King is pinned on coordinate " + str(grid.coordinate))
-                                game_controller.pinned_piece(pinned_piece_coord, proj_attacking_coordinates)
+                                game_controller.pinned_piece(pinned_piece_coord, proj_attacking_coordinates, self.enemy_color)
                                 return
                             # 1 Piece in way which is King
                             # This is check, we will iterate one more time to cover the next square king is not allowed to go to
@@ -796,7 +781,7 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
                             # 2 Pieces in way, includes 1 king
                             if(pieces_in_way == 2 and king_count == 1): #2 Pieces in way, includes 1 king
                                 print("King is pinned on coordinate " + str(grid.coordinate))
-                                game_controller.pinned_piece(pinned_piece_coord, proj_attacking_coordinates)
+                                game_controller.pinned_piece(pinned_piece_coord, proj_attacking_coordinates, self.enemy_color)
                                 return
                             # 1 Piece in way which is King
                             # This is check, we will iterate one more time to cover the next square king is not allowed to go to
@@ -1344,7 +1329,7 @@ class Game_Controller():
                            PlayQueen.black_queen_list, PlayKing.black_king_list]:
             for piece in piece_list:
                 piece.projected(self)
-    def pinned_piece(self, pinned_piece_coordinate, pin_attacking_coordinates):
+    def pinned_piece(self, pinned_piece_coordinate, pin_attacking_coordinates, color):
         # Iterates through all pieces to find the one that matches
         # the coordinate with the pin
         for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
@@ -1354,7 +1339,8 @@ class Game_Controller():
                            PlayKnight.black_knight_list, PlayRook.black_rook_list,
                            PlayQueen.black_queen_list, PlayKing.black_king_list]:
             for piece in piece_list:
-                if Grid.grid_dict["".join(map(str, (pinned_piece_coordinate)))].coordinate == piece.coordinate:
+                if Grid.grid_dict["".join(map(str, (pinned_piece_coordinate)))].coordinate == piece.coordinate \
+                    and piece.color == color:
                     piece.pinned_restrict(pin_attacking_coordinates)
     def king_in_check(self, check_piece_coordinate, check_attacking_coordinates, color):
         self.color_in_check = color
