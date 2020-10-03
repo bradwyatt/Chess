@@ -1728,10 +1728,18 @@ def main():
                                         grid.occupied = True
                                         piece.no_highlight()
                                         
-                                        # Enpassant Rule for Pawns
+                                        #########
+                                        # RULES AFTER MOVE
+                                        #########
+                                        
+                                        # Enpassant Rule and Promotion Rule for Pawns
                                         if piece in PlayPawn.white_pawn_list:
+                                            if piece.coordinate[1] == 8:
+                                                PlayQueen(piece.rect.topleft, PLAY_SPRITES, "white")
+                                                # Take white pawn off the board
+                                                piece.captured()
                                             # Detects that pawn was just moved
-                                            if piece.coordinate[1] == 4 and previous_coordinate[0] == piece.coordinate[0] and \
+                                            elif piece.coordinate[1] == 4 and previous_coordinate[0] == piece.coordinate[0] and \
                                                 previous_coordinate[1] == 2:
                                                 for sub_grid in Grid.grid_list:
                                                     if sub_grid.coordinate[0] == piece.coordinate[0] and sub_grid.coordinate[1] == piece.coordinate[1]-1:
@@ -1741,8 +1749,12 @@ def main():
                                             else:
                                                 grid.en_passant_skipover = False
                                         elif piece in PlayPawn.black_pawn_list:
+                                            if piece.coordinate[1] == 1:
+                                                PlayQueen(piece.rect.topleft, PLAY_SPRITES, "black")
+                                                # Take white pawn off the board
+                                                piece.captured()
                                             # Detects that pawn was just moved
-                                            if piece.coordinate[1] == 5 and previous_coordinate[0] == piece.coordinate[0] and \
+                                            elif piece.coordinate[1] == 5 and previous_coordinate[0] == piece.coordinate[0] and \
                                                 previous_coordinate[1] == 7:
                                                 for sub_grid in Grid.grid_list:
                                                     if sub_grid.coordinate[0] == piece.coordinate[0] and sub_grid.coordinate[1] == piece.coordinate[1]+1:
