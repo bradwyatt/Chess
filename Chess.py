@@ -518,7 +518,7 @@ class PlayKnight(ChessPiece, pygame.sprite.Sprite):
     def projected(self, game_controller):
         if(self.taken_off_board != True):
             self.proj_attacking_coordinates = [self.coordinate]
-            def knight_direction(x, y):
+            def knight_proj_direction(x, y):
                 for grid in Grid.grid_list:
                     if ord(grid.coordinate[0]) == ord(self.coordinate[0])+x and grid.coordinate[1] == self.coordinate[1]+y \
                         and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
@@ -526,14 +526,14 @@ class PlayKnight(ChessPiece, pygame.sprite.Sprite):
                         if grid.occupied_piece == "king":
                             print("Check for coordinate " + str(grid.coordinate))
                             game_controller.king_in_check(self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
-            knight_direction(-1, -2)
-            knight_direction(-1, 2)
-            knight_direction(1, -2)
-            knight_direction(1, 2)
-            knight_direction(-2, -1)
-            knight_direction(-2, 1)
-            knight_direction(2, -1)
-            knight_direction(2, 1)
+            knight_proj_direction(-1, -2)
+            knight_proj_direction(-1, 2)
+            knight_proj_direction(1, -2)
+            knight_proj_direction(1, 2)
+            knight_proj_direction(-2, -1)
+            knight_proj_direction(-2, 1)
+            knight_proj_direction(2, -1)
+            knight_proj_direction(2, 1)
     def captured(self):
         self.taken_off_board = True
         self.coordinate = None
@@ -546,24 +546,26 @@ class PlayKnight(ChessPiece, pygame.sprite.Sprite):
                 self.image = IMAGES["SPR_BLACK_KNIGHT_HIGHLIGHTED"]
             self.select = True
     def spaces_available(self, game_controller):
-        if(self.taken_off_board != True and self.disable_from_double_check == False):
-            for grid in Grid.grid_list:
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-2 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                    grid.highlight()
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]+2 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                    grid.highlight()
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-2 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                    grid.highlight()
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]+2 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                    grid.highlight()
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-2 and grid.coordinate[1] == self.coordinate[1]-1 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                    grid.highlight()
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-2 and grid.coordinate[1] == self.coordinate[1]+1 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                    grid.highlight()
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and grid.coordinate[1] == self.coordinate[1]-1 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                    grid.highlight()
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and grid.coordinate[1] == self.coordinate[1]+1 and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                    grid.highlight()
+        # A knight can't legally move when it is pinned in chess
+        if(self.taken_off_board != True and self.disable_from_double_check == False and self.pinned == False):
+            def knight_move_direction(x, y):
+                for grid in Grid.grid_list:
+                    if ord(grid.coordinate[0]) == ord(self.coordinate[0])+x and grid.coordinate[1] == self.coordinate[1]+y \
+                        and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                            if game_controller.color_in_check == self.color:
+                                if grid.coordinate in self.check_attacking_coordinates:
+                                    grid.highlight()
+                                else:
+                                    return
+                            grid.highlight()
+            knight_move_direction(-1, -2)
+            knight_move_direction(-1, 2)
+            knight_move_direction(1, -2)
+            knight_move_direction(1, 2)
+            knight_move_direction(-2, -1)
+            knight_move_direction(-2, 1)
+            knight_move_direction(2, -1)
+            knight_move_direction(2, 1)
     def no_highlight(self):
         if self.taken_off_board != True:
             if(self.color == "white"):
