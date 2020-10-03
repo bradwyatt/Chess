@@ -3,7 +3,8 @@ Chess created by Brad Wyatt
 Python 3
 
 To-Do (short-term):
-Checkmate
+Knight gets pinned when its king is not pinned? should be easy fix
+Checkmate (testing)
 Where taken pieces go
 Restart button
 If no king then don't start game
@@ -1802,6 +1803,17 @@ def main():
                                             for piece_list in [PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
                                                                PlayKnight.black_knight_list, PlayRook.black_rook_list, 
                                                                PlayQueen.black_queen_list, PlayKing.black_king_list]:
+                                                for piece in piece_list:
+                                                    piece.spaces_available(game_controller)
+                                            def checkmate_check():
+                                                for subgrid in Grid.grid_list:
+                                                    if subgrid.highlighted == True:
+                                                        return
+                                                print("CHECKMATE!!!")
+                                        elif game_controller.color_in_check == "white":
+                                            for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
+                                                               PlayKnight.white_knight_list, PlayRook.white_rook_list, 
+                                                               PlayQueen.white_queen_list, PlayKing.white_king_list]:
                                                 for piece in piece_list:
                                                     piece.spaces_available(game_controller)
                                             def checkmate_check():
