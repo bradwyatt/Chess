@@ -653,7 +653,6 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
                                 # If current king is in check
                                 elif game_controller.color_in_check == self.color:
                                     if grid.coordinate in self.check_attacking_coordinates:
-                                        print("OK!!!!! " + str(grid.coordinate))
                                         grid.highlight()
                                         return
                                 # If pinned and grid is within the attacking coordinates restraint
@@ -1807,7 +1806,6 @@ def main():
                                             def checkmate_check():
                                                 for subgrid in Grid.grid_list:
                                                     if subgrid.highlighted == True:
-                                                        print("Available space at " + str(subgrid.coordinate))
                                                         return
                                                 print("CHECKMATE!!!")
                                             checkmate_check()
