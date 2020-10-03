@@ -447,7 +447,13 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                                 # If current king is in check
                                 elif game_controller.color_in_check == self.color:
                                     if grid.coordinate in self.check_attacking_coordinates:
-                                        grid.highlight()
+                                        # Corner case of when check_attacking_coordinates is past the king
+                                        # ie When Black King at D8, and White Rook at F8
+                                        # Inability for Black Rook to move to C8, even though that's in the realm of attack for White Rook
+                                        if self.color == "white" and len(grid.num_of_black_pieces_attacking) > 0:
+                                            grid.highlight()
+                                        elif self.color == "black" and len(grid.num_of_white_pieces_attacking) > 0:
+                                            grid.highlight()
                                         return
                                 # If pinned and the grid is within the attacking coordinates restraint
                                 # Includes grid.coordinate != self.coordinate so that staying at same coordinate doesn't count as move
@@ -1799,8 +1805,7 @@ def main():
                                                                PlayKnight.black_knight_list, PlayRook.black_rook_list, 
                                                                PlayQueen.black_queen_list, PlayKing.black_king_list]:
                                                 for piece in piece_list:
-                                                    pass
-                                                    #piece.spaces_available(game_controller)
+                                                    piece.spaces_available(game_controller)
                                             def checkmate_check():
                                                 for subgrid in Grid.grid_list:
                                                     if subgrid.highlighted == True:
