@@ -4,9 +4,12 @@ Python 3
 
 To-Do (long-term):
 Pawn promotion to queen (long-term choose piece)
+Restart button
+Create function where given coordinates, return X, Y of square (for loaded_file func)
+If no king then don't start game
 Where taken pieces go
 Save positions rather than restarting when pressing stop button
-Recording moves on right side
+Recording moves on right side (each move has a dictionary of dictionaries of where pieces are)
 PGN format?
 Checkmate
 Reset button for reset the board
@@ -1694,18 +1697,6 @@ def main():
                                                 for piece_captured in piece_captured_list:
                                                     if piece_captured.coordinate == grid.coordinate:
                                                         piece_captured.captured()
-
-                                        # Grid is no longer occupied by a piece
-                                        for old_grid in Grid.grid_list:
-                                            if old_grid.coordinate == piece.coordinate:
-                                                old_grid.occupied = False
-                                                previous_coordinate = old_grid.coordinate
-                                        # Moving piece, removing piece and grid highlights, changing Turn
-                                        piece.rect.topleft = grid.rect.topleft
-                                        piece.coordinate = grid.coordinate
-                                        grid.occupied = True
-                                        piece.no_highlight()
-                                        
                                         # En Passant Capture
                                         if grid.en_passant_skipover == True:
                                             if piece in PlayPawn.white_pawn_list:
@@ -1722,6 +1713,18 @@ def main():
                                         # Reset en passant skipover for all squares
                                         for sub_grid in Grid.grid_list:
                                             sub_grid.en_passant_skipover = False
+                                            
+                                        # Grid is no longer occupied by a piece
+                                        for old_grid in Grid.grid_list:
+                                            if old_grid.coordinate == piece.coordinate:
+                                                old_grid.occupied = False
+                                                previous_coordinate = old_grid.coordinate
+                                                
+                                        # Moving piece, removing piece and grid highlights, changing Turn
+                                        piece.rect.topleft = grid.rect.topleft
+                                        piece.coordinate = grid.coordinate
+                                        grid.occupied = True
+                                        piece.no_highlight()
                                         
                                         # Enpassant Rule for Pawns
                                         if piece in PlayPawn.white_pawn_list:
