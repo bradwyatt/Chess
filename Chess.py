@@ -297,11 +297,19 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                 
     def spaces_available(self, game_controller):
         if(self.taken_off_board != True and self.disable_from_double_check == False):
-            if(self.color == "white"):
+            def pawn_movement():
+                if self.color == "white":
+                    movement = 1
+                    initial_space = 2
+                    hop_space = 4
+                elif self.color == "black":
+                    movement = -1
+                    initial_space = 7
+                    hop_space = 5
                 for grid in Grid.grid_list:
                     # Move one space up
                     if (grid.coordinate[0] == self.coordinate[0] and \
-                        grid.coordinate[1] == self.coordinate[1]+1 and \
+                        grid.coordinate[1] == self.coordinate[1]+movement and \
                         grid.occupied == False and self.pinned == False): 
                         if game_controller.color_in_check != self.color:
                            grid.highlight()
@@ -310,8 +318,8 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                                 grid.highlight()
                                 return
                     # Move two spaces up
-                    if (self.coordinate[1] == 2 and grid.coordinate[0] == self.coordinate[0] and \
-                        grid.coordinate[1] == 4 and grid.occupied == False and self.pinned == False):
+                    if (self.coordinate[1] == initial_space and grid.coordinate[0] == self.coordinate[0] and \
+                        grid.coordinate[1] == hop_space and grid.occupied == False and self.pinned == False):
                         grid.highlight()
                         if game_controller.color_in_check != self.color:
                            grid.highlight()
@@ -320,63 +328,31 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                                 grid.highlight()
                                 return
                     # Enemy pieces
-                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]+1 and \
-                    grid.occupied_piece_color == "black"):
+                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-movement and grid.coordinate[1] == self.coordinate[1]+movement and \
+                    grid.occupied_piece_color == self.enemy_color):
                         if self.pinned == False:
                             grid.highlight()
                         # If attacker is causing pin
                         elif self.pinned == True and grid.coordinate in self.pin_attacking_coordinates:
                             grid.highlight()
-                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]+1 and \
-                    grid.occupied_piece_color == "black"):
-                        if self.pinned == False:
-                            grid.highlight()
-                        # If attacker is causing pin
-                        elif self.pinned == True and grid.coordinate in self.pin_attacking_coordinates:
-                            grid.highlight()
-                    # En Passant
-                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]+1 and \
-                    grid.en_passant_skipover == True):
-                        if self.pinned == False:
-                            grid.highlight()
-                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]+1 and \
-                    grid.en_passant_skipover == True):
-                        if self.pinned == False:
-                            grid.highlight()
-            elif(self.color == "black"):
-                for grid in Grid.grid_list:
-                    # Move one space up
-                    if (grid.coordinate[0] == self.coordinate[0] and grid.coordinate[1] == self.coordinate[1]-1 and \
-                        grid.occupied == False and self.pinned == False): 
-                        grid.highlight()
-                    # Move two spaces up
-                    if (self.coordinate[1] == 7 and grid.coordinate[0] == self.coordinate[0] and \
-                        grid.coordinate[1] == 5 and grid.occupied == False and self.pinned == False):
-                        grid.highlight()
-                    # Enemy pieces
-                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-1 and \
-                    grid.occupied_piece_color == "white"):
-                        if self.pinned == False:
-                            grid.highlight()
-                        # If attacker is causing pin
-                        elif self.pinned == True and grid.coordinate in self.pin_attacking_coordinates:
-                            grid.highlight()
-                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-1 and \
-                    grid.occupied_piece_color == "white"):
+                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+movement and grid.coordinate[1] == self.coordinate[1]+movement and \
+                    grid.occupied_piece_color == self.enemy_color):
                         if self.pinned == False:
                             grid.highlight()
                         # If attacker is causing pin
                         elif self.pinned == True and grid.coordinate in self.pin_attacking_coordinates:
                             grid.highlight()
                     # En Passant
-                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-1 and \
+                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-movement and grid.coordinate[1] == self.coordinate[1]+movement and \
                     grid.en_passant_skipover == True):
                         if self.pinned == False:
                             grid.highlight()
-                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-1 and \
+                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+movement and grid.coordinate[1] == self.coordinate[1]+movement and \
                     grid.en_passant_skipover == True):
                         if self.pinned == False:
                             grid.highlight()
+                    
+            pawn_movement()
 
 class PlayBishop(ChessPiece, pygame.sprite.Sprite):
     white_bishop_list = []
@@ -1715,14 +1691,18 @@ def main():
                                         if grid.en_passant_skipover == True:
                                             if piece in PlayPawn.white_pawn_list:
                                                 for black_pawn in PlayPawn.black_pawn_list:
-                                                    if black_pawn.coordinate[0] == grid.coordinate[0] and \
-                                                        black_pawn.coordinate[1] == 5:
-                                                            black_pawn.captured()
+                                                    # Must include taken_off_board bool or else you get NoneType error
+                                                    if black_pawn.taken_off_board == False:
+                                                        if black_pawn.coordinate[0] == grid.coordinate[0] and \
+                                                            black_pawn.coordinate[1] == 5:
+                                                                black_pawn.captured()
                                             elif piece in PlayPawn.black_pawn_list:
                                                 for white_pawn in PlayPawn.white_pawn_list:
-                                                    if white_pawn.coordinate[0] == grid.coordinate[0] and \
-                                                        white_pawn.coordinate[1] == 4:
-                                                            white_pawn.captured()
+                                                    # Must include taken_off_board bool or else you get NoneType error
+                                                    if white_pawn.taken_off_board == False:
+                                                        if white_pawn.coordinate[0] == grid.coordinate[0] and \
+                                                            white_pawn.coordinate[1] == 4:
+                                                                white_pawn.captured()
                                                             
                                         # Reset en passant skipover for all squares
                                         for sub_grid in Grid.grid_list:
