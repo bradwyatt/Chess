@@ -447,13 +447,7 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                                 # If current king is in check
                                 elif game_controller.color_in_check == self.color:
                                     if grid.coordinate in self.check_attacking_coordinates:
-                                        # Corner case of when check_attacking_coordinates is past the king
-                                        # ie When Black King at D8, and White Rook at F8
-                                        # Inability for Black Rook to move to C8, even though that's in the realm of attack for White Rook
-                                        if self.color == "white" and len(grid.num_of_black_pieces_attacking) > 0:
-                                            grid.highlight()
-                                        elif self.color == "black" and len(grid.num_of_white_pieces_attacking) > 0:
-                                            grid.highlight()
+                                        grid.highlight()
                                         return
                                 # If pinned and the grid is within the attacking coordinates restraint
                                 # Includes grid.coordinate != self.coordinate so that staying at same coordinate doesn't count as move
@@ -1370,7 +1364,9 @@ class Game_Controller():
                                PlayQueen.white_queen_list]:
                 for piece in piece_list:
                     if not piece.check_attacking_coordinates:
-                        piece.check_attacking_coordinates = check_attacking_coordinates
+                        # Removing the last coordinate of the coordinates
+                        # Or else a friendly piece can go behind King to prevent check
+                        piece.check_attacking_coordinates = check_attacking_coordinates[:-1]
                     else:
                         piece.check_attacking_coordinates = []
             # Treat king differently from other pieces (used for debugging)
@@ -1384,7 +1380,9 @@ class Game_Controller():
                                PlayQueen.black_queen_list]:
                 for piece in piece_list:
                     if not piece.check_attacking_coordinates:
-                        piece.check_attacking_coordinates = check_attacking_coordinates
+                        # Removing the last coordinate of the coordinates
+                        # Or else a friendly piece can go behind King to prevent check
+                        piece.check_attacking_coordinates = check_attacking_coordinates[:-1]
                     else:
                         piece.check_attacking_coordinates = []
             for king_piece_list in [PlayKing.black_king_list]:
