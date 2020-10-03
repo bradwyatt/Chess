@@ -303,11 +303,22 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                     if (grid.coordinate[0] == self.coordinate[0] and \
                         grid.coordinate[1] == self.coordinate[1]+1 and \
                         grid.occupied == False and self.pinned == False): 
-                        grid.highlight()
+                        if game_controller.color_in_check != self.color:
+                           grid.highlight()
+                        elif game_controller.color_in_check == self.color:
+                            if grid.coordinate in self.check_attacking_coordinates:
+                                grid.highlight()
+                                return
                     # Move two spaces up
                     if (self.coordinate[1] == 2 and grid.coordinate[0] == self.coordinate[0] and \
                         grid.coordinate[1] == 4 and grid.occupied == False and self.pinned == False):
                         grid.highlight()
+                        if game_controller.color_in_check != self.color:
+                           grid.highlight()
+                        elif game_controller.color_in_check == self.color:
+                            if grid.coordinate in self.check_attacking_coordinates:
+                                grid.highlight()
+                                return
                     # Enemy pieces
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]+1 and \
                     grid.occupied_piece_color == "black"):
@@ -666,6 +677,7 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
                                 # If current king is in check
                                 elif game_controller.color_in_check == self.color:
                                     if grid.coordinate in self.check_attacking_coordinates:
+                                        print("OK!!!!! " + str(grid.coordinate))
                                         grid.highlight()
                                         return
                                 # If pinned and grid is within the attacking coordinates restraint
@@ -1802,9 +1814,23 @@ def main():
                                         elif(game_controller.WHOSETURN == "black"):
                                             print("\n WHITE TURN \n")
                                             game_controller.switch_turn("white")
+                                        if game_controller.color_in_check == "black":
+                                            for piece_list in [PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
+                                                               PlayKnight.black_knight_list, PlayRook.black_rook_list, 
+                                                               PlayQueen.black_queen_list, PlayKing.black_king_list]:
+                                                for piece in piece_list:
+                                                    pass
+                                                    #piece.spaces_available(game_controller)
+                                            def checkmate_check():
+                                                for subgrid in Grid.grid_list:
+                                                    if subgrid.highlighted == True:
+                                                        print("Available space at " + str(subgrid.coordinate))
+                                                        return
+                                                print("CHECKMATE!!!")
+                                            checkmate_check()
                                         return
                     move_piece_on_grid()
-    
+
                     clicked_piece = None
                     # Selecting and unselecting white pieces
                     if game_controller.WHOSETURN == "white":
