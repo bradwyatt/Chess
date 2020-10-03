@@ -2,18 +2,19 @@
 Chess created by Brad Wyatt
 Python 3
 
-To-Do (long-term):
-Pawn promotion to queen (long-term choose piece)
-Restart button
-Create function where given coordinates, return X, Y of square (for loaded_file func)
-If no king then don't start game
+To-Do (short-term):
+Checkmate
 Where taken pieces go
+Restart button
+If no king then don't start game
+
+To-Do (long-term):
+Create function where given coordinates, return X, Y of square (for loaded_file func)
 Save positions rather than restarting when pressing stop button
 Recording moves on right side (each move has a dictionary of dictionaries of where pieces are)
 PGN format?
-Checkmate
-Reset button for reset the board
 Customized Turns for black and white
+Choose piece for Promotion
 """
 from start_objects import *
 from placed_objects import *
