@@ -3,7 +3,7 @@ Chess created by Brad Wyatt
 Python 3
 
 To-Do (short-term):
-Knight gets pinned when its king is not pinned? should be easy fix
+Pin logic (testing)
 Checkmate (testing)
 Where taken pieces go
 Restart button
@@ -433,14 +433,18 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                                     grid.highlight()
                                 # If current king is in check
                                 elif game_controller.color_in_check == self.color:
-                                    if grid.coordinate in self.check_attacking_coordinates:
+                                    # Disable piece if it is pinned and checked from another enemy piece
+                                    if self.pinned == True:
+                                        self.disable_from_double_check = True
+                                        return
+                                    elif grid.coordinate in self.check_attacking_coordinates:
                                         grid.highlight()
                                         return
                                 # If pinned and the grid is within the attacking coordinates restraint
                                 # Includes grid.coordinate != self.coordinate so that staying at same coordinate doesn't count as move
                                 elif(self.pinned == True and grid.coordinate in self.pin_attacking_coordinates \
                                      and grid.occupied_piece != 'king' and grid.coordinate != self.coordinate):
-                                    grid.highlight()
+                                        grid.highlight()
                                 else:
                                     # When all the above conditions aren't met, then the bishop can't move further
                                     return
@@ -453,7 +457,9 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                                 # If pinned and grid is within the attacking coordinates restraint
                                 elif(self.pinned == True and grid.coordinate in self.pin_attacking_coordinates \
                                      and grid.occupied_piece != 'king'):
-                                    grid.highlight()     
+                                    # If not in check from another piece
+                                    if not self.check_attacking_coordinates:
+                                        grid.highlight()
                                 else:
                                     # In all other cases where no check and no pin
                                     grid.highlight()
@@ -639,7 +645,11 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
                                     grid.highlight()
                                 # If current king is in check
                                 elif game_controller.color_in_check == self.color:
-                                    if grid.coordinate in self.check_attacking_coordinates:
+                                    # Disable piece if it is pinned and checked from another enemy piece
+                                    if self.pinned == True:
+                                        self.disable_from_double_check = True
+                                        return
+                                    elif grid.coordinate in self.check_attacking_coordinates:
                                         grid.highlight()
                                         return
                                 # If pinned and grid is within the attacking coordinates restraint
@@ -819,7 +829,11 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
                                     grid.highlight()
                                 # If current king is in check
                                 elif game_controller.color_in_check == self.color:
-                                    if grid.coordinate in self.check_attacking_coordinates:
+                                    # Disable piece if it is pinned and checked from another enemy piece
+                                    if self.pinned == True:
+                                        self.disable_from_double_check = True
+                                        return
+                                    elif grid.coordinate in self.check_attacking_coordinates:
                                         grid.highlight()
                                         return
                                 # If pinned and the grid is within the attacking coordinates restraint
@@ -862,7 +876,11 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
                                     grid.highlight()
                                 # If current king is in check
                                 elif game_controller.color_in_check == self.color:
-                                    if grid.coordinate in self.check_attacking_coordinates:
+                                    # Disable piece if it is pinned and checked from another enemy piece
+                                    if self.pinned == True:
+                                        self.disable_from_double_check = True
+                                        return
+                                    elif grid.coordinate in self.check_attacking_coordinates:
                                         grid.highlight()
                                         return
                                 # If pinned and grid is within the attacking coordinates restraint
@@ -1891,8 +1909,8 @@ def main():
                             PlayKing(placed_black_king.rect.topleft, PLAY_SPRITES, "black")
                         game_controller.switch_turn("white")
                         GRID_SPRITES.update(game_controller)
-                        game_controller.projected_white_update()
-                        game_controller.projected_black_update()
+                        #game_controller.projected_white_update()
+                        #game_controller.projected_black_update()
                     #################
                     # LEFT CLICK (RELEASE) STOP BUTTON
                     #################
