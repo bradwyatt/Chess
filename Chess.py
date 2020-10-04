@@ -3,6 +3,7 @@ Chess created by Brad Wyatt
 Python 3
 
 To-Do (short-term):
+Pawns when being pinned and checked by another piece
 Pin logic (testing)
 Checkmate (testing)
 Where taken pieces go
@@ -205,6 +206,7 @@ class ChessPiece:
         self.disable_from_double_check = False
         self.taken_off_board = False
         self.coordinate = self.get_coordinate()
+        self.previous_coordinate = self.get_coordinate()
         self.check_attacking_coordinates = []
     def get_coordinate(self):
         for grid in Grid.grid_list:
@@ -296,24 +298,32 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                 for grid in Grid.grid_list:
                     # Move one space up
                     if (grid.coordinate[0] == self.coordinate[0] and \
-                        grid.coordinate[1] == self.coordinate[1]+movement and \
-                        grid.occupied == False and self.pinned == False): 
-                        if game_controller.color_in_check != self.color:
-                           grid.highlight()
-                        elif game_controller.color_in_check == self.color:
-                            if grid.coordinate in self.check_attacking_coordinates:
+                        grid.coordinate[1] == self.coordinate[1]+movement): 
+                        if grid.occupied == False:
+                            if game_controller.color_in_check == self.color:
+                                if self.pinned == True:
+                                    self.disable_from_double_check = True
+                                    return
+                                elif grid.coordinate in self.check_attacking_coordinates:
+                                    grid.highlight()
+                                    return
+                            else:
                                 grid.highlight()
-                                return
+                        elif grid.occupied_piece_color == self.enemy_color:
+                            # Breaks function so pawn can't hop over pieces
+                            return
                     # Move two spaces up
                     if (self.coordinate[1] == initial_space and grid.coordinate[0] == self.coordinate[0] and \
-                        grid.coordinate[1] == hop_space and grid.occupied == False and self.pinned == False):
-                        grid.highlight()
-                        if game_controller.color_in_check != self.color:
-                           grid.highlight()
-                        elif game_controller.color_in_check == self.color:
-                            if grid.coordinate in self.check_attacking_coordinates:
+                        grid.coordinate[1] == hop_space and grid.occupied == False):
+                        if game_controller.color_in_check == self.color:
+                            if self.pinned == True:
+                                self.disable_from_double_check = True
+                                return
+                            elif grid.coordinate in self.check_attacking_coordinates:
                                 grid.highlight()
                                 return
+                        else:
+                            grid.highlight()
                     # Enemy pieces
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-movement and grid.coordinate[1] == self.coordinate[1]+movement and \
                     grid.occupied_piece_color == self.enemy_color):
@@ -1721,7 +1731,7 @@ def main():
                                         for old_grid in Grid.grid_list:
                                             if old_grid.coordinate == piece.coordinate:
                                                 old_grid.occupied = False
-                                                previous_coordinate = old_grid.coordinate
+                                                piece.previous_coordinate = old_grid.coordinate
                                                 
                                         # Moving piece, removing piece and grid highlights, changing Turn
                                         piece.rect.topleft = grid.rect.topleft
@@ -1740,13 +1750,13 @@ def main():
                                                 # Take white pawn off the board
                                                 piece.captured()
                                             # Detects that pawn was just moved
-                                            elif piece.coordinate[1] == 4 and previous_coordinate[0] == piece.coordinate[0] and \
-                                                previous_coordinate[1] == 2:
+                                            elif piece.coordinate[1] == 4 and piece.previous_coordinate[0] == piece.coordinate[0] and \
+                                                piece.previous_coordinate[1] == 2:
                                                 for sub_grid in Grid.grid_list:
                                                     if sub_grid.coordinate[0] == piece.coordinate[0] and sub_grid.coordinate[1] == piece.coordinate[1]-1:
                                                         sub_grid.en_passant_skipover = True
                                                     else:
-                                                        sub_grid.en_passant_skipover = False 
+                                                        sub_grid.en_passant_skipover = False
                                             else:
                                                 grid.en_passant_skipover = False
                                         elif piece in PlayPawn.black_pawn_list:
@@ -1755,8 +1765,8 @@ def main():
                                                 # Take white pawn off the board
                                                 piece.captured()
                                             # Detects that pawn was just moved
-                                            elif piece.coordinate[1] == 5 and previous_coordinate[0] == piece.coordinate[0] and \
-                                                previous_coordinate[1] == 7:
+                                            elif piece.coordinate[1] == 5 and piece.previous_coordinate[0] == piece.coordinate[0] and \
+                                                piece.previous_coordinate[1] == 7:
                                                 for sub_grid in Grid.grid_list:
                                                     if sub_grid.coordinate[0] == piece.coordinate[0] and sub_grid.coordinate[1] == piece.coordinate[1]+1:
                                                         sub_grid.en_passant_skipover = True
@@ -1909,8 +1919,8 @@ def main():
                             PlayKing(placed_black_king.rect.topleft, PLAY_SPRITES, "black")
                         game_controller.switch_turn("white")
                         GRID_SPRITES.update(game_controller)
-                        #game_controller.projected_white_update()
-                        #game_controller.projected_black_update()
+                        game_controller.projected_white_update()
+                        game_controller.projected_black_update()
                     #################
                     # LEFT CLICK (RELEASE) STOP BUTTON
                     #################
