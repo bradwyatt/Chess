@@ -331,7 +331,7 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                                 elif grid.coordinate in self.check_attacking_coordinates:
                                     grid.highlight()
                                     return
-                            else:
+                            elif self.pinned == False:
                                 grid.highlight()
                         elif grid.occupied_piece_color == self.enemy_color:
                             # Breaks function so pawn can't hop over pieces
