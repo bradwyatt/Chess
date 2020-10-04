@@ -296,6 +296,30 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                     initial_space = 7
                     hop_space = 5
                 for grid in Grid.grid_list:
+                    # Enemy pieces
+                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-movement and grid.coordinate[1] == self.coordinate[1]+movement and \
+                    grid.occupied_piece_color == self.enemy_color):
+                        if self.pinned == False:
+                            grid.highlight()
+                        # If attacker is causing pin
+                        elif self.pinned == True and grid.coordinate in self.pin_attacking_coordinates:
+                            grid.highlight()
+                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+movement and grid.coordinate[1] == self.coordinate[1]+movement and \
+                    grid.occupied_piece_color == self.enemy_color):
+                        if self.pinned == False:
+                            grid.highlight()
+                        # If attacker is causing pin
+                        elif self.pinned == True and grid.coordinate in self.pin_attacking_coordinates:
+                            grid.highlight()
+                    # En Passant
+                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-movement and grid.coordinate[1] == self.coordinate[1]+movement and \
+                    grid.en_passant_skipover == True):
+                        if self.pinned == False:
+                            grid.highlight()
+                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+movement and grid.coordinate[1] == self.coordinate[1]+movement and \
+                    grid.en_passant_skipover == True):
+                        if self.pinned == False:
+                            grid.highlight()
                     # Move one space up
                     if (grid.coordinate[0] == self.coordinate[0] and \
                         grid.coordinate[1] == self.coordinate[1]+movement): 
@@ -324,30 +348,7 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                                 return
                         else:
                             grid.highlight()
-                    # Enemy pieces
-                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-movement and grid.coordinate[1] == self.coordinate[1]+movement and \
-                    grid.occupied_piece_color == self.enemy_color):
-                        if self.pinned == False:
-                            grid.highlight()
-                        # If attacker is causing pin
-                        elif self.pinned == True and grid.coordinate in self.pin_attacking_coordinates:
-                            grid.highlight()
-                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+movement and grid.coordinate[1] == self.coordinate[1]+movement and \
-                    grid.occupied_piece_color == self.enemy_color):
-                        if self.pinned == False:
-                            grid.highlight()
-                        # If attacker is causing pin
-                        elif self.pinned == True and grid.coordinate in self.pin_attacking_coordinates:
-                            grid.highlight()
-                    # En Passant
-                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-movement and grid.coordinate[1] == self.coordinate[1]+movement and \
-                    grid.en_passant_skipover == True):
-                        if self.pinned == False:
-                            grid.highlight()
-                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+movement and grid.coordinate[1] == self.coordinate[1]+movement and \
-                    grid.en_passant_skipover == True):
-                        if self.pinned == False:
-                            grid.highlight()
+
                     
             pawn_movement()
 
