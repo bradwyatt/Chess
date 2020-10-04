@@ -2,15 +2,19 @@
 Chess created by Brad Wyatt
 Python 3
 
-To-Do (short-term):
+Testing:
+When Bishop is pinned and there's another piece next to it, bishop is able to take that piece when it shouldnt
+When you start with pawn being pinned, it says it's in check (bug)
 Pawns when being pinned and checked by another piece
 Pin logic (testing)
-Checkmate (testing)
+Checkmate (testing)  
+
+Features To-Do (short-term):
 Where taken pieces go
 Restart button
 If no king then don't start game
 
-To-Do (long-term):
+Features To-Do (long-term):
 Create function where given coordinates, return X, Y of square (for loaded_file func)
 Save positions rather than restarting when pressing stop button
 Recording moves on right side (each move has a dictionary of dictionaries of where pieces are)
