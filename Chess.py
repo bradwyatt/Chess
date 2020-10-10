@@ -466,14 +466,15 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                                     if grid.coordinate in self.check_attacking_coordinates:
                                         grid.highlight()
                                 # If pinned and grid is within the attacking coordinates restraint
-                                elif(self.pinned == True and grid.coordinate in self.pin_attacking_coordinates \
-                                     and grid.occupied_piece != 'king'):
-                                    # If not in check from another piece
-                                    if not self.check_attacking_coordinates:
-                                        grid.highlight()
+                                elif(self.pinned == True and grid.occupied_piece != 'king'):
+                                    if grid.coordinate in self.pin_attacking_coordinates:
+                                        # If not in check from another piece
+                                        if not self.check_attacking_coordinates:
+                                            grid.highlight()
                                 else:
                                     # In all other cases where no check and no pin
                                     grid.highlight()
+                                    print("meow: " + str(grid.coordinate))
                                 return
                             # If same color piece in the way
                             elif grid.occupied == 1 and grid.occupied_piece_color == self.color:
@@ -851,7 +852,7 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
                                 # Includes grid.coordinate != self.coordinate so that staying at same coordinate doesn't count as move
                                 elif(self.pinned == True and grid.coordinate in self.pin_attacking_coordinates \
                                      and grid.occupied_piece != 'king' and grid.coordinate != self.coordinate):
-                                    grid.highlight()
+                                        grid.highlight()
                                 else:
                                     # When all the above conditions aren't met, then the bishop can't move further
                                     return
@@ -862,12 +863,15 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
                                     if grid.coordinate in self.check_attacking_coordinates:
                                         grid.highlight()
                                 # If pinned and grid is within the attacking coordinates restraint
-                                elif(self.pinned == True and grid.coordinate in self.pin_attacking_coordinates \
-                                     and grid.occupied_piece != 'king'):
-                                    grid.highlight()     
+                                elif(self.pinned == True and grid.occupied_piece != 'king'):
+                                    if grid.coordinate in self.pin_attacking_coordinates:
+                                        # If not in check from another piece
+                                        if not self.check_attacking_coordinates:
+                                            grid.highlight()
                                 else:
                                     # In all other cases where no check and no pin
                                     grid.highlight()
+                                    print("meow: " + str(grid.coordinate))
                                 return
                             # If same color piece in the way
                             elif grid.occupied == 1 and grid.occupied_piece_color == self.color:
