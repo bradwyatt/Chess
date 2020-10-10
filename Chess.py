@@ -474,7 +474,6 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                                 else:
                                     # In all other cases where no check and no pin
                                     grid.highlight()
-                                    print("meow: " + str(grid.coordinate))
                                 return
                             # If same color piece in the way
                             elif grid.occupied == 1 and grid.occupied_piece_color == self.color:
@@ -512,8 +511,7 @@ class PlayKnight(ChessPiece, pygame.sprite.Sprite):
             self.proj_attacking_coordinates = [self.coordinate]
             def knight_proj_direction(x, y):
                 for grid in Grid.grid_list:
-                    if ord(grid.coordinate[0]) == ord(self.coordinate[0])+x and grid.coordinate[1] == self.coordinate[1]+y \
-                        and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
+                    if ord(grid.coordinate[0]) == ord(self.coordinate[0])+x and grid.coordinate[1] == self.coordinate[1]+y:
                         grid.attack_count_increment(self.color, self.coordinate)
                         if grid.occupied_piece == "king":
                             print("Check for coordinate " + str(grid.coordinate))
@@ -871,7 +869,6 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
                                 else:
                                     # In all other cases where no check and no pin
                                     grid.highlight()
-                                    print("meow: " + str(grid.coordinate))
                                 return
                             # If same color piece in the way
                             elif grid.occupied == 1 and grid.occupied_piece_color == self.color:
