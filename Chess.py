@@ -510,7 +510,7 @@ class PlayKnight(ChessPiece, pygame.sprite.Sprite):
                 for grid in Grid.grid_list:
                     if ord(grid.coordinate[0]) == ord(self.coordinate[0])+x and grid.coordinate[1] == self.coordinate[1]+y:
                         grid.attack_count_increment(self.color, self.coordinate)
-                        if grid.occupied_piece == "king":
+                        if grid.occupied_piece == "king" and grid.occupied_piece_color == self.enemy_color:
                             print("Check for coordinate " + str(grid.coordinate))
                             game_controller.king_in_check(self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
             knight_proj_direction(-1, -2)
@@ -521,7 +521,6 @@ class PlayKnight(ChessPiece, pygame.sprite.Sprite):
             knight_proj_direction(-2, 1)
             knight_proj_direction(2, -1)
             knight_proj_direction(2, 1)
-            print("THIS IS THE PROJ ATTACKING COORDS " + str(self.proj_attacking_coordinates))
     def captured(self):
         self.taken_off_board = True
         self.coordinate = None
