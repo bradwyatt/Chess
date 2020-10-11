@@ -1739,7 +1739,7 @@ def main():
                             PlayQueen(placed_black_queen.rect.topleft, PLAY_SPRITES, "black")    
                         for placed_black_king in PlacedKing.black_king_list:
                             PlayKing(placed_black_king.rect.topleft, PLAY_SPRITES, "black")
-                        game_controller.switch_turn("white")
+                        game_controller.WHOSETURN = "white"
                         GRID_SPRITES.update(game_controller)
                         game_controller.projected_white_update()
                         game_controller.projected_black_update()
