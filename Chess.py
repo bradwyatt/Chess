@@ -3,8 +3,6 @@ Chess created by Brad Wyatt
 Python 3
 
 Testing:
-When you start with pawn being pinned, it says it's in check (bug)
-Pawns when being pinned and checked by another piece
 Projected function gets ran twice at the beginning
 Checkmate (testing)  
 
@@ -1114,12 +1112,14 @@ class Game_Controller():
         self.game_mode = self.EDIT_MODE
         self.check_attacking_coordinates = []
         self.attacker_piece = ""
+        self.check_checkmate_text = ""
     def reset_board(self):
         self.WHOSETURN = "white"
         self.color_in_check = ""
         self.game_mode = self.EDIT_MODE
         self.check_attacking_coordinates = []
         self.attacker_piece = ""
+        self.check_checkmate_text = ""
         for spr_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                  PlayKnight.white_knight_list, PlayRook.white_rook_list,
                  PlayQueen.white_queen_list, PlayKing.white_king_list, 
@@ -1231,7 +1231,6 @@ class Game_Controller():
         self.color_in_check = color
         self.check_attacking_coordinates = check_attacking_coordinates
         self.attacker_piece = attacker_piece
-        print("CHECK ATTACK COORDS " + str(check_attacking_coordinates))
                             
 def main():    
     #Tk box for color
@@ -1643,28 +1642,36 @@ def main():
                                             print("\n WHITE TURN \n")
                                             game_controller.switch_turn("white")
                                         if game_controller.color_in_check == "black":
+                                            game_controller.check_checkmate_text = "Black King checked"
                                             for piece_list in [PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
                                                                PlayKnight.black_knight_list, PlayRook.black_rook_list, 
                                                                PlayQueen.black_queen_list, PlayKing.black_king_list]:
                                                 for piece in piece_list:
                                                     piece.spaces_available(game_controller)
-                                            def checkmate_check():
+                                            def checkmate_check(game_controller):
                                                 for subgrid in Grid.grid_list:
                                                     if subgrid.highlighted == True:
                                                         return
+                                                game_controller.check_checkmate_text = "White wins"
                                                 print("CHECKMATE!!!")
+                                            checkmate_check(game_controller)
                                         elif game_controller.color_in_check == "white":
+                                            game_controller.check_checkmate_text = "White King checked"
                                             for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                                                                PlayKnight.white_knight_list, PlayRook.white_rook_list, 
                                                                PlayQueen.white_queen_list, PlayKing.white_king_list]:
                                                 for piece in piece_list:
                                                     piece.spaces_available(game_controller)
-                                            def checkmate_check():
+                                            def checkmate_check(game_controller):
                                                 for subgrid in Grid.grid_list:
                                                     if subgrid.highlighted == True:
                                                         return
+                                                game_controller.check_checkmate_text = "Black wins"
                                                 print("CHECKMATE!!!")
-                                            checkmate_check()
+                                            checkmate_check(game_controller)
+                                        else:
+                                            # No checks
+                                            game_controller.check_checkmate_text = ""
                                         return
                     move_piece_on_grid()
 
@@ -1884,18 +1891,13 @@ def main():
                 SCREEN.blit(coor_number_text_list[text], (X_GRID_START-X_GRID_WIDTH/2, Y_GRID_START+Y_GRID_HEIGHT/4+(Y_GRID_HEIGHT*text)))
                 SCREEN.blit(coor_number_text_list[text], (X_GRID_END+X_GRID_WIDTH/3, Y_GRID_START+Y_GRID_HEIGHT/4+(Y_GRID_HEIGHT*text)))
             if(game_controller.game_mode == game_controller.PLAY_MODE):
-                if game_controller.color_in_check == "":
-                    pin_check_text = ""
-                else:
-                    pin_check_text = game_controller.color_in_check + " piece checked"
-                pin_check_text_render = arial_font.render(pin_check_text, 1, (0, 0, 0))
+                check_checkmate_text_render = arial_font.render(game_controller.check_checkmate_text, 1, (0, 0, 0))
                 if game_controller.WHOSETURN == "white":
                     whose_turn_text = arial_font.render("White's move to turn", 1, (0, 0, 0))
-                    pin_check_text_render = arial_font.render(pin_check_text, 1, (0, 0, 0))
                 elif game_controller.WHOSETURN == "black":
                     whose_turn_text = arial_font.render("Black's move to turn", 1, (0, 0, 0))
                 SCREEN.blit(whose_turn_text, (X_GRID_END+X_GRID_WIDTH, SCREEN_HEIGHT/2))
-                SCREEN.blit(pin_check_text_render, (X_GRID_END+X_GRID_WIDTH, 200))
+                SCREEN.blit(check_checkmate_text_render, (X_GRID_END+X_GRID_WIDTH, 200))
             pygame.display.update()
         elif state == DEBUG:
             if debug_message == 1:
