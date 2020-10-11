@@ -483,13 +483,14 @@ def bishop_spaces_available(bishop, game_controller, x, y):
                             bishop.disable_from_double_check = True
                             return
                         # Block path of enemy bishop, rook, or queen 
+                        # You cannot have multiple spaces in one direction when blocking so return
                         elif grid.coordinate in game_controller.check_attacking_coordinates[:-1] \
                             and (game_controller.attacker_piece == "bishop" or game_controller.attacker_piece == "rook" \
                                  or game_controller.attacker_piece == "queen"):
                             grid.highlight()
                             return
                         # The only grid available is the attacker piece when pawn or knight
-                        elif grid.coordinate in game_controller.check_attacking_coordinates[0] \
+                        elif grid.coordinate == game_controller.check_attacking_coordinates[0] \
                             and (game_controller.attacker_piece == "pawn" or game_controller.attacker_piece == "knight"):
                             grid.highlight()
                             return
@@ -505,7 +506,12 @@ def bishop_spaces_available(bishop, game_controller, x, y):
                 elif grid.occupied == 1 and grid.occupied_piece_color == bishop.enemy_color:
                     # Check_Attacking_Coordinates only exists when there is check
                     if game_controller.color_in_check == bishop.color:
-                        if grid.coordinate in game_controller.check_attacking_coordinates[:-1]:
+                        if grid.coordinate in game_controller.check_attacking_coordinates[:-1] \
+                            and (game_controller.attacker_piece == "bishop" or game_controller.attacker_piece == "rook" \
+                                 or game_controller.attacker_piece == "queen"):
+                            grid.highlight()
+                        elif grid.coordinate == game_controller.check_attacking_coordinates[0] \
+                            and (game_controller.attacker_piece == "pawn" or game_controller.attacker_piece == "knight"):
                             grid.highlight()
                     # If pinned and grid is within the attacking coordinates restraint
                     elif(bishop.pinned == True and grid.occupied_piece != 'king'):
@@ -513,12 +519,15 @@ def bishop_spaces_available(bishop, game_controller, x, y):
                             # If not in check from another piece
                             if not game_controller.check_attacking_coordinates:
                                 grid.highlight()
+                                # No return since there are more than one possibility when between king and attacker piece
                     else:
                         # In all other cases where no check and no pin
                         grid.highlight()
+                    # Will always return function on square with enemy piece
                     return
                 # If same color piece in the way
                 elif grid.occupied == 1 and grid.occupied_piece_color == bishop.color:
+                    # Will always return function on square with friendly piece
                     return
 
 class PlayBishop(ChessPiece, pygame.sprite.Sprite):
