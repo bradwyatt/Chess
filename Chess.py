@@ -6,7 +6,6 @@ Testing:
 When you start with pawn being pinned, it says it's in check (bug)
 Pawns when being pinned and checked by another piece
 Projected function gets ran twice at the beginning
-Pin logic (testing)
 Checkmate (testing)  
 
 Features To-Do (short-term):
@@ -610,7 +609,7 @@ def rook_projected(piece_name, piece, game_controller, x, y):
                 # 2 Pieces in way, includes 1 king
                 if(pieces_in_way == 2 and king_count == 1): #2 Pieces in way, includes 1 king
                     print("King is pinned on coordinate " + str(grid.coordinate))
-                    game_controller.pinned_piece(piece_name, pinned_piece_coord, proj_attacking_coordinates, piece.enemy_color)
+                    game_controller.pinned_piece(pinned_piece_coord, proj_attacking_coordinates, piece.enemy_color)
                     return
                 # 1 Piece in way which is King
                 # This is check, we will iterate one more time to cover the next square king is not allowed to go to
