@@ -629,7 +629,7 @@ def rook_spaces_available(rook, game_controller, x, y):
                         if rook.pinned == True:
                             rook.disable_from_double_check = True
                             return
-                        elif grid.coordinate in game_controller.check_attacking_coordinates:
+                        elif grid.coordinate in game_controller.check_attacking_coordinates[:-1]:
                             grid.highlight()
                             return
                     # If pinned and grid is within the attacking coordinates restraint
@@ -643,7 +643,7 @@ def rook_spaces_available(rook, game_controller, x, y):
                 elif grid.occupied == 1 and grid.occupied_piece_color == rook.enemy_color:
                     # Check_Attacking_Coordinates only exists when there is check
                     if game_controller.color_in_check == rook.color:
-                        if grid.coordinate in game_controller.check_attacking_coordinates:
+                        if grid.coordinate in game_controller.check_attacking_coordinates[:-1]:
                             grid.highlight()
                     # If pinned and grid is within the attacking coordinates restraint
                     elif(rook.pinned == True and grid.coordinate in rook.pin_attacking_coordinates \
