@@ -3,7 +3,7 @@ Chess created by Brad Wyatt
 Python 3
 
 Testing:
-spaces_available for pawn: when king is in check, you can take a protector piece (bad)
+More testing with pawn
 
 Features To-Do (short-term):
 Where taken pieces go
