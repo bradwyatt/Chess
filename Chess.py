@@ -3,10 +3,9 @@ Chess created by Brad Wyatt
 Python 3
 
 Testing:
-More testing with pawn
+More testing with castling
 
 Features To-Do (short-term):
-Where taken pieces go
 Restart button
 If no king then don't start game
 Previous move highlighted different color
@@ -236,6 +235,10 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
         self.taken_off_board = True
         self.coordinate = None
         self.rect.topleft = x, y
+    def promoted(self):
+        self.taken_off_board = True
+        self.coordinate = None
+        self.rect.topleft = -100, -100
     def highlight(self):
         if self.taken_off_board != True:
             if(self.color == "white"):
@@ -1129,16 +1132,16 @@ class Game_Controller():
         self.game_mode = self.EDIT_MODE
         self.check_attacking_coordinates = []
         self.attacker_piece = ""
-        self.black_captured_X = 50
-        self.white_captured_X = 50
+        self.black_captured_x = 50
+        self.white_captured_x = 50
     def reset_board(self):
         self.WHOSETURN = "white"
         self.color_in_check = ""
         self.game_mode = self.EDIT_MODE
         self.check_attacking_coordinates = []
         self.attacker_piece = ""
-        self.black_captured_X = 50
-        self.white_captured_X = 50
+        self.black_captured_x = 50
+        self.white_captured_x = 50
         Text_Controller.check_checkmate_text = ""
         for spr_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                  PlayKnight.white_knight_list, PlayRook.white_rook_list,
@@ -1534,7 +1537,7 @@ def main():
                         return recorded_move
                                 
                     # Moves piece
-                    def move_piece_on_grid():
+                    def move_piece_on_grid(black_captured_y=525, white_captured_y=15, incremental_x=40):
                         for grid in Grid.grid_list:
                             for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                                                PlayKnight.white_knight_list, PlayRook.white_rook_list, 
@@ -1558,11 +1561,11 @@ def main():
                                                 for piece_captured in piece_captured_list:
                                                     if piece_captured.coordinate == grid.coordinate:
                                                         if piece_captured.color == "black":
-                                                            piece_captured.captured(game_controller.black_captured_X, 525)
-                                                            game_controller.black_captured_X += 40
+                                                            piece_captured.captured(game_controller.black_captured_x, black_captured_y)
+                                                            game_controller.black_captured_x += incremental_x
                                                         elif piece_captured.color == "white":
-                                                            piece_captured.captured(game_controller.white_captured_X, 15)
-                                                            game_controller.white_captured_X += 40
+                                                            piece_captured.captured(game_controller.white_captured_x, white_captured_y)
+                                                            game_controller.white_captured_x += incremental_x
                                         # En Passant Capture
                                         if grid.en_passant_skipover == True:
                                             if piece in PlayPawn.white_pawn_list:
@@ -1571,14 +1574,14 @@ def main():
                                                     if black_pawn.taken_off_board == False:
                                                         if black_pawn.coordinate[0] == grid.coordinate[0] and \
                                                             black_pawn.coordinate[1] == 5:
-                                                                black_pawn.captured()
+                                                                black_pawn.captured(game_controller.black_captured_x, black_captured_y)
                                             elif piece in PlayPawn.black_pawn_list:
                                                 for white_pawn in PlayPawn.white_pawn_list:
                                                     # Must include taken_off_board bool or else you get NoneType error
                                                     if white_pawn.taken_off_board == False:
                                                         if white_pawn.coordinate[0] == grid.coordinate[0] and \
                                                             white_pawn.coordinate[1] == 4:
-                                                                white_pawn.captured()
+                                                                white_pawn.captured(game_controller.white_captured_x, white_captured_y)
                                                             
                                         # Reset en passant skipover for all squares
                                         for sub_grid in Grid.grid_list:
@@ -1605,7 +1608,7 @@ def main():
                                             if piece.coordinate[1] == 8:
                                                 PlayQueen(piece.rect.topleft, PLAY_SPRITES, "white")
                                                 # Take white pawn off the board
-                                                piece.captured()
+                                                piece.promoted()
                                             # Detects that pawn was just moved
                                             elif piece.coordinate[1] == 4 and piece.previous_coordinate[0] == piece.coordinate[0] and \
                                                 piece.previous_coordinate[1] == 2:
@@ -1620,7 +1623,7 @@ def main():
                                             if piece.coordinate[1] == 1:
                                                 PlayQueen(piece.rect.topleft, PLAY_SPRITES, "black")
                                                 # Take white pawn off the board
-                                                piece.captured()
+                                                piece.promoted()
                                             # Detects that pawn was just moved
                                             elif piece.coordinate[1] == 5 and piece.previous_coordinate[0] == piece.coordinate[0] and \
                                                 piece.previous_coordinate[1] == 7:
