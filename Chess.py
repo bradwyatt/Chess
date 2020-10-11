@@ -1194,6 +1194,7 @@ class Game_Controller():
                     piece.pinned_restrict(pin_attacking_coordinates)
     def king_in_check(self, check_piece_coordinate, check_attacking_coordinates, color):
         self.color_in_check = color
+        print("CHECK ATTACK COORDS " + str(check_attacking_coordinates))
         if color == "white":
             # How to treat pieces when their king is in check
             for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
