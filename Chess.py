@@ -3,8 +3,7 @@ Chess created by Brad Wyatt
 Python 3
 
 Testing:
-Projected function gets ran twice at the beginning
-Checkmate (testing)  
+spaces_available for pawn: when king is in check, you can take a protector piece (bad)
 
 Features To-Do (short-term):
 Where taken pieces go
@@ -321,15 +320,25 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                     # Enemy pieces
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-movement and grid.coordinate[1] == self.coordinate[1]+movement and \
                     grid.occupied_piece_color == self.enemy_color):
-                        if self.pinned == False:
+                        # No check and no pin is moving as normal
+                        if self.pinned == False and game_controller.color_in_check != self.color:
                             grid.highlight()
+                        # When checked then only able to take the attacker piece in reach
+                        elif game_controller.color_in_check == self.color:
+                            if grid.coordinate == game_controller.check_attacking_coordinates[0]:
+                                grid.highlight()
                         # If attacker is causing pin
                         elif self.pinned == True and grid.coordinate in self.pin_attacking_coordinates:
                             grid.highlight()
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+movement and grid.coordinate[1] == self.coordinate[1]+movement and \
                     grid.occupied_piece_color == self.enemy_color):
-                        if self.pinned == False:
+                        # No check and no pin is moving as normal
+                        if self.pinned == False and game_controller.color_in_check != self.color:
                             grid.highlight()
+                        # When checked then only able to take the attacker piece in reach
+                        elif game_controller.color_in_check == self.color:
+                            if grid.coordinate == game_controller.check_attacking_coordinates[0]:
+                                grid.highlight()
                         # If attacker is causing pin
                         elif self.pinned == True and grid.coordinate in self.pin_attacking_coordinates:
                             grid.highlight()
@@ -1653,7 +1662,6 @@ def main():
                                                     if subgrid.highlighted == True:
                                                         return
                                                 game_controller.check_checkmate_text = "White wins"
-                                                print("CHECKMATE!!!")
                                             checkmate_check(game_controller)
                                         elif game_controller.color_in_check == "white":
                                             game_controller.check_checkmate_text = "White King checked"
@@ -1667,7 +1675,6 @@ def main():
                                                     if subgrid.highlighted == True:
                                                         return
                                                 game_controller.check_checkmate_text = "Black wins"
-                                                print("CHECKMATE!!!")
                                             checkmate_check(game_controller)
                                         else:
                                             # No checks
