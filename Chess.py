@@ -466,7 +466,7 @@ def bishop_projected(piece_name, piece, game_controller, x, y):
                         game_controller.king_in_check(piece_name, piece.coordinate, proj_attacking_coordinates, piece.enemy_color)
                         return
 
-def bishop_spaces_available(bishop, game_controller, x, y):
+def bishop_direction_spaces_available(bishop, game_controller, x, y):
     for i in range(1,8):
         for grid in Grid.grid_list:
             if ord(grid.coordinate[0]) == ord(bishop.coordinate[0])+(x*i) \
@@ -565,10 +565,10 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
             self.select = True
     def spaces_available(self, game_controller):
         if(self.taken_off_board != True and self.disable_from_double_check == False):
-            bishop_spaces_available(self, game_controller, -1, -1) #southwest
-            bishop_spaces_available(self, game_controller, -1, 1) #northwest
-            bishop_spaces_available(self, game_controller, 1, -1) #southeast
-            bishop_spaces_available(self, game_controller, 1, 1) #northeast
+            bishop_direction_spaces_available(self, game_controller, -1, -1) #southwest
+            bishop_direction_spaces_available(self, game_controller, -1, 1) #northwest
+            bishop_direction_spaces_available(self, game_controller, 1, -1) #southeast
+            bishop_direction_spaces_available(self, game_controller, 1, 1) #northeast
     def no_highlight(self):
         if self.taken_off_board != True:
             if(self.color == "white"):
@@ -623,7 +623,7 @@ def rook_projected(piece_name, piece, game_controller, x, y):
                         return
     return
 
-def rook_spaces_available(rook, game_controller, x, y):
+def rook_direction_spaces_available(rook, game_controller, x, y):
     for i in range(1,8):
         for grid in Grid.grid_list:
             if ord(grid.coordinate[0]) == ord(rook.coordinate[0])+(x*i) and grid.coordinate[1] == rook.coordinate[1]+(y*i):
@@ -638,7 +638,16 @@ def rook_spaces_available(rook, game_controller, x, y):
                         if rook.pinned == True:
                             rook.disable_from_double_check = True
                             return
-                        elif grid.coordinate in game_controller.check_attacking_coordinates[:-1]:
+                        # Block path of enemy bishop, rook, or queen 
+                        # You cannot have multiple spaces in one direction when blocking so return
+                        elif grid.coordinate in game_controller.check_attacking_coordinates[:-1] \
+                            and (game_controller.attacker_piece == "bishop" or game_controller.attacker_piece == "rook" \
+                                 or game_controller.attacker_piece == "queen"):
+                            grid.highlight()
+                            return
+                        # The only grid available is the attacker piece when pawn or knight
+                        elif grid.coordinate == game_controller.check_attacking_coordinates[0] \
+                            and (game_controller.attacker_piece == "pawn" or game_controller.attacker_piece == "knight"):
                             grid.highlight()
                             return
                     # If pinned and grid is within the attacking coordinates restraint
@@ -652,7 +661,15 @@ def rook_spaces_available(rook, game_controller, x, y):
                 elif grid.occupied == 1 and grid.occupied_piece_color == rook.enemy_color:
                     # Check_Attacking_Coordinates only exists when there is check
                     if game_controller.color_in_check == rook.color:
-                        if grid.coordinate in game_controller.check_attacking_coordinates[:-1]:
+                        # Block path of enemy bishop, rook, or queen 
+                        # You cannot have multiple spaces in one direction when blocking so return
+                        if grid.coordinate in game_controller.check_attacking_coordinates[:-1] \
+                            and (game_controller.attacker_piece == "bishop" or game_controller.attacker_piece == "rook" \
+                                 or game_controller.attacker_piece == "queen"):
+                            grid.highlight()
+                        # The only grid available is the attacker piece when pawn or knight
+                        elif grid.coordinate == game_controller.check_attacking_coordinates[0] \
+                            and (game_controller.attacker_piece == "pawn" or game_controller.attacker_piece == "knight"):
                             grid.highlight()
                     # If pinned and grid is within the attacking coordinates restraint
                     elif(rook.pinned == True and grid.coordinate in rook.pin_attacking_coordinates \
@@ -701,10 +718,10 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
         self.select = True
     def spaces_available(self, game_controller):
         if(self.taken_off_board != True and self.disable_from_double_check == False):
-            rook_spaces_available(self, game_controller, -1, 0) #west
-            rook_spaces_available(self, game_controller, 1, 0) #east
-            rook_spaces_available(self, game_controller, 0, 1) #north
-            rook_spaces_available(self, game_controller, 0, -1) #south
+            rook_direction_spaces_available(self, game_controller, -1, 0) #west
+            rook_direction_spaces_available(self, game_controller, 1, 0) #east
+            rook_direction_spaces_available(self, game_controller, 0, 1) #north
+            rook_direction_spaces_available(self, game_controller, 0, -1) #south
     def no_highlight(self):
         if(self.color == "white"):
             self.image = IMAGES["SPR_WHITE_ROOK"]
@@ -751,14 +768,14 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
             self.select = True
     def spaces_available(self, game_controller):
         if(self.taken_off_board != True and self.disable_from_double_check == False):
-            bishop_spaces_available(self, game_controller, -1, -1) #southwest
-            bishop_spaces_available(self, game_controller, -1, 1) #northwest
-            bishop_spaces_available(self, game_controller, 1, -1) #southeast
-            bishop_spaces_available(self, game_controller, 1, 1) #northeast
-            rook_spaces_available(self, game_controller, -1, 0) #west
-            rook_spaces_available(self, game_controller, 1, 0) #east
-            rook_spaces_available(self, game_controller, 0, 1) #north
-            rook_spaces_available(self, game_controller, 0, -1) #south
+            bishop_direction_spaces_available(self, game_controller, -1, -1) #southwest
+            bishop_direction_spaces_available(self, game_controller, -1, 1) #northwest
+            bishop_direction_spaces_available(self, game_controller, 1, -1) #southeast
+            bishop_direction_spaces_available(self, game_controller, 1, 1) #northeast
+            rook_direction_spaces_available(self, game_controller, -1, 0) #west
+            rook_direction_spaces_available(self, game_controller, 1, 0) #east
+            rook_direction_spaces_available(self, game_controller, 0, 1) #north
+            rook_direction_spaces_available(self, game_controller, 0, -1) #south
     def no_highlight(self):
         if self.taken_off_board != True:
             if(self.color == "white"):
