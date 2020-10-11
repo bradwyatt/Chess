@@ -9,6 +9,7 @@ Features To-Do (short-term):
 Where taken pieces go
 Restart button
 If no king then don't start game
+Previous move highlighted different color
 
 Features To-Do (long-term):
 Create function where given coordinates, return X, Y of square (for loaded_file func)
@@ -231,10 +232,10 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
                 self.coordinate = grid.coordinate
-    def captured(self):
+    def captured(self, x, y):
         self.taken_off_board = True
         self.coordinate = None
-        self.rect.topleft = 200, 600
+        self.rect.topleft = x, y
     def highlight(self):
         if self.taken_off_board != True:
             if(self.color == "white"):
@@ -303,6 +304,8 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                                     grid.highlight()
                             elif self.pinned == False:
                                 grid.highlight()
+                            elif self.pinned == True and grid.coordinate in self.pin_attacking_coordinates:
+                                grid.highlight()
                     # Move two spaces up
                     if (self.coordinate[1] == initial_space and grid.coordinate[0] == self.coordinate[0] and \
                         grid.coordinate[1] == hop_space and grid.occupied == False):
@@ -316,6 +319,8 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                                     elif grid.coordinate in game_controller.check_attacking_coordinates:
                                         grid.highlight()
                                 elif self.pinned == False:
+                                    grid.highlight()
+                                elif self.pinned == True and grid.coordinate in self.pin_attacking_coordinates:
                                     grid.highlight()
                     # Enemy pieces
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-movement and grid.coordinate[1] == self.coordinate[1]+movement and \
@@ -387,10 +392,10 @@ class PlayKnight(ChessPiece, pygame.sprite.Sprite):
             knight_proj_direction(-2, 1)
             knight_proj_direction(2, -1)
             knight_proj_direction(2, 1)
-    def captured(self):
+    def captured(self, x, y):
         self.taken_off_board = True
         self.coordinate = None
-        self.rect.topleft = 400, 600
+        self.rect.topleft = x, y
     def highlight(self):
         if self.taken_off_board != True:
             if(self.color == "white"):
@@ -558,10 +563,10 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
             bishop_projected("bishop", self, game_controller, -1, 1) #northwest
             bishop_projected("bishop", self, game_controller, 1, -1) #southeast
             bishop_projected("bishop", self, game_controller, 1, 1) #northeast
-    def captured(self):
+    def captured(self, x, y):
         self.taken_off_board = True
         self.coordinate = None
-        self.rect.topleft = 300, 600
+        self.rect.topleft = x, y
     def highlight(self):
         if self.taken_off_board != True:
             if(self.color == "white"):
@@ -706,10 +711,10 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
                 self.coordinate = grid.coordinate
-    def captured(self):
+    def captured(self, x, y):
         self.taken_off_board = True
         self.coordinate = None
-        self.rect.topleft = 550, 600
+        self.rect.topleft = x, y
     def projected(self, game_controller):
         if(self.taken_off_board != True):
             rook_projected("rook", self, game_controller, -1, 0) #west
@@ -751,10 +756,10 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
                 self.coordinate = grid.coordinate
-    def captured(self):
+    def captured(self, x, y):
         self.taken_off_board = True
         self.coordinate = None
-        self.rect.topleft = 650, 600
+        self.rect.topleft = x, y
     def projected(self, game_controller):
         if(self.taken_off_board != True):
             bishop_projected("queen", self, game_controller, -1, -1) #southwest
@@ -1124,12 +1129,16 @@ class Game_Controller():
         self.game_mode = self.EDIT_MODE
         self.check_attacking_coordinates = []
         self.attacker_piece = ""
+        self.black_captured_X = 50
+        self.white_captured_X = 50
     def reset_board(self):
         self.WHOSETURN = "white"
         self.color_in_check = ""
         self.game_mode = self.EDIT_MODE
         self.check_attacking_coordinates = []
         self.attacker_piece = ""
+        self.black_captured_X = 50
+        self.white_captured_X = 50
         Text_Controller.check_checkmate_text = ""
         for spr_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                  PlayKnight.white_knight_list, PlayRook.white_rook_list,
@@ -1544,7 +1553,12 @@ def main():
                                                                         PlayQueen.black_queen_list, PlayKing.black_king_list]:
                                                 for piece_captured in piece_captured_list:
                                                     if piece_captured.coordinate == grid.coordinate:
-                                                        piece_captured.captured()
+                                                        if piece_captured.color == "black":
+                                                            piece_captured.captured(game_controller.black_captured_X, 525)
+                                                            game_controller.black_captured_X += 40
+                                                        elif piece_captured.color == "white":
+                                                            piece_captured.captured(game_controller.white_captured_X, 15)
+                                                            game_controller.white_captured_X += 40
                                         # En Passant Capture
                                         if grid.en_passant_skipover == True:
                                             if piece in PlayPawn.white_pawn_list:
