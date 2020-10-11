@@ -1113,6 +1113,9 @@ def remove_all_placed():
     PlacedQueen.black_queen_list = []
     PlacedKing.black_king_list = []
 
+class Text_Controller():
+    check_checkmate_text = ""
+
 class Game_Controller():
     def __init__(self):
         self.WHOSETURN = "white"
@@ -1121,14 +1124,13 @@ class Game_Controller():
         self.game_mode = self.EDIT_MODE
         self.check_attacking_coordinates = []
         self.attacker_piece = ""
-        self.check_checkmate_text = ""
     def reset_board(self):
         self.WHOSETURN = "white"
         self.color_in_check = ""
         self.game_mode = self.EDIT_MODE
         self.check_attacking_coordinates = []
         self.attacker_piece = ""
-        self.check_checkmate_text = ""
+        Text_Controller.check_checkmate_text = ""
         for spr_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                  PlayKnight.white_knight_list, PlayRook.white_rook_list,
                  PlayQueen.white_queen_list, PlayKing.white_king_list, 
@@ -1651,7 +1653,7 @@ def main():
                                             print("\n WHITE TURN \n")
                                             game_controller.switch_turn("white")
                                         if game_controller.color_in_check == "black":
-                                            game_controller.check_checkmate_text = "Black King checked"
+                                            Text_Controller.check_checkmate_text = "Black King checked"
                                             for piece_list in [PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
                                                                PlayKnight.black_knight_list, PlayRook.black_rook_list, 
                                                                PlayQueen.black_queen_list, PlayKing.black_king_list]:
@@ -1661,10 +1663,10 @@ def main():
                                                 for subgrid in Grid.grid_list:
                                                     if subgrid.highlighted == True:
                                                         return
-                                                game_controller.check_checkmate_text = "White wins"
+                                                Text_Controller.check_checkmate_text = "White wins"
                                             checkmate_check(game_controller)
                                         elif game_controller.color_in_check == "white":
-                                            game_controller.check_checkmate_text = "White King checked"
+                                            Text_Controller.check_checkmate_text = "White King checked"
                                             for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                                                                PlayKnight.white_knight_list, PlayRook.white_rook_list, 
                                                                PlayQueen.white_queen_list, PlayKing.white_king_list]:
@@ -1674,11 +1676,11 @@ def main():
                                                 for subgrid in Grid.grid_list:
                                                     if subgrid.highlighted == True:
                                                         return
-                                                game_controller.check_checkmate_text = "Black wins"
+                                                Text_Controller.check_checkmate_text = "Black wins"
                                             checkmate_check(game_controller)
                                         else:
                                             # No checks
-                                            game_controller.check_checkmate_text = ""
+                                            Text_Controller.check_checkmate_text = ""
                                         return
                     move_piece_on_grid()
 
@@ -1898,7 +1900,7 @@ def main():
                 SCREEN.blit(coor_number_text_list[text], (X_GRID_START-X_GRID_WIDTH/2, Y_GRID_START+Y_GRID_HEIGHT/4+(Y_GRID_HEIGHT*text)))
                 SCREEN.blit(coor_number_text_list[text], (X_GRID_END+X_GRID_WIDTH/3, Y_GRID_START+Y_GRID_HEIGHT/4+(Y_GRID_HEIGHT*text)))
             if(game_controller.game_mode == game_controller.PLAY_MODE):
-                check_checkmate_text_render = arial_font.render(game_controller.check_checkmate_text, 1, (0, 0, 0))
+                check_checkmate_text_render = arial_font.render(Text_Controller.check_checkmate_text, 1, (0, 0, 0))
                 if game_controller.WHOSETURN == "white":
                     whose_turn_text = arial_font.render("White's move to turn", 1, (0, 0, 0))
                 elif game_controller.WHOSETURN == "black":
