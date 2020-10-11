@@ -3,9 +3,9 @@ Chess created by Brad Wyatt
 Python 3
 
 Testing:
-When Bishop is pinned and there's another piece next to it, bishop is able to take that piece when it shouldnt
 When you start with pawn being pinned, it says it's in check (bug)
 Pawns when being pinned and checked by another piece
+Projected function gets ran twice at the beginning
 Pin logic (testing)
 Checkmate (testing)  
 
@@ -262,12 +262,12 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                     # Enemy pieces
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]+1):
                         grid.attack_count_increment(self.color, self.coordinate)
-                        if grid.occupied_piece == "king":
+                        if grid.occupied_piece == "king" and grid.occupied_piece_color == self.enemy_color:
                             print("Check for coordinate " + str(grid.coordinate))
                             game_controller.king_in_check(self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]+1):
                         grid.attack_count_increment(self.color, self.coordinate)
-                        if grid.occupied_piece == "king":
+                        if grid.occupied_piece == "king" and grid.occupied_piece_color == self.enemy_color:
                             print("Check for coordinate " + str(grid.coordinate))
                             game_controller.king_in_check(self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
             elif(self.color == "black"):
@@ -275,12 +275,12 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                     # Enemy pieces
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and grid.coordinate[1] == self.coordinate[1]-1):
                         grid.attack_count_increment(self.color, self.coordinate)
-                        if grid.occupied_piece == "king":
+                        if grid.occupied_piece == "king" and grid.occupied_piece_color == self.enemy_color:
                             print("Check for coordinate " + str(grid.coordinate))
                             game_controller.king_in_check(self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and grid.coordinate[1] == self.coordinate[1]-1):
                         grid.attack_count_increment(self.color, self.coordinate)
-                        if grid.occupied_piece == "king":
+                        if grid.occupied_piece == "king" and grid.occupied_piece_color == self.enemy_color:
                             print("Check for coordinate " + str(grid.coordinate))
                             game_controller.king_in_check(self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
                 
@@ -521,6 +521,7 @@ class PlayKnight(ChessPiece, pygame.sprite.Sprite):
             knight_proj_direction(-2, 1)
             knight_proj_direction(2, -1)
             knight_proj_direction(2, 1)
+            print("THIS IS THE PROJ ATTACKING COORDS " + str(self.proj_attacking_coordinates))
     def captured(self):
         self.taken_off_board = True
         self.coordinate = None
