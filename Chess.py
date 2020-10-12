@@ -3,9 +3,11 @@ Chess created by Brad Wyatt
 Python 3
 
 Testing:
-More testing with castling
+Found a bug in castling there's a screenshot of it. This was before figuring out how to do moves, so ignore until you find again
 
 Features To-Do (short-term):
+Record moves in pandas
+Save states, be able to undo and redo moves
 Restart button
 If no king then don't start game
 Previous move highlighted different color
