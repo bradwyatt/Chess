@@ -1550,6 +1550,17 @@ def main():
                     dragging_to_placed_no_dups()
                     
                     def move_translator(piece_name, piece):
+                        piece_abb = ""
+                        if piece_name == "knight":
+                            piece_abb = "N"
+                        elif piece_name == "bishop":
+                            piece_abb = "B"
+                        elif piece_name == "rook":
+                            piece_abb = "R"
+                        elif piece_name == "queen":
+                            piece_abb = "Q"
+                        elif piece_name == "king":
+                            piece_abb = "K"
                         def prefix_func(color):
                             prefix = ""
                             for grid in Grid.grid_list:
@@ -1577,7 +1588,7 @@ def main():
                         elif piece.color == "black":
                             prefix = prefix_func("black")
                         #recorded_move = piece.color + prefix + " " + piece_name + " from " + str(piece.previous_coordinate) + " to " + str(piece.coordinate)
-                        recorded_move = piece.color + " " + prefix + piece_name + " from " + str(piece.previous_coordinate) + " to " + str(piece.coordinate)
+                        recorded_move = piece_abb + prefix + piece.coordinate[0] + str(piece.coordinate[1])
                         return recorded_move
                                 
                     # Moves piece
