@@ -1149,6 +1149,7 @@ class Game_Controller():
         self.attacker_piece = ""
         self.black_captured_x = 50
         self.white_captured_x = 50
+        self.move_counter = 1
     def reset_board(self):
         self.WHOSETURN = "white"
         self.color_in_check = ""
@@ -1157,6 +1158,7 @@ class Game_Controller():
         self.attacker_piece = ""
         self.black_captured_x = 50
         self.white_captured_x = 50
+        self.move_counter = 1
         Text_Controller.check_checkmate_text = ""
         for spr_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                  PlayKnight.white_knight_list, PlayRook.white_rook_list,
@@ -1548,38 +1550,34 @@ def main():
                     dragging_to_placed_no_dups()
                     
                     def move_translator(piece_name, piece):
-                        #recorded_move = piece.color + " " + piece_name + " from " + str(piece.previous_coordinate) + " to " + str(piece.coordinate)
-                        prefix = ""
-                        def prefix_func(color, other_pieces_attacking):
+                        def prefix_func(color):
+                            prefix = ""
+                            for grid in Grid.grid_list:
+                                if piece.color == "white":
+                                    list_of_attack_pieces = grid.list_of_white_pieces_attacking
+                                elif piece.color == "black":
+                                    list_of_attack_pieces = grid.list_of_black_pieces_attacking
+                                if grid.coordinate == piece.coordinate:
+                                    for attacker_grid in list_of_attack_pieces:
+                                        if Grid.grid_dict["".join(map(str, (attacker_grid)))].occupied_piece == piece_name and piece_name != "pawn":
+                                            if prefix != 2:
+                                                if attacker_grid[0] != piece.previous_coordinate[0] and attacker_grid[1] != piece.previous_coordinate[1]:
+                                                    prefix += piece.previous_coordinate[0] + str(piece.previous_coordinate[1])
+                                                elif attacker_grid[0] != piece.previous_coordinate[0]:
+                                                    prefix += piece.previous_coordinate[0]
+                                                elif attacker_grid[1] != piece.previous_coordinate[1]:
+                                                    prefix += str(piece.previous_coordinate[1])
+                                                else:
+                                                    prefix += piece.previous_coordinate[0] + piece.previous_coordinate[1]
+                                            else:
+                                                return prefix
+                                    return prefix
                         if piece.color == "white":
-                            for grid in Grid.grid_list:
-                                if grid.coordinate == piece.coordinate:
-                                    for attacker_grid in grid.list_of_white_pieces_attacking:
-                                        if Grid.grid_dict["".join(map(str, (attacker_grid)))].occupied_piece == piece_name and piece_name != "pawn":
-                                            if len(prefix) < 2:
-                                                if attacker_grid[0] != piece.previous_coordinate[0] and attacker_grid[1] != piece.previous_coordinate[1]:
-                                                    prefix += piece.previous_coordinate[0] + str(piece.previous_coordinate[1])
-                                                elif attacker_grid[0] != piece.previous_coordinate[0]:
-                                                    prefix += piece.previous_coordinate[0]
-                                                elif attacker_grid[1] != piece.previous_coordinate[1]:
-                                                    prefix += str(piece.previous_coordinate[1])
-                                                else:
-                                                    prefix += piece.previous_coordinate[0] + piece.previous_coordinate[1]
+                            prefix = prefix_func("white")
                         elif piece.color == "black":
-                            for grid in Grid.grid_list:
-                                if grid.coordinate == piece.coordinate:
-                                    for attacker_grid in grid.list_of_black_pieces_attacking:
-                                        if Grid.grid_dict["".join(map(str, (attacker_grid)))].occupied_piece == piece_name and piece_name != "pawn":
-                                            if len(prefix) < 2:
-                                                if attacker_grid[0] != piece.previous_coordinate[0] and attacker_grid[1] != piece.previous_coordinate[1]:
-                                                    prefix += piece.previous_coordinate[0] + str(piece.previous_coordinate[1])
-                                                elif attacker_grid[0] != piece.previous_coordinate[0]:
-                                                    prefix += piece.previous_coordinate[0]
-                                                elif attacker_grid[1] != piece.previous_coordinate[1]:
-                                                    prefix += str(piece.previous_coordinate[1])
-                                                else:
-                                                    prefix += piece.previous_coordinate[0] + piece.previous_coordinate[1]
-                        recorded_move = piece.color + prefix + " " + piece_name + " from " + str(piece.previous_coordinate) + " to " + str(piece.coordinate)
+                            prefix = prefix_func("black")
+                        #recorded_move = piece.color + prefix + " " + piece_name + " from " + str(piece.previous_coordinate) + " to " + str(piece.coordinate)
+                        recorded_move = piece.color + " " + prefix + piece_name + " from " + str(piece.previous_coordinate) + " to " + str(piece.coordinate)
                         return recorded_move
                                 
                     # Moves piece
@@ -1717,13 +1715,14 @@ def main():
                                             game_controller.switch_turn("black")
                                         elif(game_controller.WHOSETURN == "black"):
                                             game_controller.switch_turn("white")
+                                            game_controller.move_counter += 1
                                         if game_controller.color_in_check == "black":
                                             Text_Controller.check_checkmate_text = "Black King checked"
                                             for piece_list in [PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
                                                                PlayKnight.black_knight_list, PlayRook.black_rook_list, 
                                                                PlayQueen.black_queen_list, PlayKing.black_king_list]:
-                                                for piece in piece_list:
-                                                    piece.spaces_available(game_controller)
+                                                for sub_piece in piece_list:
+                                                    sub_piece.spaces_available(game_controller)
                                             def checkmate_check(game_controller):
                                                 for subgrid in Grid.grid_list:
                                                     if subgrid.highlighted == True:
@@ -1735,8 +1734,8 @@ def main():
                                             for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                                                                PlayKnight.white_knight_list, PlayRook.white_rook_list, 
                                                                PlayQueen.white_queen_list, PlayKing.white_king_list]:
-                                                for piece in piece_list:
-                                                    piece.spaces_available(game_controller)
+                                                for sub_piece in piece_list:
+                                                    sub_piece.spaces_available(game_controller)
                                             def checkmate_check(game_controller):
                                                 for subgrid in Grid.grid_list:
                                                     if subgrid.highlighted == True:
@@ -1746,7 +1745,10 @@ def main():
                                         else:
                                             # No checks
                                             Text_Controller.check_checkmate_text = ""
-                                        print(move_translator(grid.occupied_piece, piece))
+                                        if(game_controller.WHOSETURN == "white"):
+                                            print(move_translator(grid.occupied_piece, piece))
+                                        elif(game_controller.WHOSETURN == "black"):
+                                            print(str(game_controller.move_counter) + "." + move_translator(grid.occupied_piece, piece))
                                         return
                     move_piece_on_grid()
 
