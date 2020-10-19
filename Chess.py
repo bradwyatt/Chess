@@ -1549,7 +1549,7 @@ def main():
                         
                     dragging_to_placed_no_dups()
                     
-                    def move_translator(piece_name, piece, captured_abb, special_abb="", check_abb=""):
+                    def move_translator(piece_name, piece, captured_abb, previous_grid_obj, special_abb="", check_abb=""):
                         piece_abb = ""
                         if piece_name == "knight":
                             piece_abb = "N"
@@ -1561,13 +1561,15 @@ def main():
                             piece_abb = "Q"
                         elif piece_name == "king":
                             piece_abb = "K"
-                        def prefix_func(piece, piece_name, captured_abb, special_abb):
+                        def prefix_func(piece, piece_name, captured_abb, previous_grid_obj, special_abb):
                             # Detecting when there is another piece of same color that 
                             # can attack the same position
                             # In order to get the prefix, we call out the positioning of piece
                             # When there is another of the same piece
                             prefix = ""
-                            for grid in Grid.grid_list:
+                            # TEST
+                            print("Testing whether old grid was copied in queen example: " + str(previous_grid_obj["".join(map(str, (['f1'])))].__dict__))
+                            for grid in previous_grid_obj:
                                 if piece.color == "white":
                                     list_of_attack_pieces = grid.list_of_white_pieces_attacking
                                 elif piece.color == "black":
@@ -1575,28 +1577,35 @@ def main():
                                 # If piece (that just moved) coordinate is same as grid coordinate
                                 if grid.coordinate == piece.coordinate:
                                     # Going through list of other same color attackers (of new grid coordinate)
+                                    same_piece_list = []
                                     for attacker_grid in list_of_attack_pieces:
+                                        print("attacker grid? " + str(attacker_grid))
                                         # Pawn is only piece that can enter space without attacking it
-                                        if(Grid.grid_dict["".join(map(str, (attacker_grid)))].occupied_piece == piece_name \
+                                        if(previous_grid_obj.grid_dict["".join(map(str, (attacker_grid)))].occupied_piece == piece_name \
                                             and piece_name != "pawn" and special_abb != "=Q"):
-                                            # Purpose of prefix is to determine if it is needed
-                                            # ie if there are multiple rooks that can attack a space occupied by same color rook
-                                            if prefix != 2:
-                                                if attacker_grid[0] != piece.previous_coordinate[0] and attacker_grid[1] != piece.previous_coordinate[1]:
-                                                    prefix += piece.previous_coordinate[0] + str(piece.previous_coordinate[1])
-                                                elif attacker_grid[0] != piece.previous_coordinate[0]:
-                                                    prefix += piece.previous_coordinate[0]
-                                                elif attacker_grid[1] != piece.previous_coordinate[1]:
-                                                    prefix += str(piece.previous_coordinate[1])
-                                            else:
-                                                return prefix
+                                            same_piece_list.append(attacker_grid)
+                                    print("SAME PIECE LIST " + str(same_piece_list))
+                                    letter_coords = [coords_from_same_piece[0] for coords_from_same_piece in same_piece_list] 
+                                    number_coords = [coords_from_same_piece[1] for coords_from_same_piece in same_piece_list] 
+                                    print("LETTER COORDS " + str(letter_coords))
+                                    print("NUMBER COORDS " + str(number_coords))
+                                    print("previous coord " + str(piece.previous_coordinate))
+                                    if piece.previous_coordinate[0] in letter_coords and piece.previous_coordinate[1] in number_coords:
+                                        prefix = piece.previous_coordinate[0] + str(piece.previous_coordinate[1])
+                                        return prefix
+                                    elif piece.previous_coordinate[0] not in letter_coords and piece.previous_coordinate[1] in number_coords:
+                                        prefix += piece.previous_coordinate[0]
+                                        return prefix
+                                    elif piece.previous_coordinate[0] in letter_coords and piece.previous_coordinate[1] not in number_coords:
+                                        prefix += str(piece.previous_coordinate[1])
+                                        return prefix
                                     if((piece_name == "pawn" and captured_abb == "x") or (special_abb == "=Q" and captured_abb == "x")):
                                         prefix += piece.previous_coordinate[0]
                                     return prefix
                         if piece.color == "white":
-                            prefix = prefix_func(piece, piece_name, captured_abb, special_abb)
+                            prefix = prefix_func(piece, piece_name, captured_abb, previous_grid_obj, special_abb)
                         elif piece.color == "black":
-                            prefix = prefix_func(piece, piece_name, captured_abb, special_abb)
+                            prefix = prefix_func(piece, piece_name, captured_abb, previous_grid_obj, special_abb)
                         #recorded_move = piece.color + prefix + " " + piece_name + " from " + str(piece.previous_coordinate) + " to " + str(piece.coordinate)
                         if special_abb == "":
                             recorded_move = piece_abb + prefix + captured_abb + piece.coordinate[0] + str(piece.coordinate[1]) + check_abb
@@ -1620,6 +1629,13 @@ def main():
                         check_abb = ""
                         # White win, draw, black win
                         result_abb = ""
+                        # Keeps the notation in tact with the previous iteration of the board
+                        def without_keys(d, keys):
+                            new_dict = {}
+                            for sub_grid in grid_dict:
+                            return {x: d[x] for x in d if x not in keys}
+                        previous_grid_obj = without_keys(Grid.grid_dict, {'_Sprite__g', 'image', 'rect', 'highlighted'})
+                        print(str(previous_grid_obj['f1'].__dict__) + "\n MEOW \n")
                         for grid in Grid.grid_list:
                             for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                                                PlayKnight.white_knight_list, PlayRook.white_rook_list, 
@@ -1828,14 +1844,18 @@ def main():
                                         if(game_controller.WHOSETURN == "white"):
                                             if special_abb == "=Q":
                                                 # When the piece became promoted to a Queen
-                                                print(move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb))
+                                                print(move_translator(grid.occupied_piece, promoted_queen, captured_abb, previous_grid_obj, special_abb, check_abb))
                                             else:
-                                                print(move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb))
+                                                
+                                                print(move_translator(grid.occupied_piece, piece, captured_abb, previous_grid_obj, special_abb, check_abb))
                                         elif(game_controller.WHOSETURN == "black"):
                                             if special_abb == "=Q":
-                                                print(str(game_controller.move_counter) + "." + move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb))
+                                                print(str(game_controller.move_counter) + "." + \
+                                                      move_translator(grid.occupied_piece, promoted_queen, captured_abb, previous_grid_obj, special_abb, check_abb))
                                             else:
-                                                print(str(game_controller.move_counter) + "." + move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb))
+                                                print(str(previous_grid_obj['f1'].__dict__) + "\n blah \n")
+                                                print(str(game_controller.move_counter) + "." + \
+                                                      move_translator(grid.occupied_piece, piece, captured_abb, previous_grid_obj, special_abb, check_abb))
                                         if result_abb != "":
                                             print("  " + result_abb)
                                         return
