@@ -1549,7 +1549,7 @@ def main():
                         
                     dragging_to_placed_no_dups()
                     
-                    def move_translator(piece_name, piece):
+                    def move_translator(piece_name, piece, captured_abb, special_abb="", check_abb=""):
                         piece_abb = ""
                         if piece_name == "knight":
                             piece_abb = "N"
@@ -1561,16 +1561,26 @@ def main():
                             piece_abb = "Q"
                         elif piece_name == "king":
                             piece_abb = "K"
-                        def prefix_func(color):
+                        def prefix_func(piece, piece_name, captured_abb):
+                            # Detecting when there is another piece of same color that 
+                            # can attack the same position
+                            # In order to get the prefix, we call out the positioning of piece
+                            # When there is another of the same piece
                             prefix = ""
                             for grid in Grid.grid_list:
                                 if piece.color == "white":
                                     list_of_attack_pieces = grid.list_of_white_pieces_attacking
                                 elif piece.color == "black":
                                     list_of_attack_pieces = grid.list_of_black_pieces_attacking
+                                # If piece (that just moved) coordinate is same as grid coordinate
                                 if grid.coordinate == piece.coordinate:
+                                    # Going through list of other same color attackers (of new grid coordinate)
                                     for attacker_grid in list_of_attack_pieces:
-                                        if Grid.grid_dict["".join(map(str, (attacker_grid)))].occupied_piece == piece_name and piece_name != "pawn":
+                                        # Pawn is only piece that can enter space without attacking it
+                                        if(Grid.grid_dict["".join(map(str, (attacker_grid)))].occupied_piece == piece_name \
+                                            and piece_name != "pawn"):
+                                            # Purpose of prefix is to determine if it is needed
+                                            # ie if there are multiple rooks that can attack a space occupied by same color rook
                                             if prefix != 2:
                                                 if attacker_grid[0] != piece.previous_coordinate[0] and attacker_grid[1] != piece.previous_coordinate[1]:
                                                     prefix += piece.previous_coordinate[0] + str(piece.previous_coordinate[1])
@@ -1578,21 +1588,34 @@ def main():
                                                     prefix += piece.previous_coordinate[0]
                                                 elif attacker_grid[1] != piece.previous_coordinate[1]:
                                                     prefix += str(piece.previous_coordinate[1])
-                                                else:
-                                                    prefix += piece.previous_coordinate[0] + piece.previous_coordinate[1]
                                             else:
                                                 return prefix
+                                    if piece_name == "pawn" and captured_abb == "x":
+                                        prefix += piece.previous_coordinate[0]
                                     return prefix
                         if piece.color == "white":
-                            prefix = prefix_func("white")
+                            prefix = prefix_func(piece, piece_name, captured_abb)
                         elif piece.color == "black":
-                            prefix = prefix_func("black")
+                            prefix = prefix_func(piece, piece_name, captured_abb)
                         #recorded_move = piece.color + prefix + " " + piece_name + " from " + str(piece.previous_coordinate) + " to " + str(piece.coordinate)
-                        recorded_move = piece_abb + prefix + piece.coordinate[0] + str(piece.coordinate[1])
+                        if special_abb == "":
+                            recorded_move = piece_abb + prefix + captured_abb + piece.coordinate[0] + str(piece.coordinate[1]) + check_abb
+                        elif special_abb == "O-O":
+                            recorded_move = special_abb + check_abb
+                        elif special_abb == "O-O-O":
+                            recorded_move = special_abb + check_abb
+                        elif special_abb == "e.p.":
+                            recorded_move = piece_abb + prefix + captured_abb + piece.coordinate[0] + str(piece.coordinate[1]) + special_abb + check_abb
                         return recorded_move
                                 
                     # Moves piece
                     def move_piece_on_grid(black_captured_y=525, white_captured_y=15, incremental_x=40):
+                        # Default captured_abb for function to be empty string
+                        captured_abb = ""
+                        # En passant, castle, pawn promotion
+                        special_abb = ""
+                        # Check or checkmate
+                        check_abb = ""
                         for grid in Grid.grid_list:
                             for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                                                PlayKnight.white_knight_list, PlayRook.white_rook_list, 
@@ -1621,6 +1644,8 @@ def main():
                                                         elif piece_captured.color == "white":
                                                             piece_captured.captured(game_controller.white_captured_x, white_captured_y)
                                                             game_controller.white_captured_x += incremental_x
+                                                        # Captured_abb used for move notation
+                                                        captured_abb = "x"
                                         # En Passant Capture
                                         if grid.en_passant_skipover == True:
                                             if piece in PlayPawn.white_pawn_list:
@@ -1630,6 +1655,8 @@ def main():
                                                         if black_pawn.coordinate[0] == grid.coordinate[0] and \
                                                             black_pawn.coordinate[1] == 5:
                                                                 black_pawn.captured(game_controller.black_captured_x, black_captured_y)
+                                                                captured_abb = "x"
+                                                                special_abb = "e.p."
                                             elif piece in PlayPawn.black_pawn_list:
                                                 for white_pawn in PlayPawn.white_pawn_list:
                                                     # Must include taken_off_board bool or else you get NoneType error
@@ -1637,6 +1664,8 @@ def main():
                                                         if white_pawn.coordinate[0] == grid.coordinate[0] and \
                                                             white_pawn.coordinate[1] == 4:
                                                                 white_pawn.captured(game_controller.white_captured_x, white_captured_y)
+                                                                captured_abb = "x"
+                                                                special_abb = "e.p."
                                                             
                                         # Reset en passant skipover for all squares
                                         for sub_grid in Grid.grid_list:
@@ -1700,11 +1729,13 @@ def main():
                                                         rook.coordinate = Grid.grid_dict['d1'].coordinate
                                                         Grid.grid_dict['d1'].occupied = True
                                                         rook.allowed_to_castle = False
+                                                        special_abb = "O-O-O"
                                                     elif rook.coordinate == ['h', 1] and piece.coordinate == ['g', 1]:
                                                         rook.rect.topleft = Grid.grid_dict['f1'].rect.topleft
                                                         rook.coordinate = Grid.grid_dict['f1'].coordinate
                                                         Grid.grid_dict['f1'].occupied = True
                                                         rook.allowed_to_castle = False
+                                                        special_abb = "O-O"
                                         elif piece in PlayKing.black_king_list:
                                             piece.castled = True
                                             for rook in PlayRook.black_rook_list:
@@ -1713,10 +1744,12 @@ def main():
                                                         rook.rect.topleft = Grid.grid_dict['d8'].rect.topleft
                                                         rook.coordinate = Grid.grid_dict['d8'].coordinate
                                                         Grid.grid_dict['d8'].occupied = True
+                                                        special_abb = "O-O-O"
                                                     elif rook.coordinate == ['h', 8] and piece.coordinate == ['g', 8]:
                                                         rook.rect.topleft = Grid.grid_dict['f8'].rect.topleft
                                                         rook.coordinate = Grid.grid_dict['f8'].coordinate
                                                         Grid.grid_dict['f8'].occupied = True
+                                                        special_abb = "O-O"
                                         elif piece in PlayRook.white_rook_list or PlayRook.black_rook_list:
                                             piece.allowed_to_castle = False
                                         # Update all grids to reflect the coordinates of the pieces
@@ -1737,9 +1770,10 @@ def main():
                                             def checkmate_check(game_controller):
                                                 for subgrid in Grid.grid_list:
                                                     if subgrid.highlighted == True:
-                                                        return
+                                                        return "+"
                                                 Text_Controller.check_checkmate_text = "White wins"
-                                            checkmate_check(game_controller)
+                                                return "#"
+                                            check_abb = checkmate_check(game_controller)
                                         elif game_controller.color_in_check == "white":
                                             Text_Controller.check_checkmate_text = "White King checked"
                                             for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
@@ -1750,16 +1784,17 @@ def main():
                                             def checkmate_check(game_controller):
                                                 for subgrid in Grid.grid_list:
                                                     if subgrid.highlighted == True:
-                                                        return
+                                                        return "+"
                                                 Text_Controller.check_checkmate_text = "Black wins"
-                                            checkmate_check(game_controller)
+                                                return "#"
+                                            check_abb = checkmate_check(game_controller)
                                         else:
                                             # No checks
                                             Text_Controller.check_checkmate_text = ""
                                         if(game_controller.WHOSETURN == "white"):
-                                            print(move_translator(grid.occupied_piece, piece))
+                                            print(move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb))
                                         elif(game_controller.WHOSETURN == "black"):
-                                            print(str(game_controller.move_counter) + "." + move_translator(grid.occupied_piece, piece))
+                                            print(str(game_controller.move_counter) + "." + move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb))
                                         return
                     move_piece_on_grid()
 
