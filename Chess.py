@@ -1606,6 +1606,8 @@ def main():
                             recorded_move = special_abb + check_abb
                         elif special_abb == "e.p.":
                             recorded_move = piece_abb + prefix + captured_abb + piece.coordinate[0] + str(piece.coordinate[1]) + special_abb + check_abb
+                        elif special_abb == "=Q":
+                            recorded_move = prefix + captured_abb + piece.coordinate[0] + str(piece.coordinate[1]) + special_abb + check_abb
                         return recorded_move
                                 
                     # Moves piece
@@ -1690,7 +1692,8 @@ def main():
                                         # Enpassant Rule and Promotion Rule for Pawns
                                         if piece in PlayPawn.white_pawn_list:
                                             if piece.coordinate[1] == 8:
-                                                PlayQueen(piece.rect.topleft, PLAY_SPRITES, "white")
+                                                special_abb = "=Q"
+                                                promoted_queen = PlayQueen(piece.rect.topleft, PLAY_SPRITES, "white")
                                                 # Take white pawn off the board
                                                 piece.promoted()
                                             # Detects that pawn was just moved
@@ -1705,7 +1708,8 @@ def main():
                                                 grid.en_passant_skipover = False
                                         elif piece in PlayPawn.black_pawn_list:
                                             if piece.coordinate[1] == 1:
-                                                PlayQueen(piece.rect.topleft, PLAY_SPRITES, "black")
+                                                special_abb = "=Q"
+                                                promoted_queen = PlayQueen(piece.rect.topleft, PLAY_SPRITES, "black")
                                                 # Take white pawn off the board
                                                 piece.promoted()
                                             # Detects that pawn was just moved
@@ -1792,9 +1796,16 @@ def main():
                                             # No checks
                                             Text_Controller.check_checkmate_text = ""
                                         if(game_controller.WHOSETURN == "white"):
-                                            print(move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb))
+                                            if special_abb == "=Q":
+                                                # When the piece became promoted to a Queen
+                                                print(move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb))
+                                            else:
+                                                print(move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb))
                                         elif(game_controller.WHOSETURN == "black"):
-                                            print(str(game_controller.move_counter) + "." + move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb))
+                                            if special_abb == "=Q":
+                                                print(str(game_controller.move_counter) + "." + move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb))
+                                            else:
+                                                print(str(game_controller.move_counter) + "." + move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb))
                                         return
                     move_piece_on_grid()
 
