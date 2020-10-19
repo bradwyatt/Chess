@@ -1549,7 +1549,7 @@ def main():
                         
                     dragging_to_placed_no_dups()
                     
-                    def move_translator(piece_name, piece, captured_abb, previous_grid_obj, special_abb="", check_abb=""):
+                    def move_translator(piece_name, piece, captured_abb, special_abb="", check_abb=""):
                         piece_abb = ""
                         if piece_name == "knight":
                             piece_abb = "N"
@@ -1561,15 +1561,13 @@ def main():
                             piece_abb = "Q"
                         elif piece_name == "king":
                             piece_abb = "K"
-                        def prefix_func(piece, piece_name, captured_abb, previous_grid_obj, special_abb):
+                        def prefix_func(piece, piece_name, captured_abb, special_abb):
                             # Detecting when there is another piece of same color that 
                             # can attack the same position
                             # In order to get the prefix, we call out the positioning of piece
                             # When there is another of the same piece
                             prefix = ""
-                            # TEST
-                            print("Testing whether old grid was copied in queen example: " + str(previous_grid_obj["".join(map(str, (['f1'])))].__dict__))
-                            for grid in previous_grid_obj:
+                            for grid in Grid.grid_list:
                                 if piece.color == "white":
                                     list_of_attack_pieces = grid.list_of_white_pieces_attacking
                                 elif piece.color == "black":
@@ -1579,9 +1577,8 @@ def main():
                                     # Going through list of other same color attackers (of new grid coordinate)
                                     same_piece_list = []
                                     for attacker_grid in list_of_attack_pieces:
-                                        print("attacker grid? " + str(attacker_grid))
                                         # Pawn is only piece that can enter space without attacking it
-                                        if(previous_grid_obj.grid_dict["".join(map(str, (attacker_grid)))].occupied_piece == piece_name \
+                                        if(Grid.grid_dict["".join(map(str, (attacker_grid)))].occupied_piece == piece_name \
                                             and piece_name != "pawn" and special_abb != "=Q"):
                                             same_piece_list.append(attacker_grid)
                                     print("SAME PIECE LIST " + str(same_piece_list))
@@ -1603,9 +1600,9 @@ def main():
                                         prefix += piece.previous_coordinate[0]
                                     return prefix
                         if piece.color == "white":
-                            prefix = prefix_func(piece, piece_name, captured_abb, previous_grid_obj, special_abb)
+                            prefix = prefix_func(piece, piece_name, captured_abb, special_abb)
                         elif piece.color == "black":
-                            prefix = prefix_func(piece, piece_name, captured_abb, previous_grid_obj, special_abb)
+                            prefix = prefix_func(piece, piece_name, captured_abb, special_abb)
                         #recorded_move = piece.color + prefix + " " + piece_name + " from " + str(piece.previous_coordinate) + " to " + str(piece.coordinate)
                         if special_abb == "":
                             recorded_move = piece_abb + prefix + captured_abb + piece.coordinate[0] + str(piece.coordinate[1]) + check_abb
@@ -1629,13 +1626,6 @@ def main():
                         check_abb = ""
                         # White win, draw, black win
                         result_abb = ""
-                        # Keeps the notation in tact with the previous iteration of the board
-                        def without_keys(d, keys):
-                            new_dict = {}
-                            for sub_grid in grid_dict:
-                            return {x: d[x] for x in d if x not in keys}
-                        previous_grid_obj = without_keys(Grid.grid_dict, {'_Sprite__g', 'image', 'rect', 'highlighted'})
-                        print(str(previous_grid_obj['f1'].__dict__) + "\n MEOW \n")
                         for grid in Grid.grid_list:
                             for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                                                PlayKnight.white_knight_list, PlayRook.white_rook_list, 
@@ -1776,6 +1766,8 @@ def main():
                                                         special_abb = "O-O"
                                         elif piece in PlayRook.white_rook_list or PlayRook.black_rook_list:
                                             piece.allowed_to_castle = False
+                                        # TESTING before grid update
+                                        print(move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb))
                                         # Update all grids to reflect the coordinates of the pieces
                                         GRID_SPRITES.update(game_controller)
                                         # Switch turns
@@ -1844,18 +1836,17 @@ def main():
                                         if(game_controller.WHOSETURN == "white"):
                                             if special_abb == "=Q":
                                                 # When the piece became promoted to a Queen
-                                                print(move_translator(grid.occupied_piece, promoted_queen, captured_abb, previous_grid_obj, special_abb, check_abb))
+                                                print(move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb))
                                             else:
                                                 
-                                                print(move_translator(grid.occupied_piece, piece, captured_abb, previous_grid_obj, special_abb, check_abb))
+                                                print(move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb))
                                         elif(game_controller.WHOSETURN == "black"):
                                             if special_abb == "=Q":
                                                 print(str(game_controller.move_counter) + "." + \
-                                                      move_translator(grid.occupied_piece, promoted_queen, captured_abb, previous_grid_obj, special_abb, check_abb))
+                                                      move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb))
                                             else:
-                                                print(str(previous_grid_obj['f1'].__dict__) + "\n blah \n")
                                                 print(str(game_controller.move_counter) + "." + \
-                                                      move_translator(grid.occupied_piece, piece, captured_abb, previous_grid_obj, special_abb, check_abb))
+                                                      move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb))
                                         if result_abb != "":
                                             print("  " + result_abb)
                                         return
