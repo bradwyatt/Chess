@@ -1561,7 +1561,7 @@ def main():
                             piece_abb = "Q"
                         elif piece_name == "king":
                             piece_abb = "K"
-                        def prefix_func(piece, piece_name, captured_abb):
+                        def prefix_func(piece, piece_name, captured_abb, special_abb):
                             # Detecting when there is another piece of same color that 
                             # can attack the same position
                             # In order to get the prefix, we call out the positioning of piece
@@ -1578,7 +1578,7 @@ def main():
                                     for attacker_grid in list_of_attack_pieces:
                                         # Pawn is only piece that can enter space without attacking it
                                         if(Grid.grid_dict["".join(map(str, (attacker_grid)))].occupied_piece == piece_name \
-                                            and piece_name != "pawn"):
+                                            and piece_name != "pawn" and special_abb != "=Q"):
                                             # Purpose of prefix is to determine if it is needed
                                             # ie if there are multiple rooks that can attack a space occupied by same color rook
                                             if prefix != 2:
@@ -1590,13 +1590,13 @@ def main():
                                                     prefix += str(piece.previous_coordinate[1])
                                             else:
                                                 return prefix
-                                    if piece_name == "pawn" and captured_abb == "x":
+                                    if((piece_name == "pawn" and captured_abb == "x") or (special_abb == "=Q" and captured_abb == "x")):
                                         prefix += piece.previous_coordinate[0]
                                     return prefix
                         if piece.color == "white":
-                            prefix = prefix_func(piece, piece_name, captured_abb)
+                            prefix = prefix_func(piece, piece_name, captured_abb, special_abb)
                         elif piece.color == "black":
-                            prefix = prefix_func(piece, piece_name, captured_abb)
+                            prefix = prefix_func(piece, piece_name, captured_abb, special_abb)
                         #recorded_move = piece.color + prefix + " " + piece_name + " from " + str(piece.previous_coordinate) + " to " + str(piece.coordinate)
                         if special_abb == "":
                             recorded_move = piece_abb + prefix + captured_abb + piece.coordinate[0] + str(piece.coordinate[1]) + check_abb
@@ -1696,6 +1696,7 @@ def main():
                                             if piece.coordinate[1] == 8:
                                                 special_abb = "=Q"
                                                 promoted_queen = PlayQueen(piece.rect.topleft, PLAY_SPRITES, "white")
+                                                promoted_queen.previous_coordinate = piece.previous_coordinate
                                                 # Take white pawn off the board
                                                 piece.promoted()
                                             # Detects that pawn was just moved
@@ -1712,7 +1713,8 @@ def main():
                                             if piece.coordinate[1] == 1:
                                                 special_abb = "=Q"
                                                 promoted_queen = PlayQueen(piece.rect.topleft, PLAY_SPRITES, "black")
-                                                # Take white pawn off the board
+                                                promoted_queen.previous_coordinate = piece.previous_coordinate
+                                                # Take black pawn off the board
                                                 piece.promoted()
                                             # Detects that pawn was just moved
                                             elif piece.coordinate[1] == 5 and piece.previous_coordinate[0] == piece.coordinate[0] and \
@@ -1794,6 +1796,19 @@ def main():
                                                 Text_Controller.check_checkmate_text = "Black wins"
                                                 return "#", "0-1"
                                             check_abb, result_abb = checkmate_check(game_controller)
+                                        elif game_controller.color_in_check == "" and game_controller.WHOSETURN == "white":
+                                            for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
+                                                               PlayKnight.white_knight_list, PlayRook.white_rook_list, 
+                                                               PlayQueen.white_queen_list, PlayKing.white_king_list]:
+                                                for sub_piece in piece_list:
+                                                    sub_piece.spaces_available(game_controller)
+                                            def stalemate_check(game_controller):
+                                                for subgrid in Grid.grid_list:
+                                                    if subgrid.highlighted == True:
+                                                        return ""
+                                                Text_Controller.check_checkmate_text = "Stalemate"
+                                                return "1/2-1/2"
+                                            result_abb = stalemate_check(game_controller)
                                         else:
                                             # No checks
                                             Text_Controller.check_checkmate_text = ""
