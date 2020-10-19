@@ -1809,6 +1809,19 @@ def main():
                                                 Text_Controller.check_checkmate_text = "Stalemate"
                                                 return "1/2-1/2"
                                             result_abb = stalemate_check(game_controller)
+                                        elif game_controller.color_in_check == "" and game_controller.WHOSETURN == "black":
+                                            for piece_list in [PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
+                                                               PlayKnight.black_knight_list, PlayRook.black_rook_list, 
+                                                               PlayQueen.black_queen_list, PlayKing.black_king_list]:
+                                                for sub_piece in piece_list:
+                                                    sub_piece.spaces_available(game_controller)
+                                            def stalemate_check(game_controller):
+                                                for subgrid in Grid.grid_list:
+                                                    if subgrid.highlighted == True:
+                                                        return ""
+                                                Text_Controller.check_checkmate_text = "Stalemate"
+                                                return "1/2-1/2"
+                                            result_abb = stalemate_check(game_controller)
                                         else:
                                             # No checks
                                             Text_Controller.check_checkmate_text = ""
