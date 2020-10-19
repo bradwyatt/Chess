@@ -1618,6 +1618,8 @@ def main():
                         special_abb = ""
                         # Check or checkmate
                         check_abb = ""
+                        # White win, draw, black win
+                        result_abb = ""
                         for grid in Grid.grid_list:
                             for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                                                PlayKnight.white_knight_list, PlayRook.white_rook_list, 
@@ -1774,10 +1776,10 @@ def main():
                                             def checkmate_check(game_controller):
                                                 for subgrid in Grid.grid_list:
                                                     if subgrid.highlighted == True:
-                                                        return "+"
+                                                        return "+", ""
                                                 Text_Controller.check_checkmate_text = "White wins"
-                                                return "#"
-                                            check_abb = checkmate_check(game_controller)
+                                                return "#", "1-0"
+                                            check_abb, result_abb = checkmate_check(game_controller)
                                         elif game_controller.color_in_check == "white":
                                             Text_Controller.check_checkmate_text = "White King checked"
                                             for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
@@ -1788,10 +1790,10 @@ def main():
                                             def checkmate_check(game_controller):
                                                 for subgrid in Grid.grid_list:
                                                     if subgrid.highlighted == True:
-                                                        return "+"
+                                                        return "+", ""
                                                 Text_Controller.check_checkmate_text = "Black wins"
-                                                return "#"
-                                            check_abb = checkmate_check(game_controller)
+                                                return "#", "0-1"
+                                            check_abb, result_abb = checkmate_check(game_controller)
                                         else:
                                             # No checks
                                             Text_Controller.check_checkmate_text = ""
@@ -1806,6 +1808,8 @@ def main():
                                                 print(str(game_controller.move_counter) + "." + move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb))
                                             else:
                                                 print(str(game_controller.move_counter) + "." + move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb))
+                                        if result_abb != "":
+                                            print("  " + result_abb)
                                         return
                     move_piece_on_grid()
 
