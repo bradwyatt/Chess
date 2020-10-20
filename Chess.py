@@ -6,7 +6,9 @@ Testing:
 Found a bug in castling there's a screenshot of it. This was before figuring out how to do moves, so ignore until you find again
 
 Features To-Do (short-term):
-Record moves in pandas
+Record moves correctly (keep in mind which direction the other piece is coming from)
+Instead of using rect to place pieces on the grid, use coordinates
+Changing all coordinates to be in a 'a1' rather than ['a', 1] format
 Save states, be able to undo and redo moves
 Restart button
 If no king then don't start game
@@ -969,10 +971,18 @@ class Grid(pygame.sprite.Sprite):
         self.list_of_white_pieces_attacking = []
         self.list_of_black_pieces_attacking = []
         self.en_passant_skipover = False
+        self.history_list_of_white_pieces_attacking = {}
+        self.history_list_of_black_pieces_attacking = {}
+        self.history_occupied_piece_color = {}
+        self.history_occupied_piece = {}
     def reset_board(self):
         self.no_highlight()
         self.list_of_white_pieces_attacking = []
         self.list_of_black_pieces_attacking = []
+        self.history_list_of_white_pieces_attacking = {}
+        self.history_list_of_black_pieces_attacking = {}
+        self.history_occupied_piece_color = {}
+        self.history_occupied_piece = {}
     def attack_count_reset(self):
         self.list_of_white_pieces_attacking = []
         self.list_of_black_pieces_attacking = []
@@ -984,6 +994,16 @@ class Grid(pygame.sprite.Sprite):
             self.list_of_white_pieces_attacking.append(attack_coord)
         elif color == "black":
             self.list_of_black_pieces_attacking.append(attack_coord)
+    def save_history(self, move_counter, whoseturn):
+        move = str(move_counter)
+        if whoseturn == "white":
+            move += "a"
+        elif whoseturn == "black":
+            move += "b"
+        self.history_list_of_white_pieces_attacking[move] = self.list_of_white_pieces_attacking
+        self.history_list_of_black_pieces_attacking[move] = self.list_of_black_pieces_attacking
+        self.history_occupied_piece_color[move] = self.occupied_piece_color
+        self.history_occupied_piece[move] = self.occupied_piece
     def update(self, game_controller):
         if game_controller.game_mode == game_controller.PLAY_MODE:
             def grid_occupied_by_piece():
@@ -1627,6 +1647,7 @@ def main():
                         # White win, draw, black win
                         result_abb = ""
                         for grid in Grid.grid_list:
+                            grid.save_history(game_controller.move_counter, game_controller.WHOSETURN)
                             for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                                                PlayKnight.white_knight_list, PlayRook.white_rook_list, 
                                                PlayQueen.white_queen_list, PlayKing.white_king_list,
@@ -1954,13 +1975,13 @@ def main():
                             # REMOVE ALL SPRITES
                             remove_all_placed()
                 # MIDDLE MOUSE DEBUGGER
-                if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[1]:
+                if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[2]:
                     for grid in Grid.grid_list:
                         if grid.rect.collidepoint(MOUSEPOS):
                             print("Coordinate: " + str(grid.coordinate) \
                                    + ", White Pieces Attacking: " + str(grid.list_of_white_pieces_attacking) \
                                    + ", Black Pieces Attacking: " + str(grid.list_of_black_pieces_attacking) \
-                                   + ", Grid occupied? " + str(grid.en_passant_skipover))
+                                   + ", Grid occupied? " + str(grid.__dict__))
                             
             ##################
             # ALL EDIT ACTIONS
