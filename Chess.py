@@ -1581,12 +1581,12 @@ def main():
                                         if(Grid.grid_dict["".join(map(str, (attacker_grid)))].occupied_piece == piece_name \
                                             and piece_name != "pawn" and special_abb != "=Q"):
                                             same_piece_list.append(attacker_grid)
-                                    print("SAME PIECE LIST " + str(same_piece_list))
+                                    #print("SAME PIECE LIST " + str(same_piece_list))
                                     letter_coords = [coords_from_same_piece[0] for coords_from_same_piece in same_piece_list] 
                                     number_coords = [coords_from_same_piece[1] for coords_from_same_piece in same_piece_list] 
-                                    print("LETTER COORDS " + str(letter_coords))
-                                    print("NUMBER COORDS " + str(number_coords))
-                                    print("previous coord " + str(piece.previous_coordinate))
+                                    #print("LETTER COORDS " + str(letter_coords))
+                                    #print("NUMBER COORDS " + str(number_coords))
+                                    #print("previous coord " + str(piece.previous_coordinate))
                                     if piece.previous_coordinate[0] in letter_coords and piece.previous_coordinate[1] in number_coords:
                                         prefix = piece.previous_coordinate[0] + str(piece.previous_coordinate[1])
                                         return prefix
@@ -1766,8 +1766,6 @@ def main():
                                                         special_abb = "O-O"
                                         elif piece in PlayRook.white_rook_list or PlayRook.black_rook_list:
                                             piece.allowed_to_castle = False
-                                        # TESTING before grid update
-                                        print(move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb))
                                         # Update all grids to reflect the coordinates of the pieces
                                         GRID_SPRITES.update(game_controller)
                                         # Switch turns
@@ -1813,6 +1811,8 @@ def main():
                                             def stalemate_check(game_controller):
                                                 for subgrid in Grid.grid_list:
                                                     if subgrid.highlighted == True:
+                                                        # No check, no checkmate, no stalemate
+                                                        Text_Controller.check_checkmate_text = ""
                                                         return ""
                                                 Text_Controller.check_checkmate_text = "Stalemate"
                                                 return "1/2-1/2"
@@ -1826,6 +1826,8 @@ def main():
                                             def stalemate_check(game_controller):
                                                 for subgrid in Grid.grid_list:
                                                     if subgrid.highlighted == True:
+                                                        # No check, no checkmate, no stalemate
+                                                        Text_Controller.check_checkmate_text = ""
                                                         return ""
                                                 Text_Controller.check_checkmate_text = "Stalemate"
                                                 return "1/2-1/2"
@@ -2048,7 +2050,7 @@ def main():
             #Update all sprites
             #START_SPRITES.update()
             PLACED_SPRITES.update(Grid.grid_list)
-            PLAY_SPRITES.update()
+            #PLAY_SPRITES.update()
             SCREEN.fill(COLORKEY)
             GAME_MODE_SPRITES.draw(SCREEN)
             GRID_SPRITES.draw(SCREEN)
