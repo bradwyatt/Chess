@@ -13,6 +13,14 @@ Restart button
 If no king then don't start game
 Previous move highlighted different color
 
+Buttons to Implement:
+Previous Move
+Next Move
+Beginning of Game
+Latest move
+Game Properties (use Babaschess for model)
+Flip Board
+
 Features To-Do (long-term):
 Create function where given coordinates, return X, Y of square (for loaded_file func)
 Save positions rather than restarting when pressing stop button
@@ -104,7 +112,11 @@ def load_file(PLACED_SPRITES, colorkey, reset=False):
                        'RGB': colorkey}
     else:
         request_file_name = askopenfilename(defaultextension=".lvl")
-        open_file = open(request_file_name, "r")
+        try:
+            open_file = open(request_file_name, "r")
+        except FileNotFoundError:
+            print("File not found")
+            return PLACED_SPRITES, colorkey
         loaded_file = open_file.read()
         loaded_dict = literal_eval(loaded_file)
             
@@ -1335,18 +1347,26 @@ def main():
     DRAGGING = Dragging()
     
     PLAY_EDIT_SWITCH_BUTTON = PlayEditSwitchButton((SCREEN_WIDTH-50, 8), GAME_MODE_SPRITES)
-
+    FLIP_BOARD_BUTTON = FlipBoardButton((SCREEN_WIDTH-480, 10))
+    START_SPRITES.add(FLIP_BOARD_BUTTON)
+    GAME_PROPERTIES_BUTTON = GamePropertiesButton((SCREEN_WIDTH-430, 10))
+    START_SPRITES.add(GAME_PROPERTIES_BUTTON)
+    INFO_BUTTON = InfoButton((SCREEN_WIDTH-360, 10))
+    START_SPRITES.add(INFO_BUTTON)
+    LOAD_FILE_BUTTON = LoadFileButton((SCREEN_WIDTH-305, 10))
+    START_SPRITES.add(LOAD_FILE_BUTTON)
+    SAVE_FILE_BUTTON = SaveFileButton((SCREEN_WIDTH-270, 10))
+    START_SPRITES.add(SAVE_FILE_BUTTON)
+    COLOR_BUTTON = ColorButton((SCREEN_WIDTH-235, 10))
+    START_SPRITES.add(COLOR_BUTTON)
+    RESTART_BUTTON = RestartButton((SCREEN_WIDTH-190, 10))
+    START_SPRITES.add(RESTART_BUTTON)
     CLEAR_BUTTON = ClearButton((SCREEN_WIDTH-115, 10))
     START_SPRITES.add(CLEAR_BUTTON)
-    INFO_BUTTON = InfoButton((SCREEN_WIDTH-320, 10))
-    START_SPRITES.add(INFO_BUTTON)
-    RESTART_BUTTON = RestartButton((SCREEN_WIDTH-175, 10), PLAY_SPRITES)
-    COLOR_BUTTON = ColorButton((SCREEN_WIDTH-195, 10))
-    START_SPRITES.add(COLOR_BUTTON)
-    SAVE_FILE_BUTTON = SaveFileButton((SCREEN_WIDTH-230, 10))
-    START_SPRITES.add(SAVE_FILE_BUTTON)
-    LOAD_FILE_BUTTON = LoadFileButton((SCREEN_WIDTH-265, 10))
-    START_SPRITES.add(LOAD_FILE_BUTTON)
+    BEGINNING_MOVE_BUTTON = BeginningMoveButton((SCREEN_WIDTH-235, 500), PLAY_SPRITES)
+    PREV_MOVE_BUTTON = PrevMoveButton((SCREEN_WIDTH-195, 500), PLAY_SPRITES)
+    NEXT_MOVE_BUTTON = NextMoveButton((SCREEN_WIDTH-155, 500), PLAY_SPRITES)
+    LAST_MOVE_BUTTON = LastMoveButton((SCREEN_WIDTH-105, 500), PLAY_SPRITES)
     #Backgrounds
     INFO_SCREEN = pygame.image.load("Sprites/infoscreen.bmp").convert()
     INFO_SCREEN = pygame.transform.scale(INFO_SCREEN, (SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -1965,7 +1985,8 @@ def main():
                         game_controller.game_mode = game_controller.EDIT_MODE
                         PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(game_controller.game_mode)
                         game_controller.reset_board()
-                    if RESTART_BUTTON.rect.collidepoint(MOUSEPOS):
+                    # Undo move through PREV_MOVE_BUTTON
+                    if PREV_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
                         pass
                     if INFO_BUTTON.rect.collidepoint(MOUSEPOS):
                         MENUON = 2
