@@ -1323,7 +1323,7 @@ def draw_text(surface, text, color, rectangle, scroll, my_font):
             break
         
         # determine maximum width of line
-        while (my_font.size(text[:i])[0] < rectangle[2] and "  " not in text[:i]) and i < len(text):
+        while (my_font.size(text[:i])[0] < rectangle[2] and "." not in text[2:i]) and i < len(text):
             i += 1
 
         # if we've wrapped the text, then adjust the wrap to the last word      
@@ -1942,12 +1942,12 @@ def main():
                                                 print(move_text)
                                         elif(game_controller.WHOSETURN == "black"):
                                             if special_abb == "=Q":
-                                                move_text = "  " + str(game_controller.move_counter) + ". " + \
+                                                move_text = str(game_controller.move_counter) + ". " + \
                                                       move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb) + " "
                                                 Text_Controller.body_text += move_text
                                                 print(move_text)
                                             else:
-                                                move_text = "  " + str(game_controller.move_counter) + ". " + \
+                                                move_text = str(game_controller.move_counter) + ". " + \
                                                       move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb) + " "
                                                 Text_Controller.body_text += move_text
                                                 print(move_text)
