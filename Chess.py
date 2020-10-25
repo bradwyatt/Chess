@@ -36,6 +36,7 @@ from placed_objects import *
 from load_images_sounds import *
 from menu_buttons import *
 import random
+import re
 import sys
 import os
 import copy
@@ -1314,12 +1315,14 @@ def draw_text(surface, text, color, rectangle, scroll, my_font):
 
     # get the height of the font
     font_height = my_font.size("Tg")[1]
+    # En Passant change dot so the line break doesn't get confused with the dot in move number
+    text = text.replace("e.p.", "ep")
     while text:
         i = 1
 
         # determine if the row of text will be outside our area
         if y + font_height > rectangle[1] + rectangle[3]:
-            pass
+            break
         
         # determine maximum width of line
         while (my_font.size(text[:i])[0] < rectangle[2] and "." not in text[2:i]) and i < len(text):
