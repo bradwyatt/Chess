@@ -1307,7 +1307,6 @@ class Game_Controller():
 class Text_Controller():
     check_checkmate_text = ""
     body_text = ""
-    #body_text = "1. e4e 52.Nf 3Nc6 3.Bc 4a7 4.Bb5"
 
 def draw_text(surface, text, color, rectangle, scroll, my_font):
     y = rectangle[1]
@@ -1320,7 +1319,7 @@ def draw_text(surface, text, color, rectangle, scroll, my_font):
 
         # determine if the row of text will be outside our area
         if y + font_height > rectangle[1] + rectangle[3]:
-            break
+            pass
         
         # determine maximum width of line
         while (my_font.size(text[:i])[0] < rectangle[2] and "." not in text[2:i]) and i < len(text):
@@ -1353,7 +1352,7 @@ def draw_moves(my_font, body_text, scroll):
     #SCREEN.blit(text, [100, 20])
 
     #draw the main text
-    draw_text(SCREEN, body_text, [255,255,255], [SCREEN_WIDTH-300, 100, 200, 300], scroll, my_font)
+    draw_text(SCREEN, body_text, [255,255,255], [SCREEN_WIDTH-300, 100, 200, 500], scroll, my_font)
 
 def main():    
     #Tk box for color
@@ -1758,7 +1757,7 @@ def main():
                                                     # Must include taken_off_board bool or else you get NoneType error
                                                     if black_pawn.taken_off_board == False:
                                                         if black_pawn.coordinate[0] == grid.coordinate[0] and \
-                                                            black_pawn.coordinate[1] == 5:
+                                                            int(black_pawn.coordinate[1]) == 5:
                                                                 black_pawn.captured(game_controller.black_captured_x, black_captured_y)
                                                                 captured_abb = "x"
                                                                 special_abb = "e.p."
@@ -1767,7 +1766,7 @@ def main():
                                                     # Must include taken_off_board bool or else you get NoneType error
                                                     if white_pawn.taken_off_board == False:
                                                         if white_pawn.coordinate[0] == grid.coordinate[0] and \
-                                                            white_pawn.coordinate[1] == 4:
+                                                            int(white_pawn.coordinate[1]) == 4:
                                                                 white_pawn.captured(game_controller.white_captured_x, white_captured_y)
                                                                 captured_abb = "x"
                                                                 special_abb = "e.p."
@@ -1989,9 +1988,6 @@ def main():
                         clicked_piece.spaces_available(game_controller)
                         clicked_piece = None
 
-                #################
-                # CLICK (RELEASE)
-                ################# 
                 if event.type == pygame.MOUSEBUTTONDOWN and (event.button == 4 or event.button == 5):
                     #scroll wheel
                     if event.button == 4:
