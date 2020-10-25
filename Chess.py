@@ -8,6 +8,7 @@ Testing:
 Found a bug in castling there's a screenshot of it. This was before figuring out how to do moves, so ignore until you find again
 
 Features To-Do (short-term):
+Notation moves for moves past 10
 Record moves correctly (keep in mind which direction the other piece is coming from)
 Instead of using rect to place pieces on the grid, use coordinates
 Save states, be able to undo and redo moves
@@ -1325,7 +1326,7 @@ def draw_text(surface, text, color, rectangle, scroll, my_font):
             break
         
         # determine maximum width of line
-        while (my_font.size(text[:i])[0] < rectangle[2] and "." not in text[2:i]) and i < len(text):
+        while (my_font.size(text[:i])[0] < rectangle[2]) and i < len(text) and text[i:i+2] != "3." and text[i:i+2] != "4." and text[i:i+2] != "5.":
             i += 1
 
         # if we've wrapped the text, then adjust the wrap to the last word      
@@ -1344,7 +1345,7 @@ def draw_text(surface, text, color, rectangle, scroll, my_font):
         # remove the text we just blitted
         text = text[i:]
 
-    #return text
+    return text
                 
 #draw the text window at coordinates x,y
 def draw_moves(my_font, body_text, scroll):
@@ -1355,6 +1356,7 @@ def draw_moves(my_font, body_text, scroll):
     #SCREEN.blit(text, [100, 20])
 
     #draw the main text
+    body_text = "1.e4 c6 2.c4 d5 3.exd5 cxd5 4.cxd5 Nf6 5.Nc3 Nxd5 6.d4 Nc6 7.Nf3 e6 8.Bd3 Be7 9.O-O-O O-O-O 10.exd5 cxd5 11.exf4ep gxf4ep"
     draw_text(SCREEN, body_text, [255,255,255], [SCREEN_WIDTH-300, 100, 200, 500], scroll, my_font)
 
 def main():    
@@ -1396,6 +1398,7 @@ def main():
     
     #Fonts
     arial_font = pygame.font.SysFont('Arial', 24)
+    move_notation_font = pygame.font.SysFont('Arial', 16)
 
     #Start (Menu) Objects
     START = Start()
@@ -1944,12 +1947,12 @@ def main():
                                                 print(move_text)
                                         elif(game_controller.WHOSETURN == "black"):
                                             if special_abb == "=Q":
-                                                move_text = str(game_controller.move_counter) + ". " + \
+                                                move_text = str(game_controller.move_counter) + "." + \
                                                       move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb) + " "
                                                 Text_Controller.body_text += move_text
                                                 print(move_text)
                                             else:
-                                                move_text = str(game_controller.move_counter) + ". " + \
+                                                move_text = str(game_controller.move_counter) + "." + \
                                                       move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb) + " "
                                                 Text_Controller.body_text += move_text
                                                 print(move_text)
@@ -2163,7 +2166,7 @@ def main():
             PLACED_SPRITES.update(Grid.grid_list)
             #PLAY_SPRITES.update()
             SCREEN.fill(COLORKEY)
-            draw_moves(arial_font, Text_Controller.body_text, scroll)
+            draw_moves(move_notation_font, Text_Controller.body_text, scroll)
             GAME_MODE_SPRITES.draw(SCREEN)
             GRID_SPRITES.draw(SCREEN)
             GRID_SPRITES.update(game_controller)
