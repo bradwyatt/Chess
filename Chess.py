@@ -840,14 +840,14 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
             if self.color == "white":
                 for white_rook in PlayRook.white_rook_list:
                     if white_rook.allowed_to_castle == True:
-                        if(white_rook.coordinate == ['a', 1]):
+                        if(white_rook.coordinate == 'a1'):
                             if(Grid.grid_dict['b1'].occupied == 0 and Grid.grid_dict['c1'].occupied == 0 and Grid.grid_dict['d1'].occupied == 0 \
                                and len(Grid.grid_dict['b1'].list_of_black_pieces_attacking) == 0 and len(Grid.grid_dict['c1'].list_of_black_pieces_attacking) == 0 \
                                and len(Grid.grid_dict['d1'].list_of_black_pieces_attacking) == 0):
                                 self.left_castle_ability = True
                             else:
                                 self.left_castle_ability = False
-                        if(white_rook.coordinate == ['h', 1]):
+                        if(white_rook.coordinate == 'h1'):
                             if(Grid.grid_dict['f1'].occupied == 0 and Grid.grid_dict['g1'].occupied == 0 \
                                and len(Grid.grid_dict['f1'].list_of_black_pieces_attacking) == 0 and len(Grid.grid_dict['g1'].list_of_black_pieces_attacking) == 0):
                                 self.right_castle_ability = True
@@ -856,14 +856,14 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
             elif self.color == "black":
                 for black_rook in PlayRook.black_rook_list:
                     if black_rook.allowed_to_castle == True:
-                        if(black_rook.coordinate == ['a', 8]):
+                        if(black_rook.coordinate == 'a8'):
                             if(Grid.grid_dict['b8'].occupied == 0 and Grid.grid_dict['c8'].occupied == 0 and Grid.grid_dict['d8'].occupied == 0 \
                                and len(Grid.grid_dict['b8'].list_of_white_pieces_attacking) == 0 and len(Grid.grid_dict['c8'].list_of_white_pieces_attacking) == 0 \
                                and len(Grid.grid_dict['d8'].list_of_white_pieces_attacking) == 0):
                                 self.left_castle_ability = True
                             else:
                                 self.left_castle_ability = False
-                        if(black_rook.coordinate == ['h', 8]):
+                        if(black_rook.coordinate == 'h8'):
                             if(Grid.grid_dict['f8'].occupied == 0 and Grid.grid_dict['g8'].occupied == 0 \
                                and len(Grid.grid_dict['f8'].list_of_white_pieces_attacking) == 0 and len(Grid.grid_dict['g8'].list_of_white_pieces_attacking) == 0):
                                 self.right_castle_ability = True
@@ -903,7 +903,7 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
                     self.left_castle_ability == 1 and (int(self.coordinate[1]) == 1 or int(self.coordinate[1])==8)):
                         grid.attack_count_increment(self.color, self.coordinate)
     def spaces_available(self, game_controller):
-        if((self.color == "white" and self.coordinate == ['e', 1]) or (self.color == "black" and self.coordinate == ['e', 8])):
+        if((self.color == "white" and self.coordinate == 'e1') or (self.color == "black" and self.coordinate == 'e8')):
             self.castle_check(game_controller)
         for grid in Grid.grid_list:
             # Direct Enemy Threat refers to how many opposing color pieces are attacking square
