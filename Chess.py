@@ -1,6 +1,8 @@
 """
 Chess created by Brad Wyatt
 Python 3
+Credits:
+Scroll bar for moves based on https://www.reddit.com/r/pygame/comments/94czzs/text_boxes_with_scrollbars_and_changing_buttons/
 
 Testing:
 Found a bug in castling there's a screenshot of it. This was before figuring out how to do moves, so ignore until you find again
@@ -55,6 +57,7 @@ STARTPOS = {'white_pawn': (480, 390), 'white_bishop':(480, 340), 'white_knight':
 
 
 START_SPRITES = pygame.sprite.Group()
+
 
 def snap_to_grid(pos, x_range, y_range):
     best_num_X, best_num_Y = x_range[0], y_range[0] #So Y doesn't go above the menu
@@ -1153,9 +1156,6 @@ def remove_all_placed():
     PlacedRook.black_rook_list = []
     PlacedQueen.black_queen_list = []
     PlacedKing.black_king_list = []
-
-class Text_Controller():
-    check_checkmate_text = ""
     
 class PGN_Writer():
     def __init__(self):
@@ -1302,13 +1302,67 @@ class Game_Controller():
         self.color_in_check = color
         self.check_attacking_coordinates = check_attacking_coordinates
         self.attacker_piece = attacker_piece
-                            
+
+
+class Text_Controller():
+    check_checkmate_text = ""
+    body_text = ""
+    #body_text = "1. e4e 52.Nf 3Nc6 3.Bc 4a7 4.Bb5"
+
+def draw_text(surface, text, color, rectangle, scroll, my_font):
+    y = rectangle[1]
+    line_spacing = 2
+
+    # get the height of the font
+    font_height = my_font.size("Tg")[1]
+    while text:
+        i = 1
+
+        # determine if the row of text will be outside our area
+        if y + font_height > rectangle[1] + rectangle[3]:
+            break
+        
+        # determine maximum width of line
+        while (my_font.size(text[:i])[0] < rectangle[2] and "  " not in text[:i]) and i < len(text):
+            i += 1
+
+        # if we've wrapped the text, then adjust the wrap to the last word      
+        if i < len(text): 
+            i = text.rfind(" ", 0, i) + 1
+
+        if scroll > 0:
+            scroll -= 1
+        else:
+            # render the line and blit it to the surface
+            image = my_font.render(text[:i], True, color)
+
+            surface.blit(image, (rectangle[0], y))
+            y += font_height + line_spacing
+
+        # remove the text we just blitted
+        text = text[i:]
+
+    #return text
+                
+#draw the text window at coordinates x,y
+def draw_moves(my_font, body_text, scroll):
+    #screen.blit(bg_image, (0,0))
+    
+    #draw the floating header
+    #text = my_font.render(header_text, True, [255,255,255])
+    #SCREEN.blit(text, [100, 20])
+
+    #draw the main text
+    draw_text(SCREEN, body_text, [255,255,255], [SCREEN_WIDTH-300, 100, 200, 300], scroll, my_font)
+
 def main():    
     #Tk box for color
     root = tk.Tk()
     root.withdraw()
     #Global variables
     MENUON = 1
+    scroll = 0
+    #header_text = "This is the header text which will not scroll"
     
     #################
     # USER CAN SET BELOW PARAMETERS
@@ -1879,17 +1933,24 @@ def main():
                                         if(game_controller.WHOSETURN == "white"):
                                             if special_abb == "=Q":
                                                 # When the piece became promoted to a Queen
-                                                print(move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb))
+                                                move_text = move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb) + " "
+                                                Text_Controller.body_text += move_text
+                                                print(move_text)
                                             else:
-                                                
-                                                print(move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb))
+                                                move_text = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb) + " "
+                                                Text_Controller.body_text += move_text
+                                                print(move_text)
                                         elif(game_controller.WHOSETURN == "black"):
                                             if special_abb == "=Q":
-                                                print(str(game_controller.move_counter) + "." + \
-                                                      move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb))
+                                                move_text = "  " + str(game_controller.move_counter) + ". " + \
+                                                      move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb) + " "
+                                                Text_Controller.body_text += move_text
+                                                print(move_text)
                                             else:
-                                                print(str(game_controller.move_counter) + "." + \
-                                                      move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb))
+                                                move_text = "  " + str(game_controller.move_counter) + ". " + \
+                                                      move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb) + " "
+                                                Text_Controller.body_text += move_text
+                                                print(move_text)
                                         if result_abb != "":
                                             print("  " + result_abb)
                                         return
@@ -1931,7 +1992,14 @@ def main():
                 #################
                 # CLICK (RELEASE)
                 ################# 
-                
+                if event.type == pygame.MOUSEBUTTONDOWN and (event.button == 4 or event.button == 5):
+                    #scroll wheel
+                    if event.button == 4:
+                        if scroll > 0:
+                            scroll -= 1
+                    if event.button == 5:
+                        if scroll < 20:
+                            scroll += 1
                 if game_controller.game_mode == game_controller.EDIT_MODE:
                     # Right click on obj, destroy
                     if(event.type == MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[2]):   
@@ -1947,6 +2015,7 @@ def main():
                         # Makes clicking play again unclickable    
                         game_controller.game_mode = game_controller.PLAY_MODE
                         PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(game_controller.game_mode)
+                        Text_Controller.body_text = ""
                         print("Play Mode Activated\n")
     
                         for placed_white_pawn in PlacedPawn.white_pawn_list:
@@ -1995,6 +2064,7 @@ def main():
                             START = restart_start_objects(START)
                             # REMOVE ALL SPRITES
                             remove_all_placed()
+                
                 # MIDDLE MOUSE DEBUGGER
                 if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[1]:
                     for grid in Grid.grid_list:
@@ -2094,6 +2164,7 @@ def main():
             PLACED_SPRITES.update(Grid.grid_list)
             #PLAY_SPRITES.update()
             SCREEN.fill(COLORKEY)
+            draw_moves(arial_font, Text_Controller.body_text, scroll)
             GAME_MODE_SPRITES.draw(SCREEN)
             GRID_SPRITES.draw(SCREEN)
             GRID_SPRITES.update(game_controller)
@@ -2114,9 +2185,9 @@ def main():
             if(game_controller.game_mode == game_controller.PLAY_MODE):
                 check_checkmate_text_render = arial_font.render(Text_Controller.check_checkmate_text, 1, (0, 0, 0))
                 if game_controller.WHOSETURN == "white":
-                    whose_turn_text = arial_font.render("White's move to turn", 1, (0, 0, 0))
+                    whose_turn_text = arial_font.render("White's move", 1, (0, 0, 0))
                 elif game_controller.WHOSETURN == "black":
-                    whose_turn_text = arial_font.render("Black's move to turn", 1, (0, 0, 0))
+                    whose_turn_text = arial_font.render("Black's move", 1, (0, 0, 0))
                 SCREEN.blit(whose_turn_text, (X_GRID_END+X_GRID_WIDTH, SCREEN_HEIGHT/2))
                 SCREEN.blit(check_checkmate_text_render, (X_GRID_END+X_GRID_WIDTH, 200))
             pygame.display.update()
