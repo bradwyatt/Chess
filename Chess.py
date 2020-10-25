@@ -1326,7 +1326,8 @@ def draw_text(surface, text, color, rectangle, scroll, my_font):
             break
         
         # determine maximum width of line
-        while (my_font.size(text[:i])[0] < rectangle[2]) and i < len(text) and text[i:i+2] != "3." and text[i:i+2] != "4." and text[i:i+2] != "5.":
+        while (my_font.size(text[:i])[0] < rectangle[2]) and i < len(text) and text[i:i+2] != "3." and text[i:i+2] != "4." and text[i:i+2] != "5." \
+            and text[i:i+2] != "6." and text[i:i+2] != "7." and text[i:i+2] != "8." and text[i:i+2] != "9." and text[i:i+3] != "10." and text[i:i+3] != "11.":
             i += 1
 
         # if we've wrapped the text, then adjust the wrap to the last word      
