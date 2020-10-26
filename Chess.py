@@ -1319,20 +1319,28 @@ def draw_text(surface, text, color, rectangle, scroll, my_font):
     # En Passant change dot so the line break doesn't get confused with the dot in move number
     text = text.replace("e.p.", "ep")
     while text:
-        i = 1
+        #i = 1
 
         # determine if the row of text will be outside our area
         if y + font_height > rectangle[1] + rectangle[3]:
             break
         
         # determine maximum width of line
-        while (my_font.size(text[:i])[0] < rectangle[2]) and i < len(text) and (bool(re.match(re.compile(r'\d\.'), text[i:i+2])) == False and \
-                                                                                bool(re.match(re.compile(r'\d\d\.'), text[i:i+3])) == False):
-            i += 1
+        for i in range(1, len(text)):
+            if bool(re.findall(re.compile(r'\d{2}\.'), text[i:i+3])) == True:
+                break
+            elif bool(re.findall(re.compile(r'\d\.'), text[i:i+2])) == True:
+                if(text[i-1].isdigit()):
+                    continue
+                else:
+                    break
+        #while (my_font.size(text[:i])[0] < rectangle[2]) and i < len(text) and bool(re.match(re.compile(r'\d{1,2}\.'), text[i:i+3])) == False:
+        #    print("Text: " + text + " I: " + str(i))
+        #    i += 1
 
         # if we've wrapped the text, then adjust the wrap to the last word      
         if i < len(text): 
-            i = text.rfind(" ", 0, i) + 1
+            i = text.rfind(" ", 0, i) + 2
 
 
         if scroll > 0:
@@ -1358,7 +1366,7 @@ def draw_moves(my_font, body_text, scroll):
     #SCREEN.blit(text, [100, 20])
 
     #draw the main text
-    #body_text = "1.e4 c6 2.c4 d5 3.exd5 cxd5 4.cxd5 Nf6 5.Nc3 Nxd5 6.d4 Nc6 7.Nf3 e6 8.Bd3 Be7 9.O-O-O O-O-O 10.exd5 cxd5 11.exf4ep gxf4ep"
+    body_text = "1.e4 c6 2.c4 d5 3.exd5 cxd5 4.cxd5 Nf6 5.Nc3 Nxd5 6.d4 Nc6 7.Nf3 e6 8.Bd3 Be7 9.O-O-O O-O-O 10.exd5 cxd5 11.exf4ep gxf4ep 12.exf4ep"
     #body_text = "1.e4 c6 2.c4 d5 3.exd5 cxd5 4.cxd5 Nf6 5.Nc3 Nxd5 6.d4 Nc6 7.Nf3 e6 8.Bd3 Be7 9.O-O-O O-O-O"
     draw_text(SCREEN, body_text, [255,255,255], [SCREEN_WIDTH-300, 100, 200, 500], scroll, my_font)
 
