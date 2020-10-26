@@ -1319,13 +1319,12 @@ def draw_text(surface, text, color, rectangle, scroll, my_font):
     # En Passant change dot so the line break doesn't get confused with the dot in move number
     text = text.replace("e.p.", "ep")
     while text:
-        #i = 1
-
+        
         # determine if the row of text will be outside our area
         if y + font_height > rectangle[1] + rectangle[3]:
             break
         
-        # determine maximum width of line
+        # determine maximum width of line purely based on the starting move digits on white's turn
         for i in range(1, len(text)):
             if bool(re.findall(re.compile(r'\d{2}\.'), text[i:i+3])) == True:
                 break
@@ -1334,14 +1333,6 @@ def draw_text(surface, text, color, rectangle, scroll, my_font):
                     continue
                 else:
                     break
-        #while (my_font.size(text[:i])[0] < rectangle[2]) and i < len(text) and bool(re.match(re.compile(r'\d{1,2}\.'), text[i:i+3])) == False:
-        #    print("Text: " + text + " I: " + str(i))
-        #    i += 1
-
-        # if we've wrapped the text, then adjust the wrap to the last word      
-        if i < len(text): 
-            i = text.rfind(" ", 0, i) + 2
-
 
         if scroll > 0:
             scroll -= 1
@@ -1354,6 +1345,7 @@ def draw_text(surface, text, color, rectangle, scroll, my_font):
 
         # remove the text we just blitted
         text = text[i:]
+        
 
     return text
                 
@@ -1366,9 +1358,11 @@ def draw_moves(my_font, body_text, scroll):
     #SCREEN.blit(text, [100, 20])
 
     #draw the main text
-    body_text = "1.e4 c6 2.c4 d5 3.exd5 cxd5 4.cxd5 Nf6 5.Nc3 Nxd5 6.d4 Nc6 7.Nf3 e6 8.Bd3 Be7 9.O-O-O O-O-O 10.exd5 cxd5 11.exf4ep gxf4ep 12.exf4ep"
-    #body_text = "1.e4 c6 2.c4 d5 3.exd5 cxd5 4.cxd5 Nf6 5.Nc3 Nxd5 6.d4 Nc6 7.Nf3 e6 8.Bd3 Be7 9.O-O-O O-O-O"
-    draw_text(SCREEN, body_text, [255,255,255], [SCREEN_WIDTH-300, 100, 200, 500], scroll, my_font)
+    body_text = "1.e4 c6 2.c4 d5 3.exd5 cxd5 4.cxd5 Nf6 5.Nc3 Nxd5 6.d4 Nc6 7.Nf3 e6 8.Bd3 Be7 \
+        9.O-O O-O 10.Re1 Bf6 11.Be4 Nce7 12.a3 Rb8 13.h4 b6 14.Qd3 g6 15.h5 Bb7 16.Bh6 Re8 \
+        17.Rac1 Nxc3 18.bxc3 Bxe4 19.Rxe4 Nf5 20.Bf4 Rc8 21.hxg6 hxg6 22.Be5 Bxe5 \
+        23.Nxe5 Qg5 24.Rd1 Kg7 25.Qf3 Rh8 "
+    draw_text(SCREEN, body_text, [255,255,255], [SCREEN_WIDTH-200, 100, 200, 400], scroll, my_font)
 
 def main():    
     #Tk box for color
@@ -1433,10 +1427,10 @@ def main():
     START_SPRITES.add(RESTART_BUTTON)
     CLEAR_BUTTON = ClearButton((SCREEN_WIDTH-115, 10))
     START_SPRITES.add(CLEAR_BUTTON)
-    BEGINNING_MOVE_BUTTON = BeginningMoveButton((SCREEN_WIDTH-235, 500), PLAY_SPRITES)
-    PREV_MOVE_BUTTON = PrevMoveButton((SCREEN_WIDTH-195, 500), PLAY_SPRITES)
-    NEXT_MOVE_BUTTON = NextMoveButton((SCREEN_WIDTH-155, 500), PLAY_SPRITES)
-    LAST_MOVE_BUTTON = LastMoveButton((SCREEN_WIDTH-105, 500), PLAY_SPRITES)
+    BEGINNING_MOVE_BUTTON = BeginningMoveButton((SCREEN_WIDTH-235, 520), PLAY_SPRITES)
+    PREV_MOVE_BUTTON = PrevMoveButton((SCREEN_WIDTH-195, 520), PLAY_SPRITES)
+    NEXT_MOVE_BUTTON = NextMoveButton((SCREEN_WIDTH-155, 520), PLAY_SPRITES)
+    LAST_MOVE_BUTTON = LastMoveButton((SCREEN_WIDTH-105, 520), PLAY_SPRITES)
     #Backgrounds
     INFO_SCREEN = pygame.image.load("Sprites/infoscreen.bmp").convert()
     INFO_SCREEN = pygame.transform.scale(INFO_SCREEN, (SCREEN_WIDTH, SCREEN_HEIGHT))
