@@ -1326,13 +1326,14 @@ def draw_text(surface, text, color, rectangle, scroll, my_font):
             break
         
         # determine maximum width of line
-        while (my_font.size(text[:i])[0] < rectangle[2]) and i < len(text) and text[i:i+2] != "3." and text[i:i+2] != "4." and text[i:i+2] != "5." \
-            and text[i:i+2] != "6." and text[i:i+2] != "7." and text[i:i+2] != "8." and text[i:i+2] != "9." and text[i:i+3] != "10." and text[i:i+3] != "11.":
+        while (my_font.size(text[:i])[0] < rectangle[2]) and i < len(text) and (bool(re.match(re.compile(r'\d\.'), text[i:i+2])) == False and \
+                                                                                bool(re.match(re.compile(r'\d\d\.'), text[i:i+3])) == False):
             i += 1
 
         # if we've wrapped the text, then adjust the wrap to the last word      
         if i < len(text): 
             i = text.rfind(" ", 0, i) + 1
+
 
         if scroll > 0:
             scroll -= 1
@@ -1357,7 +1358,8 @@ def draw_moves(my_font, body_text, scroll):
     #SCREEN.blit(text, [100, 20])
 
     #draw the main text
-    body_text = "1.e4 c6 2.c4 d5 3.exd5 cxd5 4.cxd5 Nf6 5.Nc3 Nxd5 6.d4 Nc6 7.Nf3 e6 8.Bd3 Be7 9.O-O-O O-O-O 10.exd5 cxd5 11.exf4ep gxf4ep"
+    #body_text = "1.e4 c6 2.c4 d5 3.exd5 cxd5 4.cxd5 Nf6 5.Nc3 Nxd5 6.d4 Nc6 7.Nf3 e6 8.Bd3 Be7 9.O-O-O O-O-O 10.exd5 cxd5 11.exf4ep gxf4ep"
+    #body_text = "1.e4 c6 2.c4 d5 3.exd5 cxd5 4.cxd5 Nf6 5.Nc3 Nxd5 6.d4 Nc6 7.Nf3 e6 8.Bd3 Be7 9.O-O-O O-O-O"
     draw_text(SCREEN, body_text, [255,255,255], [SCREEN_WIDTH-300, 100, 200, 500], scroll, my_font)
 
 def main():    
