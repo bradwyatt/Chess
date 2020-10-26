@@ -57,7 +57,7 @@ STARTPOS = {'white_pawn': (480, 390), 'white_bishop':(480, 340), 'white_knight':
              'black_pawn': (540, 390), 'black_bishop':(540, 340), 'black_knight':(540, 290),
              'black_rook':(540, 240), 'black_queen':(540, 190), 'black_king':(540, 140)}
 
-
+move_bg_image = pygame.image.load('Sprites/move_bg.png')
 START_SPRITES = pygame.sprite.Group()
 
 
@@ -1308,16 +1308,21 @@ class Game_Controller():
 
 class Text_Controller():
     check_checkmate_text = ""
+    body_text = ""
+    # Example Games
+    """
     body_text = "1.e4 c6 2.c4 d5 3.exd5 cxd5 4.cxd5 Nf6 5.Nc3 Nxd5 6.d4 Nc6 7.Nf3 e6 8.Bd3 Be7 \
         9.O-O O-O 10.Re1 Bf6 11.Be4 Nce7 12.a3 Rb8 13.h4 b6 14.Qd3 g6 15.h5 Bb7 16.Bh6 Re8 \
         17.Rac1 Nxc3 18.bxc3 Bxe4 19.Rxe4 Nf5 20.Bf4 Rc8 21.hxg6 hxg6 22.Be5 Bxe5 \
         23.Nxe5 Qg5 24.Rd1 Kg7 25.Qf3 Rh8 "
+    body_text = "1.e4 c5 2.Nf3 d6 3.Bb5+ Nc6 4.O-O Bd7 5.Re1 Nf6 6.c3 a6 7.Ba4 b5 8.Bc2 e5 9.h3 Be7 10.d4 O-O 11.d5 Na5 12.Nbd2 g6 13.b4 Nb7 14.a4 Qc7 15.Nf1 Nh5 16.Bh6 Ng7 17.Ng3 f6 18.Qd2 Rfc8 19.Ra2 a5 20.Rea1 axb4 21.cxb4 bxa4 22.Bxa4 Bxa4 23.Rxa4 Rxa4 24.Rxa4 cxb4 25.Rxb4 Nc5 26.Be3 Qd7 27.Rc4 Rb8 28.Bxc5 dxc5 29.Nf1 Ne8 30.Qc2 Qb5 31.N3d2 Qb2 32.Qa4 Kf7 33.Rc2 Qb4 34.Qd7 Nd6 35.Ne3 Kf8 36.Kh2 Rd8 37.Qg4 Qd4 38.Nec4 f5 39.Qe2 Nxe4 40.Nxe4 Qxe4 41.Qxe4 fxe4 42.Rd2 Bg5 43.Rd1 Rb8 44.Kg1 Rb4 45.Nxe5 c4 46.Nc6 Rb2 47.Nd4 c3 48.Re1 c2 49.Nxc2 Rxc2 50.Rxe4 Rd2 51.g3 Be7 52.Rf4+ Kg7 53.Kg2 Bc5 54.h4 Rxd5 55.Rc4 Kf6 56.Rc2 Kf5 57.Ra2 Bb4 58.Rb2 Bc3 59.Rc2 Rd3 60.Kf1 Bd4 61.Kg2 Rb3 62.Rc7 h6 63.Rf7+ Ke6 64.Rf4 Bb6 65.Rf8 Rb2 66.Rf3 g5 67.hxg5 hxg5 68.Rf8 Bc5 69.Rf3 Ra2 70.Kg1 Ra7 71.Kg2 Ke5 72.Kh3 Ra4 73.Kg2 Ra2 74.Rf7 Ke4 75.Rf3 Bd4 76.Rf8 Kd3 77.Rf5 Ke4 78.Rxg5 Rxf2+ 79.Kh3 Rf8 80.Rg4+ Ke3 81.Rf4 Rg8 82.Rg4 Bg7 83.Kg2 Kd3 84.Rg6 Ke4 85.Rg5 Kd4 86.Kg1 Kd3 87.Kg2 Ke4 88.Rg4+ Kf5 89.Rf4+ Kg5 90.Kf3 Ra8 91.Rg4+ Kf6 92.Rf4+ Ke6 93.Kg2 Be5 94.Rf3 Rh8 95.Kg1 Kd5 96.Kg2 Ke4 97.Rb3 Rc8 98.Kh3 Rc2 99.Kg4 Rg2 100.Ra3 Rg1 101.Rb3 Bd6 102.Rc3 Kd4 103.Rb3 Bc5 104.Rf3 Bb4 "
+    """
     scroll = 0
     def latest_scroll(body_text, scroll):
         if body_text == "":
             return 0
         else:
-            final_move = int(re.findall(re.compile(r'\d{1,2}\.'), body_text)[-1].replace(".",""))
+            final_move = int(re.findall(re.compile(r'\d{1,3}\.'), body_text)[-1].replace(".",""))
             # 19 moves at a time
             return final_move-19
 
@@ -1337,8 +1342,13 @@ def draw_text(surface, text, color, rectangle, scroll, my_font):
         
         # determine maximum width of line purely based on the starting move digits on white's turn
         for i in range(1, len(text)):
-            if bool(re.findall(re.compile(r'\d{2}\.'), text[i:i+3])) == True:
+            if bool(re.findall(re.compile(r'\d{3}\.'), text[i:i+4])) == True:
                 break
+            elif bool(re.findall(re.compile(r'\d{2}\.'), text[i:i+3])) == True:
+                if(text[i-1].isdigit()):
+                    continue
+                else:
+                    break
             elif bool(re.findall(re.compile(r'\d\.'), text[i:i+2])) == True:
                 if(text[i-1].isdigit()):
                     continue
@@ -1362,14 +1372,16 @@ def draw_text(surface, text, color, rectangle, scroll, my_font):
                 
 #draw the text window at coordinates x,y
 def draw_moves(my_font, body_text, scroll):
-    #screen.blit(bg_image, (0,0))
+    SCREEN.blit(move_bg_image, (675,70))
     
     #draw the floating header
     #text = my_font.render(header_text, True, [255,255,255])
     #SCREEN.blit(text, [100, 20])
 
     #draw the main text
-    draw_text(SCREEN, body_text, [255,255,255], [SCREEN_WIDTH-200, 100, 200, 400], scroll, my_font)
+    draw_text(SCREEN, body_text, [255,255,255], [SCREEN_WIDTH-195, 100, 200, 400], scroll, my_font)
+
+
 
 def main():    
     #Tk box for color
@@ -1377,6 +1389,7 @@ def main():
     root.withdraw()
     #Global variables
     MENUON = 1
+    Text_Controller.scroll = Text_Controller.latest_scroll(Text_Controller.body_text, Text_Controller.scroll)
     #header_text = "This is the header text which will not scroll"
     
     #################
@@ -1436,7 +1449,7 @@ def main():
     BEGINNING_MOVE_BUTTON = BeginningMoveButton((SCREEN_WIDTH-235, 520), PLAY_SPRITES)
     PREV_MOVE_BUTTON = PrevMoveButton((SCREEN_WIDTH-195, 520), PLAY_SPRITES)
     NEXT_MOVE_BUTTON = NextMoveButton((SCREEN_WIDTH-155, 520), PLAY_SPRITES)
-    LAST_MOVE_BUTTON = LastMoveButton((SCREEN_WIDTH-105, 520), PLAY_SPRITES)
+    LAST_MOVE_BUTTON = LastMoveButton((SCREEN_WIDTH-115, 520), PLAY_SPRITES)
     #Backgrounds
     INFO_SCREEN = pygame.image.load("Sprites/infoscreen.bmp").convert()
     INFO_SCREEN = pygame.transform.scale(INFO_SCREEN, (SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -1969,6 +1982,7 @@ def main():
                                                 print(move_text)
                                         if result_abb != "":
                                             print("  " + result_abb)
+                                        Text_Controller.scroll = Text_Controller.latest_scroll(Text_Controller.body_text, Text_Controller.scroll)
                                         return
                     move_piece_on_grid()
 
@@ -2011,8 +2025,7 @@ def main():
                         if Text_Controller.scroll > 0:
                             Text_Controller.scroll -= 1
                     if event.button == 5:
-                        if Text_Controller.scroll < 20:
-                            Text_Controller.scroll += 1
+                        Text_Controller.scroll += 1
                 if game_controller.game_mode == game_controller.EDIT_MODE:
                     # Right click on obj, destroy
                     if(event.type == MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[2]):   
@@ -2179,7 +2192,7 @@ def main():
             SCREEN.fill(COLORKEY)
             
             draw_moves(move_notation_font, Text_Controller.body_text, Text_Controller.scroll)
-            Text_Controller.scroll = Text_Controller.latest_scroll(Text_Controller.body_text, Text_Controller.scroll)
+            
             GAME_MODE_SPRITES.draw(SCREEN)
             GRID_SPRITES.draw(SCREEN)
             GRID_SPRITES.update(game_controller)
