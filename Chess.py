@@ -1308,7 +1308,18 @@ class Game_Controller():
 
 class Text_Controller():
     check_checkmate_text = ""
-    body_text = ""
+    body_text = "1.e4 c6 2.c4 d5 3.exd5 cxd5 4.cxd5 Nf6 5.Nc3 Nxd5 6.d4 Nc6 7.Nf3 e6 8.Bd3 Be7 \
+        9.O-O O-O 10.Re1 Bf6 11.Be4 Nce7 12.a3 Rb8 13.h4 b6 14.Qd3 g6 15.h5 Bb7 16.Bh6 Re8 \
+        17.Rac1 Nxc3 18.bxc3 Bxe4 19.Rxe4 Nf5 20.Bf4 Rc8 21.hxg6 hxg6 22.Be5 Bxe5 \
+        23.Nxe5 Qg5 24.Rd1 Kg7 25.Qf3 Rh8 "
+    scroll = 0
+    def latest_scroll(body_text, scroll):
+        if body_text == "":
+            return 0
+        else:
+            final_move = int(re.findall(re.compile(r'\d{1,2}\.'), body_text)[-1].replace(".",""))
+            # 19 moves at a time
+            return final_move-19
 
 def draw_text(surface, text, color, rectangle, scroll, my_font):
     y = rectangle[1]
@@ -1358,10 +1369,6 @@ def draw_moves(my_font, body_text, scroll):
     #SCREEN.blit(text, [100, 20])
 
     #draw the main text
-    body_text = "1.e4 c6 2.c4 d5 3.exd5 cxd5 4.cxd5 Nf6 5.Nc3 Nxd5 6.d4 Nc6 7.Nf3 e6 8.Bd3 Be7 \
-        9.O-O O-O 10.Re1 Bf6 11.Be4 Nce7 12.a3 Rb8 13.h4 b6 14.Qd3 g6 15.h5 Bb7 16.Bh6 Re8 \
-        17.Rac1 Nxc3 18.bxc3 Bxe4 19.Rxe4 Nf5 20.Bf4 Rc8 21.hxg6 hxg6 22.Be5 Bxe5 \
-        23.Nxe5 Qg5 24.Rd1 Kg7 25.Qf3 Rh8 "
     draw_text(SCREEN, body_text, [255,255,255], [SCREEN_WIDTH-200, 100, 200, 400], scroll, my_font)
 
 def main():    
@@ -1370,7 +1377,6 @@ def main():
     root.withdraw()
     #Global variables
     MENUON = 1
-    scroll = 0
     #header_text = "This is the header text which will not scroll"
     
     #################
@@ -2002,11 +2008,11 @@ def main():
                 if event.type == pygame.MOUSEBUTTONDOWN and (event.button == 4 or event.button == 5):
                     #scroll wheel
                     if event.button == 4:
-                        if scroll > 0:
-                            scroll -= 1
+                        if Text_Controller.scroll > 0:
+                            Text_Controller.scroll -= 1
                     if event.button == 5:
-                        if scroll < 20:
-                            scroll += 1
+                        if Text_Controller.scroll < 20:
+                            Text_Controller.scroll += 1
                 if game_controller.game_mode == game_controller.EDIT_MODE:
                     # Right click on obj, destroy
                     if(event.type == MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[2]):   
@@ -2171,7 +2177,9 @@ def main():
             PLACED_SPRITES.update(Grid.grid_list)
             #PLAY_SPRITES.update()
             SCREEN.fill(COLORKEY)
-            draw_moves(move_notation_font, Text_Controller.body_text, scroll)
+            
+            draw_moves(move_notation_font, Text_Controller.body_text, Text_Controller.scroll)
+            Text_Controller.scroll = Text_Controller.latest_scroll(Text_Controller.body_text, Text_Controller.scroll)
             GAME_MODE_SPRITES.draw(SCREEN)
             GRID_SPRITES.draw(SCREEN)
             GRID_SPRITES.update(game_controller)
