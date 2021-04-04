@@ -56,6 +56,27 @@ class GamePropertiesButton(pygame.sprite.Sprite):
         self.image = IMAGES["SPR_GAME_PROPERTIES_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
+        
+class ScrollUpButton(pygame.sprite.Sprite):
+    def __init__(self, pos):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = IMAGES["SPR_SCROLL_UP_BUTTON"]
+        self.rect = self.image.get_rect()
+        self.rect.topleft = pos
+    def update(self, scroll):
+        if scroll > 0:
+            self.image = IMAGES["SPR_SCROLL_UP_BUTTON"]
+        else:
+            self.image = IMAGES["SPR_BLANKBOX"]
+    def draw(self, screen):
+        screen.blit(self.image, (self.rect.topleft))
+        
+class ScrollDownButton(pygame.sprite.Sprite):
+    def __init__(self, pos):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = IMAGES["SPR_SCROLL_DOWN_BUTTON"]
+        self.rect = self.image.get_rect()
+        self.rect.topleft = pos
 
 class BeginningMoveButton(pygame.sprite.Sprite):
     def __init__(self, pos, PLAY_SPRITES):

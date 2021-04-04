@@ -93,3 +93,5 @@ load_image("Sprites/beginning_move_button.png", "SPR_BEGINNING_MOVE_BUTTON", Tru
 load_image("Sprites/last_move_button.png", "SPR_LAST_MOVE_BUTTON", True, True)
 load_image("Sprites/next_move_button.png", "SPR_NEXT_MOVE_BUTTON", True, True)
 load_image("Sprites/prev_move_button.png", "SPR_PREV_MOVE_BUTTON", True, True)
+load_image("Sprites/scroll_up.png", "SPR_SCROLL_UP_BUTTON", True, True)
+load_image("Sprites/scroll_down.png", "SPR_SCROLL_DOWN_BUTTON", True, True)

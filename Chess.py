@@ -6,6 +6,8 @@ Scroll bar for moves based on https://www.reddit.com/r/pygame/comments/94czzs/te
 PLEASE do new console after each time exiting the program
 
 Round 2 Thoughts:
+Save a config file button
+Save button will only save PGN
 
 
 Testing:
@@ -1344,7 +1346,9 @@ class Game_Controller():
 class Text_Controller():
     check_checkmate_text = ""
     body_text = ""
+    max_moves_that_fits_pane = 19
     # Example Games
+    
     """
     body_text = "1.e4 c6 2.c4 d5 3.exd5 cxd5 4.cxd5 Nf6 5.Nc3 Nxd5 6.d4 Nc6 7.Nf3 e6 8.Bd3 Be7 \
         9.O-O O-O 10.Re1 Bf6 11.Be4 Nce7 12.a3 Rb8 13.h4 b6 14.Qd3 g6 15.h5 Bb7 16.Bh6 Re8 \
@@ -1359,7 +1363,7 @@ class Text_Controller():
         else:
             final_move = int(re.findall(re.compile(r'\d{1,3}\.'), body_text)[-1].replace(".",""))
             # 19 moves at a time
-            return final_move-19
+            return final_move-Text_Controller.max_moves_that_fits_pane
 
 def draw_text(surface, text, color, rectangle, scroll, my_font):
     y = rectangle[1]
@@ -1414,7 +1418,7 @@ def draw_moves(my_font, body_text, scroll):
     #SCREEN.blit(text, [100, 20])
 
     #draw the main text
-    draw_text(SCREEN, body_text, [255,255,255], [SCREEN_WIDTH-195, 100, 200, 400], scroll, my_font)
+    draw_text(SCREEN, body_text, [255,255,255], [SCREEN_WIDTH-195, 110, 200, 400], scroll, my_font)
 
 
 
@@ -1482,10 +1486,13 @@ def main():
         START_SPRITES.add(RESTART_BUTTON)
         CLEAR_BUTTON = ClearButton((SCREEN_WIDTH-115, 10))
         START_SPRITES.add(CLEAR_BUTTON)
-        BEGINNING_MOVE_BUTTON = BeginningMoveButton((SCREEN_WIDTH-235, 520), PLAY_SPRITES)
-        PREV_MOVE_BUTTON = PrevMoveButton((SCREEN_WIDTH-195, 520), PLAY_SPRITES)
-        NEXT_MOVE_BUTTON = NextMoveButton((SCREEN_WIDTH-155, 520), PLAY_SPRITES)
-        LAST_MOVE_BUTTON = LastMoveButton((SCREEN_WIDTH-115, 520), PLAY_SPRITES)
+        SCROLL_UP_BUTTON = ScrollUpButton((686, 80))
+        SCROLL_DOWN_BUTTON = ScrollDownButton((686, 510))
+        GAME_MODE_SPRITES.add(SCROLL_DOWN_BUTTON)
+        BEGINNING_MOVE_BUTTON = BeginningMoveButton((SCREEN_WIDTH-235, 545), PLAY_SPRITES)
+        PREV_MOVE_BUTTON = PrevMoveButton((SCREEN_WIDTH-195, 545), PLAY_SPRITES)
+        NEXT_MOVE_BUTTON = NextMoveButton((SCREEN_WIDTH-155, 545), PLAY_SPRITES)
+        LAST_MOVE_BUTTON = LastMoveButton((SCREEN_WIDTH-115, 545), PLAY_SPRITES)
         #Backgrounds
         INFO_SCREEN = pygame.image.load("Sprites/infoscreen.bmp").convert()
         INFO_SCREEN = pygame.transform.scale(INFO_SCREEN, (SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -1574,9 +1581,22 @@ def main():
                         if event.key == pygame.K_SPACE:
                             debug_message = 1
                             state = DEBUG
-                    #DRAG (only for menu and inanimate buttons at top)
+                    # Menu, inanimate buttons at top, and on right side of game board
                     if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and MOUSEPOS[0] > X_GRID_END:
-                        if game_controller.game_mode == game_controller.EDIT_MODE: #Checks if in Editing Mode
+                        if SCROLL_UP_BUTTON.rect.collidepoint(MOUSEPOS): # Scroll up
+                            print("bleh")
+                            if Text_Controller.scroll > 0:
+                                Text_Controller.scroll -= 1
+                        if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS): # Scroll down
+                            if game_controller.move_counter > Text_Controller.max_moves_that_fits_pane:
+                                if game_controller.move_counter - Text_Controller.scroll > Text_Controller.max_moves_that_fits_pane + 1 \
+                                    and game_controller.WHOSETURN == "white":
+                                        Text_Controller.scroll += 1
+                                elif game_controller.move_counter - Text_Controller.scroll > Text_Controller.max_moves_that_fits_pane \
+                                    and game_controller.WHOSETURN == "black":
+                                        Text_Controller.scroll += 1
+                        # Editing mode only
+                        if game_controller.game_mode == game_controller.EDIT_MODE:
                             #BUTTONS
                             if COLOR_BUTTON.rect.collidepoint(MOUSEPOS):
                                 COLORKEY = get_color()
@@ -2061,12 +2081,13 @@ def main():
                             if Text_Controller.scroll > 0:
                                 Text_Controller.scroll -= 1
                         if event.button == 5: # Scroll down
-                            if game_controller.move_counter > 19:
-                                if game_controller.move_counter - Text_Controller.scroll >= 20:
-                                    print("GAME CONTROLLER: " + str(game_controller.move_counter))
-                                    print("SCROLL: " + str(Text_Controller.scroll))
+                            if game_controller.move_counter > Text_Controller.max_moves_that_fits_pane:
+                                if game_controller.move_counter - Text_Controller.scroll > Text_Controller.max_moves_that_fits_pane + 1 \
+                                    and game_controller.WHOSETURN == "white":
                                     Text_Controller.scroll += 1
-                        #log.info("The scroll is " + str(Text_Controller.scroll))
+                                elif game_controller.move_counter - Text_Controller.scroll > Text_Controller.max_moves_that_fits_pane \
+                                    and game_controller.WHOSETURN == "black":
+                                    Text_Controller.scroll += 1
                     if game_controller.game_mode == game_controller.EDIT_MODE:
                         # Right click on obj, destroy
                         if(event.type == MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[2]):   
@@ -2242,6 +2263,9 @@ def main():
                     PLACED_SPRITES.draw(SCREEN)    
                 elif(game_controller.game_mode == game_controller.PLAY_MODE): #Only draw play sprites in play mode
                     PLAY_SPRITES.draw(SCREEN)
+                # Update objects that aren't in a sprite group
+                SCROLL_UP_BUTTON.update(Text_Controller.scroll)
+                SCROLL_UP_BUTTON.draw(SCREEN)
                 # Board Coordinates Drawing
                 coor_letter_text_list = [coor_A_text, coor_B_text, coor_C_text, coor_D_text, coor_E_text, coor_F_text, coor_G_text, coor_H_text]
                 for text in range(0,len(coor_letter_text_list)):
