@@ -1359,7 +1359,6 @@ class Text_Controller():
         else:
             final_move = int(re.findall(re.compile(r'\d{1,3}\.'), body_text)[-1].replace(".",""))
             # 19 moves at a time
-            log.info(final_move)
             return final_move-19
 
 def draw_text(surface, text, color, rectangle, scroll, my_font):
@@ -2058,11 +2057,16 @@ def main():
     
                     if event.type == pygame.MOUSEBUTTONDOWN and (event.button == 4 or event.button == 5):
                         #scroll wheel
-                        if event.button == 4:
+                        if event.button == 4: # Scroll up
                             if Text_Controller.scroll > 0:
                                 Text_Controller.scroll -= 1
-                        if event.button == 5:
-                            Text_Controller.scroll += 1
+                        if event.button == 5: # Scroll down
+                            if game_controller.move_counter > 19:
+                                if game_controller.move_counter - Text_Controller.scroll >= 20:
+                                    print("GAME CONTROLLER: " + str(game_controller.move_counter))
+                                    print("SCROLL: " + str(Text_Controller.scroll))
+                                    Text_Controller.scroll += 1
+                        #log.info("The scroll is " + str(Text_Controller.scroll))
                     if game_controller.game_mode == game_controller.EDIT_MODE:
                         # Right click on obj, destroy
                         if(event.type == MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[2]):   
