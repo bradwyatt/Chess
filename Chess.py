@@ -62,7 +62,7 @@ import logging.handlers
 #############
 
 today = datetime.datetime.today()
-log_file_name = "{0}.log".format(today.strftime("%Y%m%d"))
+log_file_name = "{0}.log".format(today.strftime("%Y-%m-%d %H%M%S"))
 log_file = os.path.join("C:/Users/Brad/Documents/GitHub/Chess-WORK-IN-PROGRESS-/logs/", log_file_name)
 
 log = logging.getLogger("log_guy")
@@ -155,7 +155,7 @@ def load_file(PLACED_SPRITES, colorkey, reset=False):
         try:
             open_file = open(request_file_name, "r")
         except FileNotFoundError:
-            print("File not found")
+            log.info("File not found")
             return PLACED_SPRITES, colorkey
         loaded_file = open_file.read()
         loaded_dict = literal_eval(loaded_file)
@@ -190,7 +190,7 @@ def load_file(PLACED_SPRITES, colorkey, reset=False):
     # Removes all placed lists
     remove_all_placed()
     
-    print("Removed all sprites. Now creating lists for loaded level.")
+    log.info("Removed all sprites. Now creating lists for loaded level.")
     
     for white_pawn_pos in loaded_dict['white_pawn']:
         PlacedPawn(white_pawn_pos, PLACED_SPRITES, "white")
@@ -218,7 +218,7 @@ def load_file(PLACED_SPRITES, colorkey, reset=False):
         PlacedKing(black_king_pos, PLACED_SPRITES, "black")
     colorkey = loaded_dict['RGB']
     
-    print("File Loaded")
+    log.info("File Loaded")
     return PLACED_SPRITES, colorkey
 
 def save_file(colorkey):
@@ -232,14 +232,14 @@ def save_file(colorkey):
             obj_locations['RGB'] = colorkey
             save_file_name.write(str(obj_locations))
             save_file_name.close()
-            print("File Saved Successfully.")
+            log.info("File Saved Successfully.")
         else:
-            print("Error! Need king to save!")
+            log.info("Error! Need king to save!")
     except IOError:
-        print("Save File Error, please restart game and try again.")
+        log.info("Save File Error, please restart game and try again.")
 
 def quit():
-    print('Thanks for playing')
+    log.info('Thanks for playing')
     sys.exit()
 
 #############
@@ -317,12 +317,12 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and int(grid.coordinate[1]) == int(self.coordinate[1])+1):
                         grid.attack_count_increment(self.color, self.coordinate)
                         if grid.occupied_piece == "king" and grid.occupied_piece_color == self.enemy_color:
-                            #print("Check for coordinate " + str(grid.coordinate))
+                            #log.info("Check for coordinate " + str(grid.coordinate))
                             game_controller.king_in_check("pawn", self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and int(grid.coordinate[1]) == int(self.coordinate[1])+1):
                         grid.attack_count_increment(self.color, self.coordinate)
                         if grid.occupied_piece == "king" and grid.occupied_piece_color == self.enemy_color:
-                            #print("Check for coordinate " + str(grid.coordinate))
+                            #log.info("Check for coordinate " + str(grid.coordinate))
                             game_controller.king_in_check("pawn", self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
             elif(self.color == "black"):
                 for grid in Grid.grid_list:
@@ -330,12 +330,12 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and int(grid.coordinate[1]) == int(self.coordinate[1])-1):
                         grid.attack_count_increment(self.color, self.coordinate)
                         if grid.occupied_piece == "king" and grid.occupied_piece_color == self.enemy_color:
-                            #print("Check for coordinate " + str(grid.coordinate))
+                            #log.info("Check for coordinate " + str(grid.coordinate))
                             game_controller.king_in_check("pawn", self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and int(grid.coordinate[1]) == int(self.coordinate[1])-1):
                         grid.attack_count_increment(self.color, self.coordinate)
                         if grid.occupied_piece == "king" and grid.occupied_piece_color == self.enemy_color:
-                            #print("Check for coordinate " + str(grid.coordinate))
+                            #log.info("Check for coordinate " + str(grid.coordinate))
                             game_controller.king_in_check("pawn", self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
                 
     def spaces_available(self, game_controller):
@@ -440,7 +440,7 @@ class PlayKnight(ChessPiece, pygame.sprite.Sprite):
                     if ord(grid.coordinate[0]) == ord(self.coordinate[0])+x and int(grid.coordinate[1]) == int(self.coordinate[1])+y:
                         grid.attack_count_increment(self.color, self.coordinate)
                         if grid.occupied_piece == "king" and grid.occupied_piece_color == self.enemy_color:
-                            #print("Check for coordinate " + str(grid.coordinate))
+                            #log.info("Check for coordinate " + str(grid.coordinate))
                             game_controller.king_in_check("knight", self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
             knight_proj_direction(-1, -2)
             knight_proj_direction(-1, 2)
@@ -521,13 +521,13 @@ def bishop_projected(piece_name, piece, game_controller, x, y):
                             return
                 # 2 Pieces in way, includes 1 king
                 if(pieces_in_way == 2 and king_count == 1): 
-                    #print("King is pinned on coordinate " + str(grid.coordinate))
+                    #log.info("King is pinned on coordinate " + str(grid.coordinate))
                     game_controller.pinned_piece(pinned_piece_coord, proj_attacking_coordinates, piece.enemy_color)
                     return
                 # 1 Piece in way which is King
                 # This is check, we will iterate one more time to cover the next square king is not allowed to go to
                 elif(pieces_in_way == 1 and king_count == 1 and grid.occupied_piece == "king"):
-                    #print("Check for coordinate " + str(grid.coordinate))
+                    #log.info("Check for coordinate " + str(grid.coordinate))
                     # If the grid is at the last attacking square, there won't be a next iteration, so call king_in_check
                     # Corner case where king is on the edge of the board
                     if((grid.coordinate[0] == 'a' and x == -1) or (grid.coordinate[0] == 'h' and x == 1) or \
@@ -678,13 +678,13 @@ def rook_projected(piece_name, piece, game_controller, x, y):
                             return
                 # 2 Pieces in way, includes 1 king
                 if(pieces_in_way == 2 and king_count == 1): #2 Pieces in way, includes 1 king
-                    #print("King is pinned on coordinate " + str(grid.coordinate))
+                    #log.info("King is pinned on coordinate " + str(grid.coordinate))
                     game_controller.pinned_piece(pinned_piece_coord, proj_attacking_coordinates, piece.enemy_color)
                     return
                 # 1 Piece in way which is King
                 # This is check, we will iterate one more time to cover the next square king is not allowed to go to
                 elif(pieces_in_way == 1 and king_count == 1 and grid.occupied_piece == "king"):
-                    #print("Check for coordinate " + str(grid.coordinate))
+                    #log.info("Check for coordinate " + str(grid.coordinate))
                     # If the grid is at the last attacking square, there won't be a next iteration, so call king_in_check
                     if((grid.coordinate[0] == 'a' and y == 0) or (grid.coordinate[0] == 'h' and y == 0) or \
                        (int(grid.coordinate[1]) == 1 and x == 0) or (int(grid.coordinate[1]) == 8 and x == 0)):
@@ -1359,7 +1359,7 @@ class Text_Controller():
         else:
             final_move = int(re.findall(re.compile(r'\d{1,3}\.'), body_text)[-1].replace(".",""))
             # 19 moves at a time
-            print(final_move)
+            log.info(final_move)
             return final_move-19
 
 def draw_text(surface, text, color, rectangle, scroll, my_font):
@@ -1672,7 +1672,7 @@ def main():
                                         if int(grid.coordinate[1]) != 1 and int(grid.coordinate[1]) != 8:
                                             PlacedPawn(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
                                         else:
-                                            print("You are not allowed to place a pawn on rank " + grid.coordinate[1])
+                                            log.info("You are not allowed to place a pawn on rank " + grid.coordinate[1])
                             elif DRAGGING.white_bishop:
                                 PlacedBishop(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
                             elif DRAGGING.white_knight:
@@ -1685,14 +1685,14 @@ def main():
                                 if not PlacedKing.white_king_list:
                                     PlacedKing(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
                                 else:
-                                    print("You can only have one white king.")
+                                    log.info("You can only have one white king.")
                             elif DRAGGING.black_pawn:
                                 for grid in Grid.grid_list:
                                     if grid.rect.topleft == snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE):
                                         if int(grid.coordinate[1]) != 1 and int(grid.coordinate[1]) != 8:
                                             PlacedPawn(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
                                         else:
-                                            print("You are not allowed to place a pawn on rank " + grid.coordinate[1])
+                                            log.info("You are not allowed to place a pawn on rank " + grid.coordinate[1])
                             elif DRAGGING.black_bishop:
                                 PlacedBishop(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
                             elif DRAGGING.black_knight:
@@ -1705,7 +1705,7 @@ def main():
                                 if not PlacedKing.black_king_list:
                                     PlacedKing(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
                                 else:
-                                    print("You can only have one black king.")
+                                    log.info("You can only have one black king.")
                             
                         dragging_to_placed_no_dups()
                         
@@ -1741,12 +1741,12 @@ def main():
                                             if(Grid.grid_dict[attacker_grid].occupied_piece == piece_name \
                                                 and piece_name != "pawn" and special_abb != "=Q"):
                                                 same_piece_list.append(attacker_grid)
-                                        #print("SAME PIECE LIST " + str(same_piece_list))
+                                        #log.info("SAME PIECE LIST " + str(same_piece_list))
                                         letter_coords = [coords_from_same_piece[0] for coords_from_same_piece in same_piece_list] 
                                         number_coords = [coords_from_same_piece[1] for coords_from_same_piece in same_piece_list] 
-                                        #print("LETTER COORDS " + str(letter_coords))
-                                        #print("NUMBER COORDS " + str(number_coords))
-                                        #print("previous coord " + str(piece.previous_coordinate))
+                                        #log.info("LETTER COORDS " + str(letter_coords))
+                                        #log.info("NUMBER COORDS " + str(number_coords))
+                                        #log.info("previous coord " + str(piece.previous_coordinate))
                                         if piece.previous_coordinate[0] in letter_coords and piece.previous_coordinate[1] in number_coords:
                                             prefix = piece.previous_coordinate[0] + piece.previous_coordinate[1]
                                             return prefix
@@ -2001,24 +2001,24 @@ def main():
                                                     # When the piece became promoted to a Queen
                                                     move_text = move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb) + " "
                                                     Text_Controller.body_text += move_text
-                                                    print(move_text)
+                                                    log.info(move_text)
                                                 else:
                                                     move_text = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb) + " "
                                                     Text_Controller.body_text += move_text
-                                                    print(move_text)
+                                                    log.info(move_text)
                                             elif(game_controller.WHOSETURN == "black"):
                                                 if special_abb == "=Q":
                                                     move_text = str(game_controller.move_counter) + "." + \
                                                           move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb) + " "
                                                     Text_Controller.body_text += move_text
-                                                    print(move_text)
+                                                    log.info(move_text)
                                                 else:
                                                     move_text = str(game_controller.move_counter) + "." + \
                                                           move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb) + " "
                                                     Text_Controller.body_text += move_text
-                                                    print(move_text)
+                                                    log.info(move_text)
                                             if result_abb != "":
-                                                print("  " + result_abb)
+                                                log.info("  " + result_abb)
                                             Text_Controller.scroll = Text_Controller.latest_scroll(Text_Controller.body_text, Text_Controller.scroll)
                                             return
                         move_piece_on_grid()
@@ -2079,7 +2079,7 @@ def main():
                             game_controller.game_mode = game_controller.PLAY_MODE
                             PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(game_controller.game_mode)
                             Text_Controller.body_text = ""
-                            print("Play Mode Activated\n")
+                            log.info("Play Mode Activated\n")
         
                             for placed_white_pawn in PlacedPawn.white_pawn_list:
                                 PlayPawn(placed_white_pawn.rect.topleft, PLAY_SPRITES, "white")
@@ -2113,7 +2113,7 @@ def main():
                         # LEFT CLICK (RELEASE) STOP BUTTON
                         #################
                         elif PLAY_EDIT_SWITCH_BUTTON.rect.collidepoint(MOUSEPOS) and game_controller.game_mode == game_controller.PLAY_MODE:
-                            print("\nEditing Mode Activated\n")
+                            log.info("\nEditing Mode Activated\n")
                             game_controller.game_mode = game_controller.EDIT_MODE
                             PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(game_controller.game_mode)
                             game_controller.reset_board()
@@ -2132,7 +2132,7 @@ def main():
                     if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[1]:
                         for grid in Grid.grid_list:
                             if grid.rect.collidepoint(MOUSEPOS):
-                                print("Coordinate: " + str(grid.coordinate) \
+                                log.info("Coordinate: " + str(grid.coordinate) \
                                        + ", White Pieces Attacking: " + str(grid.list_of_white_pieces_attacking) \
                                        + ", Black Pieces Attacking: " + str(grid.list_of_black_pieces_attacking) \
                                        + ", Grid occupied? " + str(grid.__dict__))
@@ -2258,10 +2258,10 @@ def main():
                 pygame.display.update()
             elif state == DEBUG:
                 if debug_message == 1:
-                    print("Entering debug mode")
+                    log.info("Entering debug mode")
                     debug_message = 0
                     # USE BREAKPOINT HERE
-                    print("Use breakpoint here")
+                    log.info("Use breakpoint here")
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         pygame.quit()
@@ -2269,8 +2269,8 @@ def main():
                     if event.type == pygame.KEYUP:
                         if event.key == pygame.K_SPACE:
                             state = RUNNING
-                            print("back to Running")
+                            log.info("back to Running")
     except:
-        log.exception()
+        log.exception("Error out of main")
 if __name__ == "__main__":
     main()
