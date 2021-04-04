@@ -1568,7 +1568,6 @@ def main():
                 START.black_queen.rect.topleft = STARTPOS['black_queen']
                 START.black_king.rect.topleft = STARTPOS['black_king']
                 
-        
                 for event in pygame.event.get():
                     if event.type == QUIT:
                         pygame.quit()
@@ -1584,7 +1583,6 @@ def main():
                     # Menu, inanimate buttons at top, and on right side of game board
                     if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and MOUSEPOS[0] > X_GRID_END:
                         if SCROLL_UP_BUTTON.rect.collidepoint(MOUSEPOS): # Scroll up
-                            print("bleh")
                             if Text_Controller.scroll > 0:
                                 Text_Controller.scroll -= 1
                         if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS): # Scroll down
@@ -2266,6 +2264,8 @@ def main():
                 # Update objects that aren't in a sprite group
                 SCROLL_UP_BUTTON.update(Text_Controller.scroll)
                 SCROLL_UP_BUTTON.draw(SCREEN)
+                SCROLL_DOWN_BUTTON.update(game_controller.move_counter, game_controller.WHOSETURN, Text_Controller.max_moves_that_fits_pane, Text_Controller.scroll)
+                SCROLL_DOWN_BUTTON.draw(SCREEN)
                 # Board Coordinates Drawing
                 coor_letter_text_list = [coor_A_text, coor_B_text, coor_C_text, coor_D_text, coor_E_text, coor_F_text, coor_G_text, coor_H_text]
                 for text in range(0,len(coor_letter_text_list)):
