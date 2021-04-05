@@ -8,6 +8,8 @@ PLEASE do new console after each time exiting the program
 Round 2 Thoughts:
 Save a config file button
 Save button will only save PGN
+Reset board vs reset position (Later- after we're able to load pgn files)
+Eventually when figuring out how to do undo move, the dead pieces should still remember their last square (in the order that they've gone away)
 
 
 Testing:
@@ -58,6 +60,8 @@ from pygame.locals import (KEYDOWN, MOUSEBUTTONDOWN, MOUSEBUTTONUP, K_LEFT,
 import datetime
 import logging
 import logging.handlers
+import pandas as pd
+import numpy as np
 
 #############
 # Logging
@@ -1208,6 +1212,33 @@ class PGN_Writer():
         self.WhiteElo = ""
         self.BlackElo = ""
         self.ECO = ""
+    def write_moves(self, df_moves):
+        try:
+            df = df_moves.copy()
+            save_file_prompt = asksaveasfilename(defaultextension=".pgn")
+            save_file_name = open(save_file_prompt, "w")
+            if save_file_name is not None:
+                # Write the file to disk
+                pgn_output = ""
+                pgn_output += '[Event "' + self.Event + '"]\n'
+                pgn_output += '[Site "' + self.Site + '"]\n'
+                pgn_output += '[Date "' + self.Date + '"]\n'
+                pgn_output += '[Round "' + self.Round + '"]\n'
+                pgn_output += '[White "' + self.White + '"]\n'
+                pgn_output += '[Black "' + self.Black + '"]\n'
+                pgn_output += '[Result "' + self.Result + '"]\n'
+                pgn_output += '[ECO "' + self.ECO + '"]\n'
+                pgn_output += '[BlackElo "' + self.BlackElo + '"]\n\n'
+                for i in df.index:
+                    pgn_output += str(i) + ". " + str(df.loc[i, 'white_move']) + " " + str(df.loc[i, 'black_move']) + " "
+                #save_file_name.write(df.to_string(header=False, index=True, decimal=" "))
+                save_file_name.write(pgn_output)
+                save_file_name.close()
+                log.info("File Saved Successfully.")
+            else:
+                log.info("Error! Need king to save!")
+        except IOError:
+            log.info("Save File Error, please restart game and try again.")
 
 class Game_Controller():
     def __init__(self):
@@ -1220,6 +1251,8 @@ class Game_Controller():
         self.black_captured_x = 50
         self.white_captured_x = 50
         self.move_counter = 1
+        self.df_moves = pd.DataFrame(columns=["white_move", "black_move"])
+        self.df_moves.index = np.arange(1, len(self.df_moves)+1) # Index at 1 rather than 0 because chess starts that way
     def reset_board(self):
         self.WHOSETURN = "white"
         self.color_in_check = ""
@@ -1229,6 +1262,8 @@ class Game_Controller():
         self.black_captured_x = 50
         self.white_captured_x = 50
         self.move_counter = 1
+        self.df_moves = pd.DataFrame(columns=["white_move", "black_move"])
+        self.df_moves.index = np.arange(1, len(self.df_moves)+1) # Index at 1 rather than 0 because chess starts that way
         Text_Controller.check_checkmate_text = ""
         for spr_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                  PlayKnight.white_knight_list, PlayRook.white_rook_list,
@@ -1468,6 +1503,8 @@ def main():
         START = Start()
         #DRAGGING Variables
         DRAGGING = Dragging()
+        
+        PGN_WRITER = PGN_Writer()
         
         PLAY_EDIT_SWITCH_BUTTON = PlayEditSwitchButton((SCREEN_WIDTH-50, 8), GAME_MODE_SPRITES)
         FLIP_BOARD_BUTTON = FlipBoardButton((SCREEN_WIDTH-480, 10))
@@ -2017,26 +2054,27 @@ def main():
                                                 if special_abb == "=Q":
                                                     # When the piece became promoted to a Queen
                                                     move_text = move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb) + " "
-                                                    Text_Controller.body_text += move_text
-                                                    log.info(move_text)
+                                                    game_controller.df_moves.loc[game_controller.move_counter-1, "black_move"] = move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
                                                 else:
                                                     move_text = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb) + " "
-                                                    Text_Controller.body_text += move_text
-                                                    log.info(move_text)
+                                                    game_controller.df_moves.loc[game_controller.move_counter-1, "black_move"] = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
+                                                Text_Controller.body_text += move_text
+                                                log.info(move_text)
                                             elif(game_controller.WHOSETURN == "black"):
                                                 if special_abb == "=Q":
-                                                    move_text = str(game_controller.move_counter) + "." + \
+                                                    move_text = str(game_controller.move_counter) + ". " + \
                                                           move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb) + " "
-                                                    Text_Controller.body_text += move_text
-                                                    log.info(move_text)
+                                                    game_controller.df_moves.loc[game_controller.move_counter] = [move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb), '']
                                                 else:
-                                                    move_text = str(game_controller.move_counter) + "." + \
+                                                    move_text = str(game_controller.move_counter) + ". " + \
                                                           move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb) + " "
-                                                    Text_Controller.body_text += move_text
-                                                    log.info(move_text)
+                                                    game_controller.df_moves.loc[game_controller.move_counter] = [move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb), '']
+                                                Text_Controller.body_text += move_text
+                                                log.info(move_text)
                                             if result_abb != "":
                                                 log.info("  " + result_abb)
                                             Text_Controller.scroll = Text_Controller.latest_scroll(Text_Controller.body_text, Text_Controller.scroll)
+                                            print(str(game_controller.df_moves))
                                             return
                         move_piece_on_grid()
     
@@ -2289,6 +2327,7 @@ def main():
                     log.info("Entering debug mode")
                     debug_message = 0
                     # USE BREAKPOINT HERE
+                    PGN_WRITER.write_moves(game_controller.df_moves)
                     log.info("Use breakpoint here")
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
