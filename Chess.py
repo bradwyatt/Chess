@@ -6,22 +6,23 @@ Scroll bar for moves based on https://www.reddit.com/r/pygame/comments/94czzs/te
 PLEASE do new console after each time exiting the program
 
 Round 2 Thoughts:
-Reset board vs reset position (Later- after we're able to load pgn files)
+Highlight move (that we're on, or examining) on the right side
+Pause mode- The board has the Placed pieces, and you can go back and forward in your analysis. But you can't bring in new pieces
 Eventually when figuring out how to do undo move, the dead pieces should still remember their last square (in the order that they've gone away)
-
+I'd really like to get rid of hardcoding values, like pos_load_file for resetting board
+Sounds
+                                                                                                         
 Testing (these are all in logs or PGN_Incorrect_Notation folder):
 Found a bug in castling there's a screenshot of it. This was before figuring out how to do moves, so ignore until you find again
 Found a bug with two queens having a spot available and then move notation didnt specify which one
 Ne2 illegal
 
 Features To-Do (short-term):
-Notation moves for moves past 10
-Record moves correctly (keep in mind which direction the other piece is coming from)
-Instead of using rect to place pieces on the grid, use coordinates
-Save states, be able to undo and redo moves
-Restart button
-If no king then don't start game
+Instead of using rect to place pieces on the grid, use coordinates (this will help when we flip the board too)
+Save states (IS THIS REALLY NEEDED?), be able to undo and redo moves
 Previous move highlighted different color
+Record moves correctly (keep in mind which direction the other piece is coming from)
+If no king then don't start game
 
 Buttons to Implement:
 Previous Move
@@ -34,10 +35,11 @@ Flip Board
 Features To-Do (long-term):
 Create function where given coordinates, return X, Y of square (for loaded_file func)
 Save positions rather than restarting when pressing stop button
-Recording moves on right side (each move has a dictionary of dictionaries of where pieces are)
-PGN format?
 Customized Turns for black and white
 Choose piece for Promotion
+
+Already Solved? :
+Notation moves for moves past 10
 """
 from start_objects import *
 from placed_objects import *
@@ -223,7 +225,7 @@ def pos_load_file(PLACED_SPRITES, colorkey, reset=False):
         PlacedKing(black_king_pos, PLACED_SPRITES, "black")
     colorkey = loaded_dict['RGB']
     
-    log.info("File Loaded")
+    log.info("Positioning Loaded Successfully")
     return PLACED_SPRITES, colorkey
 
 def pos_save_file(colorkey):
@@ -1524,8 +1526,8 @@ def main():
         PGN_SAVE_FILE_BUTTON = PGNSaveFileButton((SCREEN_WIDTH-50, 60))
         COLOR_BUTTON = ColorButton((SCREEN_WIDTH-235, 10))
         START_SPRITES.add(COLOR_BUTTON)
-        RESTART_BUTTON = RestartButton((SCREEN_WIDTH-190, 10))
-        START_SPRITES.add(RESTART_BUTTON)
+        RESET_BOARD_BUTTON = ResetBoardButton((SCREEN_WIDTH-190, 10))
+        START_SPRITES.add(RESET_BOARD_BUTTON)
         CLEAR_BUTTON = ClearButton((SCREEN_WIDTH-115, 10))
         START_SPRITES.add(CLEAR_BUTTON)
         SCROLL_UP_BUTTON = ScrollUpButton((686, 80))
@@ -1648,6 +1650,8 @@ def main():
                                 pos_save_file(COLORKEY)
                             if POS_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
                                 PLACED_SPRITES, COLORKEY = pos_load_file(PLACED_SPRITES, COLORKEY)
+                            if RESET_BOARD_BUTTON.rect.collidepoint(MOUSEPOS):
+                                PLACED_SPRITES, COLORKEY = pos_load_file(PLACED_SPRITES, COLORKEY, reset=True)
                             # DRAG OBJECTS
                             if START.white_pawn.rect.collidepoint(MOUSEPOS):
                                 DRAGGING.dragging_all_false()

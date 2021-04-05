@@ -15,10 +15,10 @@ class InfoButton(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
     
-class RestartButton(pygame.sprite.Sprite):
+class ResetBoardButton(pygame.sprite.Sprite):
     def __init__(self, pos):
         pygame.sprite.Sprite.__init__(self)
-        self.image = IMAGES["SPR_RESTART_BUTTON"]
+        self.image = IMAGES["SPR_RESET_BOARD_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
     
