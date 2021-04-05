@@ -6,14 +6,13 @@ Scroll bar for moves based on https://www.reddit.com/r/pygame/comments/94czzs/te
 PLEASE do new console after each time exiting the program
 
 Round 2 Thoughts:
-Save a config file button
-Save button will only save PGN
 Reset board vs reset position (Later- after we're able to load pgn files)
 Eventually when figuring out how to do undo move, the dead pieces should still remember their last square (in the order that they've gone away)
 
-
-Testing:
+Testing (these are all in logs or PGN_Incorrect_Notation folder):
 Found a bug in castling there's a screenshot of it. This was before figuring out how to do moves, so ignore until you find again
+Found a bug with two queens having a spot available and then move notation didnt specify which one
+Ne2 illegal
 
 Features To-Do (short-term):
 Notation moves for moves past 10
@@ -1521,6 +1520,8 @@ def main():
         START_SPRITES.add(POS_LOAD_FILE_BUTTON)
         POS_SAVE_FILE_BUTTON = PosSaveFileButton((SCREEN_WIDTH-270, 10))
         START_SPRITES.add(POS_SAVE_FILE_BUTTON)
+        PGN_LOAD_FILE_BUTTON = PGNLoadFileButton((SCREEN_WIDTH-50, 100))
+        PGN_SAVE_FILE_BUTTON = PGNSaveFileButton((SCREEN_WIDTH-50, 60))
         COLOR_BUTTON = ColorButton((SCREEN_WIDTH-235, 10))
         START_SPRITES.add(COLOR_BUTTON)
         RESTART_BUTTON = RestartButton((SCREEN_WIDTH-190, 10))
@@ -1634,6 +1635,10 @@ def main():
                                 elif game_controller.move_counter - Text_Controller.scroll > Text_Controller.max_moves_that_fits_pane \
                                     and game_controller.WHOSETURN == "black":
                                         Text_Controller.scroll += 1
+                        if PGN_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
+                            pass
+                        if PGN_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
+                            PGN_WRITER.write_moves(game_controller.df_moves, game_controller.result_abb)
                         # Editing mode only
                         if game_controller.game_mode == game_controller.EDIT_MODE:
                             #BUTTONS
@@ -2303,6 +2308,8 @@ def main():
                 SCROLL_UP_BUTTON.draw(SCREEN)
                 SCROLL_DOWN_BUTTON.update(game_controller.move_counter, game_controller.WHOSETURN, Text_Controller.max_moves_that_fits_pane, Text_Controller.scroll)
                 SCROLL_DOWN_BUTTON.draw(SCREEN)
+                PGN_LOAD_FILE_BUTTON.draw(SCREEN)
+                PGN_SAVE_FILE_BUTTON.draw(SCREEN)
                 # Board Coordinates Drawing
                 coor_letter_text_list = [coor_A_text, coor_B_text, coor_C_text, coor_D_text, coor_E_text, coor_F_text, coor_G_text, coor_H_text]
                 for text in range(0,len(coor_letter_text_list)):
@@ -2326,7 +2333,7 @@ def main():
                     log.info("Entering debug mode")
                     debug_message = 0
                     # USE BREAKPOINT HERE
-                    PGN_WRITER.write_moves(game_controller.df_moves, game_controller.result_abb)
+                    
                     log.info("Use breakpoint here")
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:

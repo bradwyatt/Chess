@@ -42,6 +42,24 @@ class PosLoadFileButton(pygame.sprite.Sprite):
         self.image = IMAGES["SPR_POS_LOAD_FILE_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
+        
+class PGNSaveFileButton(pygame.sprite.Sprite):
+    def __init__(self, pos):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = IMAGES["SPR_PGN_SAVE_FILE_BUTTON"]
+        self.rect = self.image.get_rect()
+        self.rect.topleft = pos
+    def draw(self, screen):
+        screen.blit(self.image, (self.rect.topleft))
+    
+class PGNLoadFileButton(pygame.sprite.Sprite):
+    def __init__(self, pos):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = IMAGES["SPR_PGN_LOAD_FILE_BUTTON"]
+        self.rect = self.image.get_rect()
+        self.rect.topleft = pos
+    def draw(self, screen):
+        screen.blit(self.image, (self.rect.topleft))
 
 class FlipBoardButton(pygame.sprite.Sprite):
     def __init__(self, pos):
