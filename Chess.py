@@ -146,7 +146,7 @@ def get_color():
     color = askcolor()
     return [color[0][0], color[0][1], color[0][2]]
 
-def load_file(PLACED_SPRITES, colorkey, reset=False):
+def pos_load_file(PLACED_SPRITES, colorkey, reset=False):
     open_file = None
     if reset == True:
         loaded_dict = {'white_pawn': [(48, 384), (96, 384), (144, 384), (192, 384), (240, 384), (288, 384), (336, 384), (384, 384)],
@@ -227,7 +227,7 @@ def load_file(PLACED_SPRITES, colorkey, reset=False):
     log.info("File Loaded")
     return PLACED_SPRITES, colorkey
 
-def save_file(colorkey):
+def pos_save_file(colorkey):
     try:
         # default extension is optional, here will add .txt if missing
         save_file_prompt = asksaveasfilename(defaultextension=".lvl")
@@ -1212,7 +1212,7 @@ class PGN_Writer():
         self.WhiteElo = ""
         self.BlackElo = ""
         self.ECO = ""
-    def write_moves(self, df_moves):
+    def write_moves(self, df_moves, result_abb):
         try:
             df = df_moves.copy()
             save_file_prompt = asksaveasfilename(defaultextension=".pgn")
@@ -1230,8 +1230,12 @@ class PGN_Writer():
                 pgn_output += '[ECO "' + self.ECO + '"]\n'
                 pgn_output += '[BlackElo "' + self.BlackElo + '"]\n\n'
                 for i in df.index:
-                    pgn_output += str(i) + ". " + str(df.loc[i, 'white_move']) + " " + str(df.loc[i, 'black_move']) + " "
-                #save_file_name.write(df.to_string(header=False, index=True, decimal=" "))
+                    # If black hasn't moved then shorten the pgn output so it doesn't give two spaces
+                    if str(df.loc[i, 'black_move']) == "":
+                        pgn_output += str(i) + ". " + str(df.loc[i, 'white_move']) + " "
+                    else:
+                        pgn_output += str(i) + ". " + str(df.loc[i, 'white_move']) + " " + str(df.loc[i, 'black_move']) + " "
+                pgn_output += result_abb
                 save_file_name.write(pgn_output)
                 save_file_name.close()
                 log.info("File Saved Successfully.")
@@ -1253,6 +1257,7 @@ class Game_Controller():
         self.move_counter = 1
         self.df_moves = pd.DataFrame(columns=["white_move", "black_move"])
         self.df_moves.index = np.arange(1, len(self.df_moves)+1) # Index at 1 rather than 0 because chess starts that way
+        self.result_abb = "*"
     def reset_board(self):
         self.WHOSETURN = "white"
         self.color_in_check = ""
@@ -1264,6 +1269,7 @@ class Game_Controller():
         self.move_counter = 1
         self.df_moves = pd.DataFrame(columns=["white_move", "black_move"])
         self.df_moves.index = np.arange(1, len(self.df_moves)+1) # Index at 1 rather than 0 because chess starts that way
+        self.result_abb = "*"
         Text_Controller.check_checkmate_text = ""
         for spr_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                  PlayKnight.white_knight_list, PlayRook.white_rook_list,
@@ -1511,10 +1517,10 @@ def main():
         START_SPRITES.add(GAME_PROPERTIES_BUTTON)
         INFO_BUTTON = InfoButton((SCREEN_WIDTH-360, 10))
         START_SPRITES.add(INFO_BUTTON)
-        LOAD_FILE_BUTTON = LoadFileButton((SCREEN_WIDTH-305, 10))
-        START_SPRITES.add(LOAD_FILE_BUTTON)
-        SAVE_FILE_BUTTON = SaveFileButton((SCREEN_WIDTH-270, 10))
-        START_SPRITES.add(SAVE_FILE_BUTTON)
+        POS_LOAD_FILE_BUTTON = PosLoadFileButton((SCREEN_WIDTH-305, 10))
+        START_SPRITES.add(POS_LOAD_FILE_BUTTON)
+        POS_SAVE_FILE_BUTTON = PosSaveFileButton((SCREEN_WIDTH-270, 10))
+        START_SPRITES.add(POS_SAVE_FILE_BUTTON)
         COLOR_BUTTON = ColorButton((SCREEN_WIDTH-235, 10))
         START_SPRITES.add(COLOR_BUTTON)
         RESTART_BUTTON = RestartButton((SCREEN_WIDTH-190, 10))
@@ -1583,7 +1589,7 @@ def main():
                         grid.color = "green"
                         
         # Load the starting positions of chessboard first
-        load_file(PLACED_SPRITES, COLORKEY, reset=True)
+        pos_load_file(PLACED_SPRITES, COLORKEY, reset=True)
             
         while True:
             CLOCK.tick(60)
@@ -1633,10 +1639,10 @@ def main():
                             #BUTTONS
                             if COLOR_BUTTON.rect.collidepoint(MOUSEPOS):
                                 COLORKEY = get_color()
-                            if SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
-                                save_file(COLORKEY)
-                            if LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
-                                PLACED_SPRITES, COLORKEY = load_file(PLACED_SPRITES, COLORKEY)
+                            if POS_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
+                                pos_save_file(COLORKEY)
+                            if POS_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
+                                PLACED_SPRITES, COLORKEY = pos_load_file(PLACED_SPRITES, COLORKEY)
                             # DRAG OBJECTS
                             if START.white_pawn.rect.collidepoint(MOUSEPOS):
                                 DRAGGING.dragging_all_false()
@@ -1835,7 +1841,7 @@ def main():
                             # Check or checkmate
                             check_abb = ""
                             # White win, draw, black win
-                            result_abb = ""
+                            game_controller.result_abb = "*"
                             for grid in Grid.grid_list:
                                 grid.save_history(game_controller.move_counter, game_controller.WHOSETURN)
                                 for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
@@ -1993,10 +1999,10 @@ def main():
                                                 def checkmate_check(game_controller):
                                                     for subgrid in Grid.grid_list:
                                                         if subgrid.highlighted == True:
-                                                            return "+", ""
+                                                            return "+", "*"
                                                     Text_Controller.check_checkmate_text = "White wins"
                                                     return "#", "1-0"
-                                                check_abb, result_abb = checkmate_check(game_controller)
+                                                check_abb, game_controller.result_abb = checkmate_check(game_controller)
                                             elif game_controller.color_in_check == "white":
                                                 Text_Controller.check_checkmate_text = "White King checked"
                                                 for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
@@ -2007,10 +2013,10 @@ def main():
                                                 def checkmate_check(game_controller):
                                                     for subgrid in Grid.grid_list:
                                                         if subgrid.highlighted == True:
-                                                            return "+", ""
+                                                            return "+", "*"
                                                     Text_Controller.check_checkmate_text = "Black wins"
                                                     return "#", "0-1"
-                                                check_abb, result_abb = checkmate_check(game_controller)
+                                                check_abb, game_controller.result_abb = checkmate_check(game_controller)
                                             elif game_controller.color_in_check == "" and game_controller.WHOSETURN == "white":
                                                 for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                                                                    PlayKnight.white_knight_list, PlayRook.white_rook_list, 
@@ -2022,10 +2028,10 @@ def main():
                                                         if subgrid.highlighted == True:
                                                             # No check, no checkmate, no stalemate
                                                             Text_Controller.check_checkmate_text = ""
-                                                            return ""
+                                                            return "*"
                                                     Text_Controller.check_checkmate_text = "Stalemate"
                                                     return "1/2-1/2"
-                                                result_abb = stalemate_check(game_controller)
+                                                game_controller.result_abb = stalemate_check(game_controller)
                                             elif game_controller.color_in_check == "" and game_controller.WHOSETURN == "black":
                                                 for piece_list in [PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
                                                                    PlayKnight.black_knight_list, PlayRook.black_rook_list, 
@@ -2037,10 +2043,10 @@ def main():
                                                         if subgrid.highlighted == True:
                                                             # No check, no checkmate, no stalemate
                                                             Text_Controller.check_checkmate_text = ""
-                                                            return ""
+                                                            return "*"
                                                     Text_Controller.check_checkmate_text = "Stalemate"
                                                     return "1/2-1/2"
-                                                result_abb = stalemate_check(game_controller)
+                                                game_controller.result_abb = stalemate_check(game_controller)
                                             else:
                                                 # No checks
                                                 Text_Controller.check_checkmate_text = ""
@@ -2065,10 +2071,9 @@ def main():
                                                     game_controller.df_moves.loc[game_controller.move_counter] = [move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb), '']
                                                 Text_Controller.body_text += move_text
                                                 log.info(move_text)
-                                            if result_abb != "":
-                                                log.info("  " + result_abb)
+                                            if game_controller.result_abb != "*":
+                                                log.info(" " + game_controller.result_abb)
                                             Text_Controller.scroll = Text_Controller.latest_scroll(Text_Controller.body_text, Text_Controller.scroll)
-                                            print(str(game_controller.df_moves))
                                             return
                         move_piece_on_grid()
     
@@ -2321,7 +2326,7 @@ def main():
                     log.info("Entering debug mode")
                     debug_message = 0
                     # USE BREAKPOINT HERE
-                    PGN_WRITER.write_moves(game_controller.df_moves)
+                    PGN_WRITER.write_moves(game_controller.df_moves, game_controller.result_abb)
                     log.info("Use breakpoint here")
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
@@ -2331,6 +2336,8 @@ def main():
                         if event.key == pygame.K_SPACE:
                             state = RUNNING
                             log.info("back to Running")
+    except SystemExit:
+        pass
     except:
         log.exception("Error out of main")
 if __name__ == "__main__":

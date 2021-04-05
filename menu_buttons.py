@@ -29,17 +29,17 @@ class ColorButton(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         
-class SaveFileButton(pygame.sprite.Sprite):
+class PosSaveFileButton(pygame.sprite.Sprite):
     def __init__(self, pos):
         pygame.sprite.Sprite.__init__(self)
-        self.image = IMAGES["SPR_SAVE_FILE_BUTTON"]
+        self.image = IMAGES["SPR_POS_SAVE_FILE_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
     
-class LoadFileButton(pygame.sprite.Sprite):
+class PosLoadFileButton(pygame.sprite.Sprite):
     def __init__(self, pos):
         pygame.sprite.Sprite.__init__(self)
-        self.image = IMAGES["SPR_LOAD_FILE_BUTTON"]
+        self.image = IMAGES["SPR_POS_LOAD_FILE_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
 
