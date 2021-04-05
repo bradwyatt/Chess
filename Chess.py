@@ -1406,8 +1406,6 @@ def draw_text(surface, text, color, rectangle, scroll, my_font):
 
     # get the height of the font
     font_height = my_font.size("Tg")[1]
-    # En Passant change dot so the line break doesn't get confused with the dot in move number
-    text = text.replace("e.p.", "ep")
     while text:
         
         # determine if the row of text will be outside our area
@@ -1824,8 +1822,6 @@ def main():
                                 recorded_move = special_abb + check_abb
                             elif special_abb == "O-O-O":
                                 recorded_move = special_abb + check_abb
-                            elif special_abb == "e.p.":
-                                recorded_move = piece_abb + prefix + captured_abb + piece.coordinate[0] + piece.coordinate[1] + special_abb + check_abb
                             elif special_abb == "=Q":
                                 recorded_move = prefix + captured_abb + piece.coordinate[0] + piece.coordinate[1] + special_abb + check_abb
                             return recorded_move
@@ -1834,7 +1830,7 @@ def main():
                         def move_piece_on_grid(black_captured_y=525, white_captured_y=15, incremental_x=40):
                             # Default captured_abb for function to be empty string
                             captured_abb = ""
-                            # En passant, castle, pawn promotion
+                            # Castle, pawn promotion
                             special_abb = ""
                             # Check or checkmate
                             check_abb = ""
@@ -1881,7 +1877,6 @@ def main():
                                                                 int(black_pawn.coordinate[1]) == 5:
                                                                     black_pawn.captured(game_controller.black_captured_x, black_captured_y)
                                                                     captured_abb = "x"
-                                                                    special_abb = "e.p."
                                                 elif piece in PlayPawn.black_pawn_list:
                                                     for white_pawn in PlayPawn.white_pawn_list:
                                                         # Must include taken_off_board bool or else you get NoneType error
@@ -1890,7 +1885,6 @@ def main():
                                                                 int(white_pawn.coordinate[1]) == 4:
                                                                     white_pawn.captured(game_controller.white_captured_x, white_captured_y)
                                                                     captured_abb = "x"
-                                                                    special_abb = "e.p."
                                                                 
                                             # Reset en passant skipover for all squares
                                             for sub_grid in Grid.grid_list:
