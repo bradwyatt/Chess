@@ -6,7 +6,7 @@ Scroll bar for moves based on https://www.reddit.com/r/pygame/comments/94czzs/te
 PLEASE do new console after each time exiting the program
 
 Round 2 Thoughts:
-Highlight move (that we're on, or examining) on the right side
+Highlight move (that we're on, or examining) on the right side. I will probably want to get move number on left side and white move, and then black move several spaces from the end of the width. Will need to work on body_text Text_Controller stuff
 Pause mode- The board has the Placed pieces, and you can go back and forward in your analysis. But you can't bring in new pieces
 Eventually when figuring out how to do undo move, the dead pieces should still remember their last square (in the order that they've gone away)
 I'd really like to get rid of hardcoding values, like pos_load_file for resetting board
@@ -2081,7 +2081,7 @@ def main():
                                                 Text_Controller.body_text += move_text
                                                 log.info(move_text)
                                             if game_controller.result_abb != "*":
-                                                log.info(" " + game_controller.result_abb)
+                                                log.info(game_controller.result_abb)
                                             Text_Controller.scroll = Text_Controller.latest_scroll(Text_Controller.body_text, Text_Controller.scroll)
                                             return
                         move_piece_on_grid()
