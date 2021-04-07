@@ -1390,12 +1390,11 @@ class Text_Controller():
     body_text = ""
     max_moves_that_fits_pane = 19
     # Example Games
-    
     """
-    body_text = "1.e4 c6 2.c4 d5 3.exd5 cxd5 4.cxd5 Nf6 5.Nc3 Nxd5 6.d4 Nc6 7.Nf3 e6 8.Bd3 Be7 \
-        9.O-O O-O 10.Re1 Bf6 11.Be4 Nce7 12.a3 Rb8 13.h4 b6 14.Qd3 g6 15.h5 Bb7 16.Bh6 Re8 \
-        17.Rac1 Nxc3 18.bxc3 Bxe4 19.Rxe4 Nf5 20.Bf4 Rc8 21.hxg6 hxg6 22.Be5 Bxe5 \
-        23.Nxe5 Qg5 24.Rd1 Kg7 25.Qf3 Rh8 "
+    body_text = "1. e4 c6 2. c4 d5 3. exd5 cxd5 4. cxd5 Nf6 5. Nc3 Nxd5 6. d4 Nc6 7. Nf3 e6 8. Bd3 Be7 \
+        9. O-O O-O 10. Re1 Bf6 11. Be4 Nce7 12. a3 Rb8 13. h4 b6 14. Qd3 g6 15. h5 Bb7 16. Bh6 Re8 \
+        17. Rac1 Nxc3 18. bxc3 Bxe4 19. Rxe4 Nf5 20. Bf4 Rc8 21. hxg6 hxg6 22. Be5 Bxe5 \
+        23. Nxe5 Qg5 24. Rd1 Kg7 25. Qf3 Rh8 "
     body_text = "1.e4 c5 2.Nf3 d6 3.Bb5+ Nc6 4.O-O Bd7 5.Re1 Nf6 6.c3 a6 7.Ba4 b5 8.Bc2 e5 9.h3 Be7 10.d4 O-O 11.d5 Na5 12.Nbd2 g6 13.b4 Nb7 14.a4 Qc7 15.Nf1 Nh5 16.Bh6 Ng7 17.Ng3 f6 18.Qd2 Rfc8 19.Ra2 a5 20.Rea1 axb4 21.cxb4 bxa4 22.Bxa4 Bxa4 23.Rxa4 Rxa4 24.Rxa4 cxb4 25.Rxb4 Nc5 26.Be3 Qd7 27.Rc4 Rb8 28.Bxc5 dxc5 29.Nf1 Ne8 30.Qc2 Qb5 31.N3d2 Qb2 32.Qa4 Kf7 33.Rc2 Qb4 34.Qd7 Nd6 35.Ne3 Kf8 36.Kh2 Rd8 37.Qg4 Qd4 38.Nec4 f5 39.Qe2 Nxe4 40.Nxe4 Qxe4 41.Qxe4 fxe4 42.Rd2 Bg5 43.Rd1 Rb8 44.Kg1 Rb4 45.Nxe5 c4 46.Nc6 Rb2 47.Nd4 c3 48.Re1 c2 49.Nxc2 Rxc2 50.Rxe4 Rd2 51.g3 Be7 52.Rf4+ Kg7 53.Kg2 Bc5 54.h4 Rxd5 55.Rc4 Kf6 56.Rc2 Kf5 57.Ra2 Bb4 58.Rb2 Bc3 59.Rc2 Rd3 60.Kf1 Bd4 61.Kg2 Rb3 62.Rc7 h6 63.Rf7+ Ke6 64.Rf4 Bb6 65.Rf8 Rb2 66.Rf3 g5 67.hxg5 hxg5 68.Rf8 Bc5 69.Rf3 Ra2 70.Kg1 Ra7 71.Kg2 Ke5 72.Kh3 Ra4 73.Kg2 Ra2 74.Rf7 Ke4 75.Rf3 Bd4 76.Rf8 Kd3 77.Rf5 Ke4 78.Rxg5 Rxf2+ 79.Kh3 Rf8 80.Rg4+ Ke3 81.Rf4 Rg8 82.Rg4 Bg7 83.Kg2 Kd3 84.Rg6 Ke4 85.Rg5 Kd4 86.Kg1 Kd3 87.Kg2 Ke4 88.Rg4+ Kf5 89.Rf4+ Kg5 90.Kf3 Ra8 91.Rg4+ Kf6 92.Rf4+ Ke6 93.Kg2 Be5 94.Rf3 Rh8 95.Kg1 Kd5 96.Kg2 Ke4 97.Rb3 Rc8 98.Kh3 Rc2 99.Kg4 Rg2 100.Ra3 Rg1 101.Rb3 Bd6 102.Rc3 Kd4 103.Rb3 Bc5 104.Rf3 Bb4 "
     """
     scroll = 0
@@ -1420,6 +1419,7 @@ def draw_text(surface, text, color, rectangle, scroll, my_font):
             break
         
         # determine maximum width of line purely based on the starting move digits on white's turn
+        
         for i in range(1, len(text)):
             if bool(re.findall(re.compile(r'\d{3}\.'), text[i:i+4])) == True:
                 break
@@ -1438,7 +1438,17 @@ def draw_text(surface, text, color, rectangle, scroll, my_font):
             scroll -= 1
         else:
             # render the line and blit it to the surface
-            image = my_font.render(text[:i], True, color)
+            line_text_list = text[:i].split()
+            if len(line_text_list) == 3:
+                # Move number, space, white move, calculated space, black move
+                length_of_beginning_notation = len(line_text_list[0]) + len(line_text_list[1])
+                print("LENGTH: " + str(length_of_beginning_notation))
+                print("Space list: " + "              "[:-length_of_beginning_notation] + "z")
+                line_text = line_text_list[0] + " " + line_text_list[1] + " " + "       "[:-length_of_beginning_notation] + line_text_list[2]
+            else:
+                # Move number, space, white move
+                line_text = text[:i]
+            image = my_font.render(line_text, True, color)
 
             surface.blit(image, (rectangle[0], y))
             y += font_height + line_spacing
@@ -1458,7 +1468,7 @@ def draw_moves(my_font, body_text, scroll):
     #SCREEN.blit(text, [100, 20])
 
     #draw the main text
-    draw_text(SCREEN, body_text, [255,255,255], [SCREEN_WIDTH-195, 110, 200, 400], scroll, my_font)
+    draw_text(SCREEN, body_text, [255,255,255], [SCREEN_WIDTH-225, 110, 200, 400], scroll, my_font)
 
 
 
