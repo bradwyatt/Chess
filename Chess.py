@@ -1409,6 +1409,7 @@ class Text_Controller():
 def draw_text(surface, text, color, rectangle, scroll, my_font):
     y = rectangle[1]
     line_spacing = 2
+    line_text_black = ""
 
     # get the height of the font
     font_height = my_font.size("Tg")[1]
@@ -1441,22 +1442,24 @@ def draw_text(surface, text, color, rectangle, scroll, my_font):
             line_text_list = text[:i].split()
             if len(line_text_list) == 3:
                 # Move number, space, white move, calculated space, black move
-                length_of_beginning_notation = len(line_text_list[0]) + len(line_text_list[1])
-                print("LENGTH: " + str(length_of_beginning_notation))
-                print("Space list: " + "              "[:-length_of_beginning_notation] + "z")
-                line_text = line_text_list[0] + " " + line_text_list[1] + " " + "       "[:-length_of_beginning_notation] + line_text_list[2]
+                line_text_white = line_text_list[0] + " " + line_text_list[1] + " "
+                line_text_black = line_text_list[2]
             else:
                 # Move number, space, white move
-                line_text = text[:i]
-            image = my_font.render(line_text, True, color)
-
-            surface.blit(image, (rectangle[0], y))
-            y += font_height + line_spacing
+                line_text_white = text[:i]
+            image_white = my_font.render(line_text_white, True, color)
+            surface.blit(image_white, (rectangle[0], y))
+            if line_text_black:
+                image_black = my_font.render(line_text_black, True, color)
+                surface.blit(image_black, (rectangle[0]+100, y))
+                # Move to next line
+                y += font_height + line_spacing
+                # Reset line text black since we moved to next line (and white is now to move)
+                line_text_black = ""
 
         # remove the text we just blitted
         text = text[i:]
         
-
     return text
                 
 #draw the text window at coordinates x,y
