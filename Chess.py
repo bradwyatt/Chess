@@ -1476,16 +1476,27 @@ def draw_moves(my_font, body_text, scroll, game_controller):
     if len(game_controller.df_moves) >= 1:
         spacing_length = 21
         # White was latest move
+        print("SCROLL: " + str(scroll))
         if game_controller.WHOSETURN == "black":
             if len(game_controller.df_moves) < 10:
-                selected_move_rectangle = SelectedMoveRectangle(SCREEN_WIDTH-212, 89+spacing_length*(len(game_controller.df_moves)), 20, 45)
-                selected_move_rectangle.draw(SCREEN)
-            else:
                 selected_move_rectangle = SelectedMoveRectangle(SCREEN_WIDTH-206, 89+spacing_length*(len(game_controller.df_moves)), 20, 45)
                 selected_move_rectangle.draw(SCREEN)
+            elif len(game_controller.df_moves) >= 10 and len(game_controller.df_moves) < 20:
+                selected_move_rectangle = SelectedMoveRectangle(SCREEN_WIDTH-206, 89+spacing_length*(len(game_controller.df_moves)), 20, 45)
+                selected_move_rectangle.draw(SCREEN)   
+            elif len(game_controller.df_moves) >= 20 and game_controller.move_counter - Text_Controller.scroll == Text_Controller.max_moves_that_fits_pane:
+                # If current move then highlight
+                selected_move_rectangle = SelectedMoveRectangle(SCREEN_WIDTH-206, 89+spacing_length*19, 20, 45)
+                selected_move_rectangle.draw(SCREEN)
+
         elif game_controller.WHOSETURN == "white":
-            selected_move_rectangle_black = SelectedMoveRectangle(SCREEN_WIDTH-127, 89+spacing_length*(len(game_controller.df_moves)), 20, 45)
-            selected_move_rectangle_black.draw(SCREEN)
+            if len(game_controller.df_moves) < 20:
+                selected_move_rectangle_black = SelectedMoveRectangle(SCREEN_WIDTH-127, 89+spacing_length*(len(game_controller.df_moves)), 20, 45)
+                selected_move_rectangle_black.draw(SCREEN)
+            elif len(game_controller.df_moves) >= 20 and game_controller.move_counter - Text_Controller.scroll == Text_Controller.max_moves_that_fits_pane + 1:
+                # If current move then highlight
+                selected_move_rectangle_black = SelectedMoveRectangle(SCREEN_WIDTH-127, 89+spacing_length*19, 20, 45)
+                selected_move_rectangle_black.draw(SCREEN)
     
     #draw the floating header
     #text = my_font.render(header_text, True, [255,255,255])
