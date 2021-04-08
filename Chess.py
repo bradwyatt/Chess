@@ -1447,7 +1447,15 @@ def draw_text(surface, text, color, rectangle, scroll, my_font):
             else:
                 # Move number, space, white move
                 line_text_white = text[:i]
+            line_text_white_split = line_text_white.split()
+            if line_text_white_split:
+                # If the move number is only a single digit (ie "5.") then include a space at the beginning so that the rest of moves can align
+                if len(line_text_white_split[0]) == 2:
+                    line_text_white = "  " + line_text_white_split[0] + " " + line_text_white_split[1]
+                else:
+                    line_text_white = line_text_white_split[0] + " " + line_text_white_split[1]
             image_white = my_font.render(line_text_white, True, color)
+            
             surface.blit(image_white, (rectangle[0], y))
             if line_text_black:
                 image_black = my_font.render(line_text_black, True, color)
