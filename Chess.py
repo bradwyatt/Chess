@@ -1463,8 +1463,21 @@ def draw_text(surface, text, color, rectangle, scroll, my_font):
     return text
                 
 #draw the text window at coordinates x,y
-def draw_moves(my_font, body_text, scroll):
+def draw_moves(my_font, body_text, scroll, game_controller):
     SCREEN.blit(move_bg_image, (675,70))
+    if len(game_controller.df_moves) >= 1:
+        spacing_length = 21
+        # White was latest move
+        if game_controller.WHOSETURN == "black":
+            if len(game_controller.df_moves) < 10:
+                selected_move_rectangle = SelectedMoveRectangle(SCREEN_WIDTH-212, 89+spacing_length*(len(game_controller.df_moves)), 20, 45)
+                selected_move_rectangle.draw(SCREEN)
+            else:
+                selected_move_rectangle = SelectedMoveRectangle(SCREEN_WIDTH-206, 89+spacing_length*(len(game_controller.df_moves)), 20, 45)
+                selected_move_rectangle.draw(SCREEN)
+        elif game_controller.WHOSETURN == "white":
+            selected_move_rectangle_black = SelectedMoveRectangle(SCREEN_WIDTH-127, 89+spacing_length*(len(game_controller.df_moves)), 20, 45)
+            selected_move_rectangle_black.draw(SCREEN)
     
     #draw the floating header
     #text = my_font.render(header_text, True, [255,255,255])
@@ -1550,6 +1563,7 @@ def main():
         PREV_MOVE_BUTTON = PrevMoveButton((SCREEN_WIDTH-195, 545), PLAY_SPRITES)
         NEXT_MOVE_BUTTON = NextMoveButton((SCREEN_WIDTH-155, 545), PLAY_SPRITES)
         LAST_MOVE_BUTTON = LastMoveButton((SCREEN_WIDTH-115, 545), PLAY_SPRITES)
+        
         #Backgrounds
         INFO_SCREEN = pygame.image.load("Sprites/infoscreen.bmp").convert()
         INFO_SCREEN = pygame.transform.scale(INFO_SCREEN, (SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -2310,7 +2324,7 @@ def main():
                 #PLAY_SPRITES.update()
                 SCREEN.fill(COLORKEY)
                 
-                draw_moves(move_notation_font, Text_Controller.body_text, Text_Controller.scroll)
+                draw_moves(move_notation_font, Text_Controller.body_text, Text_Controller.scroll, game_controller)
                 
                 GAME_MODE_SPRITES.draw(SCREEN)
                 GRID_SPRITES.draw(SCREEN)

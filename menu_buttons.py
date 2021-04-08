@@ -141,3 +141,14 @@ class PrevMoveButton(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         PLAY_SPRITES.add(self)
+        
+class SelectedMoveRectangle():
+    def __init__(self, x, y, width, height):
+        self.x = x
+        self.y = y
+        self.height = height
+        self.width = width
+    def draw(self, screen):
+        self.screen = screen
+        yellow = (255, 211, 0)
+        pygame.draw.rect(self.screen, yellow, [self.x, self.y, self.height, self.width])
