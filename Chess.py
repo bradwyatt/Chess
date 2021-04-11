@@ -2090,24 +2090,17 @@ def main():
                                             if(game_controller.WHOSETURN == "white"):
                                                 if special_abb == "=Q":
                                                     # When the piece became promoted to a Queen
-                                                    move_text = move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb) + " "
-                                                    game_controller.df_moves.loc[game_controller.move_counter-1, "black_move"] = move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
-                                                    piece.coordinate_history[game_controller.move_counter-1]['move_notation'] = move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
-                                                else:
-                                                    move_text = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb) + " "
-                                                    game_controller.df_moves.loc[game_controller.move_counter-1, "black_move"] = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
-                                                    piece.coordinate_history[game_controller.move_counter-1]['move_notation'] = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
+                                                    piece = promoted_queen
+                                                move_text = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb) + " "
+                                                game_controller.df_moves.loc[game_controller.move_counter-1, "black_move"] = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
+                                                piece.coordinate_history[game_controller.move_counter-1]['move_notation'] = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
                                             elif(game_controller.WHOSETURN == "black"):
                                                 if special_abb == "=Q":
-                                                    move_text = str(game_controller.move_counter) + ". " + \
-                                                          move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb) + " "
-                                                    game_controller.df_moves.loc[game_controller.move_counter] = [move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb), '']
-                                                    piece.coordinate_history[game_controller.move_counter]['move_notation'] = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
-                                                else:
-                                                    move_text = str(game_controller.move_counter) + ". " + \
-                                                          move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb) + " "
-                                                    game_controller.df_moves.loc[game_controller.move_counter] = [move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb), '']
-                                                    piece.coordinate_history[game_controller.move_counter]['move_notation'] = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
+                                                    piece = promoted_queen
+                                                move_text = str(game_controller.move_counter) + ". " + \
+                                                      move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb) + " "
+                                                game_controller.df_moves.loc[game_controller.move_counter] = [move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb), '']
+                                                piece.coordinate_history[game_controller.move_counter]['move_notation'] = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
                                             Text_Controller.body_text += move_text
                                             log.info(move_text)
                                             if game_controller.result_abb != "*":
