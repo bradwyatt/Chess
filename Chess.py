@@ -268,6 +268,7 @@ class ChessPiece:
         self.disable = False
         self.taken_off_board = False
         self.coordinate = self.get_coordinate()
+        self.coordinate_history = {}
         self.previous_coordinate = self.get_coordinate()
     def get_coordinate(self):
         for grid in Grid.grid_list:
@@ -1269,6 +1270,8 @@ class Game_Controller():
         self.move_counter = 1
         self.df_moves = pd.DataFrame(columns=["white_move", "black_move"])
         self.df_moves.index = np.arange(1, len(self.df_moves)+1) # Index at 1 rather than 0 because chess starts that way
+        self.df_prior_moves = pd.DataFrame(columns=["white_move", "black_move"])
+        self.df_prior_moves.index = np.arange(1, len(self.df_prior_moves)+1)
         self.result_abb = "*"
     def reset_board(self):
         self.WHOSETURN = "white"
@@ -1281,6 +1284,8 @@ class Game_Controller():
         self.move_counter = 1
         self.df_moves = pd.DataFrame(columns=["white_move", "black_move"])
         self.df_moves.index = np.arange(1, len(self.df_moves)+1) # Index at 1 rather than 0 because chess starts that way
+        self.df_prior_moves = pd.DataFrame(columns=["white_move", "black_move"])
+        self.df_prior_moves.index = np.arange(1, len(self.df_prior_moves)+1)
         self.result_abb = "*"
         Text_Controller.check_checkmate_text = ""
         for spr_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
