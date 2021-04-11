@@ -1029,18 +1029,11 @@ class Grid(pygame.sprite.Sprite):
         self.list_of_white_pieces_attacking = []
         self.list_of_black_pieces_attacking = []
         self.en_passant_skipover = False
-        self.history_list_of_white_pieces_attacking = {}
-        self.history_list_of_black_pieces_attacking = {}
-        self.history_occupied_piece_color = {}
-        self.history_occupied_piece = {}
+        self.prior_move_color = False
     def reset_board(self):
         self.no_highlight()
         self.list_of_white_pieces_attacking = []
         self.list_of_black_pieces_attacking = []
-        self.history_list_of_white_pieces_attacking = {}
-        self.history_list_of_black_pieces_attacking = {}
-        self.history_occupied_piece_color = {}
-        self.history_occupied_piece = {}
     def attack_count_reset(self):
         self.list_of_white_pieces_attacking = []
         self.list_of_black_pieces_attacking = []
@@ -1052,16 +1045,6 @@ class Grid(pygame.sprite.Sprite):
             self.list_of_white_pieces_attacking.append(attack_coord)
         elif color == "black":
             self.list_of_black_pieces_attacking.append(attack_coord)
-    def save_history(self, move_counter, whoseturn):
-        move = str(move_counter)
-        if whoseturn == "white":
-            move += "a"
-        elif whoseturn == "black":
-            move += "b"
-        self.history_list_of_white_pieces_attacking[move] = self.list_of_white_pieces_attacking
-        self.history_list_of_black_pieces_attacking[move] = self.list_of_black_pieces_attacking
-        self.history_occupied_piece_color[move] = self.occupied_piece_color
-        self.history_occupied_piece[move] = self.occupied_piece
     def update(self, game_controller):
         if game_controller.game_mode == game_controller.PLAY_MODE:
             def grid_occupied_by_piece():
@@ -1100,7 +1083,9 @@ class Grid(pygame.sprite.Sprite):
         self.image = IMAGES["SPR_HIGHLIGHT"]
         self.highlighted = True
     def no_highlight(self):
-        if(self.color == "green"):
+        if(self.prior_move_color == True):
+            self.image = IMAGES["SPR_PRIOR_MOVE_GRID"]
+        elif(self.color == "green"):
             self.image = IMAGES["SPR_GREEN_GRID"]
         elif(self.color == "white"):
             self.image = IMAGES["SPR_WHITE_GRID"]
@@ -1301,7 +1286,7 @@ class Game_Controller():
         self.attacker_piece = ""
         # No highlights and ensuring that attacking squares (used by diagonal pieces) are set to 0
         for grid in Grid.grid_list:
-            #grid.no_highlight()
+            grid.no_highlight()
             grid.list_of_white_pieces_attacking = []
             grid.list_of_black_pieces_attacking = []
         for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
@@ -1898,7 +1883,6 @@ def main():
                             # White win, draw, black win
                             game_controller.result_abb = "*"
                             for grid in Grid.grid_list:
-                                grid.save_history(game_controller.move_counter, game_controller.WHOSETURN)
                                 for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                                                    PlayKnight.white_knight_list, PlayRook.white_rook_list, 
                                                    PlayQueen.white_queen_list, PlayKing.white_king_list,
@@ -1957,7 +1941,7 @@ def main():
                                                 if old_grid.coordinate == piece.coordinate:
                                                     old_grid.occupied = False
                                                     piece.previous_coordinate = old_grid.coordinate
-                                                    old_grid.image = IMAGES["SPR_PRIOR_MOVE_GRID"]
+                                                    old_grid.prior_move_color = True
                                                     
                                             # Moving piece, removing piece and grid highlights, changing Turn
                                             piece.rect.topleft = grid.rect.topleft
