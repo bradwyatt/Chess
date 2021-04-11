@@ -2243,78 +2243,25 @@ def main():
                 ##################
                 # Replace start sprite with blank box in top menu
                 if game_controller.game_mode == game_controller.EDIT_MODE:
-                    if DRAGGING.white_pawn:
-                        START.blank_box.rect.topleft = STARTPOS['white_pawn'] # Replaces in Menu
-                        START.white_pawn.rect.topleft = (MOUSEPOS[0]-(START.white_pawn.image.get_width()/2),
-                                                       MOUSEPOS[1]-(START.white_pawn.image.get_height()/2))
-                    else:
-                        START.white_pawn.rect.topleft = STARTPOS['white_pawn']
-                    if DRAGGING.white_bishop:
-                        START.blank_box.rect.topleft = STARTPOS['white_bishop'] # Replaces in Menu
-                        START.white_bishop.rect.topleft = (MOUSEPOS[0]-(START.white_bishop.image.get_width()/2),
-                                                       MOUSEPOS[1]-(START.white_bishop.image.get_height()/2))
-                    else:
-                        START.white_bishop.rect.topleft = STARTPOS['white_bishop']
-                    if DRAGGING.white_knight:
-                        START.blank_box.rect.topleft = STARTPOS['white_knight'] # Replaces in Menu
-                        START.white_knight.rect.topleft = (MOUSEPOS[0]-(START.white_knight.image.get_width()/2),
-                                                       MOUSEPOS[1]-(START.white_knight.image.get_height()/2))
-                    else:
-                        START.white_knight.rect.topleft = STARTPOS['white_knight']    
-                    if DRAGGING.white_rook:
-                        START.blank_box.rect.topleft = STARTPOS['white_rook'] # Replaces in Menu
-                        START.white_rook.rect.topleft = (MOUSEPOS[0]-(START.white_rook.image.get_width()/2),
-                                                       MOUSEPOS[1]-(START.white_rook.image.get_height()/2))
-                    else:
-                        START.white_rook.rect.topleft = STARTPOS['white_rook']                       
-                    if DRAGGING.white_queen:
-                        START.blank_box.rect.topleft = STARTPOS['white_queen'] # Replaces in Menu
-                        START.white_queen.rect.topleft = (MOUSEPOS[0]-(START.white_queen.image.get_width()/2),
-                                                       MOUSEPOS[1]-(START.white_queen.image.get_height()/2))
-                    else:
-                        START.white_queen.rect.topleft = STARTPOS['white_queen']                            
-                    if DRAGGING.white_king:
-                        START.blank_box.rect.topleft = STARTPOS['white_king'] # Replaces in Menu
-                        START.white_king.rect.topleft = (MOUSEPOS[0]-(START.white_king.image.get_width()/2),
-                                                       MOUSEPOS[1]-(START.white_king.image.get_height()/2))
-                    else:
-                        START.white_king.rect.topleft = STARTPOS['white_king']                     
-                    if DRAGGING.black_pawn:
-                        START.blank_box.rect.topleft = STARTPOS['black_pawn'] # Replaces in Menu
-                        START.black_pawn.rect.topleft = (MOUSEPOS[0]-(START.black_pawn.image.get_width()/2),
-                                                       MOUSEPOS[1]-(START.black_pawn.image.get_height()/2))
-                    else:
-                        START.black_pawn.rect.topleft = STARTPOS['black_pawn']
-                    if DRAGGING.black_bishop:
-                        START.blank_box.rect.topleft = STARTPOS['black_bishop'] # Replaces in Menu
-                        START.black_bishop.rect.topleft = (MOUSEPOS[0]-(START.black_bishop.image.get_width()/2),
-                                                       MOUSEPOS[1]-(START.black_bishop.image.get_height()/2))
-                    else:
-                        START.black_bishop.rect.topleft = STARTPOS['black_bishop']
-                    if DRAGGING.black_knight:
-                        START.blank_box.rect.topleft = STARTPOS['black_knight'] # Replaces in Menu
-                        START.black_knight.rect.topleft = (MOUSEPOS[0]-(START.black_knight.image.get_width()/2),
-                                                       MOUSEPOS[1]-(START.black_knight.image.get_height()/2))
-                    else:
-                        START.black_knight.rect.topleft = STARTPOS['black_knight']    
-                    if DRAGGING.black_rook:
-                        START.blank_box.rect.topleft = STARTPOS['black_rook'] # Replaces in Menu
-                        START.black_rook.rect.topleft = (MOUSEPOS[0]-(START.black_rook.image.get_width()/2),
-                                                       MOUSEPOS[1]-(START.black_rook.image.get_height()/2))
-                    else:
-                        START.black_rook.rect.topleft = STARTPOS['black_rook']                       
-                    if DRAGGING.black_queen:
-                        START.blank_box.rect.topleft = STARTPOS['black_queen'] # Replaces in Menu
-                        START.black_queen.rect.topleft = (MOUSEPOS[0]-(START.black_queen.image.get_width()/2),
-                                                       MOUSEPOS[1]-(START.black_queen.image.get_height()/2))
-                    else:
-                        START.black_queen.rect.topleft = STARTPOS['black_queen']                            
-                    if DRAGGING.black_king:
-                        START.blank_box.rect.topleft = STARTPOS['black_king'] # Replaces in Menu
-                        START.black_king.rect.topleft = (MOUSEPOS[0]-(START.black_king.image.get_width()/2),
-                                                       MOUSEPOS[1]-(START.black_king.image.get_height()/2))
-                    else:
-                        START.black_king.rect.topleft = STARTPOS['black_king']                        
+                    def replace_start_sprite_with_black_box(dragging_obj, start_blank_box_var, start_obj_pos, start_obj, mouse_pos):
+                        if dragging_obj:
+                            start_blank_box_var.rect.topleft = start_obj_pos
+                            start_obj.rect.topleft = (mouse_pos[0]-(start_obj.image.get_width()/2),
+                                                      mouse_pos[1]-(start_obj.image.get_height()/2))
+                        else:
+                            start_obj.rect.topleft = start_obj_pos
+                    replace_start_sprite_with_black_box(DRAGGING.white_pawn, START.blank_box, STARTPOS['white_pawn'], START.white_pawn, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.white_bishop, START.blank_box, STARTPOS['white_bishop'], START.white_bishop, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.white_knight, START.blank_box, STARTPOS['white_knight'], START.white_knight, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.white_rook, START.blank_box, STARTPOS['white_rook'], START.white_rook, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.white_queen, START.blank_box, STARTPOS['white_queen'], START.white_queen, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.white_king, START.blank_box, STARTPOS['white_king'], START.white_king, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.black_pawn, START.blank_box, STARTPOS['black_pawn'], START.black_pawn, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.black_bishop, START.blank_box, STARTPOS['black_bishop'], START.black_bishop, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.black_knight, START.blank_box, STARTPOS['black_knight'], START.black_knight, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.black_rook, START.blank_box, STARTPOS['black_rook'], START.black_rook, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.black_queen, START.blank_box, STARTPOS['black_queen'], START.black_queen, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.black_king, START.blank_box, STARTPOS['black_king'], START.black_king, MOUSEPOS)                      
             
                 ##################
                 # IN-GAME ACTIONS
