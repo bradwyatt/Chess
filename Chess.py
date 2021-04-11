@@ -1933,11 +1933,13 @@ def main():
                                                 if old_grid.coordinate == piece.coordinate:
                                                     old_grid.occupied = False
                                                     piece.previous_coordinate = old_grid.coordinate
+                                                    piece.coordinate_history[game_controller.move_counter] = {'before':piece.previous_coordinate}
                                                     old_grid.prior_move_color = True
                                                     
                                             # Moving piece, removing piece and grid highlights, changing Turn
                                             piece.rect.topleft = grid.rect.topleft
                                             piece.coordinate = grid.coordinate
+                                            piece.coordinate_history[game_controller.move_counter]['after'] = piece.coordinate
                                             grid.occupied = True
                                             piece.no_highlight()
                                             
@@ -2090,24 +2092,27 @@ def main():
                                                     # When the piece became promoted to a Queen
                                                     move_text = move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb) + " "
                                                     game_controller.df_moves.loc[game_controller.move_counter-1, "black_move"] = move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
+                                                    piece.coordinate_history[game_controller.move_counter-1]['move_notation'] = move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
                                                 else:
                                                     move_text = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb) + " "
                                                     game_controller.df_moves.loc[game_controller.move_counter-1, "black_move"] = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
-                                                Text_Controller.body_text += move_text
-                                                log.info(move_text)
+                                                    piece.coordinate_history[game_controller.move_counter-1]['move_notation'] = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
                                             elif(game_controller.WHOSETURN == "black"):
                                                 if special_abb == "=Q":
                                                     move_text = str(game_controller.move_counter) + ". " + \
                                                           move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb) + " "
                                                     game_controller.df_moves.loc[game_controller.move_counter] = [move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb), '']
+                                                    piece.coordinate_history[game_controller.move_counter]['move_notation'] = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
                                                 else:
                                                     move_text = str(game_controller.move_counter) + ". " + \
                                                           move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb) + " "
                                                     game_controller.df_moves.loc[game_controller.move_counter] = [move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb), '']
-                                                Text_Controller.body_text += move_text
-                                                log.info(move_text)
+                                                    piece.coordinate_history[game_controller.move_counter]['move_notation'] = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
+                                            Text_Controller.body_text += move_text
+                                            log.info(move_text)
                                             if game_controller.result_abb != "*":
                                                 log.info(game_controller.result_abb)
+                                            
                                             Text_Controller.scroll = Text_Controller.latest_scroll(Text_Controller.body_text, Text_Controller.scroll)
                                             return
                         move_piece_on_grid()
@@ -2219,12 +2224,16 @@ def main():
                     
                     # MIDDLE MOUSE DEBUGGER
                     if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[1]:
+                        for black_pawn in PlayPawn.black_pawn_list:
+                            log.info(str(black_pawn.__dict__))
+                        """
                         for grid in Grid.grid_list:
                             if grid.rect.collidepoint(MOUSEPOS):
                                 log.info("Coordinate: " + str(grid.coordinate) \
                                        + ", White Pieces Attacking: " + str(grid.list_of_white_pieces_attacking) \
                                        + ", Black Pieces Attacking: " + str(grid.list_of_black_pieces_attacking) \
                                        + ", Grid occupied? " + str(grid.__dict__))
+                        """
                                 
                 ##################
                 # ALL EDIT ACTIONS
