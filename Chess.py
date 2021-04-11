@@ -1118,6 +1118,32 @@ class Dragging():
         self.black_rook = False
         self.black_queen = False
         self.black_king = False
+    def drag_piece(self, piece):
+        self.dragging_all_false()
+        if piece == "white_pawn":
+            self.white_pawn = True
+        elif piece == "white_bishop":
+            self.white_bishop = True
+        elif piece == "white_knight":
+            self.white_knight = True
+        elif piece == "white_rook":
+            self.white_rook = True
+        elif piece == "white_queen":
+            self.white_queen = True
+        elif piece == "white_king":
+            self.white_king = True
+        elif piece == "black_pawn":
+            self.black_pawn = True
+        elif piece == "black_bishop":
+            self.black_bishop = True
+        elif piece == "black_knight":
+            self.black_knight = True
+        elif piece == "black_rook":
+            self.black_rook = True
+        elif piece == "black_queen":
+            self.black_queen = True
+        elif piece == "black_king":
+            self.black_king = True
         
 class Start():
     def __init__(self):
@@ -1146,7 +1172,7 @@ class Start():
         self.black_queen = StartQueen("black")
         START_SPRITES.add(self.black_queen)        
         self.black_king = StartKing("black")
-        START_SPRITES.add(self.black_king)            
+        START_SPRITES.add(self.black_king)
             
 # Returns the tuples of each objects' positions within all classes
 def get_dict_rect_positions():
@@ -1684,66 +1710,23 @@ def main():
                             if RESET_BOARD_BUTTON.rect.collidepoint(MOUSEPOS):
                                 PLACED_SPRITES, COLORKEY = pos_load_file(PLACED_SPRITES, COLORKEY, reset=True)
                             # DRAG OBJECTS
-                            if START.white_pawn.rect.collidepoint(MOUSEPOS):
-                                DRAGGING.dragging_all_false()
-                                START = restart_start_objects(START)
-                                DRAGGING.white_pawn = True
-                                START.blank_box.flip_start_sprite(DRAGGING, START.white_pawn.rect.topleft)
-                            elif START.white_bishop.rect.collidepoint(MOUSEPOS):
-                                DRAGGING.dragging_all_false()
-                                START = restart_start_objects(START)
-                                DRAGGING.white_bishop = True
-                                START.blank_box.flip_start_sprite(DRAGGING, START.white_bishop.rect.topleft)
-                            elif START.white_knight.rect.collidepoint(MOUSEPOS):
-                                DRAGGING.dragging_all_false()
-                                START = restart_start_objects(START)
-                                DRAGGING.white_knight = True
-                                START.blank_box.flip_start_sprite(DRAGGING, START.white_knight.rect.topleft)
-                            elif START.white_rook.rect.collidepoint(MOUSEPOS):
-                                DRAGGING.dragging_all_false()
-                                START = restart_start_objects(START)
-                                DRAGGING.white_rook = True
-                                START.blank_box.flip_start_sprite(DRAGGING, START.white_rook.rect.topleft)
-                            elif START.white_queen.rect.collidepoint(MOUSEPOS):
-                                DRAGGING.dragging_all_false()
-                                START = restart_start_objects(START)
-                                DRAGGING.white_queen = True
-                                START.blank_box.flip_start_sprite(DRAGGING, START.white_queen.rect.topleft)
-                            elif START.white_king.rect.collidepoint(MOUSEPOS):
-                                DRAGGING.dragging_all_false()
-                                START = restart_start_objects(START)
-                                DRAGGING.white_king = True
-                                START.blank_box.flip_start_sprite(DRAGGING, START.white_king.rect.topleft)
-                            elif START.black_pawn.rect.collidepoint(MOUSEPOS):
-                                DRAGGING.dragging_all_false()
-                                START = restart_start_objects(START)
-                                DRAGGING.black_pawn = True
-                                START.blank_box.flip_start_sprite(DRAGGING, START.black_pawn.rect.topleft)                    
-                            elif START.black_bishop.rect.collidepoint(MOUSEPOS):
-                                DRAGGING.dragging_all_false()
-                                START = restart_start_objects(START)
-                                DRAGGING.black_bishop = True
-                                START.blank_box.flip_start_sprite(DRAGGING, START.black_bishop.rect.topleft)
-                            elif START.black_knight.rect.collidepoint(MOUSEPOS):
-                                DRAGGING.dragging_all_false()
-                                START = restart_start_objects(START)
-                                DRAGGING.black_knight = True
-                                START.blank_box.flip_start_sprite(DRAGGING, START.black_knight.rect.topleft)
-                            elif START.black_rook.rect.collidepoint(MOUSEPOS):
-                                DRAGGING.dragging_all_false()
-                                START = restart_start_objects(START)
-                                DRAGGING.black_rook = True
-                                START.blank_box.flip_start_sprite(DRAGGING, START.black_rook.rect.topleft)
-                            elif START.black_queen.rect.collidepoint(MOUSEPOS):
-                                DRAGGING.dragging_all_false()
-                                START = restart_start_objects(START)
-                                DRAGGING.black_queen = True
-                                START.blank_box.flip_start_sprite(DRAGGING, START.black_queen.rect.topleft)
-                            elif START.black_king.rect.collidepoint(MOUSEPOS):
-                                DRAGGING.dragging_all_false()
-                                START = restart_start_objects(START)
-                                DRAGGING.black_king = True
-                                START.blank_box.flip_start_sprite(DRAGGING, START.black_king.rect.topleft)
+                            list_of_start_objs = {"white_pawn": START.white_pawn, 
+                                             "white_bishop": START.white_bishop, 
+                                             "white_knight": START.white_knight,
+                                             "white_rook": START.white_rook, 
+                                             "white_queen": START.white_queen, 
+                                             "white_king": START.white_king,
+                                             "black_pawn": START.black_pawn, 
+                                             "black_bishop": START.black_bishop, 
+                                             "black_knight": START.black_knight,
+                                             "black_rook": START.black_rook, 
+                                             "black_queen": START.black_queen, 
+                                             "black_king": START.black_king}
+                            for piece_name in list_of_start_objs.keys():
+                                if list_of_start_objs.get(piece_name).rect.collidepoint(MOUSEPOS):
+                                    START = restart_start_objects(START)
+                                    DRAGGING.drag_piece(piece_name)
+                                    START.blank_box.flip_start_sprite(DRAGGING, list_of_start_objs.get(piece_name).rect.topleft)
                                 
                     #################
                     # LEFT CLICK (PRESSED DOWN)
@@ -2309,7 +2292,7 @@ def main():
                     log.info("Entering debug mode")
                     debug_message = 0
                     # USE BREAKPOINT HERE
-                    
+                    print(str(START.__dict__))
                     log.info("Use breakpoint here")
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
