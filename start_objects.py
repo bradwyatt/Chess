@@ -12,7 +12,6 @@ class StartBlankBox(pygame.sprite.Sprite):
         self.rect.topleft = pos
         if DRAGGING.white_pawn:
             self.image = IMAGES["SPR_WHITE_PAWN"]
-            print("yasss")
         elif DRAGGING.white_bishop:
             self.image = IMAGES["SPR_WHITE_BISHOP"]
         elif DRAGGING.white_knight:
