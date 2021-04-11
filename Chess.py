@@ -2181,31 +2181,24 @@ def main():
                             PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(game_controller.game_mode)
                             Text_Controller.body_text = ""
                             log.info("Play Mode Activated\n")
-        
-                            for placed_white_pawn in PlacedPawn.white_pawn_list:
-                                PlayPawn(placed_white_pawn.rect.topleft, PLAY_SPRITES, "white")
-                            for placed_white_bishop in PlacedBishop.white_bishop_list:
-                                PlayBishop(placed_white_bishop.rect.topleft, PLAY_SPRITES, "white")
-                            for placed_white_knight in PlacedKnight.white_knight_list:
-                                PlayKnight(placed_white_knight.rect.topleft, PLAY_SPRITES, "white")
-                            for placed_white_rook in PlacedRook.white_rook_list:
-                                PlayRook(placed_white_rook.rect.topleft, PLAY_SPRITES, "white")
-                            for placed_white_queen in PlacedQueen.white_queen_list:
-                                PlayQueen(placed_white_queen.rect.topleft, PLAY_SPRITES, "white")    
-                            for placed_white_king in PlacedKing.white_king_list:
-                                PlayKing(placed_white_king.rect.topleft, PLAY_SPRITES, "white")
-                            for placed_black_pawn in PlacedPawn.black_pawn_list:
-                                PlayPawn(placed_black_pawn.rect.topleft, PLAY_SPRITES, "black")
-                            for placed_black_bishop in PlacedBishop.black_bishop_list:
-                                PlayBishop(placed_black_bishop.rect.topleft, PLAY_SPRITES, "black")
-                            for placed_black_knight in PlacedKnight.black_knight_list:
-                                PlayKnight(placed_black_knight.rect.topleft, PLAY_SPRITES, "black")
-                            for placed_black_rook in PlacedRook.black_rook_list:
-                                PlayRook(placed_black_rook.rect.topleft, PLAY_SPRITES, "black")
-                            for placed_black_queen in PlacedQueen.black_queen_list:
-                                PlayQueen(placed_black_queen.rect.topleft, PLAY_SPRITES, "black")    
-                            for placed_black_king in PlacedKing.black_king_list:
-                                PlayKing(placed_black_king.rect.topleft, PLAY_SPRITES, "black")
+                            
+                            def placed_to_play(placed_list, class_obj, sprite_group, color):
+                                for placed_obj in placed_list:
+                                    class_obj(placed_obj.rect.topleft, sprite_group, color)
+
+                            placed_to_play(PlacedPawn.white_pawn_list, PlayPawn, PLAY_SPRITES, "white")
+                            placed_to_play(PlacedBishop.white_bishop_list, PlayBishop, PLAY_SPRITES, "white")
+                            placed_to_play(PlacedKnight.white_knight_list, PlayKnight, PLAY_SPRITES, "white")
+                            placed_to_play(PlacedRook.white_rook_list, PlayRook, PLAY_SPRITES, "white")
+                            placed_to_play(PlacedQueen.white_queen_list, PlayQueen, PLAY_SPRITES, "white")
+                            placed_to_play(PlacedKing.white_king_list, PlayKing, PLAY_SPRITES, "white")
+                            placed_to_play(PlacedPawn.black_pawn_list, PlayPawn, PLAY_SPRITES, "black")
+                            placed_to_play(PlacedBishop.black_bishop_list, PlayBishop, PLAY_SPRITES, "black")
+                            placed_to_play(PlacedKnight.black_knight_list, PlayKnight, PLAY_SPRITES, "black")
+                            placed_to_play(PlacedRook.black_rook_list, PlayRook, PLAY_SPRITES, "black")
+                            placed_to_play(PlacedQueen.black_queen_list, PlayQueen, PLAY_SPRITES, "black")
+                            placed_to_play(PlacedKing.black_king_list, PlayKing, PLAY_SPRITES, "black")
+                            
                             game_controller.WHOSETURN = "white"
                             GRID_SPRITES.update(game_controller)
                             game_controller.projected_white_update()
