@@ -1709,7 +1709,7 @@ def main():
                                 PLACED_SPRITES, COLORKEY = pos_load_file(PLACED_SPRITES, COLORKEY)
                             if RESET_BOARD_BUTTON.rect.collidepoint(MOUSEPOS):
                                 PLACED_SPRITES, COLORKEY = pos_load_file(PLACED_SPRITES, COLORKEY, reset=True)
-                            # DRAG OBJECTS
+                            
                             list_of_start_objs = {"white_pawn": START.white_pawn, 
                                              "white_bishop": START.white_bishop, 
                                              "white_knight": START.white_knight,
@@ -1722,6 +1722,9 @@ def main():
                                              "black_rook": START.black_rook, 
                                              "black_queen": START.black_queen, 
                                              "black_king": START.black_king}
+                            # DRAG OBJECTS
+                            # Goes through each of the types of pieces
+                            # If start object is clicked on, then enable drag, blank box changes images to the original piece so it looks better
                             for piece_name in list_of_start_objs.keys():
                                 if list_of_start_objs.get(piece_name).rect.collidepoint(MOUSEPOS):
                                     START = restart_start_objects(START)
@@ -1747,6 +1750,7 @@ def main():
                                 for piece in piece_list:
                                     if piece.rect.topleft == snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE):
                                         return
+                            # Created Placed objects at the snapped grid location of the piece that's being dragged
                             if DRAGGING.white_pawn:
                                 for grid in Grid.grid_list:
                                     if grid.rect.topleft == snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE):
@@ -2023,6 +2027,7 @@ def main():
                                                 def checkmate_check(game_controller):
                                                     for subgrid in Grid.grid_list:
                                                         if subgrid.highlighted == True:
+                                                            # If able to detect that a grid can be highlighted, that means it's NOT checkmate
                                                             return "+", "*"
                                                     Text_Controller.check_checkmate_text = "White wins"
                                                     return "#", "1-0"
@@ -2037,6 +2042,7 @@ def main():
                                                 def checkmate_check(game_controller):
                                                     for subgrid in Grid.grid_list:
                                                         if subgrid.highlighted == True:
+                                                            # If able to detect that a grid can be highlighted, that means it's NOT checkmate
                                                             return "+", "*"
                                                     Text_Controller.check_checkmate_text = "Black wins"
                                                     return "#", "0-1"
@@ -2166,6 +2172,7 @@ def main():
                             log.info("Play Mode Activated\n")
                             
                             def placed_to_play(placed_list, class_obj, sprite_group, color):
+                                # Play pieces spawn where their placed piece correspondents are located
                                 for placed_obj in placed_list:
                                     class_obj(placed_obj.rect.topleft, sprite_group, color)
 
@@ -2217,7 +2224,7 @@ def main():
                 ##################
                 # ALL EDIT ACTIONS
                 ##################
-                # Replace start sprite with blank box in top menu
+                # Start piece is dragging according to where the mouse is
                 if game_controller.game_mode == game_controller.EDIT_MODE:
                     def replace_start_sprite_with_black_box(dragging_obj, start_blank_box_var, start_obj_pos, start_obj, mouse_pos):
                         if dragging_obj:
