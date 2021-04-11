@@ -1029,18 +1029,11 @@ class Grid(pygame.sprite.Sprite):
         self.list_of_white_pieces_attacking = []
         self.list_of_black_pieces_attacking = []
         self.en_passant_skipover = False
-        self.history_list_of_white_pieces_attacking = {}
-        self.history_list_of_black_pieces_attacking = {}
-        self.history_occupied_piece_color = {}
-        self.history_occupied_piece = {}
+        self.prior_move_color = False
     def reset_board(self):
         self.no_highlight()
         self.list_of_white_pieces_attacking = []
         self.list_of_black_pieces_attacking = []
-        self.history_list_of_white_pieces_attacking = {}
-        self.history_list_of_black_pieces_attacking = {}
-        self.history_occupied_piece_color = {}
-        self.history_occupied_piece = {}
     def attack_count_reset(self):
         self.list_of_white_pieces_attacking = []
         self.list_of_black_pieces_attacking = []
@@ -1052,16 +1045,6 @@ class Grid(pygame.sprite.Sprite):
             self.list_of_white_pieces_attacking.append(attack_coord)
         elif color == "black":
             self.list_of_black_pieces_attacking.append(attack_coord)
-    def save_history(self, move_counter, whoseturn):
-        move = str(move_counter)
-        if whoseturn == "white":
-            move += "a"
-        elif whoseturn == "black":
-            move += "b"
-        self.history_list_of_white_pieces_attacking[move] = self.list_of_white_pieces_attacking
-        self.history_list_of_black_pieces_attacking[move] = self.list_of_black_pieces_attacking
-        self.history_occupied_piece_color[move] = self.occupied_piece_color
-        self.history_occupied_piece[move] = self.occupied_piece
     def update(self, game_controller):
         if game_controller.game_mode == game_controller.PLAY_MODE:
             def grid_occupied_by_piece():
@@ -1100,7 +1083,9 @@ class Grid(pygame.sprite.Sprite):
         self.image = IMAGES["SPR_HIGHLIGHT"]
         self.highlighted = True
     def no_highlight(self):
-        if(self.color == "green"):
+        if(self.prior_move_color == True):
+            self.image = IMAGES["SPR_PRIOR_MOVE_GRID"]
+        elif(self.color == "green"):
             self.image = IMAGES["SPR_GREEN_GRID"]
         elif(self.color == "white"):
             self.image = IMAGES["SPR_WHITE_GRID"]
@@ -1133,6 +1118,32 @@ class Dragging():
         self.black_rook = False
         self.black_queen = False
         self.black_king = False
+    def drag_piece(self, piece):
+        self.dragging_all_false()
+        if piece == "white_pawn":
+            self.white_pawn = True
+        elif piece == "white_bishop":
+            self.white_bishop = True
+        elif piece == "white_knight":
+            self.white_knight = True
+        elif piece == "white_rook":
+            self.white_rook = True
+        elif piece == "white_queen":
+            self.white_queen = True
+        elif piece == "white_king":
+            self.white_king = True
+        elif piece == "black_pawn":
+            self.black_pawn = True
+        elif piece == "black_bishop":
+            self.black_bishop = True
+        elif piece == "black_knight":
+            self.black_knight = True
+        elif piece == "black_rook":
+            self.black_rook = True
+        elif piece == "black_queen":
+            self.black_queen = True
+        elif piece == "black_king":
+            self.black_king = True
         
 class Start():
     def __init__(self):
@@ -1161,7 +1172,7 @@ class Start():
         self.black_queen = StartQueen("black")
         START_SPRITES.add(self.black_queen)        
         self.black_king = StartKing("black")
-        START_SPRITES.add(self.black_king)            
+        START_SPRITES.add(self.black_king)
             
 # Returns the tuples of each objects' positions within all classes
 def get_dict_rect_positions():
@@ -1476,7 +1487,7 @@ def draw_moves(my_font, body_text, scroll, game_controller):
     if len(game_controller.df_moves) >= 1:
         spacing_length = 21
         # White was latest move
-        print("SCROLL: " + str(scroll))
+        #print("SCROLL: " + str(scroll))
         if game_controller.WHOSETURN == "black":
             if len(game_controller.df_moves) < 10:
                 selected_move_rectangle = SelectedMoveRectangle(SCREEN_WIDTH-206, 89+spacing_length*(len(game_controller.df_moves)), 20, 45)
@@ -1698,67 +1709,27 @@ def main():
                                 PLACED_SPRITES, COLORKEY = pos_load_file(PLACED_SPRITES, COLORKEY)
                             if RESET_BOARD_BUTTON.rect.collidepoint(MOUSEPOS):
                                 PLACED_SPRITES, COLORKEY = pos_load_file(PLACED_SPRITES, COLORKEY, reset=True)
+                            
+                            list_of_start_objs = {"white_pawn": START.white_pawn, 
+                                             "white_bishop": START.white_bishop, 
+                                             "white_knight": START.white_knight,
+                                             "white_rook": START.white_rook, 
+                                             "white_queen": START.white_queen, 
+                                             "white_king": START.white_king,
+                                             "black_pawn": START.black_pawn, 
+                                             "black_bishop": START.black_bishop, 
+                                             "black_knight": START.black_knight,
+                                             "black_rook": START.black_rook, 
+                                             "black_queen": START.black_queen, 
+                                             "black_king": START.black_king}
                             # DRAG OBJECTS
-                            if START.white_pawn.rect.collidepoint(MOUSEPOS):
-                                DRAGGING.dragging_all_false()
-                                START = restart_start_objects(START)
-                                DRAGGING.white_pawn = True
-                                START.blank_box.flip_start_sprite(DRAGGING, START.white_pawn.rect.topleft)
-                            elif START.white_bishop.rect.collidepoint(MOUSEPOS):
-                                DRAGGING.dragging_all_false()
-                                START = restart_start_objects(START)
-                                DRAGGING.white_bishop = True
-                                START.blank_box.flip_start_sprite(DRAGGING, START.white_bishop.rect.topleft)
-                            elif START.white_knight.rect.collidepoint(MOUSEPOS):
-                                DRAGGING.dragging_all_false()
-                                START = restart_start_objects(START)
-                                DRAGGING.white_knight = True
-                                START.blank_box.flip_start_sprite(DRAGGING, START.white_knight.rect.topleft)
-                            elif START.white_rook.rect.collidepoint(MOUSEPOS):
-                                DRAGGING.dragging_all_false()
-                                START = restart_start_objects(START)
-                                DRAGGING.white_rook = True
-                                START.blank_box.flip_start_sprite(DRAGGING, START.white_rook.rect.topleft)
-                            elif START.white_queen.rect.collidepoint(MOUSEPOS):
-                                DRAGGING.dragging_all_false()
-                                START = restart_start_objects(START)
-                                DRAGGING.white_queen = True
-                                START.blank_box.flip_start_sprite(DRAGGING, START.white_queen.rect.topleft)
-                            elif START.white_king.rect.collidepoint(MOUSEPOS):
-                                DRAGGING.dragging_all_false()
-                                START = restart_start_objects(START)
-                                DRAGGING.white_king = True
-                                START.blank_box.flip_start_sprite(DRAGGING, START.white_king.rect.topleft)
-                            elif START.black_pawn.rect.collidepoint(MOUSEPOS):
-                                DRAGGING.dragging_all_false()
-                                START = restart_start_objects(START)
-                                DRAGGING.black_pawn = True
-                                START.blank_box.flip_start_sprite(DRAGGING, START.black_pawn.rect.topleft)                    
-                            elif START.black_bishop.rect.collidepoint(MOUSEPOS):
-                                DRAGGING.dragging_all_false()
-                                START = restart_start_objects(START)
-                                DRAGGING.black_bishop = True
-                                START.blank_box.flip_start_sprite(DRAGGING, START.black_bishop.rect.topleft)
-                            elif START.black_knight.rect.collidepoint(MOUSEPOS):
-                                DRAGGING.dragging_all_false()
-                                START = restart_start_objects(START)
-                                DRAGGING.black_knight = True
-                                START.blank_box.flip_start_sprite(DRAGGING, START.black_knight.rect.topleft)
-                            elif START.black_rook.rect.collidepoint(MOUSEPOS):
-                                DRAGGING.dragging_all_false()
-                                START = restart_start_objects(START)
-                                DRAGGING.black_rook = True
-                                START.blank_box.flip_start_sprite(DRAGGING, START.black_rook.rect.topleft)
-                            elif START.black_queen.rect.collidepoint(MOUSEPOS):
-                                DRAGGING.dragging_all_false()
-                                START = restart_start_objects(START)
-                                DRAGGING.black_queen = True
-                                START.blank_box.flip_start_sprite(DRAGGING, START.black_queen.rect.topleft)
-                            elif START.black_king.rect.collidepoint(MOUSEPOS):
-                                DRAGGING.dragging_all_false()
-                                START = restart_start_objects(START)
-                                DRAGGING.black_king = True
-                                START.blank_box.flip_start_sprite(DRAGGING, START.black_king.rect.topleft)
+                            # Goes through each of the types of pieces
+                            # If start object is clicked on, then enable drag, blank box changes images to the original piece so it looks better
+                            for piece_name in list_of_start_objs.keys():
+                                if list_of_start_objs.get(piece_name).rect.collidepoint(MOUSEPOS):
+                                    START = restart_start_objects(START)
+                                    DRAGGING.drag_piece(piece_name)
+                                    START.blank_box.flip_start_sprite(DRAGGING, list_of_start_objs.get(piece_name).rect.topleft)
                                 
                     #################
                     # LEFT CLICK (PRESSED DOWN)
@@ -1779,6 +1750,7 @@ def main():
                                 for piece in piece_list:
                                     if piece.rect.topleft == snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE):
                                         return
+                            # Created Placed objects at the snapped grid location of the piece that's being dragged
                             if DRAGGING.white_pawn:
                                 for grid in Grid.grid_list:
                                     if grid.rect.topleft == snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE):
@@ -1898,7 +1870,6 @@ def main():
                             # White win, draw, black win
                             game_controller.result_abb = "*"
                             for grid in Grid.grid_list:
-                                grid.save_history(game_controller.move_counter, game_controller.WHOSETURN)
                                 for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                                                    PlayKnight.white_knight_list, PlayRook.white_rook_list, 
                                                    PlayQueen.white_queen_list, PlayKing.white_king_list,
@@ -1919,6 +1890,7 @@ def main():
                                                                             PlayKnight.black_knight_list, PlayRook.black_rook_list, 
                                                                             PlayQueen.black_queen_list, PlayKing.black_king_list]:
                                                     for piece_captured in piece_captured_list:
+                                                        # Moving captured piece off the board
                                                         if piece_captured.coordinate == grid.coordinate:
                                                             if piece_captured.color == "black":
                                                                 piece_captured.captured(game_controller.black_captured_x, black_captured_y)
@@ -1956,6 +1928,7 @@ def main():
                                                 if old_grid.coordinate == piece.coordinate:
                                                     old_grid.occupied = False
                                                     piece.previous_coordinate = old_grid.coordinate
+                                                    old_grid.prior_move_color = True
                                                     
                                             # Moving piece, removing piece and grid highlights, changing Turn
                                             piece.rect.topleft = grid.rect.topleft
@@ -2054,6 +2027,7 @@ def main():
                                                 def checkmate_check(game_controller):
                                                     for subgrid in Grid.grid_list:
                                                         if subgrid.highlighted == True:
+                                                            # If able to detect that a grid can be highlighted, that means it's NOT checkmate
                                                             return "+", "*"
                                                     Text_Controller.check_checkmate_text = "White wins"
                                                     return "#", "1-0"
@@ -2068,6 +2042,7 @@ def main():
                                                 def checkmate_check(game_controller):
                                                     for subgrid in Grid.grid_list:
                                                         if subgrid.highlighted == True:
+                                                            # If able to detect that a grid can be highlighted, that means it's NOT checkmate
                                                             return "+", "*"
                                                     Text_Controller.check_checkmate_text = "Black wins"
                                                     return "#", "0-1"
@@ -2195,31 +2170,25 @@ def main():
                             PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(game_controller.game_mode)
                             Text_Controller.body_text = ""
                             log.info("Play Mode Activated\n")
-        
-                            for placed_white_pawn in PlacedPawn.white_pawn_list:
-                                PlayPawn(placed_white_pawn.rect.topleft, PLAY_SPRITES, "white")
-                            for placed_white_bishop in PlacedBishop.white_bishop_list:
-                                PlayBishop(placed_white_bishop.rect.topleft, PLAY_SPRITES, "white")
-                            for placed_white_knight in PlacedKnight.white_knight_list:
-                                PlayKnight(placed_white_knight.rect.topleft, PLAY_SPRITES, "white")
-                            for placed_white_rook in PlacedRook.white_rook_list:
-                                PlayRook(placed_white_rook.rect.topleft, PLAY_SPRITES, "white")
-                            for placed_white_queen in PlacedQueen.white_queen_list:
-                                PlayQueen(placed_white_queen.rect.topleft, PLAY_SPRITES, "white")    
-                            for placed_white_king in PlacedKing.white_king_list:
-                                PlayKing(placed_white_king.rect.topleft, PLAY_SPRITES, "white")
-                            for placed_black_pawn in PlacedPawn.black_pawn_list:
-                                PlayPawn(placed_black_pawn.rect.topleft, PLAY_SPRITES, "black")
-                            for placed_black_bishop in PlacedBishop.black_bishop_list:
-                                PlayBishop(placed_black_bishop.rect.topleft, PLAY_SPRITES, "black")
-                            for placed_black_knight in PlacedKnight.black_knight_list:
-                                PlayKnight(placed_black_knight.rect.topleft, PLAY_SPRITES, "black")
-                            for placed_black_rook in PlacedRook.black_rook_list:
-                                PlayRook(placed_black_rook.rect.topleft, PLAY_SPRITES, "black")
-                            for placed_black_queen in PlacedQueen.black_queen_list:
-                                PlayQueen(placed_black_queen.rect.topleft, PLAY_SPRITES, "black")    
-                            for placed_black_king in PlacedKing.black_king_list:
-                                PlayKing(placed_black_king.rect.topleft, PLAY_SPRITES, "black")
+                            
+                            def placed_to_play(placed_list, class_obj, sprite_group, color):
+                                # Play pieces spawn where their placed piece correspondents are located
+                                for placed_obj in placed_list:
+                                    class_obj(placed_obj.rect.topleft, sprite_group, color)
+
+                            placed_to_play(PlacedPawn.white_pawn_list, PlayPawn, PLAY_SPRITES, "white")
+                            placed_to_play(PlacedBishop.white_bishop_list, PlayBishop, PLAY_SPRITES, "white")
+                            placed_to_play(PlacedKnight.white_knight_list, PlayKnight, PLAY_SPRITES, "white")
+                            placed_to_play(PlacedRook.white_rook_list, PlayRook, PLAY_SPRITES, "white")
+                            placed_to_play(PlacedQueen.white_queen_list, PlayQueen, PLAY_SPRITES, "white")
+                            placed_to_play(PlacedKing.white_king_list, PlayKing, PLAY_SPRITES, "white")
+                            placed_to_play(PlacedPawn.black_pawn_list, PlayPawn, PLAY_SPRITES, "black")
+                            placed_to_play(PlacedBishop.black_bishop_list, PlayBishop, PLAY_SPRITES, "black")
+                            placed_to_play(PlacedKnight.black_knight_list, PlayKnight, PLAY_SPRITES, "black")
+                            placed_to_play(PlacedRook.black_rook_list, PlayRook, PLAY_SPRITES, "black")
+                            placed_to_play(PlacedQueen.black_queen_list, PlayQueen, PLAY_SPRITES, "black")
+                            placed_to_play(PlacedKing.black_king_list, PlayKing, PLAY_SPRITES, "black")
+                            
                             game_controller.WHOSETURN = "white"
                             GRID_SPRITES.update(game_controller)
                             game_controller.projected_white_update()
@@ -2255,80 +2224,27 @@ def main():
                 ##################
                 # ALL EDIT ACTIONS
                 ##################
-                # Replace start sprite with blank box in top menu
+                # Start piece is dragging according to where the mouse is
                 if game_controller.game_mode == game_controller.EDIT_MODE:
-                    if DRAGGING.white_pawn:
-                        START.blank_box.rect.topleft = STARTPOS['white_pawn'] # Replaces in Menu
-                        START.white_pawn.rect.topleft = (MOUSEPOS[0]-(START.white_pawn.image.get_width()/2),
-                                                       MOUSEPOS[1]-(START.white_pawn.image.get_height()/2))
-                    else:
-                        START.white_pawn.rect.topleft = STARTPOS['white_pawn']
-                    if DRAGGING.white_bishop:
-                        START.blank_box.rect.topleft = STARTPOS['white_bishop'] # Replaces in Menu
-                        START.white_bishop.rect.topleft = (MOUSEPOS[0]-(START.white_bishop.image.get_width()/2),
-                                                       MOUSEPOS[1]-(START.white_bishop.image.get_height()/2))
-                    else:
-                        START.white_bishop.rect.topleft = STARTPOS['white_bishop']
-                    if DRAGGING.white_knight:
-                        START.blank_box.rect.topleft = STARTPOS['white_knight'] # Replaces in Menu
-                        START.white_knight.rect.topleft = (MOUSEPOS[0]-(START.white_knight.image.get_width()/2),
-                                                       MOUSEPOS[1]-(START.white_knight.image.get_height()/2))
-                    else:
-                        START.white_knight.rect.topleft = STARTPOS['white_knight']    
-                    if DRAGGING.white_rook:
-                        START.blank_box.rect.topleft = STARTPOS['white_rook'] # Replaces in Menu
-                        START.white_rook.rect.topleft = (MOUSEPOS[0]-(START.white_rook.image.get_width()/2),
-                                                       MOUSEPOS[1]-(START.white_rook.image.get_height()/2))
-                    else:
-                        START.white_rook.rect.topleft = STARTPOS['white_rook']                       
-                    if DRAGGING.white_queen:
-                        START.blank_box.rect.topleft = STARTPOS['white_queen'] # Replaces in Menu
-                        START.white_queen.rect.topleft = (MOUSEPOS[0]-(START.white_queen.image.get_width()/2),
-                                                       MOUSEPOS[1]-(START.white_queen.image.get_height()/2))
-                    else:
-                        START.white_queen.rect.topleft = STARTPOS['white_queen']                            
-                    if DRAGGING.white_king:
-                        START.blank_box.rect.topleft = STARTPOS['white_king'] # Replaces in Menu
-                        START.white_king.rect.topleft = (MOUSEPOS[0]-(START.white_king.image.get_width()/2),
-                                                       MOUSEPOS[1]-(START.white_king.image.get_height()/2))
-                    else:
-                        START.white_king.rect.topleft = STARTPOS['white_king']                     
-                    if DRAGGING.black_pawn:
-                        START.blank_box.rect.topleft = STARTPOS['black_pawn'] # Replaces in Menu
-                        START.black_pawn.rect.topleft = (MOUSEPOS[0]-(START.black_pawn.image.get_width()/2),
-                                                       MOUSEPOS[1]-(START.black_pawn.image.get_height()/2))
-                    else:
-                        START.black_pawn.rect.topleft = STARTPOS['black_pawn']
-                    if DRAGGING.black_bishop:
-                        START.blank_box.rect.topleft = STARTPOS['black_bishop'] # Replaces in Menu
-                        START.black_bishop.rect.topleft = (MOUSEPOS[0]-(START.black_bishop.image.get_width()/2),
-                                                       MOUSEPOS[1]-(START.black_bishop.image.get_height()/2))
-                    else:
-                        START.black_bishop.rect.topleft = STARTPOS['black_bishop']
-                    if DRAGGING.black_knight:
-                        START.blank_box.rect.topleft = STARTPOS['black_knight'] # Replaces in Menu
-                        START.black_knight.rect.topleft = (MOUSEPOS[0]-(START.black_knight.image.get_width()/2),
-                                                       MOUSEPOS[1]-(START.black_knight.image.get_height()/2))
-                    else:
-                        START.black_knight.rect.topleft = STARTPOS['black_knight']    
-                    if DRAGGING.black_rook:
-                        START.blank_box.rect.topleft = STARTPOS['black_rook'] # Replaces in Menu
-                        START.black_rook.rect.topleft = (MOUSEPOS[0]-(START.black_rook.image.get_width()/2),
-                                                       MOUSEPOS[1]-(START.black_rook.image.get_height()/2))
-                    else:
-                        START.black_rook.rect.topleft = STARTPOS['black_rook']                       
-                    if DRAGGING.black_queen:
-                        START.blank_box.rect.topleft = STARTPOS['black_queen'] # Replaces in Menu
-                        START.black_queen.rect.topleft = (MOUSEPOS[0]-(START.black_queen.image.get_width()/2),
-                                                       MOUSEPOS[1]-(START.black_queen.image.get_height()/2))
-                    else:
-                        START.black_queen.rect.topleft = STARTPOS['black_queen']                            
-                    if DRAGGING.black_king:
-                        START.blank_box.rect.topleft = STARTPOS['black_king'] # Replaces in Menu
-                        START.black_king.rect.topleft = (MOUSEPOS[0]-(START.black_king.image.get_width()/2),
-                                                       MOUSEPOS[1]-(START.black_king.image.get_height()/2))
-                    else:
-                        START.black_king.rect.topleft = STARTPOS['black_king']                        
+                    def replace_start_sprite_with_black_box(dragging_obj, start_blank_box_var, start_obj_pos, start_obj, mouse_pos):
+                        if dragging_obj:
+                            start_blank_box_var.rect.topleft = start_obj_pos
+                            start_obj.rect.topleft = (mouse_pos[0]-(start_obj.image.get_width()/2),
+                                                      mouse_pos[1]-(start_obj.image.get_height()/2))
+                        else:
+                            start_obj.rect.topleft = start_obj_pos
+                    replace_start_sprite_with_black_box(DRAGGING.white_pawn, START.blank_box, STARTPOS['white_pawn'], START.white_pawn, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.white_bishop, START.blank_box, STARTPOS['white_bishop'], START.white_bishop, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.white_knight, START.blank_box, STARTPOS['white_knight'], START.white_knight, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.white_rook, START.blank_box, STARTPOS['white_rook'], START.white_rook, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.white_queen, START.blank_box, STARTPOS['white_queen'], START.white_queen, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.white_king, START.blank_box, STARTPOS['white_king'], START.white_king, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.black_pawn, START.blank_box, STARTPOS['black_pawn'], START.black_pawn, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.black_bishop, START.blank_box, STARTPOS['black_bishop'], START.black_bishop, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.black_knight, START.blank_box, STARTPOS['black_knight'], START.black_knight, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.black_rook, START.blank_box, STARTPOS['black_rook'], START.black_rook, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.black_queen, START.blank_box, STARTPOS['black_queen'], START.black_queen, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.black_king, START.blank_box, STARTPOS['black_king'], START.black_king, MOUSEPOS)                      
             
                 ##################
                 # IN-GAME ACTIONS
@@ -2383,7 +2299,7 @@ def main():
                     log.info("Entering debug mode")
                     debug_message = 0
                     # USE BREAKPOINT HERE
-                    
+                    print(str(START.__dict__))
                     log.info("Use breakpoint here")
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
