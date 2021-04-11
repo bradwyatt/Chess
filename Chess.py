@@ -1301,7 +1301,7 @@ class Game_Controller():
         self.attacker_piece = ""
         # No highlights and ensuring that attacking squares (used by diagonal pieces) are set to 0
         for grid in Grid.grid_list:
-            grid.no_highlight()
+            #grid.no_highlight()
             grid.list_of_white_pieces_attacking = []
             grid.list_of_black_pieces_attacking = []
         for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
@@ -1476,7 +1476,7 @@ def draw_moves(my_font, body_text, scroll, game_controller):
     if len(game_controller.df_moves) >= 1:
         spacing_length = 21
         # White was latest move
-        print("SCROLL: " + str(scroll))
+        #print("SCROLL: " + str(scroll))
         if game_controller.WHOSETURN == "black":
             if len(game_controller.df_moves) < 10:
                 selected_move_rectangle = SelectedMoveRectangle(SCREEN_WIDTH-206, 89+spacing_length*(len(game_controller.df_moves)), 20, 45)
@@ -1919,6 +1919,7 @@ def main():
                                                                             PlayKnight.black_knight_list, PlayRook.black_rook_list, 
                                                                             PlayQueen.black_queen_list, PlayKing.black_king_list]:
                                                     for piece_captured in piece_captured_list:
+                                                        # Moving captured piece off the board
                                                         if piece_captured.coordinate == grid.coordinate:
                                                             if piece_captured.color == "black":
                                                                 piece_captured.captured(game_controller.black_captured_x, black_captured_y)
@@ -1956,6 +1957,7 @@ def main():
                                                 if old_grid.coordinate == piece.coordinate:
                                                     old_grid.occupied = False
                                                     piece.previous_coordinate = old_grid.coordinate
+                                                    old_grid.image = IMAGES["SPR_PRIOR_MOVE_GRID"]
                                                     
                                             # Moving piece, removing piece and grid highlights, changing Turn
                                             piece.rect.topleft = grid.rect.topleft
