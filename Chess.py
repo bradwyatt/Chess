@@ -6,11 +6,15 @@ Scroll bar for moves based on https://www.reddit.com/r/pygame/comments/94czzs/te
 PLEASE do new console after each time exiting the program
 
 Round 2 Thoughts:
+Prior move color
+Play back one move
+Undo move
 Highlight move (that we're on, or examining) on the right side. I will probably want to get move number on left side and white move, and then black move several spaces from the end of the width. Will need to work on body_text Text_Controller stuff
 Pause mode- The board has the Placed pieces, and you can go back and forward in your analysis. But you can't bring in new pieces
-Eventually when figuring out how to do undo move, the dead pieces should still remember their last square (in the order that they've gone away)
 I'd really like to get rid of hardcoding values, like pos_load_file for resetting board
 Sounds
+Making sure that we are doing promotion correctly
+Perhaps using a direction arrow (like babaschess) to determine which piece could take the other piece. This could get confusing when flipping board though
                                                                                                          
 Testing (these are all in logs or PGN_Incorrect_Notation folder):
 Found a bug in castling there's a screenshot of it. This was before figuring out how to do moves, so ignore until you find again
@@ -1495,23 +1499,23 @@ def draw_moves(my_font, body_text, scroll, game_controller):
         #print("SCROLL: " + str(scroll))
         if game_controller.WHOSETURN == "black":
             if len(game_controller.df_moves) < 10:
-                selected_move_rectangle = SelectedMoveRectangle(SCREEN_WIDTH-206, 89+spacing_length*(len(game_controller.df_moves)), 20, 45)
+                selected_move_rectangle = SelectedMoveRectangle(SCREEN_WIDTH-206, 89+spacing_length*(len(game_controller.df_moves)), 20, 56)
                 selected_move_rectangle.draw(SCREEN)
             elif len(game_controller.df_moves) >= 10 and len(game_controller.df_moves) < 20:
-                selected_move_rectangle = SelectedMoveRectangle(SCREEN_WIDTH-206, 89+spacing_length*(len(game_controller.df_moves)), 20, 45)
+                selected_move_rectangle = SelectedMoveRectangle(SCREEN_WIDTH-206, 89+spacing_length*(len(game_controller.df_moves)), 20, 56)
                 selected_move_rectangle.draw(SCREEN)   
             elif len(game_controller.df_moves) >= 20 and game_controller.move_counter - Text_Controller.scroll == Text_Controller.max_moves_that_fits_pane:
                 # If current move then highlight
-                selected_move_rectangle = SelectedMoveRectangle(SCREEN_WIDTH-206, 89+spacing_length*19, 20, 45)
+                selected_move_rectangle = SelectedMoveRectangle(SCREEN_WIDTH-206, 89+spacing_length*19, 20, 56)
                 selected_move_rectangle.draw(SCREEN)
 
         elif game_controller.WHOSETURN == "white":
             if len(game_controller.df_moves) < 20:
-                selected_move_rectangle_black = SelectedMoveRectangle(SCREEN_WIDTH-127, 89+spacing_length*(len(game_controller.df_moves)), 20, 45)
+                selected_move_rectangle_black = SelectedMoveRectangle(SCREEN_WIDTH-127, 89+spacing_length*(len(game_controller.df_moves)), 20, 56)
                 selected_move_rectangle_black.draw(SCREEN)
             elif len(game_controller.df_moves) >= 20 and game_controller.move_counter - Text_Controller.scroll == Text_Controller.max_moves_that_fits_pane + 1:
                 # If current move then highlight
-                selected_move_rectangle_black = SelectedMoveRectangle(SCREEN_WIDTH-127, 89+spacing_length*19, 20, 45)
+                selected_move_rectangle_black = SelectedMoveRectangle(SCREEN_WIDTH-127, 89+spacing_length*19, 20, 56)
                 selected_move_rectangle_black.draw(SCREEN)
     
     #draw the floating header
@@ -1874,6 +1878,7 @@ def main():
                             check_abb = ""
                             # White win, draw, black win
                             game_controller.result_abb = "*"
+                            prior_moves_dict = {}
                             for grid in Grid.grid_list:
                                 for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                                                    PlayKnight.white_knight_list, PlayRook.white_rook_list, 
@@ -1934,12 +1939,14 @@ def main():
                                                     old_grid.occupied = False
                                                     piece.previous_coordinate = old_grid.coordinate
                                                     piece.coordinate_history[game_controller.move_counter] = {'before':piece.previous_coordinate}
+                                                    prior_moves_dict['before'] = piece.previous_coordinate
                                                     old_grid.prior_move_color = True
                                                     
                                             # Moving piece, removing piece and grid highlights, changing Turn
                                             piece.rect.topleft = grid.rect.topleft
                                             piece.coordinate = grid.coordinate
                                             piece.coordinate_history[game_controller.move_counter]['after'] = piece.coordinate
+                                            prior_moves_dict['after'] = piece.coordinate
                                             grid.occupied = True
                                             piece.no_highlight()
                                             
@@ -2093,21 +2100,27 @@ def main():
                                                     move_text = move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb) + " "
                                                     game_controller.df_moves.loc[game_controller.move_counter-1, "black_move"] = move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
                                                     piece.coordinate_history[game_controller.move_counter-1]['move_notation'] = move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
+                                                    prior_moves_dict['move_notation'] = move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
                                                 else:
                                                     move_text = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb) + " "
                                                     game_controller.df_moves.loc[game_controller.move_counter-1, "black_move"] = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
                                                     piece.coordinate_history[game_controller.move_counter-1]['move_notation'] = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
+                                                    prior_moves_dict['move_notation'] = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
+                                                game_controller.df_prior_moves.loc[game_controller.move_counter-1, "black_move"] = str(prior_moves_dict)
                                             elif(game_controller.WHOSETURN == "black"):
                                                 if special_abb == "=Q":
                                                     move_text = str(game_controller.move_counter) + ". " + \
                                                           move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb) + " "
                                                     game_controller.df_moves.loc[game_controller.move_counter] = [move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb), '']
                                                     piece.coordinate_history[game_controller.move_counter]['move_notation'] = move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
+                                                    prior_moves_dict['move_notation'] = move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
                                                 else:
                                                     move_text = str(game_controller.move_counter) + ". " + \
                                                           move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb) + " "
                                                     game_controller.df_moves.loc[game_controller.move_counter] = [move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb), '']
                                                     piece.coordinate_history[game_controller.move_counter]['move_notation'] = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
+                                                    prior_moves_dict['move_notation'] = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
+                                                game_controller.df_prior_moves.loc[game_controller.move_counter, "white_move"] = str(prior_moves_dict)
                                             Text_Controller.body_text += move_text
                                             log.info(move_text)
                                             if game_controller.result_abb != "*":
@@ -2313,7 +2326,7 @@ def main():
                     log.info("Entering debug mode")
                     debug_message = 0
                     # USE BREAKPOINT HERE
-                    #print(str(START.__dict__))
+                    print(str(game_controller.df_prior_moves))
                     log.info("Use breakpoint here")
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
