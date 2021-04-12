@@ -1952,6 +1952,7 @@ def main():
                                                 if int(piece.coordinate[1]) == 8:
                                                     special_abb = "=Q"
                                                     promoted_queen = PlayQueen(piece.rect.topleft, PLAY_SPRITES, "white")
+                                                    print("QUEEN COORDINATE? " + str(promoted_queen.__dict__))
                                                     promoted_queen.previous_coordinate = piece.previous_coordinate
                                                     # Take white pawn off the board
                                                     piece.promoted()
@@ -2102,7 +2103,7 @@ def main():
                                                     move_text = str(game_controller.move_counter) + ". " + \
                                                           move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb) + " "
                                                     game_controller.df_moves.loc[game_controller.move_counter] = [move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb), '']
-                                                    piece.coordinate_history[game_controller.move_counter]['move_notation'] = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
+                                                    piece.coordinate_history[game_controller.move_counter]['move_notation'] = move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
                                                 else:
                                                     move_text = str(game_controller.move_counter) + ". " + \
                                                           move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb) + " "
