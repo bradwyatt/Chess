@@ -1952,7 +1952,6 @@ def main():
                                                 if int(piece.coordinate[1]) == 8:
                                                     special_abb = "=Q"
                                                     promoted_queen = PlayQueen(piece.rect.topleft, PLAY_SPRITES, "white")
-                                                    print("QUEEN COORDINATE? " + str(promoted_queen.__dict__))
                                                     promoted_queen.previous_coordinate = piece.previous_coordinate
                                                     # Take white pawn off the board
                                                     piece.promoted()
@@ -2314,7 +2313,7 @@ def main():
                     log.info("Entering debug mode")
                     debug_message = 0
                     # USE BREAKPOINT HERE
-                    print(str(START.__dict__))
+                    #print(str(START.__dict__))
                     log.info("Use breakpoint here")
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
