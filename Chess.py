@@ -6,6 +6,7 @@ Scroll bar for moves based on https://www.reddit.com/r/pygame/comments/94czzs/te
 PLEASE do new console after each time exiting the program
 
 Round 2 Thoughts:
+Replace the scroll bar logic with the following. Create a list of SelectedMoveRectangle(s) from parent class. Self.text should be the move. The text blitted to the screen should take from the rectangle with the same X. When scrolling, the rectangle Y will change, and when it's out of boundary of 19 moves then be invisible and unclickable.
 Prior move color
 Play back one move
 Undo move
