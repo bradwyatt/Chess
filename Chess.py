@@ -106,6 +106,7 @@ STARTPOS = {'white_pawn': (480, 390), 'white_bishop':(480, 340), 'white_knight':
 
 move_bg_image = pygame.image.load('Sprites/move_bg.png')
 START_SPRITES = pygame.sprite.Group()
+RECTANGLE_SPRITES = pygame.sprite.Group()
 
 
 def snap_to_grid(pos, x_range, y_range):
@@ -1494,30 +1495,16 @@ def draw_text(surface, text, color, rectangle, scroll, my_font):
 #draw the text window at coordinates x,y
 def draw_moves(my_font, body_text, scroll, game_controller):
     SCREEN.blit(move_bg_image, (675,70))
+    spacing_length = 21
     if len(game_controller.df_moves) >= 1:
-        spacing_length = 21
         # White was latest move
         #print("SCROLL: " + str(scroll))
-        if game_controller.WHOSETURN == "black":
-            if len(game_controller.df_moves) < 10:
-                selected_move_rectangle = SelectedMoveRectangle(SCREEN_WIDTH-206, 89+spacing_length*(len(game_controller.df_moves)), 20, 56)
-                selected_move_rectangle.draw(SCREEN)
-            elif len(game_controller.df_moves) >= 10 and len(game_controller.df_moves) < 20:
-                selected_move_rectangle = SelectedMoveRectangle(SCREEN_WIDTH-206, 89+spacing_length*(len(game_controller.df_moves)), 20, 56)
-                selected_move_rectangle.draw(SCREEN)   
-            elif len(game_controller.df_moves) >= 20 and game_controller.move_counter - Text_Controller.scroll == Text_Controller.max_moves_that_fits_pane:
-                # If current move then highlight
-                selected_move_rectangle = SelectedMoveRectangle(SCREEN_WIDTH-206, 89+spacing_length*19, 20, 56)
-                selected_move_rectangle.draw(SCREEN)
-
-        elif game_controller.WHOSETURN == "white":
-            if len(game_controller.df_moves) < 20:
-                selected_move_rectangle_black = SelectedMoveRectangle(SCREEN_WIDTH-127, 89+spacing_length*(len(game_controller.df_moves)), 20, 56)
-                selected_move_rectangle_black.draw(SCREEN)
-            elif len(game_controller.df_moves) >= 20 and game_controller.move_counter - Text_Controller.scroll == Text_Controller.max_moves_that_fits_pane + 1:
-                # If current move then highlight
-                selected_move_rectangle_black = SelectedMoveRectangle(SCREEN_WIDTH-127, 89+spacing_length*19, 20, 56)
-                selected_move_rectangle_black.draw(SCREEN)
+        for move_num in range(1,len(game_controller.df_moves)+1):
+            if move_num not in SelectedMoveRectangle.rectangle_dict.keys():
+                selected_move_rectangle = SelectedMoveRectangle(move_num, SCREEN_WIDTH-206, 89+spacing_length*move_num, 20, 56, RECTANGLE_SPRITES)
+        for move_num in range(1,len(game_controller.df_moves)+1):
+            if move_num not in SelectedMoveRectangle.rectangle_dict.keys():
+                selected_move_rectangle_black = SelectedMoveRectangle(move_num, SCREEN_WIDTH-127, 89+spacing_length*move_num, 20, 56, RECTANGLE_SPRITES)
     
     #draw the floating header
     #text = my_font.render(header_text, True, [255,255,255])
@@ -2292,6 +2279,7 @@ def main():
                 GAME_MODE_SPRITES.draw(SCREEN)
                 GRID_SPRITES.draw(SCREEN)
                 GRID_SPRITES.update(game_controller)
+                RECTANGLE_SPRITES.draw(SCREEN)
                 if(game_controller.game_mode == game_controller.EDIT_MODE): #Only draw placed sprites in editing mode
                     START_SPRITES.draw(SCREEN)
                     PLACED_SPRITES.draw(SCREEN)    
