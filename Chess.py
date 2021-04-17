@@ -1506,10 +1506,10 @@ def draw_moves(my_font, body_text, scroll, game_controller):
             SelectedMoveRectangle.rectangle_dict[len(game_controller.df_moves)] = []
         # If last move is in dictionary but has no white move, and rectangle_dict key for that move is length 0
         if game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'] != '' and len(SelectedMoveRectangle.rectangle_dict[len(game_controller.df_moves)]) == 0:
-            SelectedMoveRectangle(len(game_controller.df_moves), SCREEN_WIDTH-206, 89+spacing_length*len(game_controller.df_moves), 20, 56, RECTANGLE_SPRITES)
+            SelectedMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'], SCREEN_WIDTH-206, 89+spacing_length*len(game_controller.df_moves), 20, 56, RECTANGLE_SPRITES)
         # If last move is in dictionary but has no black move, and rectangle_dict key for that move is length 1
         if game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'] != '' and len(SelectedMoveRectangle.rectangle_dict[len(game_controller.df_moves)]) == 1:
-            SelectedMoveRectangle(len(game_controller.df_moves), SCREEN_WIDTH-127, 89+spacing_length*len(game_controller.df_moves), 20, 56, RECTANGLE_SPRITES)
+            SelectedMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'], SCREEN_WIDTH-127, 89+spacing_length*len(game_controller.df_moves), 20, 56, RECTANGLE_SPRITES)
         test_text = my_font.render("yayyyyy", True, [255,255,255])
         SCREEN.blit(test_text, (SCREEN_WIDTH-210, 89+spacing_length*len(game_controller.df_moves)))
     #draw the floating header
@@ -1701,6 +1701,9 @@ def main():
                             pass
                         if PGN_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
                             PGN_WRITER.write_moves(game_controller.df_moves, game_controller.result_abb)
+                        for rectangle in SelectedMoveRectangle.rectangle_list:
+                            if rectangle.rect.collidepoint(MOUSEPOS):
+                                print(rectangle.move_notation)
                         # Editing mode only
                         if game_controller.game_mode == game_controller.EDIT_MODE:
                             #BUTTONS
@@ -2280,7 +2283,7 @@ def main():
                 #PLAY_SPRITES.update()
                 SCREEN.fill(COLORKEY)
                 
-                draw_moves(move_notation_font, Text_Controller.body_text, Text_Controller.scroll, game_controller)
+                #draw_moves(move_notation_font, Text_Controller.body_text, Text_Controller.scroll, game_controller)
                 
                 GAME_MODE_SPRITES.draw(SCREEN)
                 GRID_SPRITES.draw(SCREEN)
@@ -2292,6 +2295,7 @@ def main():
                 elif(game_controller.game_mode == game_controller.PLAY_MODE): #Only draw play sprites in play mode
                     PLAY_SPRITES.draw(SCREEN)
                 RECTANGLE_SPRITES.draw(SCREEN)
+                draw_moves(move_notation_font, Text_Controller.body_text, Text_Controller.scroll, game_controller)
                 # Update objects that aren't in a sprite group
                 SCROLL_UP_BUTTON.update(Text_Controller.scroll)
                 SCROLL_UP_BUTTON.draw(SCREEN)
