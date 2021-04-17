@@ -150,7 +150,9 @@ class SelectedMoveRectangle(pygame.sprite.Sprite):
         self.x = x
         self.y = y
         self.image = pygame.Surface((height, width))
-        self.image.fill((255, 211, 0))
+        self.image.set_alpha(128)
+        self.image.fill((255, 255, 255))
+        #self.image.fill((255, 211, 0))
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.x, self.y)
         self.height = height

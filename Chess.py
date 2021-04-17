@@ -2299,7 +2299,7 @@ def main():
                     PLACED_SPRITES.draw(SCREEN)    
                 elif(game_controller.game_mode == game_controller.PLAY_MODE): #Only draw play sprites in play mode
                     PLAY_SPRITES.draw(SCREEN)
-                RECTANGLE_SPRITES.draw(SCREEN)
+                #RECTANGLE_SPRITES.draw(SCREEN)
                 draw_moves(move_notation_font, Text_Controller.body_text, Text_Controller.scroll, game_controller)
                 # Update objects that aren't in a sprite group
                 SCROLL_UP_BUTTON.update(Text_Controller.scroll)
