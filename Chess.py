@@ -1504,10 +1504,10 @@ def draw_moves(my_font, body_text, scroll, game_controller):
         # If the last move is not in the dictionary, then add it
         if len(game_controller.df_moves) not in SelectedMoveRectangle.rectangle_dict:
             SelectedMoveRectangle.rectangle_dict[len(game_controller.df_moves)] = []
-        # If last move is in dictionary but has no white move, and the key doesn't already exist in the rectangle_dict
+        # If last move is in dictionary but has no white move, and rectangle_dict key for that move is length 0
         if game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'] != '' and len(SelectedMoveRectangle.rectangle_dict[len(game_controller.df_moves)]) == 0:
             SelectedMoveRectangle(len(game_controller.df_moves), SCREEN_WIDTH-206, 89+spacing_length*len(game_controller.df_moves), 20, 56, RECTANGLE_SPRITES)
-        # If last move is in dictionary but has no black move
+        # If last move is in dictionary but has no black move, and rectangle_dict key for that move is length 1
         if game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'] != '' and len(SelectedMoveRectangle.rectangle_dict[len(game_controller.df_moves)]) == 1:
             SelectedMoveRectangle(len(game_controller.df_moves), SCREEN_WIDTH-127, 89+spacing_length*len(game_controller.df_moves), 20, 56, RECTANGLE_SPRITES)
         test_text = my_font.render("yayyyyy", True, [255,255,255])
