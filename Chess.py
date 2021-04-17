@@ -1427,6 +1427,11 @@ class Text_Controller():
             final_move = int(re.findall(re.compile(r'\d{1,3}\.'), body_text)[-1].replace(".",""))
             # 19 moves at a time
             return final_move-Text_Controller.max_moves_that_fits_pane
+    def new_draw_text(surface, my_font):
+        for rectangle in SelectedMoveRectangle.rectangle_list:
+            test_text = my_font.render(rectangle.move_notation, True, [255,255,255])
+            surface.blit(test_text, (rectangle.x, rectangle.y))
+        
 
 def draw_text(surface, text, color, rectangle, scroll, my_font):
     y = rectangle[1]
@@ -1494,8 +1499,8 @@ def draw_text(surface, text, color, rectangle, scroll, my_font):
                 
 #draw the text window at coordinates x,y
 def draw_moves(my_font, body_text, scroll, game_controller):
-    SCREEN.blit(move_bg_image, (675,70))
     spacing_length = 21
+    new_rect = None
     if len(game_controller.df_moves) >= 1:
         # White was latest move
         #print("SCROLL: " + str(scroll))
@@ -1506,18 +1511,17 @@ def draw_moves(my_font, body_text, scroll, game_controller):
             SelectedMoveRectangle.rectangle_dict[len(game_controller.df_moves)] = []
         # If last move is in dictionary but has no white move, and rectangle_dict key for that move is length 0
         if game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'] != '' and len(SelectedMoveRectangle.rectangle_dict[len(game_controller.df_moves)]) == 0:
-            SelectedMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'], SCREEN_WIDTH-206, 89+spacing_length*len(game_controller.df_moves), 20, 56, RECTANGLE_SPRITES)
+            new_rect = SelectedMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'], SCREEN_WIDTH-206, 89+spacing_length*len(game_controller.df_moves), 20, 56, RECTANGLE_SPRITES)
         # If last move is in dictionary but has no black move, and rectangle_dict key for that move is length 1
         if game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'] != '' and len(SelectedMoveRectangle.rectangle_dict[len(game_controller.df_moves)]) == 1:
-            SelectedMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'], SCREEN_WIDTH-127, 89+spacing_length*len(game_controller.df_moves), 20, 56, RECTANGLE_SPRITES)
-        test_text = my_font.render("yayyyyy", True, [255,255,255])
-        SCREEN.blit(test_text, (SCREEN_WIDTH-210, 89+spacing_length*len(game_controller.df_moves)))
+            new_rect = SelectedMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'], SCREEN_WIDTH-127, 89+spacing_length*len(game_controller.df_moves), 20, 56, RECTANGLE_SPRITES)
+        Text_Controller.new_draw_text(SCREEN, my_font)
     #draw the floating header
     #text = my_font.render(header_text, True, [255,255,255])
     #SCREEN.blit(text, [100, 20])
 
     #draw the main text
-    draw_text(SCREEN, body_text, [255,255,255], [SCREEN_WIDTH-225, 110, 200, 400], scroll, my_font)
+    #draw_text(SCREEN, body_text, [255,255,255], [SCREEN_WIDTH-225, 110, 200, 400], scroll, my_font)
 
 
 
@@ -2289,6 +2293,7 @@ def main():
                 GRID_SPRITES.draw(SCREEN)
                 GRID_SPRITES.update(game_controller)
                 
+                SCREEN.blit(move_bg_image, (675,70))
                 if(game_controller.game_mode == game_controller.EDIT_MODE): #Only draw placed sprites in editing mode
                     START_SPRITES.draw(SCREEN)
                     PLACED_SPRITES.draw(SCREEN)    
