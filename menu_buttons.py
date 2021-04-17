@@ -158,4 +158,4 @@ class SelectedMoveRectangle(pygame.sprite.Sprite):
         self.move = move
         RECTANGLE_SPRITES.add(self)
         SelectedMoveRectangle.rectangle_list.append(self)
-        SelectedMoveRectangle.rectangle_dict[self.move] = self
+        SelectedMoveRectangle.rectangle_dict[move].append(self)

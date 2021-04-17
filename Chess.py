@@ -1499,12 +1499,17 @@ def draw_moves(my_font, body_text, scroll, game_controller):
     if len(game_controller.df_moves) >= 1:
         # White was latest move
         #print("SCROLL: " + str(scroll))
-        for move_num in range(1,len(game_controller.df_moves)+1):
-            if move_num not in SelectedMoveRectangle.rectangle_dict.keys():
-                selected_move_rectangle = SelectedMoveRectangle(move_num, SCREEN_WIDTH-206, 89+spacing_length*move_num, 20, 56, RECTANGLE_SPRITES)
-        for move_num in range(1,len(game_controller.df_moves)+1):
-            if move_num not in SelectedMoveRectangle.rectangle_dict.keys():
-                selected_move_rectangle_black = SelectedMoveRectangle(move_num, SCREEN_WIDTH-127, 89+spacing_length*move_num, 20, 56, RECTANGLE_SPRITES)
+        
+        # Creating move notation rectangles if they haven't been created before for the respective move
+        # If the last move is not in the dictionary, then add it
+        if len(game_controller.df_moves) not in SelectedMoveRectangle.rectangle_dict:
+            SelectedMoveRectangle.rectangle_dict[len(game_controller.df_moves)] = []
+        # If last move is in dictionary but has no white move
+        if game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'] != '':
+            SelectedMoveRectangle(len(game_controller.df_moves), SCREEN_WIDTH-206, 89+spacing_length*len(game_controller.df_moves), 20, 56, RECTANGLE_SPRITES)
+        # If last move is in dictionary but has no black move
+        if game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'] != '':
+            SelectedMoveRectangle(len(game_controller.df_moves), SCREEN_WIDTH-127, 89+spacing_length*len(game_controller.df_moves), 20, 56, RECTANGLE_SPRITES)
     
     #draw the floating header
     #text = my_font.render(header_text, True, [255,255,255])
@@ -2279,12 +2284,13 @@ def main():
                 GAME_MODE_SPRITES.draw(SCREEN)
                 GRID_SPRITES.draw(SCREEN)
                 GRID_SPRITES.update(game_controller)
-                RECTANGLE_SPRITES.draw(SCREEN)
+                
                 if(game_controller.game_mode == game_controller.EDIT_MODE): #Only draw placed sprites in editing mode
                     START_SPRITES.draw(SCREEN)
                     PLACED_SPRITES.draw(SCREEN)    
                 elif(game_controller.game_mode == game_controller.PLAY_MODE): #Only draw play sprites in play mode
                     PLAY_SPRITES.draw(SCREEN)
+                RECTANGLE_SPRITES.draw(SCREEN)
                 # Update objects that aren't in a sprite group
                 SCROLL_UP_BUTTON.update(Text_Controller.scroll)
                 SCROLL_UP_BUTTON.draw(SCREEN)
