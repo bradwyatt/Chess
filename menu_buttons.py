@@ -145,20 +145,19 @@ class PrevMoveButton(pygame.sprite.Sprite):
 class SelectedMoveRectangle(pygame.sprite.Sprite):
     rectangle_list = []
     rectangle_dict = {}
-    def __init__(self, move_number, move_notation, x, y, width, height, RECTANGLE_SPRITES):
+    def __init__(self, move_number, move_notation, x, y, width, height):
         pygame.sprite.Sprite.__init__(self)
         self.x = x
         self.y = y
         self.image = pygame.Surface((height, width))
-        self.image.set_alpha(128)
-        self.image.fill((255, 255, 255))
-        #self.image.fill((255, 211, 0))
+        self.image.fill((255, 211, 0))
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.x, self.y)
         self.height = height
         self.width = width
         self.move_number = move_number
         self.move_notation = move_notation
-        RECTANGLE_SPRITES.add(self)
         SelectedMoveRectangle.rectangle_list.append(self)
         SelectedMoveRectangle.rectangle_dict[move_number].append(self)
+    def draw(self, screen):
+        screen.blit(self.image, (self.rect.topleft))
