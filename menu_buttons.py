@@ -167,7 +167,12 @@ class MoveNumberRectangle(pygame.sprite.Sprite):
     rectangle_dict = {}
     def __init__(self, move_number, x, y, width, height):
         pygame.sprite.Sprite.__init__(self)
-        self.x = x
+        if move_number < 10:
+            self.x = x
+        elif move_number >= 10 and move_number <= 99:
+            self.x = x-7
+        elif move_number >= 100:
+            self.x = x-14
         self.y = y
         self.image = pygame.Surface((height, width))
         self.image.fill((255, 211, 0))
