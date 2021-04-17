@@ -1430,9 +1430,13 @@ class Text_Controller():
             # 19 moves at a time
             return final_move-Text_Controller.max_moves_that_fits_pane
     def new_draw_text(surface, my_font):
+        for move_rect in MoveNumberRectangle.rectangle_list:
+            move_num_text = my_font.render(move_rect.text, True, [255,255,255])
+            surface.blit(move_num_text, (move_rect.x, move_rect.y))
         for rectangle in SelectedMoveRectangle.rectangle_list:
-            test_text = my_font.render(rectangle.move_notation, True, [255,255,255])
-            surface.blit(test_text, (rectangle.x, rectangle.y))
+            move_notation_text = my_font.render(rectangle.move_notation, True, [255,255,255])
+            surface.blit(move_notation_text, (rectangle.x, rectangle.y))
+
         
 
 def draw_text(surface, text, color, rectangle, scroll, my_font):
@@ -1511,8 +1515,10 @@ def draw_moves(my_font, body_text, scroll, game_controller):
         # If the last move is not in the dictionary, then add it
         if len(game_controller.df_moves) not in SelectedMoveRectangle.rectangle_dict:
             SelectedMoveRectangle.rectangle_dict[len(game_controller.df_moves)] = []
+            MoveNumberRectangle.rectangle_dict[len(game_controller.df_moves)] = []
         # If last move is in dictionary but has no white move, and rectangle_dict key for that move is length 0
         if game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'] != '' and len(SelectedMoveRectangle.rectangle_dict[len(game_controller.df_moves)]) == 0:
+            MoveNumberRectangle(len(game_controller.df_moves), SCREEN_WIDTH-220, 89+spacing_length*len(game_controller.df_moves), 20, 56)
             new_rect = SelectedMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'], SCREEN_WIDTH-206, 89+spacing_length*len(game_controller.df_moves), 20, 56)
         # If last move is in dictionary but has no black move, and rectangle_dict key for that move is length 1
         if game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'] != '' and len(SelectedMoveRectangle.rectangle_dict[len(game_controller.df_moves)]) == 1:

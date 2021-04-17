@@ -161,3 +161,24 @@ class SelectedMoveRectangle(pygame.sprite.Sprite):
         SelectedMoveRectangle.rectangle_dict[move_number].append(self)
     def draw(self, screen):
         screen.blit(self.image, (self.rect.topleft))
+        
+class MoveNumberRectangle(pygame.sprite.Sprite):
+    rectangle_list = []
+    rectangle_dict = {}
+    def __init__(self, move_number, x, y, width, height):
+        pygame.sprite.Sprite.__init__(self)
+        self.x = x
+        self.y = y
+        self.image = pygame.Surface((height, width))
+        self.image.fill((255, 211, 0))
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (self.x, self.y)
+        self.height = height
+        self.width = width
+        self.move_number = move_number
+        self.text = str(self.move_number) + "."
+        MoveNumberRectangle.rectangle_list.append(self)
+        MoveNumberRectangle.rectangle_dict[move_number].append(self)
+    def draw(self, screen):
+        screen.blit(self.image, (self.rect.topleft))
+
