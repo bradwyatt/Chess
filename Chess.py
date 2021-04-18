@@ -2252,7 +2252,7 @@ def main():
                         rectangle.draw(SCREEN)
                 draw_moves(move_notation_font, game_controller)
                 # Update objects that aren't in a sprite group
-                #SCROLL_UP_BUTTON.update(Text_Controller.scroll)
+                SCROLL_UP_BUTTON.update()
                 SCROLL_UP_BUTTON.draw(SCREEN)
                 #SCROLL_DOWN_BUTTON.update(game_controller.move_counter, game_controller.WHOSETURN, Text_Controller.max_moves_that_fits_pane, Text_Controller.scroll)
                 SCROLL_DOWN_BUTTON.draw(SCREEN)

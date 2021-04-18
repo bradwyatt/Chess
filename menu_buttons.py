@@ -81,8 +81,8 @@ class ScrollUpButton(pygame.sprite.Sprite):
         self.image = IMAGES["SPR_SCROLL_UP_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
-    def update(self, scroll):
-        if scroll > 0:
+    def update(self):
+        if MoveNumberRectangle.scroll_range[0] != 1:
             self.image = IMAGES["SPR_SCROLL_UP_BUTTON"]
         else:
             self.image = IMAGES["SPR_BLANKBOX"]
