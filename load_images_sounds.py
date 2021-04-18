@@ -4,13 +4,14 @@ import pygame
 from pygame.constants import RLEACCEL
 from pygame.locals import (KEYDOWN, MOUSEBUTTONDOWN, MOUSEBUTTONUP, K_LEFT,
                            K_RIGHT, QUIT, K_ESCAPE)
+import initvar
 
 IMAGES = {}
 SOUNDS = {}
-SCREEN_WIDTH, SCREEN_HEIGHT = 936, 650
+
 #Init
 pygame.init()
-SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT)) #, pygame.FULLSCREEN for fullscreen
+SCREEN = pygame.display.set_mode((initvar.SCREEN_WIDTH, initvar.SCREEN_HEIGHT)) #, pygame.FULLSCREEN for fullscreen
 
 def adjust_to_correct_appdir():
     try:

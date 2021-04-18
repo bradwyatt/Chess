@@ -1436,14 +1436,14 @@ def draw_moves(my_font, game_controller):
             MoveNumberRectangle.rectangle_dict[len(game_controller.df_moves)] = []
         # If last move is in dictionary but has no white move, and rectangle_dict key for that move is length 0
         if game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'] != '' and len(SelectedMoveRectangle.rectangle_dict[len(game_controller.df_moves)]) == 0:
-            MoveNumberRectangle(len(game_controller.df_moves), SCREEN_WIDTH-220, 89+spacing_length*len(game_controller.df_moves), 20, 56)
+            MoveNumberRectangle(len(game_controller.df_moves), initvar.SCREEN_WIDTH-220, 89+spacing_length*len(game_controller.df_moves), 20, 56)
             # Jump to latest move
             if len(game_controller.df_moves) > 19:
                 MoveNumberRectangle.scroll_range[0] = len(game_controller.df_moves) - 18
                 MoveNumberRectangle.scroll_range[1] = len(game_controller.df_moves)
                 for rect in MoveNumberRectangle.rectangle_list:
                     rect.update_Y()
-            SelectedMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'], SCREEN_WIDTH-206, 89+spacing_length*len(game_controller.df_moves), 20, 56)
+            SelectedMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'], initvar.SCREEN_WIDTH-206, 89+spacing_length*len(game_controller.df_moves), 20, 56)
         # If last move is in dictionary but has no black move, and rectangle_dict key for that move is length 1
         if game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'] != '' and len(SelectedMoveRectangle.rectangle_dict[len(game_controller.df_moves)]) == 1:
             # Jump to latest move
@@ -1452,7 +1452,7 @@ def draw_moves(my_font, game_controller):
                 MoveNumberRectangle.scroll_range[1] = len(game_controller.df_moves)
                 for rect in MoveNumberRectangle.rectangle_list:
                     rect.update_Y()
-            SelectedMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'], SCREEN_WIDTH-127, 89+spacing_length*len(game_controller.df_moves), 20, 56)
+            SelectedMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'], initvar.SCREEN_WIDTH-127, 89+spacing_length*len(game_controller.df_moves), 20, 56)
         Text_Controller.draw_text(SCREEN, my_font, game_controller)
     #draw the floating header
     #text = my_font.render(header_text, True, [255,255,255])
@@ -1466,21 +1466,12 @@ def main():
         #Global variables
         MENUON = 1
         
-        #################
-        # USER CAN SET BELOW PARAMETERS
-        #################
-        COLORKEY = [160, 160, 160]
-        X_GRID_START = 48 # First board coordinate for X
-        X_GRID_WIDTH = 48 # How many pixels X is separated by
-        Y_GRID_START = 96 # First board coordinate for Y
-        Y_GRID_HEIGHT = 48 # How many pixels Y is separated by
+        COLORKEY = initvar.COLORKEY_RGB
         
-        #################
-        #################
-        X_GRID_END = X_GRID_START+(X_GRID_WIDTH*8)
-        Y_GRID_END = Y_GRID_START+(Y_GRID_HEIGHT*8)
-        XGRIDRANGE = [X_GRID_START, X_GRID_END, X_GRID_WIDTH] #1st num: begin 2nd: end 3rd: step
-        YGRIDRANGE = [Y_GRID_START, Y_GRID_END, Y_GRID_HEIGHT] #1st num: begin 2nd: end 3rd: step
+        X_GRID_END = initvar.X_GRID_START+(initvar.X_GRID_WIDTH*8)
+        Y_GRID_END = initvar.Y_GRID_START+(initvar.Y_GRID_HEIGHT*8)
+        XGRIDRANGE = [initvar.X_GRID_START, X_GRID_END, initvar.X_GRID_WIDTH] #1st num: begin 2nd: end 3rd: step
+        YGRIDRANGE = [initvar.Y_GRID_START, Y_GRID_END, initvar.Y_GRID_HEIGHT] #1st num: begin 2nd: end 3rd: step
         
         RUNNING, DEBUG = 0, 1
         state = RUNNING
@@ -1505,36 +1496,36 @@ def main():
         
         PGN_WRITER = PGN_Writer()
         
-        PLAY_EDIT_SWITCH_BUTTON = PlayEditSwitchButton((SCREEN_WIDTH-50, 8), GAME_MODE_SPRITES)
-        FLIP_BOARD_BUTTON = FlipBoardButton((SCREEN_WIDTH-480, 10))
+        PLAY_EDIT_SWITCH_BUTTON = PlayEditSwitchButton(initvar.PLAY_EDIT_SWITCH_BUTTON_TOPLEFT, GAME_MODE_SPRITES)
+        FLIP_BOARD_BUTTON = FlipBoardButton(initvar.FLIP_BOARD_BUTTON_TOPLEFT)
         initvar.START_SPRITES.add(FLIP_BOARD_BUTTON)
-        GAME_PROPERTIES_BUTTON = GamePropertiesButton((SCREEN_WIDTH-430, 10))
+        GAME_PROPERTIES_BUTTON = GamePropertiesButton(initvar.GAME_PROPERTIES_BUTTON_TOPLEFT)
         initvar.START_SPRITES.add(GAME_PROPERTIES_BUTTON)
-        INFO_BUTTON = InfoButton((SCREEN_WIDTH-360, 10))
+        INFO_BUTTON = InfoButton(initvar.INFO_BUTTON_TOPLEFT)
         initvar.START_SPRITES.add(INFO_BUTTON)
-        POS_LOAD_FILE_BUTTON = PosLoadFileButton((SCREEN_WIDTH-305, 10))
+        POS_LOAD_FILE_BUTTON = PosLoadFileButton(initvar.POS_LOAD_FILE_BUTTON_TOPLEFT)
         initvar.START_SPRITES.add(POS_LOAD_FILE_BUTTON)
-        POS_SAVE_FILE_BUTTON = PosSaveFileButton((SCREEN_WIDTH-270, 10))
+        POS_SAVE_FILE_BUTTON = PosSaveFileButton(initvar.POS_SAVE_FILE_BUTTON_TOPLEFT)
         initvar.START_SPRITES.add(POS_SAVE_FILE_BUTTON)
-        PGN_LOAD_FILE_BUTTON = PGNLoadFileButton((SCREEN_WIDTH-50, 100))
-        PGN_SAVE_FILE_BUTTON = PGNSaveFileButton((SCREEN_WIDTH-50, 60))
-        COLOR_BUTTON = ColorButton((SCREEN_WIDTH-235, 10))
+        PGN_LOAD_FILE_BUTTON = PGNLoadFileButton(initvar.PGN_LOAD_FILE_BUTTON_TOPLEFT)
+        PGN_SAVE_FILE_BUTTON = PGNSaveFileButton(initvar.PGN_SAVE_FILE_BUTTON_TOPLEFT)
+        COLOR_BUTTON = ColorButton(initvar.COLOR_BUTTON_TOPLEFT)
         initvar.START_SPRITES.add(COLOR_BUTTON)
-        RESET_BOARD_BUTTON = ResetBoardButton((SCREEN_WIDTH-190, 10))
+        RESET_BOARD_BUTTON = ResetBoardButton(initvar.RESET_BOARD_BUTTON_TOPLEFT)
         initvar.START_SPRITES.add(RESET_BOARD_BUTTON)
-        CLEAR_BUTTON = ClearButton((SCREEN_WIDTH-115, 10))
+        CLEAR_BUTTON = ClearButton(initvar.CLEAR_BUTTON_TOPLEFT)
         initvar.START_SPRITES.add(CLEAR_BUTTON)
-        SCROLL_UP_BUTTON = ScrollUpButton((686, 80))
-        SCROLL_DOWN_BUTTON = ScrollDownButton((686, 510))
+        SCROLL_UP_BUTTON = ScrollUpButton(initvar.SCROLL_UP_BUTTON_TOPLEFT)
+        SCROLL_DOWN_BUTTON = ScrollDownButton(initvar.SCROLL_DOWN_BUTTON_TOPLEFT)
         GAME_MODE_SPRITES.add(SCROLL_DOWN_BUTTON)
-        BEGINNING_MOVE_BUTTON = BeginningMoveButton((SCREEN_WIDTH-235, 545), PLAY_SPRITES)
-        PREV_MOVE_BUTTON = PrevMoveButton((SCREEN_WIDTH-195, 545), PLAY_SPRITES)
-        NEXT_MOVE_BUTTON = NextMoveButton((SCREEN_WIDTH-155, 545), PLAY_SPRITES)
-        LAST_MOVE_BUTTON = LastMoveButton((SCREEN_WIDTH-115, 545), PLAY_SPRITES)
+        BEGINNING_MOVE_BUTTON = BeginningMoveButton(initvar.BEGINNING_MOVE_BUTTON_TOPLEFT, PLAY_SPRITES)
+        PREV_MOVE_BUTTON = PrevMoveButton(initvar.PREV_MOVE_BUTTON_TOPLEFT, PLAY_SPRITES)
+        NEXT_MOVE_BUTTON = NextMoveButton(initvar.NEXT_MOVE_BUTTON_TOPLEFT, PLAY_SPRITES)
+        LAST_MOVE_BUTTON = LastMoveButton(initvar.LAST_MOVE_BUTTON_TOPLEFT, PLAY_SPRITES)
         
         #Backgrounds
         INFO_SCREEN = pygame.image.load("Sprites/infoscreen.bmp").convert()
-        INFO_SCREEN = pygame.transform.scale(INFO_SCREEN, (SCREEN_WIDTH, SCREEN_HEIGHT))
+        INFO_SCREEN = pygame.transform.scale(INFO_SCREEN, (initvar.SCREEN_WIDTH, initvar.SCREEN_HEIGHT))
         #window
         gameicon = pygame.image.load("Sprites/chessico.png")
         pygame.display.set_icon(gameicon)
@@ -1558,10 +1549,10 @@ def main():
         coor_8_text = arial_font.render("8", 1, (0, 0, 0))
         
         # Creates grid setting coordinate as list with first element being letter and second being number
-        for x in range(X_GRID_START, X_GRID_END, X_GRID_WIDTH): 
-            for y in range(Y_GRID_START, Y_GRID_END, Y_GRID_HEIGHT): 
+        for x in range(initvar.X_GRID_START, X_GRID_END, initvar.X_GRID_WIDTH): 
+            for y in range(initvar.Y_GRID_START, Y_GRID_END, initvar.Y_GRID_HEIGHT): 
                 grid_pos = x, y
-                grid_coordinate_as_list_element = [chr(int((x-X_GRID_START)/X_GRID_WIDTH)+97), int((Y_GRID_END-y)/Y_GRID_HEIGHT)]
+                grid_coordinate_as_list_element = [chr(int((x-initvar.X_GRID_START)/initvar.X_GRID_WIDTH)+97), int((Y_GRID_END-y)/initvar.Y_GRID_HEIGHT)]
                 grid_coordinate = "".join(map(str, (grid_coordinate_as_list_element)))
                 grid = Grid(GRID_SPRITES, grid_pos, grid_coordinate)
         for grid in Grid.grid_list:
@@ -1629,7 +1620,7 @@ def main():
                                 rect.update_Y()
                                 #rect.scroll_up()
                             print("New MoveNumber List: " + str(MoveNumberRectangle.scroll_range))
-                        if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS) and len(MoveNumberRectangle.rectangle_list) >= 20 and MoveNumberRectangle.scroll_range[1] < len(MoveNumberRectangle.rectangle_list): # Scroll down
+                        if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS) and len(MoveNumberRectangle.rectangle_list) > initvar.MOVES_PANE_MAX_MOVES and MoveNumberRectangle.scroll_range[1] < len(MoveNumberRectangle.rectangle_list): # Scroll down
                             print("scroll down test")
                             MoveNumberRectangle.scroll_range[0] += 1
                             MoveNumberRectangle.scroll_range[1] += 1
@@ -1684,8 +1675,8 @@ def main():
                     
                     # Placed object placed on location of mouse release
                     elif (event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and
-                          MOUSEPOS[0] > X_GRID_START and MOUSEPOS[0] < X_GRID_END and
-                          MOUSEPOS[1] > Y_GRID_START and MOUSEPOS[1] < Y_GRID_END): 
+                          MOUSEPOS[0] > initvar.X_GRID_START and MOUSEPOS[0] < X_GRID_END and
+                          MOUSEPOS[1] > initvar.Y_GRID_START and MOUSEPOS[1] < Y_GRID_END): 
                         def dragging_to_placed_no_dups():
                             for piece_list in [PlacedPawn.white_pawn_list, PlacedBishop.white_bishop_list, 
                                                PlacedKnight.white_knight_list, PlacedRook.white_rook_list, 
@@ -2245,20 +2236,20 @@ def main():
                 # Board Coordinates Drawing
                 coor_letter_text_list = [coor_A_text, coor_B_text, coor_C_text, coor_D_text, coor_E_text, coor_F_text, coor_G_text, coor_H_text]
                 for text in range(0,len(coor_letter_text_list)):
-                    SCREEN.blit(coor_letter_text_list[text], (X_GRID_START+X_GRID_WIDTH/3+(X_GRID_WIDTH*text), Y_GRID_START-(Y_GRID_HEIGHT*0.75)))
-                    SCREEN.blit(coor_letter_text_list[text], (X_GRID_START+X_GRID_WIDTH/3+(X_GRID_WIDTH*text), Y_GRID_END+(Y_GRID_HEIGHT*0.25)))
+                    SCREEN.blit(coor_letter_text_list[text], (initvar.X_GRID_START+initvar.X_GRID_WIDTH/3+(initvar.X_GRID_WIDTH*text), initvar.Y_GRID_START-(initvar.Y_GRID_HEIGHT*0.75)))
+                    SCREEN.blit(coor_letter_text_list[text], (initvar.X_GRID_START+initvar.X_GRID_WIDTH/3+(initvar.X_GRID_WIDTH*text), Y_GRID_END+(initvar.Y_GRID_HEIGHT*0.25)))
                 coor_number_text_list = [coor_8_text, coor_7_text, coor_6_text, coor_5_text, coor_4_text, coor_3_text, coor_2_text, coor_1_text]
                 for text in range(0,len(coor_number_text_list)):
-                    SCREEN.blit(coor_number_text_list[text], (X_GRID_START-X_GRID_WIDTH/2, Y_GRID_START+Y_GRID_HEIGHT/4+(Y_GRID_HEIGHT*text)))
-                    SCREEN.blit(coor_number_text_list[text], (X_GRID_END+X_GRID_WIDTH/3, Y_GRID_START+Y_GRID_HEIGHT/4+(Y_GRID_HEIGHT*text)))
+                    SCREEN.blit(coor_number_text_list[text], (initvar.X_GRID_START-initvar.X_GRID_WIDTH/2, initvar.Y_GRID_START+initvar.Y_GRID_HEIGHT/4+(initvar.Y_GRID_HEIGHT*text)))
+                    SCREEN.blit(coor_number_text_list[text], (X_GRID_END+initvar.X_GRID_WIDTH/3, initvar.Y_GRID_START+initvar.Y_GRID_HEIGHT/4+(initvar.Y_GRID_HEIGHT*text)))
                 if(game_controller.game_mode == game_controller.PLAY_MODE):
                     check_checkmate_text_render = arial_font.render(Text_Controller.check_checkmate_text, 1, (0, 0, 0))
                     if game_controller.WHOSETURN == "white":
                         whose_turn_text = arial_font.render("White's move", 1, (0, 0, 0))
                     elif game_controller.WHOSETURN == "black":
                         whose_turn_text = arial_font.render("Black's move", 1, (0, 0, 0))
-                    SCREEN.blit(whose_turn_text, (X_GRID_END+X_GRID_WIDTH, SCREEN_HEIGHT/2))
-                    SCREEN.blit(check_checkmate_text_render, (X_GRID_END+X_GRID_WIDTH, 200))
+                    SCREEN.blit(whose_turn_text, (X_GRID_END+initvar.X_GRID_WIDTH, initvar.SCREEN_HEIGHT/2))
+                    SCREEN.blit(check_checkmate_text_render, (X_GRID_END+initvar.X_GRID_WIDTH, 200))
                 pygame.display.update()
             elif state == DEBUG:
                 if debug_message == 1:
