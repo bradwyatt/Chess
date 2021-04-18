@@ -1447,9 +1447,21 @@ def draw_moves(my_font, game_controller):
         # If last move is in dictionary but has no white move, and rectangle_dict key for that move is length 0
         if game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'] != '' and len(SelectedMoveRectangle.rectangle_dict[len(game_controller.df_moves)]) == 0:
             MoveNumberRectangle(len(game_controller.df_moves), SCREEN_WIDTH-220, 89+spacing_length*len(game_controller.df_moves), 20, 56)
+            # Jump to latest move
+            if len(game_controller.df_moves) > 19:
+                MoveNumberRectangle.scroll_range[0] = len(game_controller.df_moves) - 18
+                MoveNumberRectangle.scroll_range[1] = len(game_controller.df_moves)
+                for rect in MoveNumberRectangle.rectangle_list:
+                    rect.update_Y()
             SelectedMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'], SCREEN_WIDTH-206, 89+spacing_length*len(game_controller.df_moves), 20, 56)
         # If last move is in dictionary but has no black move, and rectangle_dict key for that move is length 1
         if game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'] != '' and len(SelectedMoveRectangle.rectangle_dict[len(game_controller.df_moves)]) == 1:
+            # Jump to latest move
+            if len(game_controller.df_moves) > 19:
+                MoveNumberRectangle.scroll_range[0] = len(game_controller.df_moves) - 18
+                MoveNumberRectangle.scroll_range[1] = len(game_controller.df_moves)
+                for rect in MoveNumberRectangle.rectangle_list:
+                    rect.update_Y()
             SelectedMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'], SCREEN_WIDTH-127, 89+spacing_length*len(game_controller.df_moves), 20, 56)
         Text_Controller.draw_text(SCREEN, my_font, game_controller)
     #draw the floating header
