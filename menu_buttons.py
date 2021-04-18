@@ -174,6 +174,7 @@ class MoveNumberRectangle(pygame.sprite.Sprite):
         elif move_number >= 100:
             self.x = x-14
         self.y = y
+        self.initial_y = y
         self.image = pygame.Surface((height, width))
         self.image.fill((255, 211, 0))
         self.rect = self.image.get_rect()
@@ -186,4 +187,7 @@ class MoveNumberRectangle(pygame.sprite.Sprite):
         MoveNumberRectangle.rectangle_dict[move_number].append(self)
     def draw(self, screen):
         screen.blit(self.image, (self.rect.topleft))
+    def update_position(self, selected_move, line_spacing):
+        if selected_move > 19:
+            self.y = self.initial_y - line_spacing*(selected_move-19)
 

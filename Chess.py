@@ -1429,7 +1429,7 @@ class Text_Controller():
             final_move = int(re.findall(re.compile(r'\d{1,3}\.'), body_text)[-1].replace(".",""))
             # 19 moves at a time
             return final_move-Text_Controller.max_moves_that_fits_pane
-    def new_draw_text(surface, my_font):
+    def new_draw_text(surface, my_font, game_controller):
         for move_rect in MoveNumberRectangle.rectangle_list:
             move_num_text = my_font.render(move_rect.text, True, [255,255,255])
             surface.blit(move_num_text, (move_rect.x, move_rect.y))
@@ -1437,7 +1437,13 @@ class Text_Controller():
             move_notation_text = my_font.render(rectangle.move_notation, True, [255,255,255])
             surface.blit(move_notation_text, (rectangle.x, rectangle.y))
 
-        
+def reposition_rectangles(selected_move):
+    #scroll = selected_move[0] - 4
+    spacing_length = 21
+    for rect in MoveNumberRectangle.rectangle_list:
+        rect.update_position(selected_move[0], spacing_length)
+            
+    
 
 def draw_text(surface, text, color, rectangle, scroll, my_font):
     y = rectangle[1]
@@ -1507,6 +1513,7 @@ def draw_text(surface, text, color, rectangle, scroll, my_font):
 def draw_moves(my_font, body_text, scroll, game_controller):
     spacing_length = 21
     new_rect = None
+    max_moves_that_fits_pane = 19
     if len(game_controller.df_moves) >= 1:
         # White was latest move
         #print("SCROLL: " + str(scroll))
@@ -1516,14 +1523,16 @@ def draw_moves(my_font, body_text, scroll, game_controller):
         if len(game_controller.df_moves) not in SelectedMoveRectangle.rectangle_dict:
             SelectedMoveRectangle.rectangle_dict[len(game_controller.df_moves)] = []
             MoveNumberRectangle.rectangle_dict[len(game_controller.df_moves)] = []
+            reposition_rectangles(game_controller.selected_move)
         # If last move is in dictionary but has no white move, and rectangle_dict key for that move is length 0
         if game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'] != '' and len(SelectedMoveRectangle.rectangle_dict[len(game_controller.df_moves)]) == 0:
             MoveNumberRectangle(len(game_controller.df_moves), SCREEN_WIDTH-220, 89+spacing_length*len(game_controller.df_moves), 20, 56)
             SelectedMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'], SCREEN_WIDTH-206, 89+spacing_length*len(game_controller.df_moves), 20, 56)
+            reposition_rectangles(game_controller.selected_move)
         # If last move is in dictionary but has no black move, and rectangle_dict key for that move is length 1
         if game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'] != '' and len(SelectedMoveRectangle.rectangle_dict[len(game_controller.df_moves)]) == 1:
             SelectedMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'], SCREEN_WIDTH-127, 89+spacing_length*len(game_controller.df_moves), 20, 56)
-        Text_Controller.new_draw_text(SCREEN, my_font)
+        Text_Controller.new_draw_text(SCREEN, my_font, game_controller)
     #draw the floating header
     #text = my_font.render(header_text, True, [255,255,255])
     #SCREEN.blit(text, [100, 20])
@@ -2135,12 +2144,14 @@ def main():
                                                     prior_moves_dict['move_notation'] = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
                                                     game_controller.selected_move = [game_controller.move_counter, move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)]
                                                 game_controller.df_prior_moves.loc[game_controller.move_counter, "white_move"] = str(prior_moves_dict)
+                                                reposition_rectangles(game_controller.selected_move)
                                             Text_Controller.body_text += move_text
                                             log.info(move_text)
                                             if game_controller.result_abb != "*":
                                                 log.info(game_controller.result_abb)
                                             
                                             Text_Controller.scroll = Text_Controller.latest_scroll(Text_Controller.body_text, Text_Controller.scroll)
+                                            
                                             return
                         move_piece_on_grid()
     
