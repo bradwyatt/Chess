@@ -1401,8 +1401,8 @@ class Text_Controller():
 
 def draw_text_on_rects_in_moves_pane(surface, my_font):
     for move_num_rect in MoveNumberRectangle.rectangle_list:
-        # Only draw the text if the rectangle is below the top of the pane
         if move_num_rect.text_is_visible == True:
+            # Only draw the text if the rectangle is below the top of the pane
             move_num_text = my_font.render(move_num_rect.text, True, initvar.TEXT_COLOR)
             surface.blit(move_num_text, (move_num_rect.x, move_num_rect.y))
     for piece_move_rect in PieceMoveRectangle.rectangle_list:
@@ -1420,6 +1420,8 @@ def scroll_to_latest_move(latest_move_number):
             piece_move_rect.update_Y()
             
 def update_scroll_range(unit_change):
+    # unit_change refers to how many moves up/down to go
+    # unit_change = -1 means scrolling up one unit, unit_change = 1 means scrolling down one unit
     PanelRectangles.scroll_range[0] += unit_change
     PanelRectangles.scroll_range[1] += unit_change
     for move_num_rect in MoveNumberRectangle.rectangle_list:
@@ -2192,9 +2194,7 @@ def main():
                 #FOR DEBUGGING PURPOSES, PUT TEST CODE BELOW
                 
                 #Update all sprites
-                #initvar.START_SPRITES.update()
                 PLACED_SPRITES.update(Grid.grid_list)
-                #PLAY_SPRITES.update()
                 SCREEN.fill(COLORKEY)
                 
                 GAME_MODE_SPRITES.draw(SCREEN)
@@ -2241,8 +2241,8 @@ def main():
                     log.info("Entering debug mode")
                     debug_message = 0
                     # USE BREAKPOINT HERE
-                    print(len(MoveNumberRectangle.rectangle_list))
-                    #print(str(game_controller.df_prior_moves))
+                    
+                    print(str(game_controller.df_prior_moves))
                     log.info("Use breakpoint here")
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
