@@ -3,7 +3,7 @@ Chess created by Brad Wyatt
 Python 3
 
 Round 2 Thoughts:
-Replace the scroll bar logic with the following. Create a list of SelectedMoveRectangle(s) from parent class. Self.text should be the move. The text blitted to the screen should take from the rectangle with the same X. When scrolling, the rectangle Y will change, and when it's out of boundary of 19 moves then be invisible and unclickable.
+Trying to be able to still display text through moves pane
 Prior move color
 Play back one move
 Undo move
@@ -1283,12 +1283,14 @@ class Game_Controller():
         self.result_abb = "*"
         self.selected_move = [0, "", ""]
         Text_Controller.check_checkmate_text = ""
+        # Kill all Objects within their Class lists/dicts
         for spr_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                  PlayKnight.white_knight_list, PlayRook.white_rook_list,
                  PlayQueen.white_queen_list, PlayKing.white_king_list, 
                  PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
                  PlayKnight.black_knight_list, PlayRook.black_rook_list,
-                 PlayQueen.black_queen_list, PlayKing.black_king_list]:
+                 PlayQueen.black_queen_list, PlayKing.black_king_list,
+                 MoveNumberRectangle.rectangle_list, PieceMoveRectangle.rectangle_list]:
             for obj in spr_list:
                 obj.kill()
         PlayPawn.white_pawn_list = []
@@ -1306,6 +1308,12 @@ class Game_Controller():
         for grid in Grid.grid_list:
             grid.reset_board()
             grid.attack_count_reset()
+        # Reset Moves Panel
+        MoveNumberRectangle.rectangle_list = []
+        PieceMoveRectangle.rectangle_list = []
+        MoveNumberRectangle.rectangle_dict = {}
+        PieceMoveRectangle.rectangle_dict = {}
+        PanelRectangles.scroll_range = [1, initvar.MOVES_PANE_MAX_MOVES]
     def switch_turn(self, color_turn):
         self.WHOSETURN = color_turn
         self.check_attacking_coordinates = []
@@ -2241,8 +2249,8 @@ def main():
                     log.info("Entering debug mode")
                     debug_message = 0
                     # USE BREAKPOINT HERE
-                    
-                    print(str(game_controller.df_prior_moves))
+                    print(str(PieceMoveRectangle.rectangle_list))
+                    #print(str(game_controller.df_prior_moves))
                     log.info("Use breakpoint here")
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
