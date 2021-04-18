@@ -1,9 +1,6 @@
 """
 Chess created by Brad Wyatt
 Python 3
-Credits:
-Scroll bar for moves based on https://www.reddit.com/r/pygame/comments/94czzs/text_boxes_with_scrollbars_and_changing_buttons/
-PLEASE do new console after each time exiting the program
 
 Round 2 Thoughts:
 Replace the scroll bar logic with the following. Create a list of SelectedMoveRectangle(s) from parent class. Self.text should be the move. The text blitted to the screen should take from the rectangle with the same X. When scrolling, the rectangle Y will change, and when it's out of boundary of 19 moves then be invisible and unclickable.
@@ -1402,7 +1399,7 @@ class Game_Controller():
 class Text_Controller():
     check_checkmate_text = ""
 
-def draw_text_on_moves_pane(surface, my_font):
+def draw_text_on_rects_in_moves_pane(surface, my_font):
     for move_num_rect in MoveNumberRectangle.rectangle_list:
         # Only draw the text if the rectangle is below the top of the pane
         if move_num_rect.text_is_visible == True:
@@ -1430,8 +1427,7 @@ def update_scroll_range(unit_change):
     for piece_move_rect in PieceMoveRectangle.rectangle_list:
         piece_move_rect.update_Y()
 
-#draw the text window at coordinates x,y
-def draw_moves(my_font, game_controller):
+def draw_move_rects_on_moves_pane(my_font, game_controller):
     if len(game_controller.df_moves) >= 1:
         # Creating move notation rectangles if they haven't been created before for the respective move
         # If the last move is not in the dictionary, then add it
@@ -1450,7 +1446,7 @@ def draw_moves(my_font, game_controller):
             PieceMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'], 'black', initvar.MOVES_PANE_BLACK_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(game_controller.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)        
             # Scroll down automatically when a move is made
             scroll_to_latest_move(len(game_controller.df_moves))
-        draw_text_on_moves_pane(SCREEN, my_font)
+        draw_text_on_rects_in_moves_pane(SCREEN, my_font)
 
 def main():
     try:
@@ -2215,7 +2211,7 @@ def main():
                     if piece_move_rect.move_number == game_controller.selected_move[0] and piece_move_rect.move_notation == game_controller.selected_move[1]\
                         and piece_move_rect.move_color == game_controller.selected_move[2]:
                             piece_move_rect.draw(SCREEN)
-                draw_moves(move_notation_font, game_controller)
+                draw_move_rects_on_moves_pane(move_notation_font, game_controller)
                 # Update objects that aren't in a sprite group
                 SCROLL_UP_BUTTON.draw(SCREEN)
                 SCROLL_DOWN_BUTTON.draw(SCREEN, len(game_controller.df_moves))

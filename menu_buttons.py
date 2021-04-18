@@ -153,8 +153,21 @@ class PanelRectangles(pygame.sprite.Sprite):
         else:
             # Hide rectangle in pane
             self.text_is_visible = False
+
+class MoveNumberRectangle(PanelRectangles, pygame.sprite.Sprite):
+    # Rectangles behind the move number
+    rectangle_list = []
+    rectangle_dict = {}
+    def __init__(self, move_number, x, y, width, height):
+        pygame.sprite.Sprite.__init__(self)
+        self.x = x - 7*(len(str(move_number))-1) # X moves backward by 7 after each digit (ie 10 moves is 7, 100 moves is 14, etc)
+        super().__init__(move_number, self.x, y, width, height)
+        self.text = str(self.move_number) + "."
+        MoveNumberRectangle.rectangle_list.append(self)
+        MoveNumberRectangle.rectangle_dict[move_number] = self
         
 class PieceMoveRectangle(PanelRectangles, pygame.sprite.Sprite):
+    # Rectangles behind the moves themselves
     rectangle_list = []
     rectangle_dict = {}
     def __init__(self, move_number, move_notation, move_color, x, y, width, height):
@@ -172,14 +185,3 @@ class PieceMoveRectangle(PanelRectangles, pygame.sprite.Sprite):
             screen.blit(self.image, (self.rect.topleft))
         else:
             pass
-
-class MoveNumberRectangle(PanelRectangles, pygame.sprite.Sprite):
-    rectangle_list = []
-    rectangle_dict = {}
-    def __init__(self, move_number, x, y, width, height):
-        pygame.sprite.Sprite.__init__(self)
-        self.x = x - 7*(len(str(move_number))-1) # X moves backward by 7 after each digit (ie 10 moves is 7, 100 moves is 14, etc)
-        super().__init__(move_number, self.x, y, width, height)
-        self.text = str(self.move_number) + "."
-        MoveNumberRectangle.rectangle_list.append(self)
-        MoveNumberRectangle.rectangle_dict[move_number] = self
