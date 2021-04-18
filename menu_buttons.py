@@ -132,27 +132,33 @@ class PrevMoveButton(pygame.sprite.Sprite):
         self.rect.topleft = pos
         PLAY_SPRITES.add(self)
         
-class PieceMoveRectangle(pygame.sprite.Sprite):
-    rectangle_list = []
-    rectangle_dict = {}
-    def __init__(self, move_number, move_notation, move_color, x, y, width, height):
-        pygame.sprite.Sprite.__init__(self)
+class PanelRectangles(pygame.sprite.Sprite):
+    def __init__(self, move_number, x, y, width, height):
         self.x = x
         self.y = y
         self.image = pygame.Surface((height, width))
-        self.image.fill((255, 211, 0))
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.x, self.y)
         self.height = height
         self.width = width
         self.move_number = move_number
+        self.text_is_visible = True
+        
+class PieceMoveRectangle(PanelRectangles, pygame.sprite.Sprite):
+    rectangle_list = []
+    rectangle_dict = {}
+    def __init__(self, move_number, move_notation, move_color, x, y, width, height):
+        pygame.sprite.Sprite.__init__(self)
+        self.x = x
+        super().__init__(move_number, x, y, width, height)
+        self.image.fill((255, 211, 0))
         self.move_notation = move_notation
         self.move_color = move_color
         PieceMoveRectangle.rectangle_list.append(self)
         PieceMoveRectangle.rectangle_dict[move_number].append(self)
-        self.text_is_visible = True
     def draw(self, screen):
         if self.text_is_visible == True:
+            # Makes sure that all other rectangles overlapping this one that have invisible text are NOT selected
             screen.blit(self.image, (self.rect.topleft))
         else:
             pass
@@ -166,24 +172,17 @@ class PieceMoveRectangle(pygame.sprite.Sprite):
             # Hide rectangle
             self.text_is_visible = False
         
-class MoveNumberRectangle(pygame.sprite.Sprite):
+class MoveNumberRectangle(PanelRectangles, pygame.sprite.Sprite):
     rectangle_list = []
     rectangle_dict = {}
     scroll_range = [1, initvar.MOVES_PANE_MAX_MOVES]
     def __init__(self, move_number, x, y, width, height):
         pygame.sprite.Sprite.__init__(self)
         self.x = x - 7*(len(str(move_number))-1) # X moves backward by 7 after each digit (ie 10 moves is 7, 100 moves is 14, etc)
-        self.y = y
-        self.image = pygame.Surface((height, width))
-        self.rect = self.image.get_rect()
-        self.rect.topleft = (self.x, self.y)
-        self.height = height
-        self.width = width
-        self.move_number = move_number
+        super().__init__(move_number, self.x, y, width, height)
         self.text = str(self.move_number) + "."
         MoveNumberRectangle.rectangle_list.append(self)
         MoveNumberRectangle.rectangle_dict[move_number] = self
-        self.text_is_visible = True
     def update_Y(self):
         if self.move_number >= MoveNumberRectangle.scroll_range[0] and self.move_number <= MoveNumberRectangle.scroll_range[1]:
             # Include rectangle

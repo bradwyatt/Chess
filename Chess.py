@@ -2225,10 +2225,11 @@ def main():
                     PLACED_SPRITES.draw(SCREEN)    
                 elif(game_controller.game_mode == game_controller.PLAY_MODE): #Only draw play sprites in play mode
                     PLAY_SPRITES.draw(SCREEN)
-                for rectangle in PieceMoveRectangle.rectangle_list:
-                    if rectangle.move_number == game_controller.selected_move[0] and rectangle.move_notation == game_controller.selected_move[1]\
-                        and rectangle.move_color == game_controller.selected_move[2]:
-                            rectangle.draw(SCREEN)
+                # When the piece is selected on the right pane, fill the rectangle corresponding to the move
+                for piece_move_rect in PieceMoveRectangle.rectangle_list:
+                    if piece_move_rect.move_number == game_controller.selected_move[0] and piece_move_rect.move_notation == game_controller.selected_move[1]\
+                        and piece_move_rect.move_color == game_controller.selected_move[2]:
+                            piece_move_rect.draw(SCREEN)
                 draw_moves(move_notation_font, game_controller)
                 # Update objects that aren't in a sprite group
                 SCROLL_UP_BUTTON.draw(SCREEN)
