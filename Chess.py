@@ -1627,7 +1627,7 @@ def main():
                             MoveNumberRectangle.scroll_range[0] -= 1
                             MoveNumberRectangle.scroll_range[1] -= 1
                             print("New MoveNumber List: " + str(MoveNumberRectangle.scroll_range))
-                        if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS) and len(MoveNumberRectangle.rectangle_list) >= 20 and len(MoveNumberRectangle.rectangle_list) < MoveNumberRectangle.scroll_range[1]: # Scroll down
+                        if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS) and len(MoveNumberRectangle.rectangle_list) >= 20 and MoveNumberRectangle.scroll_range[1] < len(MoveNumberRectangle.rectangle_list): # Scroll down
                             print("scroll down test")
                             for rect in MoveNumberRectangle.rectangle_list:
                                 rect.scroll_down()

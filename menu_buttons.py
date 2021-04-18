@@ -193,5 +193,5 @@ class MoveNumberRectangle(pygame.sprite.Sprite):
         self.y = self.y - line_spacing
     def scroll_up(self):
         line_spacing = 21
-        self.y = self.y - line_spacing
+        self.y = self.y + line_spacing
 
