@@ -3,13 +3,13 @@ Chess created by Brad Wyatt
 Python 3
 
 Round 2 Thoughts:
-Trying to be able to still display text through moves pane
+Function to put a piece on the board (with right X and Y) based only on coordinates
+When I press Play, I want it to act as if there was a move before it, seamless. I don't want to do extra code starting from beginning (when program launches) AND starting over again during game
+Grid class looks messy
 Prior move color
 Play back one move
 Undo move
-Highlight move (that we're on, or examining) on the right side. I will probably want to get move number on left side and white move, and then black move several spaces from the end of the width. Will need to work on body_text Text_Controller stuff
 Pause mode- The board has the Placed pieces, and you can go back and forward in your analysis. But you can't bring in new pieces
-I'd really like to get rid of hardcoding values, like pos_load_file for resetting board
 Sounds
 Making sure that we are doing promotion correctly
 Perhaps using a direction arrow (like babaschess) to determine which piece could take the other piece. This could get confusing when flipping board though
@@ -1025,21 +1025,20 @@ class Grid(pygame.sprite.Sprite):
         self.en_passant_skipover = False
         self.prior_move_color = False
     def reset_board(self):
+        self.prior_move_color = False
         self.no_highlight()
         self.list_of_white_pieces_attacking = []
         self.list_of_black_pieces_attacking = []
     def attack_count_reset(self):
         self.list_of_white_pieces_attacking = []
         self.list_of_black_pieces_attacking = []
-    def remove_count_remove(self, coordinate):
-        self.list_of_white_pieces_attacking.remove(coordinate)
-        self.list_of_black_pieces_attacking.remove(coordinate)
     def attack_count_increment(self, color, attack_coord):
         if color == "white":
             self.list_of_white_pieces_attacking.append(attack_coord)
         elif color == "black":
             self.list_of_black_pieces_attacking.append(attack_coord)
     def update(self, game_controller):
+        # For every frame, grid checks if there is a piece occupying it and the piece color
         if game_controller.game_mode == game_controller.PLAY_MODE:
             def grid_occupied_by_piece():
                 for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
@@ -1861,6 +1860,9 @@ def main():
                                                     piece.coordinate_history[game_controller.move_counter] = {'before':piece.previous_coordinate}
                                                     prior_moves_dict['before'] = piece.previous_coordinate
                                                     old_grid.prior_move_color = True
+                                                else:
+                                                    old_grid.prior_move_color = False
+                                                    old_grid.no_highlight()
                                                     
                                             # Moving piece, removing piece and grid highlights, changing Turn
                                             piece.rect.topleft = grid.rect.topleft
