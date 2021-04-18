@@ -1401,16 +1401,17 @@ class Game_Controller():
 
 class Text_Controller():
     check_checkmate_text = ""
-    def draw_text(surface, my_font, game_controller):
-        for move_num_rect in MoveNumberRectangle.rectangle_list:
-            # Only draw the text if the rectangle is below the top of the pane
-            if move_num_rect.text_is_visible == True:
-                move_num_text = my_font.render(move_num_rect.text, True, initvar.TEXT_COLOR)
-                surface.blit(move_num_text, (move_num_rect.x, move_num_rect.y))
-        for piece_move_rect in PieceMoveRectangle.rectangle_list:
-            if piece_move_rect.text_is_visible == True:
-                move_notation_text = my_font.render(piece_move_rect.move_notation, True, initvar.TEXT_COLOR)
-                surface.blit(move_notation_text, (piece_move_rect.x, piece_move_rect.y))
+
+def draw_text_on_moves_pane(surface, my_font):
+    for move_num_rect in MoveNumberRectangle.rectangle_list:
+        # Only draw the text if the rectangle is below the top of the pane
+        if move_num_rect.text_is_visible == True:
+            move_num_text = my_font.render(move_num_rect.text, True, initvar.TEXT_COLOR)
+            surface.blit(move_num_text, (move_num_rect.x, move_num_rect.y))
+    for piece_move_rect in PieceMoveRectangle.rectangle_list:
+        if piece_move_rect.text_is_visible == True:
+            move_notation_text = my_font.render(piece_move_rect.move_notation, True, initvar.TEXT_COLOR)
+            surface.blit(move_notation_text, (piece_move_rect.x, piece_move_rect.y))
 
 def scroll_to_latest_move(latest_move_number):
     if latest_move_number > initvar.MOVES_PANE_MAX_MOVES:
@@ -1449,7 +1450,7 @@ def draw_moves(my_font, game_controller):
             PieceMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'], 'black', initvar.MOVES_PANE_BLACK_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(game_controller.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)        
             # Scroll down automatically when a move is made
             scroll_to_latest_move(len(game_controller.df_moves))
-        Text_Controller.draw_text(SCREEN, my_font, game_controller)
+        draw_text_on_moves_pane(SCREEN, my_font)
 
 def main():
     try:
