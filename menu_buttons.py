@@ -150,21 +150,20 @@ class PieceMoveRectangle(pygame.sprite.Sprite):
         self.move_color = move_color
         PieceMoveRectangle.rectangle_list.append(self)
         PieceMoveRectangle.rectangle_dict[move_number].append(self)
-        self.visible = True
+        self.text_is_visible = True
     def draw(self, screen):
-        if self.visible == True:
+        if self.text_is_visible == True:
             screen.blit(self.image, (self.rect.topleft))
         else:
             pass
     def update_Y(self):
         if self.move_number >= MoveNumberRectangle.scroll_range[0] and self.move_number <= MoveNumberRectangle.scroll_range[1]:
             # Include rectangle
-            self.visible = True
+            self.text_is_visible = True
             self.y = initvar.MOVES_PANE_Y_BEGIN + initvar.LINE_SPACING*((self.move_number+1) - MoveNumberRectangle.scroll_range[0])
         else:
             # Hide rectangle
-            print("is it ever invisible? " + str(self.move_number))
-            self.visible = False
+            self.text_is_visible = False
         
 class MoveNumberRectangle(pygame.sprite.Sprite):
     rectangle_list = []
@@ -188,19 +187,19 @@ class MoveNumberRectangle(pygame.sprite.Sprite):
         self.text = str(self.move_number) + "."
         MoveNumberRectangle.rectangle_list.append(self)
         MoveNumberRectangle.rectangle_dict[move_number] = self
-        self.visible = True
+        self.text_is_visible = True
     def draw(self, screen):
-        if self.visible == True:
+        if self.text_is_visible == True:
             screen.blit(self.image, (self.rect.topleft))
         else:
             pass
     def update_Y(self):
         if self.move_number >= MoveNumberRectangle.scroll_range[0] and self.move_number <= MoveNumberRectangle.scroll_range[1]:
             # Include rectangle
-            self.visible = True
+            self.text_is_visible = True
             self.y = initvar.MOVES_PANE_Y_BEGIN + initvar.LINE_SPACING*((self.move_number+1) - MoveNumberRectangle.scroll_range[0])
         else:
             # Hide rectangle
-            self.visible = False
+            self.text_is_visible = False
             
 
