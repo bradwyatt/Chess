@@ -83,7 +83,7 @@ class ScrollUpButton(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
     def draw(self, screen):
-        if MoveNumberRectangle.scroll_range[0] != 1:
+        if PanelRectangles.scroll_range[0] != 1:
             screen.blit(self.image, (self.rect.topleft))
         else:
             pass
@@ -95,7 +95,7 @@ class ScrollDownButton(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
     def draw(self, screen, latest_move_number):
-        if MoveNumberRectangle.scroll_range[1] != latest_move_number and latest_move_number >= 20:
+        if PanelRectangles.scroll_range[1] != latest_move_number and latest_move_number >= 20:
             screen.blit(self.image, (self.rect.topleft))
         else:
             pass
@@ -133,6 +133,7 @@ class PrevMoveButton(pygame.sprite.Sprite):
         PLAY_SPRITES.add(self)
         
 class PanelRectangles(pygame.sprite.Sprite):
+    scroll_range = [1, initvar.MOVES_PANE_MAX_MOVES]
     def __init__(self, move_number, x, y, width, height):
         self.x = x
         self.y = y
@@ -144,10 +145,10 @@ class PanelRectangles(pygame.sprite.Sprite):
         self.move_number = move_number
         self.text_is_visible = True
     def update_Y(self):
-        if self.move_number >= MoveNumberRectangle.scroll_range[0] and self.move_number <= MoveNumberRectangle.scroll_range[1]:
+        if self.move_number >= PanelRectangles.scroll_range[0] and self.move_number <= PanelRectangles.scroll_range[1]:
             # Include rectangle in pane
             self.text_is_visible = True
-            self.y = initvar.MOVES_PANE_Y_BEGIN + initvar.LINE_SPACING*((self.move_number+1) - MoveNumberRectangle.scroll_range[0])
+            self.y = initvar.MOVES_PANE_Y_BEGIN + initvar.LINE_SPACING*((self.move_number+1) - PanelRectangles.scroll_range[0])
             self.rect.topleft = (self.x, self.y)
         else:
             # Hide rectangle in pane
@@ -175,7 +176,6 @@ class PieceMoveRectangle(PanelRectangles, pygame.sprite.Sprite):
 class MoveNumberRectangle(PanelRectangles, pygame.sprite.Sprite):
     rectangle_list = []
     rectangle_dict = {}
-    scroll_range = [1, initvar.MOVES_PANE_MAX_MOVES]
     def __init__(self, move_number, x, y, width, height):
         pygame.sprite.Sprite.__init__(self)
         self.x = x - 7*(len(str(move_number))-1) # X moves backward by 7 after each digit (ie 10 moves is 7, 100 moves is 14, etc)
