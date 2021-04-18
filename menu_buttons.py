@@ -95,16 +95,9 @@ class ScrollDownButton(pygame.sprite.Sprite):
         self.image = IMAGES["SPR_SCROLL_DOWN_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
-    def update(self, move_counter, whose_turn, max_moves_that_fits_pane, scroll):
-        if move_counter > max_moves_that_fits_pane:
-            if move_counter - scroll > max_moves_that_fits_pane + 1 \
-                and whose_turn == "white":
-                    self.image = IMAGES["SPR_SCROLL_DOWN_BUTTON"]
-            elif move_counter - scroll > max_moves_that_fits_pane \
-                and whose_turn == "black":
-                    self.image = IMAGES["SPR_SCROLL_DOWN_BUTTON"]
-            else:
-                self.image = IMAGES["SPR_BLANKBOX"]
+    def update(self, latest_move_number):
+        if MoveNumberRectangle.scroll_range[1] != latest_move_number and latest_move_number >= 20:
+            self.image = IMAGES["SPR_SCROLL_DOWN_BUTTON"]
         else:
             self.image = IMAGES["SPR_BLANKBOX"]
     def draw(self, screen):

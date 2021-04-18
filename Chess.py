@@ -2254,7 +2254,7 @@ def main():
                 # Update objects that aren't in a sprite group
                 SCROLL_UP_BUTTON.update()
                 SCROLL_UP_BUTTON.draw(SCREEN)
-                #SCROLL_DOWN_BUTTON.update(game_controller.move_counter, game_controller.WHOSETURN, Text_Controller.max_moves_that_fits_pane, Text_Controller.scroll)
+                SCROLL_DOWN_BUTTON.update(len(game_controller.df_moves))
                 SCROLL_DOWN_BUTTON.draw(SCREEN)
                 PGN_LOAD_FILE_BUTTON.draw(SCREEN)
                 PGN_SAVE_FILE_BUTTON.draw(SCREEN)
