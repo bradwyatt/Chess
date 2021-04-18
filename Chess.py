@@ -1622,10 +1622,10 @@ def main():
                             PGN_WRITER.write_moves(game_controller.df_moves, game_controller.result_abb)
                         for rectangle in PieceMoveRectangle.rectangle_list:
                             if rectangle.rect.collidepoint(MOUSEPOS):
-                                game_controller.selected_move[0] = rectangle.move_number
-                                game_controller.selected_move[1] = rectangle.move_notation
-                                game_controller.selected_move[2] = rectangle.move_color
-                                print("Move chosen: " + rectangle.move_notation)
+                                #game_controller.selected_move[0] = rectangle.move_number
+                                #game_controller.selected_move[1] = rectangle.move_notation
+                                #game_controller.selected_move[2] = rectangle.move_color
+                                print("Move chosen: " + rectangle.move_notation + ", Visible? " + str(rectangle.text_is_visible))
                         # Editing mode only
                         if game_controller.game_mode == game_controller.EDIT_MODE:
                             #BUTTONS
@@ -2228,13 +2228,15 @@ def main():
                 elif(game_controller.game_mode == game_controller.PLAY_MODE): #Only draw play sprites in play mode
                     PLAY_SPRITES.draw(SCREEN)
                 for rectangle in PieceMoveRectangle.rectangle_list:
+                    rectangle.draw(SCREEN)
                     if rectangle.move_number == game_controller.selected_move[0] and rectangle.move_notation == game_controller.selected_move[1]\
                         and rectangle.move_color == game_controller.selected_move[2]:
-                            rectangle.draw(SCREEN)
+                            pass
+                            #rectangle.draw(SCREEN)
                 draw_moves(move_notation_font, game_controller)
                 # Update objects that aren't in a sprite group
-                SCROLL_UP_BUTTON.draw(SCREEN)
-                SCROLL_DOWN_BUTTON.draw(SCREEN, len(game_controller.df_moves))
+                #SCROLL_UP_BUTTON.draw(SCREEN)
+                #SCROLL_DOWN_BUTTON.draw(SCREEN, len(game_controller.df_moves))
                 PGN_LOAD_FILE_BUTTON.draw(SCREEN)
                 PGN_SAVE_FILE_BUTTON.draw(SCREEN)
                 # Board Coordinates Drawing

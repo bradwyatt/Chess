@@ -161,6 +161,7 @@ class PieceMoveRectangle(pygame.sprite.Sprite):
             # Include rectangle
             self.text_is_visible = True
             self.y = initvar.MOVES_PANE_Y_BEGIN + initvar.LINE_SPACING*((self.move_number+1) - MoveNumberRectangle.scroll_range[0])
+            self.rect.topleft = (self.x, self.y)
         else:
             # Hide rectangle
             self.text_is_visible = False
@@ -193,6 +194,7 @@ class MoveNumberRectangle(pygame.sprite.Sprite):
             # Include rectangle
             self.text_is_visible = True
             self.y = initvar.MOVES_PANE_Y_BEGIN + initvar.LINE_SPACING*((self.move_number+1) - MoveNumberRectangle.scroll_range[0])
+            self.rect.topleft = (self.x, self.y)
         else:
             # Hide rectangle
             self.text_is_visible = False
