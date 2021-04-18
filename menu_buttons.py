@@ -81,13 +81,11 @@ class ScrollUpButton(pygame.sprite.Sprite):
         self.image = IMAGES["SPR_SCROLL_UP_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
-    def update(self):
-        if MoveNumberRectangle.scroll_range[0] != 1:
-            self.image = IMAGES["SPR_SCROLL_UP_BUTTON"]
-        else:
-            self.image = IMAGES["SPR_BLANKBOX"]
     def draw(self, screen):
-        screen.blit(self.image, (self.rect.topleft))
+        if MoveNumberRectangle.scroll_range[0] != 1:
+            screen.blit(self.image, (self.rect.topleft))
+        else:
+            pass
         
 class ScrollDownButton(pygame.sprite.Sprite):
     def __init__(self, pos):
@@ -95,13 +93,11 @@ class ScrollDownButton(pygame.sprite.Sprite):
         self.image = IMAGES["SPR_SCROLL_DOWN_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
-    def update(self, latest_move_number):
+    def draw(self, screen, latest_move_number):
         if MoveNumberRectangle.scroll_range[1] != latest_move_number and latest_move_number >= 20:
-            self.image = IMAGES["SPR_SCROLL_DOWN_BUTTON"]
+            screen.blit(self.image, (self.rect.topleft))
         else:
-            self.image = IMAGES["SPR_BLANKBOX"]
-    def draw(self, screen):
-        screen.blit(self.image, (self.rect.topleft))
+            pass
 
 class BeginningMoveButton(pygame.sprite.Sprite):
     def __init__(self, pos, PLAY_SPRITES):
@@ -179,8 +175,12 @@ class MoveNumberRectangle(pygame.sprite.Sprite):
         self.text = str(self.move_number) + "."
         MoveNumberRectangle.rectangle_list.append(self)
         MoveNumberRectangle.rectangle_dict[move_number] = self
+        self.visible = True
     def draw(self, screen):
-        screen.blit(self.image, (self.rect.topleft))
+        if self.visible == True:
+            screen.blit(self.image, (self.rect.topleft))
+        else:
+            pass
     def scroll_down(self):
         line_spacing = 21
         self.y = self.y - line_spacing
@@ -190,8 +190,11 @@ class MoveNumberRectangle(pygame.sprite.Sprite):
     def update_Y(self):
         line_spacing = 21
         if self.move_number >= MoveNumberRectangle.scroll_range[0] and self.move_number <= MoveNumberRectangle.scroll_range[1]:
+            # Include rectangle
+            self.visible = True
             self.y = 89 + line_spacing*((self.move_number+1) - MoveNumberRectangle.scroll_range[0])
         else:
-            self.y = -100
+            # Hide rectangle
+            self.visible = False
             
 

@@ -1423,7 +1423,7 @@ class Text_Controller():
     def draw_text(surface, my_font, game_controller):
         for move_rect in MoveNumberRectangle.rectangle_list:
             # Only draw the text if the rectangle is below the top of the pane
-            if move_rect.y >= 89 + 21:
+            if move_rect.visible == True:
                 move_num_text = my_font.render(move_rect.text, True, [255,255,255])
                 surface.blit(move_num_text, (move_rect.x, move_rect.y))
         for rectangle in SelectedMoveRectangle.rectangle_list:
@@ -2044,6 +2044,11 @@ def main():
                                                 # No checks
                                                 Text_Controller.check_checkmate_text = ""
                                             if(game_controller.WHOSETURN == "white"):
+                                                # Log the move
+                                                # Record the move in the df_moves dataframe
+                                                # Record the move in that piece's history
+                                                # Record the move in the prior_moves_history then add that to prior_move_history dataframe
+                                                # Automatically make the move the selected move (thus highlighting in right panel)
                                                 if special_abb == "=Q":
                                                     # When the piece became promoted to a Queen
                                                     move_text = move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb) + " "
@@ -2244,10 +2249,8 @@ def main():
                         rectangle.draw(SCREEN)
                 draw_moves(move_notation_font, game_controller)
                 # Update objects that aren't in a sprite group
-                SCROLL_UP_BUTTON.update()
                 SCROLL_UP_BUTTON.draw(SCREEN)
-                SCROLL_DOWN_BUTTON.update(len(game_controller.df_moves))
-                SCROLL_DOWN_BUTTON.draw(SCREEN)
+                SCROLL_DOWN_BUTTON.draw(SCREEN, len(game_controller.df_moves))
                 PGN_LOAD_FILE_BUTTON.draw(SCREEN)
                 PGN_SAVE_FILE_BUTTON.draw(SCREEN)
                 # Board Coordinates Drawing
