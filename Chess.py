@@ -1444,6 +1444,8 @@ def reposition_rectangles(selected_move):
     spacing_length = 21
     for rect in MoveNumberRectangle.rectangle_list:
         rect.update_position(selected_move[0], spacing_length)
+    MoveNumberRectangle.scroll_range[0] += 1
+    MoveNumberRectangle.scroll_range[1] += 1
             
     
 
@@ -1709,16 +1711,20 @@ def main():
                             state = DEBUG
                     # Menu, inanimate buttons at top, and on right side of game board
                     if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and MOUSEPOS[0] > X_GRID_END:
-                        if SCROLL_UP_BUTTON.rect.collidepoint(MOUSEPOS): # Scroll up
+                        if SCROLL_UP_BUTTON.rect.collidepoint(MOUSEPOS) and MoveNumberRectangle.scroll_range[0] > 1: # Scroll up
                             for rect in MoveNumberRectangle.rectangle_list:
-                                rect.scroll_up(21)
+                                rect.scroll_up()
+                                MoveNumberRectangle.scroll_range[0] -= 1
+                                MoveNumberRectangle.scroll_range[1] -= 1
                         """
                             if Text_Controller.scroll > 0:
                                 Text_Controller.scroll -= 1
                         """
-                        if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS): # Scroll down
+                        if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS) and MoveNumberRectangle.scroll_range[1]-MoveNumberRectangle.scroll_range[0] < 19 and MoveNumberRectangle.scroll_range[1] > 19: # Scroll down
                             for rect in MoveNumberRectangle.rectangle_list:
-                                rect.scroll_down(21)
+                                rect.scroll_down()
+                                MoveNumberRectangle.scroll_range[0] += 1
+                                MoveNumberRectangle.scroll_range[1] += 1
                         """
                             if game_controller.move_counter > Text_Controller.max_moves_that_fits_pane:
                                 if game_controller.move_counter - Text_Controller.scroll > Text_Controller.max_moves_that_fits_pane + 1 \

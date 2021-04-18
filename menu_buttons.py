@@ -165,6 +165,7 @@ class SelectedMoveRectangle(pygame.sprite.Sprite):
 class MoveNumberRectangle(pygame.sprite.Sprite):
     rectangle_list = []
     rectangle_dict = {}
+    scroll_range = [1, 19]
     def __init__(self, move_number, x, y, width, height):
         pygame.sprite.Sprite.__init__(self)
         if move_number < 10:
@@ -184,14 +185,16 @@ class MoveNumberRectangle(pygame.sprite.Sprite):
         self.move_number = move_number
         self.text = str(self.move_number) + "."
         MoveNumberRectangle.rectangle_list.append(self)
-        MoveNumberRectangle.rectangle_dict[move_number].append(self)
+        MoveNumberRectangle.rectangle_dict[move_number] = self
     def draw(self, screen):
         screen.blit(self.image, (self.rect.topleft))
     def update_position(self, selected_move, line_spacing):
         if selected_move > 19:
             self.y = self.initial_y - line_spacing*(selected_move-19)
-    def scroll_down(self, line_spacing):
+    def scroll_down(self):
+        line_spacing = 21
         self.y = self.y + line_spacing
-    def scroll_up(self, line_spacing):
+    def scroll_up(self):
+        line_spacing = 21
         self.y = self.y - line_spacing
 
