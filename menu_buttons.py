@@ -165,9 +165,7 @@ class MoveNumberRectangle(pygame.sprite.Sprite):
         elif move_number >= 100:
             self.x = x-14
         self.y = y
-        self.initial_y = y
         self.image = pygame.Surface((height, width))
-        self.image.fill((255, 211, 0))
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.x, self.y)
         self.height = height
