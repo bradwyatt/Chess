@@ -1431,8 +1431,10 @@ class Text_Controller():
             return final_move-Text_Controller.max_moves_that_fits_pane
     def new_draw_text(surface, my_font, game_controller):
         for move_rect in MoveNumberRectangle.rectangle_list:
-            move_num_text = my_font.render(move_rect.text, True, [255,255,255])
-            surface.blit(move_num_text, (move_rect.x, move_rect.y))
+            # Only draw the text if the rectangle is below the top of the pane
+            if move_rect.y >= 89 + 21:
+                move_num_text = my_font.render(move_rect.text, True, [255,255,255])
+                surface.blit(move_num_text, (move_rect.x, move_rect.y))
         for rectangle in SelectedMoveRectangle.rectangle_list:
             move_notation_text = my_font.render(rectangle.move_notation, True, [255,255,255])
             surface.blit(move_notation_text, (rectangle.x, rectangle.y))
