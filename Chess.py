@@ -68,6 +68,7 @@ import logging
 import logging.handlers
 import pandas as pd
 import numpy as np
+import initvar
 
 #############
 # Logging
@@ -95,19 +96,8 @@ console_handler.setLevel(logging.DEBUG)
 log.addHandler(console_handler)
 
 #############
-# Functions and Grouping
+# Functions
 #############
-
-#Grouping Images and Sounds
-STARTPOS = {'white_pawn': (480, 390), 'white_bishop':(480, 340), 'white_knight':(480, 290),
-             'white_rook':(480, 240), 'white_queen':(480, 190), 'white_king':(480, 140),
-             'black_pawn': (540, 390), 'black_bishop':(540, 340), 'black_knight':(540, 290),
-             'black_rook':(540, 240), 'black_queen':(540, 190), 'black_king':(540, 140)}
-
-move_bg_image = pygame.image.load('Sprites/move_bg.png')
-START_SPRITES = pygame.sprite.Group()
-RECTANGLE_SPRITES = pygame.sprite.Group()
-
 
 def snap_to_grid(pos, x_range, y_range):
     best_num_X, best_num_Y = x_range[0], y_range[0] #So Y doesn't go above the menu
@@ -135,18 +125,18 @@ def remove_placed_object(PLACED_SPRITES, mousepos):
 
 
 def restart_start_objects(START):
-    START.white_pawn.rect.topleft = STARTPOS['white_pawn']
-    START.white_bishop.rect.topleft = STARTPOS['white_bishop']
-    START.white_knight.rect.topleft = STARTPOS['white_knight']
-    START.white_rook.rect.topleft = STARTPOS['white_rook']
-    START.white_queen.rect.topleft = STARTPOS['white_queen']
-    START.white_king.rect.topleft = STARTPOS['white_king']
-    START.black_pawn.rect.topleft = STARTPOS['black_pawn']
-    START.black_bishop.rect.topleft = STARTPOS['black_bishop']
-    START.black_knight.rect.topleft = STARTPOS['black_knight']
-    START.black_rook.rect.topleft = STARTPOS['black_rook']
-    START.black_queen.rect.topleft = STARTPOS['black_queen']
-    START.black_king.rect.topleft = STARTPOS['black_king']
+    START.white_pawn.rect.topleft = initvar.STARTPOS['white_pawn']
+    START.white_bishop.rect.topleft = initvar.STARTPOS['white_bishop']
+    START.white_knight.rect.topleft = initvar.STARTPOS['white_knight']
+    START.white_rook.rect.topleft = initvar.STARTPOS['white_rook']
+    START.white_queen.rect.topleft = initvar.STARTPOS['white_queen']
+    START.white_king.rect.topleft = initvar.STARTPOS['white_king']
+    START.black_pawn.rect.topleft = initvar.STARTPOS['black_pawn']
+    START.black_bishop.rect.topleft = initvar.STARTPOS['black_bishop']
+    START.black_knight.rect.topleft = initvar.STARTPOS['black_knight']
+    START.black_rook.rect.topleft = initvar.STARTPOS['black_rook']
+    START.black_queen.rect.topleft = initvar.STARTPOS['black_queen']
+    START.black_king.rect.topleft = initvar.STARTPOS['black_king']
     return START
 
 def get_color():
@@ -1155,31 +1145,31 @@ class Dragging():
 class Start():
     def __init__(self):
         self.blank_box = StartBlankBox()
-        START_SPRITES.add(self.blank_box)
+        initvar.START_SPRITES.add(self.blank_box)
         self.white_pawn = StartPawn("white")
-        START_SPRITES.add(self.white_pawn)
+        initvar.START_SPRITES.add(self.white_pawn)
         self.white_bishop = StartBishop("white")
-        START_SPRITES.add(self.white_bishop)
+        initvar.START_SPRITES.add(self.white_bishop)
         self.white_knight = StartKnight("white")
-        START_SPRITES.add(self.white_knight)        
+        initvar.START_SPRITES.add(self.white_knight)        
         self.white_rook = StartRook("white")
-        START_SPRITES.add(self.white_rook)        
+        initvar.START_SPRITES.add(self.white_rook)        
         self.white_queen = StartQueen("white")
-        START_SPRITES.add(self.white_queen)        
+        initvar.START_SPRITES.add(self.white_queen)        
         self.white_king = StartKing("white")
-        START_SPRITES.add(self.white_king)        
+        initvar.START_SPRITES.add(self.white_king)        
         self.black_pawn = StartPawn("black")
-        START_SPRITES.add(self.black_pawn)
+        initvar.START_SPRITES.add(self.black_pawn)
         self.black_bishop = StartBishop("black")
-        START_SPRITES.add(self.black_bishop)
+        initvar.START_SPRITES.add(self.black_bishop)
         self.black_knight = StartKnight("black")
-        START_SPRITES.add(self.black_knight)        
+        initvar.START_SPRITES.add(self.black_knight)        
         self.black_rook = StartRook("black")
-        START_SPRITES.add(self.black_rook)        
+        initvar.START_SPRITES.add(self.black_rook)        
         self.black_queen = StartQueen("black")
-        START_SPRITES.add(self.black_queen)        
+        initvar.START_SPRITES.add(self.black_queen)        
         self.black_king = StartKing("black")
-        START_SPRITES.add(self.black_king)
+        initvar.START_SPRITES.add(self.black_king)
             
 # Returns the tuples of each objects' positions within all classes
 def get_dict_rect_positions():
@@ -1475,7 +1465,6 @@ def main():
         root.withdraw()
         #Global variables
         MENUON = 1
-        #header_text = "This is the header text which will not scroll"
         
         #################
         # USER CAN SET BELOW PARAMETERS
@@ -1518,23 +1507,23 @@ def main():
         
         PLAY_EDIT_SWITCH_BUTTON = PlayEditSwitchButton((SCREEN_WIDTH-50, 8), GAME_MODE_SPRITES)
         FLIP_BOARD_BUTTON = FlipBoardButton((SCREEN_WIDTH-480, 10))
-        START_SPRITES.add(FLIP_BOARD_BUTTON)
+        initvar.START_SPRITES.add(FLIP_BOARD_BUTTON)
         GAME_PROPERTIES_BUTTON = GamePropertiesButton((SCREEN_WIDTH-430, 10))
-        START_SPRITES.add(GAME_PROPERTIES_BUTTON)
+        initvar.START_SPRITES.add(GAME_PROPERTIES_BUTTON)
         INFO_BUTTON = InfoButton((SCREEN_WIDTH-360, 10))
-        START_SPRITES.add(INFO_BUTTON)
+        initvar.START_SPRITES.add(INFO_BUTTON)
         POS_LOAD_FILE_BUTTON = PosLoadFileButton((SCREEN_WIDTH-305, 10))
-        START_SPRITES.add(POS_LOAD_FILE_BUTTON)
+        initvar.START_SPRITES.add(POS_LOAD_FILE_BUTTON)
         POS_SAVE_FILE_BUTTON = PosSaveFileButton((SCREEN_WIDTH-270, 10))
-        START_SPRITES.add(POS_SAVE_FILE_BUTTON)
+        initvar.START_SPRITES.add(POS_SAVE_FILE_BUTTON)
         PGN_LOAD_FILE_BUTTON = PGNLoadFileButton((SCREEN_WIDTH-50, 100))
         PGN_SAVE_FILE_BUTTON = PGNSaveFileButton((SCREEN_WIDTH-50, 60))
         COLOR_BUTTON = ColorButton((SCREEN_WIDTH-235, 10))
-        START_SPRITES.add(COLOR_BUTTON)
+        initvar.START_SPRITES.add(COLOR_BUTTON)
         RESET_BOARD_BUTTON = ResetBoardButton((SCREEN_WIDTH-190, 10))
-        START_SPRITES.add(RESET_BOARD_BUTTON)
+        initvar.START_SPRITES.add(RESET_BOARD_BUTTON)
         CLEAR_BUTTON = ClearButton((SCREEN_WIDTH-115, 10))
-        START_SPRITES.add(CLEAR_BUTTON)
+        initvar.START_SPRITES.add(CLEAR_BUTTON)
         SCROLL_UP_BUTTON = ScrollUpButton((686, 80))
         SCROLL_DOWN_BUTTON = ScrollDownButton((686, 510))
         GAME_MODE_SPRITES.add(SCROLL_DOWN_BUTTON)
@@ -1605,18 +1594,18 @@ def main():
             MOUSEPOS = pygame.mouse.get_pos()
             if state == RUNNING and MENUON == 1: # Initiate room
                 #Start Objects
-                START.white_pawn.rect.topleft = STARTPOS['white_pawn']
-                START.white_bishop.rect.topleft = STARTPOS['white_bishop']
-                START.white_knight.rect.topleft = STARTPOS['white_knight']
-                START.white_rook.rect.topleft = STARTPOS['white_rook']
-                START.white_queen.rect.topleft = STARTPOS['white_queen']
-                START.white_king.rect.topleft = STARTPOS['white_king']
-                START.black_pawn.rect.topleft = STARTPOS['black_pawn']
-                START.black_bishop.rect.topleft = STARTPOS['black_bishop']
-                START.black_knight.rect.topleft = STARTPOS['black_knight']
-                START.black_rook.rect.topleft = STARTPOS['black_rook']
-                START.black_queen.rect.topleft = STARTPOS['black_queen']
-                START.black_king.rect.topleft = STARTPOS['black_king']
+                START.white_pawn.rect.topleft = initvar.STARTPOS['white_pawn']
+                START.white_bishop.rect.topleft = initvar.STARTPOS['white_bishop']
+                START.white_knight.rect.topleft = initvar.STARTPOS['white_knight']
+                START.white_rook.rect.topleft = initvar.STARTPOS['white_rook']
+                START.white_queen.rect.topleft = initvar.STARTPOS['white_queen']
+                START.white_king.rect.topleft = initvar.STARTPOS['white_king']
+                START.black_pawn.rect.topleft = initvar.STARTPOS['black_pawn']
+                START.black_bishop.rect.topleft = initvar.STARTPOS['black_bishop']
+                START.black_knight.rect.topleft = initvar.STARTPOS['black_knight']
+                START.black_rook.rect.topleft = initvar.STARTPOS['black_rook']
+                START.black_queen.rect.topleft = initvar.STARTPOS['black_queen']
+                START.black_king.rect.topleft = initvar.STARTPOS['black_king']
                 
                 for event in pygame.event.get():
                     if event.type == QUIT:
@@ -2208,18 +2197,18 @@ def main():
                                                       mouse_pos[1]-(start_obj.image.get_height()/2))
                         else:
                             start_obj.rect.topleft = start_obj_pos
-                    replace_start_sprite_with_black_box(DRAGGING.white_pawn, START.blank_box, STARTPOS['white_pawn'], START.white_pawn, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.white_bishop, START.blank_box, STARTPOS['white_bishop'], START.white_bishop, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.white_knight, START.blank_box, STARTPOS['white_knight'], START.white_knight, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.white_rook, START.blank_box, STARTPOS['white_rook'], START.white_rook, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.white_queen, START.blank_box, STARTPOS['white_queen'], START.white_queen, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.white_king, START.blank_box, STARTPOS['white_king'], START.white_king, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.black_pawn, START.blank_box, STARTPOS['black_pawn'], START.black_pawn, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.black_bishop, START.blank_box, STARTPOS['black_bishop'], START.black_bishop, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.black_knight, START.blank_box, STARTPOS['black_knight'], START.black_knight, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.black_rook, START.blank_box, STARTPOS['black_rook'], START.black_rook, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.black_queen, START.blank_box, STARTPOS['black_queen'], START.black_queen, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.black_king, START.blank_box, STARTPOS['black_king'], START.black_king, MOUSEPOS)                      
+                    replace_start_sprite_with_black_box(DRAGGING.white_pawn, START.blank_box, initvar.STARTPOS['white_pawn'], START.white_pawn, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.white_bishop, START.blank_box, initvar.STARTPOS['white_bishop'], START.white_bishop, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.white_knight, START.blank_box, initvar.STARTPOS['white_knight'], START.white_knight, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.white_rook, START.blank_box, initvar.STARTPOS['white_rook'], START.white_rook, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.white_queen, START.blank_box, initvar.STARTPOS['white_queen'], START.white_queen, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.white_king, START.blank_box, initvar.STARTPOS['white_king'], START.white_king, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.black_pawn, START.blank_box, initvar.STARTPOS['black_pawn'], START.black_pawn, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.black_bishop, START.blank_box, initvar.STARTPOS['black_bishop'], START.black_bishop, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.black_knight, START.blank_box, initvar.STARTPOS['black_knight'], START.black_knight, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.black_rook, START.blank_box, initvar.STARTPOS['black_rook'], START.black_rook, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.black_queen, START.blank_box, initvar.STARTPOS['black_queen'], START.black_queen, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.black_king, START.blank_box, initvar.STARTPOS['black_king'], START.black_king, MOUSEPOS)                      
             
                 ##################
                 # IN-GAME ACTIONS
@@ -2229,7 +2218,7 @@ def main():
                 #FOR DEBUGGING PURPOSES, PUT TEST CODE BELOW
                 
                 #Update all sprites
-                #START_SPRITES.update()
+                #initvar.START_SPRITES.update()
                 PLACED_SPRITES.update(Grid.grid_list)
                 #PLAY_SPRITES.update()
                 SCREEN.fill(COLORKEY)
@@ -2238,9 +2227,9 @@ def main():
                 GRID_SPRITES.draw(SCREEN)
                 GRID_SPRITES.update(game_controller)
                 
-                SCREEN.blit(move_bg_image, (675,70))
+                SCREEN.blit(initvar.MOVE_BG_IMAGE, (initvar.MOVE_BG_IMAGE_HEIGHT,initvar.MOVE_BG_IMAGE_WIDTH))
                 if(game_controller.game_mode == game_controller.EDIT_MODE): #Only draw placed sprites in editing mode
-                    START_SPRITES.draw(SCREEN)
+                    initvar.START_SPRITES.draw(SCREEN)
                     PLACED_SPRITES.draw(SCREEN)    
                 elif(game_controller.game_mode == game_controller.PLAY_MODE): #Only draw play sprites in play mode
                     PLAY_SPRITES.draw(SCREEN)
