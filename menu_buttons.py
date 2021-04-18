@@ -132,7 +132,7 @@ class PrevMoveButton(pygame.sprite.Sprite):
         self.rect.topleft = pos
         PLAY_SPRITES.add(self)
         
-class SelectedMoveRectangle(pygame.sprite.Sprite):
+class PieceMoveRectangle(pygame.sprite.Sprite):
     rectangle_list = []
     rectangle_dict = {}
     def __init__(self, move_number, move_notation, move_color, x, y, width, height):
@@ -148,10 +148,27 @@ class SelectedMoveRectangle(pygame.sprite.Sprite):
         self.move_number = move_number
         self.move_notation = move_notation
         self.move_color = move_color
-        SelectedMoveRectangle.rectangle_list.append(self)
-        SelectedMoveRectangle.rectangle_dict[move_number].append(self)
+        PieceMoveRectangle.rectangle_list.append(self)
+        PieceMoveRectangle.rectangle_dict[move_number].append(self)
+        self.visible = True
     def draw(self, screen):
-        screen.blit(self.image, (self.rect.topleft))
+        if self.visible == True:
+            screen.blit(self.image, (self.rect.topleft))
+        else:
+            pass
+    def scroll_down(self):
+        self.y = self.y - initvar.LINE_SPACING
+    def scroll_up(self):
+        self.y = self.y + initvar.LINE_SPACING
+    def update_Y(self):
+        if self.move_number >= MoveNumberRectangle.scroll_range[0] and self.move_number <= MoveNumberRectangle.scroll_range[1]:
+            # Include rectangle
+            self.visible = True
+            self.y = initvar.MOVES_PANE_Y_BEGIN + initvar.LINE_SPACING*((self.move_number+1) - MoveNumberRectangle.scroll_range[0])
+        else:
+            # Hide rectangle
+            print("is it ever invisible? " + str(self.move_number))
+            self.visible = False
         
 class MoveNumberRectangle(pygame.sprite.Sprite):
     rectangle_list = []
@@ -189,7 +206,7 @@ class MoveNumberRectangle(pygame.sprite.Sprite):
         if self.move_number >= MoveNumberRectangle.scroll_range[0] and self.move_number <= MoveNumberRectangle.scroll_range[1]:
             # Include rectangle
             self.visible = True
-            self.y = 89 + initvar.LINE_SPACING*((self.move_number+1) - MoveNumberRectangle.scroll_range[0])
+            self.y = initvar.MOVES_PANE_Y_BEGIN + initvar.LINE_SPACING*((self.move_number+1) - MoveNumberRectangle.scroll_range[0])
         else:
             # Hide rectangle
             self.visible = False

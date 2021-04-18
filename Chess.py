@@ -1402,43 +1402,47 @@ class Game_Controller():
 class Text_Controller():
     check_checkmate_text = ""
     def draw_text(surface, my_font, game_controller):
-        for move_rect in MoveNumberRectangle.rectangle_list:
+        for move_num_rect in MoveNumberRectangle.rectangle_list:
             # Only draw the text if the rectangle is below the top of the pane
-            if move_rect.visible == True:
-                move_num_text = my_font.render(move_rect.text, True, initvar.TEXT_COLOR)
-                surface.blit(move_num_text, (move_rect.x, move_rect.y))
-        for rectangle in SelectedMoveRectangle.rectangle_list:
-            move_notation_text = my_font.render(rectangle.move_notation, True, initvar.TEXT_COLOR)
-            surface.blit(move_notation_text, (rectangle.x, rectangle.y))
+            if move_num_rect.visible == True:
+                move_num_text = my_font.render(move_num_rect.text, True, initvar.TEXT_COLOR)
+                surface.blit(move_num_text, (move_num_rect.x, move_num_rect.y))
+        for piece_move_rect in PieceMoveRectangle.rectangle_list:
+            move_notation_text = my_font.render(piece_move_rect.move_notation, True, initvar.TEXT_COLOR)
+            surface.blit(move_notation_text, (piece_move_rect.x, piece_move_rect.y))
             
 #draw the text window at coordinates x,y
 def draw_moves(my_font, game_controller):
     if len(game_controller.df_moves) >= 1:
         # Creating move notation rectangles if they haven't been created before for the respective move
         # If the last move is not in the dictionary, then add it
-        if len(game_controller.df_moves) not in SelectedMoveRectangle.rectangle_dict:
-            SelectedMoveRectangle.rectangle_dict[len(game_controller.df_moves)] = []
+        if len(game_controller.df_moves) not in PieceMoveRectangle.rectangle_dict:
+            PieceMoveRectangle.rectangle_dict[len(game_controller.df_moves)] = []
             MoveNumberRectangle.rectangle_dict[len(game_controller.df_moves)] = []
         # If last move is in dictionary but has no white move, and rectangle_dict key for that move is length 0
-        if game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'] != '' and len(SelectedMoveRectangle.rectangle_dict[len(game_controller.df_moves)]) == 0:
-            # Jump to latest move
+        if game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'] != '' and len(PieceMoveRectangle.rectangle_dict[len(game_controller.df_moves)]) == 0:
+            # Create new move number rectangle once white makes a move
             MoveNumberRectangle(len(game_controller.df_moves), initvar.MOVES_PANE_MOVE_NUMBER_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(game_controller.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)
-            # Scroll down automatically once white makes a move
+            # Scroll down automatically when a move is made
             if len(game_controller.df_moves) > initvar.MOVES_PANE_MAX_MOVES:
                 MoveNumberRectangle.scroll_range[0] = len(game_controller.df_moves) - (initvar.MOVES_PANE_MAX_MOVES-1)
                 MoveNumberRectangle.scroll_range[1] = len(game_controller.df_moves)
-                for rect in MoveNumberRectangle.rectangle_list:
-                    rect.update_Y()
-            SelectedMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'], 'white', initvar.MOVES_PANE_WHITE_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(game_controller.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)
+                for move_num_rect in MoveNumberRectangle.rectangle_list:
+                    move_num_rect.update_Y()
+                for piece_move_rect in PieceMoveRectangle.rectangle_list:
+                    piece_move_rect.update_Y()
+            PieceMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'], 'white', initvar.MOVES_PANE_WHITE_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(game_controller.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)
         # If last move is in dictionary but has no black move, and rectangle_dict key for that move is length 1
-        if game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'] != '' and len(SelectedMoveRectangle.rectangle_dict[len(game_controller.df_moves)]) == 1:
-            # Jump to latest move
+        if game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'] != '' and len(PieceMoveRectangle.rectangle_dict[len(game_controller.df_moves)]) == 1:
+            # Scroll down automatically when a move is made
             if len(game_controller.df_moves) > initvar.MOVES_PANE_MAX_MOVES:
                 MoveNumberRectangle.scroll_range[0] = len(game_controller.df_moves) - (initvar.MOVES_PANE_MAX_MOVES-1)
                 MoveNumberRectangle.scroll_range[1] = len(game_controller.df_moves)
-                for rect in MoveNumberRectangle.rectangle_list:
-                    rect.update_Y()
-            SelectedMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'], 'black', initvar.MOVES_PANE_BLACK_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(game_controller.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)
+                for move_num_rect in MoveNumberRectangle.rectangle_list:
+                    move_num_rect.update_Y()
+                for piece_move_rect in PieceMoveRectangle.rectangle_list:
+                    piece_move_rect.update_Y()
+            PieceMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'], 'black', initvar.MOVES_PANE_BLACK_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(game_controller.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)
         Text_Controller.draw_text(SCREEN, my_font, game_controller)
 
 def main():
@@ -1599,23 +1603,21 @@ def main():
                             print("scroll up test")
                             MoveNumberRectangle.scroll_range[0] -= 1
                             MoveNumberRectangle.scroll_range[1] -= 1
-                            for rect in MoveNumberRectangle.rectangle_list:
-                                rect.update_Y()
-                                #rect.scroll_up()
+                            for move_num_rect in MoveNumberRectangle.rectangle_list:
+                                move_num_rect.update_Y()
                             print("New MoveNumber List: " + str(MoveNumberRectangle.scroll_range))
                         if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS) and len(MoveNumberRectangle.rectangle_list) > initvar.MOVES_PANE_MAX_MOVES and MoveNumberRectangle.scroll_range[1] < len(MoveNumberRectangle.rectangle_list): # Scroll down
                             print("scroll down test")
                             MoveNumberRectangle.scroll_range[0] += 1
                             MoveNumberRectangle.scroll_range[1] += 1
-                            for rect in MoveNumberRectangle.rectangle_list:
-                                rect.update_Y()
-                                #rect.scroll_down()
+                            for move_num_rect in MoveNumberRectangle.rectangle_list:
+                                move_num_rect.update_Y()
                             print("New MoveNumber List: " + str(MoveNumberRectangle.scroll_range))
                         if PGN_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
                             pass
                         if PGN_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
                             PGN_WRITER.write_moves(game_controller.df_moves, game_controller.result_abb)
-                        # for rectangle in SelectedMoveRectangle.rectangle_list:
+                        # for rectangle in PieceMoveRectangle.rectangle_list:
                         #     if rectangle.rect.collidepoint(MOUSEPOS):
                         #         game_controller.selected_move[0] = rectangle.move_number
                         #         game_controller.selected_move[1] = rectangle.move_notation
@@ -2208,7 +2210,7 @@ def main():
                     PLACED_SPRITES.draw(SCREEN)    
                 elif(game_controller.game_mode == game_controller.PLAY_MODE): #Only draw play sprites in play mode
                     PLAY_SPRITES.draw(SCREEN)
-                for rectangle in SelectedMoveRectangle.rectangle_list:
+                for rectangle in PieceMoveRectangle.rectangle_list:
                     if rectangle.move_number == game_controller.selected_move[0] and rectangle.move_notation == game_controller.selected_move[1]\
                         and rectangle.move_color == game_controller.selected_move[2]:
                         rectangle.draw(SCREEN)
