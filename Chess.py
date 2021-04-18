@@ -1607,7 +1607,6 @@ def main():
                                 move_num_rect.update_Y()
                             for piece_move_rect in PieceMoveRectangle.rectangle_list:
                                 piece_move_rect.update_Y()
-                            #print("New MoveNumber List: " + str(MoveNumberRectangle.scroll_range))
                         if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS) and len(MoveNumberRectangle.rectangle_list) > initvar.MOVES_PANE_MAX_MOVES and MoveNumberRectangle.scroll_range[1] < len(MoveNumberRectangle.rectangle_list): # Scroll down
                             MoveNumberRectangle.scroll_range[0] += 1
                             MoveNumberRectangle.scroll_range[1] += 1
@@ -1615,17 +1614,16 @@ def main():
                                 move_num_rect.update_Y()
                             for piece_move_rect in PieceMoveRectangle.rectangle_list:
                                 piece_move_rect.update_Y()
-                            #print("New MoveNumber List: " + str(MoveNumberRectangle.scroll_range))
                         if PGN_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
                             pass
                         if PGN_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
                             PGN_WRITER.write_moves(game_controller.df_moves, game_controller.result_abb)
-                        for rectangle in PieceMoveRectangle.rectangle_list:
-                            if rectangle.rect.collidepoint(MOUSEPOS):
-                                #game_controller.selected_move[0] = rectangle.move_number
-                                #game_controller.selected_move[1] = rectangle.move_notation
-                                #game_controller.selected_move[2] = rectangle.move_color
-                                print("Move chosen: " + rectangle.move_notation + ", Visible? " + str(rectangle.text_is_visible))
+                        # When clicking on a move on the right pane, it is your selected move
+                        for piece_move_rect in PieceMoveRectangle.rectangle_list:
+                            if piece_move_rect.rect.collidepoint(MOUSEPOS) and piece_move_rect.text_is_visible:
+                                game_controller.selected_move[0] = piece_move_rect.move_number
+                                game_controller.selected_move[1] = piece_move_rect.move_notation
+                                game_controller.selected_move[2] = piece_move_rect.move_color
                         # Editing mode only
                         if game_controller.game_mode == game_controller.EDIT_MODE:
                             #BUTTONS
@@ -2228,15 +2226,13 @@ def main():
                 elif(game_controller.game_mode == game_controller.PLAY_MODE): #Only draw play sprites in play mode
                     PLAY_SPRITES.draw(SCREEN)
                 for rectangle in PieceMoveRectangle.rectangle_list:
-                    rectangle.draw(SCREEN)
                     if rectangle.move_number == game_controller.selected_move[0] and rectangle.move_notation == game_controller.selected_move[1]\
                         and rectangle.move_color == game_controller.selected_move[2]:
-                            pass
-                            #rectangle.draw(SCREEN)
+                            rectangle.draw(SCREEN)
                 draw_moves(move_notation_font, game_controller)
                 # Update objects that aren't in a sprite group
-                #SCROLL_UP_BUTTON.draw(SCREEN)
-                #SCROLL_DOWN_BUTTON.draw(SCREEN, len(game_controller.df_moves))
+                SCROLL_UP_BUTTON.draw(SCREEN)
+                SCROLL_DOWN_BUTTON.draw(SCREEN, len(game_controller.df_moves))
                 PGN_LOAD_FILE_BUTTON.draw(SCREEN)
                 PGN_SAVE_FILE_BUTTON.draw(SCREEN)
                 # Board Coordinates Drawing
