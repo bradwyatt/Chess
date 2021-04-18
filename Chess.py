@@ -1413,11 +1413,9 @@ class Text_Controller():
             
 #draw the text window at coordinates x,y
 def draw_moves(my_font, game_controller):
-    spacing_length = 21
     new_rect = None
     if len(game_controller.df_moves) >= 1:
         # White was latest move
-        #print("SCROLL: " + str(scroll))
         
         # Creating move notation rectangles if they haven't been created before for the respective move
         # If the last move is not in the dictionary, then add it
@@ -1426,23 +1424,23 @@ def draw_moves(my_font, game_controller):
             MoveNumberRectangle.rectangle_dict[len(game_controller.df_moves)] = []
         # If last move is in dictionary but has no white move, and rectangle_dict key for that move is length 0
         if game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'] != '' and len(SelectedMoveRectangle.rectangle_dict[len(game_controller.df_moves)]) == 0:
-            MoveNumberRectangle(len(game_controller.df_moves), initvar.SCREEN_WIDTH-220, 89+spacing_length*len(game_controller.df_moves), 20, 56)
+            MoveNumberRectangle(len(game_controller.df_moves), initvar.SCREEN_WIDTH-220, 89+initvar.LINE_SPACING*len(game_controller.df_moves), 20, 56)
             # Jump to latest move
             if len(game_controller.df_moves) > initvar.MOVES_PANE_MAX_MOVES:
-                MoveNumberRectangle.scroll_range[0] = len(game_controller.df_moves) - 18
+                MoveNumberRectangle.scroll_range[0] = len(game_controller.df_moves) - (initvar.MOVES_PANE_MAX_MOVES-1)
                 MoveNumberRectangle.scroll_range[1] = len(game_controller.df_moves)
                 for rect in MoveNumberRectangle.rectangle_list:
                     rect.update_Y()
-            SelectedMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'], initvar.SCREEN_WIDTH-206, 89+spacing_length*len(game_controller.df_moves), 20, 56)
+            SelectedMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'], initvar.SCREEN_WIDTH-206, 89+initvar.LINE_SPACING*len(game_controller.df_moves), 20, 56)
         # If last move is in dictionary but has no black move, and rectangle_dict key for that move is length 1
         if game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'] != '' and len(SelectedMoveRectangle.rectangle_dict[len(game_controller.df_moves)]) == 1:
             # Jump to latest move
             if len(game_controller.df_moves) > initvar.MOVES_PANE_MAX_MOVES:
-                MoveNumberRectangle.scroll_range[0] = len(game_controller.df_moves) - 18
+                MoveNumberRectangle.scroll_range[0] = len(game_controller.df_moves) - (initvar.MOVES_PANE_MAX_MOVES-1)
                 MoveNumberRectangle.scroll_range[1] = len(game_controller.df_moves)
                 for rect in MoveNumberRectangle.rectangle_list:
                     rect.update_Y()
-            SelectedMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'], initvar.SCREEN_WIDTH-127, 89+spacing_length*len(game_controller.df_moves), 20, 56)
+            SelectedMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'], initvar.SCREEN_WIDTH-127, 89+initvar.LINE_SPACING*len(game_controller.df_moves), 20, 56)
         Text_Controller.draw_text(SCREEN, my_font, game_controller)
     #draw the floating header
     #text = my_font.render(header_text, True, [255,255,255])

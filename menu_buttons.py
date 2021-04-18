@@ -1,4 +1,5 @@
 import pygame
+import initvar
 from load_images_sounds import *
 
 class ClearButton(pygame.sprite.Sprite):
@@ -154,7 +155,7 @@ class SelectedMoveRectangle(pygame.sprite.Sprite):
 class MoveNumberRectangle(pygame.sprite.Sprite):
     rectangle_list = []
     rectangle_dict = {}
-    scroll_range = [1, 19]
+    scroll_range = [1, initvar.MOVES_PANE_MAX_MOVES]
     def __init__(self, move_number, x, y, width, height):
         pygame.sprite.Sprite.__init__(self)
         if move_number < 10:
@@ -182,17 +183,14 @@ class MoveNumberRectangle(pygame.sprite.Sprite):
         else:
             pass
     def scroll_down(self):
-        line_spacing = 21
-        self.y = self.y - line_spacing
+        self.y = self.y - initvar.LINE_SPACING
     def scroll_up(self):
-        line_spacing = 21
-        self.y = self.y + line_spacing
+        self.y = self.y + initvar.LINE_SPACING
     def update_Y(self):
-        line_spacing = 21
         if self.move_number >= MoveNumberRectangle.scroll_range[0] and self.move_number <= MoveNumberRectangle.scroll_range[1]:
             # Include rectangle
             self.visible = True
-            self.y = 89 + line_spacing*((self.move_number+1) - MoveNumberRectangle.scroll_range[0])
+            self.y = 89 + initvar.LINE_SPACING*((self.move_number+1) - MoveNumberRectangle.scroll_range[0])
         else:
             # Hide rectangle
             self.visible = False

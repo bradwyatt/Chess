@@ -45,3 +45,4 @@ LAST_MOVE_BUTTON_TOPLEFT = (SCREEN_WIDTH-115, 545)
 
 # With the current pane, font, line spacing, it is recommended we keep 19 moves as maximum before having to scroll
 MOVES_PANE_MAX_MOVES = 19
+LINE_SPACING = 21
