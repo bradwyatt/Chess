@@ -1638,10 +1638,10 @@ def main():
                             pass
                         if PGN_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
                             PGN_WRITER.write_moves(game_controller.df_moves, game_controller.result_abb)
-                        for rectangle in SelectedMoveRectangle.rectangle_list:
-                            if rectangle.rect.collidepoint(MOUSEPOS):
-                                game_controller.selected_move[0] = rectangle.move_number
-                                game_controller.selected_move[1] = rectangle.move_notation
+                        # for rectangle in SelectedMoveRectangle.rectangle_list:
+                        #     if rectangle.rect.collidepoint(MOUSEPOS):
+                        #         game_controller.selected_move[0] = rectangle.move_number
+                        #         game_controller.selected_move[1] = rectangle.move_notation
                         # Editing mode only
                         if game_controller.game_mode == game_controller.EDIT_MODE:
                             #BUTTONS
@@ -2060,6 +2060,14 @@ def main():
                                                     prior_moves_dict['move_notation'] = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
                                                     game_controller.selected_move = [game_controller.move_counter, move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)]
                                                 game_controller.df_prior_moves.loc[game_controller.move_counter, "white_move"] = str(prior_moves_dict)
+                                                """
+                                                if game_controller.move_counter >= 20:
+                                                    print("scrolled down after move")
+                                                    for rect in MoveNumberRectangle.rectangle_list:
+                                                        rect.scroll_down()
+                                                        MoveNumberRectangle.scroll_range[0] += 1
+                                                        MoveNumberRectangle.scroll_range[1] += 1
+                                                """
                                             log.info(move_text)
                                             if game_controller.result_abb != "*":
                                                 log.info(game_controller.result_abb)
@@ -2259,7 +2267,8 @@ def main():
                     log.info("Entering debug mode")
                     debug_message = 0
                     # USE BREAKPOINT HERE
-                    print(str(game_controller.df_prior_moves))
+                    print(len(MoveNumberRectangle.rectangle_list))
+                    #print(str(game_controller.df_prior_moves))
                     log.info("Use breakpoint here")
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
