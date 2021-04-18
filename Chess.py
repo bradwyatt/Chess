@@ -2074,14 +2074,6 @@ def main():
                                                     prior_moves_dict['move_notation'] = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
                                                     game_controller.selected_move = [game_controller.move_counter, move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)]
                                                 game_controller.df_prior_moves.loc[game_controller.move_counter, "white_move"] = str(prior_moves_dict)
-                                                """
-                                                if game_controller.move_counter >= 20:
-                                                    print("scrolled down after move")
-                                                    for rect in MoveNumberRectangle.rectangle_list:
-                                                        rect.scroll_down()
-                                                        MoveNumberRectangle.scroll_range[0] += 1
-                                                        MoveNumberRectangle.scroll_range[1] += 1
-                                                """
                                             log.info(move_text)
                                             if game_controller.result_abb != "*":
                                                 log.info(game_controller.result_abb)
