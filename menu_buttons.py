@@ -143,6 +143,15 @@ class PanelRectangles(pygame.sprite.Sprite):
         self.width = width
         self.move_number = move_number
         self.text_is_visible = True
+    def update_Y(self):
+        if self.move_number >= MoveNumberRectangle.scroll_range[0] and self.move_number <= MoveNumberRectangle.scroll_range[1]:
+            # Include rectangle in pane
+            self.text_is_visible = True
+            self.y = initvar.MOVES_PANE_Y_BEGIN + initvar.LINE_SPACING*((self.move_number+1) - MoveNumberRectangle.scroll_range[0])
+            self.rect.topleft = (self.x, self.y)
+        else:
+            # Hide rectangle in pane
+            self.text_is_visible = False
         
 class PieceMoveRectangle(PanelRectangles, pygame.sprite.Sprite):
     rectangle_list = []
@@ -162,16 +171,7 @@ class PieceMoveRectangle(PanelRectangles, pygame.sprite.Sprite):
             screen.blit(self.image, (self.rect.topleft))
         else:
             pass
-    def update_Y(self):
-        if self.move_number >= MoveNumberRectangle.scroll_range[0] and self.move_number <= MoveNumberRectangle.scroll_range[1]:
-            # Include rectangle
-            self.text_is_visible = True
-            self.y = initvar.MOVES_PANE_Y_BEGIN + initvar.LINE_SPACING*((self.move_number+1) - MoveNumberRectangle.scroll_range[0])
-            self.rect.topleft = (self.x, self.y)
-        else:
-            # Hide rectangle
-            self.text_is_visible = False
-        
+
 class MoveNumberRectangle(PanelRectangles, pygame.sprite.Sprite):
     rectangle_list = []
     rectangle_dict = {}
@@ -183,14 +183,3 @@ class MoveNumberRectangle(PanelRectangles, pygame.sprite.Sprite):
         self.text = str(self.move_number) + "."
         MoveNumberRectangle.rectangle_list.append(self)
         MoveNumberRectangle.rectangle_dict[move_number] = self
-    def update_Y(self):
-        if self.move_number >= MoveNumberRectangle.scroll_range[0] and self.move_number <= MoveNumberRectangle.scroll_range[1]:
-            # Include rectangle
-            self.text_is_visible = True
-            self.y = initvar.MOVES_PANE_Y_BEGIN + initvar.LINE_SPACING*((self.move_number+1) - MoveNumberRectangle.scroll_range[0])
-            self.rect.topleft = (self.x, self.y)
-        else:
-            # Hide rectangle
-            self.text_is_visible = False
-            
-
