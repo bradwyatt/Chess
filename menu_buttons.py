@@ -190,4 +190,8 @@ class MoveNumberRectangle(pygame.sprite.Sprite):
     def update_position(self, selected_move, line_spacing):
         if selected_move > 19:
             self.y = self.initial_y - line_spacing*(selected_move-19)
+    def scroll_down(self, line_spacing):
+        self.y = self.y + line_spacing
+    def scroll_up(self, line_spacing):
+        self.y = self.y - line_spacing
 

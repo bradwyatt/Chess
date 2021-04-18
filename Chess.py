@@ -1708,9 +1708,16 @@ def main():
                     # Menu, inanimate buttons at top, and on right side of game board
                     if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and MOUSEPOS[0] > X_GRID_END:
                         if SCROLL_UP_BUTTON.rect.collidepoint(MOUSEPOS): # Scroll up
+                            for rect in MoveNumberRectangle.rectangle_list:
+                                rect.scroll_up(21)
+                        """
                             if Text_Controller.scroll > 0:
                                 Text_Controller.scroll -= 1
+                        """
                         if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS): # Scroll down
+                            for rect in MoveNumberRectangle.rectangle_list:
+                                rect.scroll_down(21)
+                        """
                             if game_controller.move_counter > Text_Controller.max_moves_that_fits_pane:
                                 if game_controller.move_counter - Text_Controller.scroll > Text_Controller.max_moves_that_fits_pane + 1 \
                                     and game_controller.WHOSETURN == "white":
@@ -1718,6 +1725,7 @@ def main():
                                 elif game_controller.move_counter - Text_Controller.scroll > Text_Controller.max_moves_that_fits_pane \
                                     and game_controller.WHOSETURN == "black":
                                         Text_Controller.scroll += 1
+                        """
                         if PGN_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
                             pass
                         if PGN_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
