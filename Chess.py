@@ -1269,7 +1269,7 @@ class Game_Controller():
         self.df_prior_moves = pd.DataFrame(columns=["white_move", "black_move"])
         self.df_prior_moves.index = np.arange(1, len(self.df_prior_moves)+1)
         self.result_abb = "*"
-        self.selected_move = [0, ""]
+        self.selected_move = [0, "", ""] #move number, move, color of moved piece
     def reset_board(self):
         self.WHOSETURN = "white"
         self.color_in_check = ""
@@ -1284,7 +1284,7 @@ class Game_Controller():
         self.df_prior_moves = pd.DataFrame(columns=["white_move", "black_move"])
         self.df_prior_moves.index = np.arange(1, len(self.df_prior_moves)+1)
         self.result_abb = "*"
-        self.selected_move = [0, ""]
+        self.selected_move = [0, "", ""]
         Text_Controller.check_checkmate_text = ""
         for spr_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                  PlayKnight.white_knight_list, PlayRook.white_rook_list,
@@ -1428,7 +1428,7 @@ def draw_moves(my_font, game_controller):
                 MoveNumberRectangle.scroll_range[1] = len(game_controller.df_moves)
                 for rect in MoveNumberRectangle.rectangle_list:
                     rect.update_Y()
-            SelectedMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'], initvar.MOVES_PANE_WHITE_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(game_controller.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)
+            SelectedMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'], 'white', initvar.MOVES_PANE_WHITE_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(game_controller.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)
         # If last move is in dictionary but has no black move, and rectangle_dict key for that move is length 1
         if game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'] != '' and len(SelectedMoveRectangle.rectangle_dict[len(game_controller.df_moves)]) == 1:
             # Jump to latest move
@@ -1437,7 +1437,7 @@ def draw_moves(my_font, game_controller):
                 MoveNumberRectangle.scroll_range[1] = len(game_controller.df_moves)
                 for rect in MoveNumberRectangle.rectangle_list:
                     rect.update_Y()
-            SelectedMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'], initvar.MOVES_PANE_BLACK_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(game_controller.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)
+            SelectedMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'], 'black', initvar.MOVES_PANE_BLACK_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(game_controller.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)
         Text_Controller.draw_text(SCREEN, my_font, game_controller)
     #draw the floating header
     #text = my_font.render(header_text, True, [255,255,255])
@@ -1621,6 +1621,7 @@ def main():
                         #     if rectangle.rect.collidepoint(MOUSEPOS):
                         #         game_controller.selected_move[0] = rectangle.move_number
                         #         game_controller.selected_move[1] = rectangle.move_notation
+                        #         game_controller.selected_move[2] = rectangle.move_color
                         # Editing mode only
                         if game_controller.game_mode == game_controller.EDIT_MODE:
                             #BUTTONS
@@ -2020,13 +2021,13 @@ def main():
                                                     game_controller.df_moves.loc[game_controller.move_counter-1, "black_move"] = move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
                                                     piece.coordinate_history[game_controller.move_counter-1]['move_notation'] = move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
                                                     prior_moves_dict['move_notation'] = move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
-                                                    game_controller.selected_move = [game_controller.move_counter-1, move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)]
+                                                    game_controller.selected_move = [game_controller.move_counter-1, move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb), "black"]
                                                 else:
                                                     move_text = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb) + " "
                                                     game_controller.df_moves.loc[game_controller.move_counter-1, "black_move"] = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
                                                     piece.coordinate_history[game_controller.move_counter-1]['move_notation'] = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
                                                     prior_moves_dict['move_notation'] = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
-                                                    game_controller.selected_move = [game_controller.move_counter-1, move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)]
+                                                    game_controller.selected_move = [game_controller.move_counter-1, move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb), "black"]
                                                 game_controller.df_prior_moves.loc[game_controller.move_counter-1, "black_move"] = str(prior_moves_dict)
                                             elif(game_controller.WHOSETURN == "black"):
                                                 if special_abb == "=Q":
@@ -2035,14 +2036,14 @@ def main():
                                                     game_controller.df_moves.loc[game_controller.move_counter] = [move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb), '']
                                                     piece.coordinate_history[game_controller.move_counter]['move_notation'] = move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
                                                     prior_moves_dict['move_notation'] = move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
-                                                    game_controller.selected_move = [game_controller.move_counter, move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)]
+                                                    game_controller.selected_move = [game_controller.move_counter, move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb), "white"]
                                                 else:
                                                     move_text = str(game_controller.move_counter) + ". " + \
                                                           move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb) + " "
                                                     game_controller.df_moves.loc[game_controller.move_counter] = [move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb), '']
                                                     piece.coordinate_history[game_controller.move_counter]['move_notation'] = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
                                                     prior_moves_dict['move_notation'] = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
-                                                    game_controller.selected_move = [game_controller.move_counter, move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)]
+                                                    game_controller.selected_move = [game_controller.move_counter, move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb), "white"]
                                                 game_controller.df_prior_moves.loc[game_controller.move_counter, "white_move"] = str(prior_moves_dict)
                                             log.info(move_text)
                                             if game_controller.result_abb != "*":
@@ -2210,7 +2211,8 @@ def main():
                 elif(game_controller.game_mode == game_controller.PLAY_MODE): #Only draw play sprites in play mode
                     PLAY_SPRITES.draw(SCREEN)
                 for rectangle in SelectedMoveRectangle.rectangle_list:
-                    if rectangle.move_number == game_controller.selected_move[0] and rectangle.move_notation == game_controller.selected_move[1]:
+                    if rectangle.move_number == game_controller.selected_move[0] and rectangle.move_notation == game_controller.selected_move[1]\
+                        and rectangle.move_color == game_controller.selected_move[2]:
                         rectangle.draw(SCREEN)
                 draw_moves(move_notation_font, game_controller)
                 # Update objects that aren't in a sprite group
