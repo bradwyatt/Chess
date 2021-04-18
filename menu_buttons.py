@@ -190,7 +190,7 @@ class MoveNumberRectangle(pygame.sprite.Sprite):
         screen.blit(self.image, (self.rect.topleft))
     def scroll_down(self):
         line_spacing = 21
-        self.y = self.y + line_spacing
+        self.y = self.y - line_spacing
     def scroll_up(self):
         line_spacing = 21
         self.y = self.y - line_spacing

@@ -1621,15 +1621,19 @@ def main():
                     # Menu, inanimate buttons at top, and on right side of game board
                     if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and MOUSEPOS[0] > X_GRID_END:
                         if SCROLL_UP_BUTTON.rect.collidepoint(MOUSEPOS) and MoveNumberRectangle.scroll_range[0] > 1: # Scroll up
+                            print("scroll up test")
                             for rect in MoveNumberRectangle.rectangle_list:
                                 rect.scroll_up()
-                                MoveNumberRectangle.scroll_range[0] -= 1
-                                MoveNumberRectangle.scroll_range[1] -= 1
-                        if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS) and MoveNumberRectangle.scroll_range[1]-MoveNumberRectangle.scroll_range[0] < 19 and MoveNumberRectangle.scroll_range[1] > 19: # Scroll down
+                            MoveNumberRectangle.scroll_range[0] -= 1
+                            MoveNumberRectangle.scroll_range[1] -= 1
+                            print("New MoveNumber List: " + str(MoveNumberRectangle.scroll_range))
+                        if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS) and len(MoveNumberRectangle.rectangle_list) >= 20 and len(MoveNumberRectangle.rectangle_list) < MoveNumberRectangle.scroll_range[1]: # Scroll down
+                            print("scroll down test")
                             for rect in MoveNumberRectangle.rectangle_list:
                                 rect.scroll_down()
-                                MoveNumberRectangle.scroll_range[0] += 1
-                                MoveNumberRectangle.scroll_range[1] += 1
+                            MoveNumberRectangle.scroll_range[0] += 1
+                            MoveNumberRectangle.scroll_range[1] += 1
+                            print("New MoveNumber List: " + str(MoveNumberRectangle.scroll_range))
                         if PGN_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
                             pass
                         if PGN_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
@@ -2099,16 +2103,9 @@ def main():
                     if event.type == pygame.MOUSEBUTTONDOWN and (event.button == 4 or event.button == 5):
                         #scroll wheel
                         if event.button == 4: # Scroll up
-                            if Text_Controller.scroll > 0:
-                                Text_Controller.scroll -= 1
+                            pass
                         if event.button == 5: # Scroll down
-                            if game_controller.move_counter > Text_Controller.max_moves_that_fits_pane:
-                                if game_controller.move_counter - Text_Controller.scroll > Text_Controller.max_moves_that_fits_pane + 1 \
-                                    and game_controller.WHOSETURN == "white":
-                                    Text_Controller.scroll += 1
-                                elif game_controller.move_counter - Text_Controller.scroll > Text_Controller.max_moves_that_fits_pane \
-                                    and game_controller.WHOSETURN == "black":
-                                    Text_Controller.scroll += 1
+                            pass
                     if game_controller.game_mode == game_controller.EDIT_MODE:
                         # Right click on obj, destroy
                         if(event.type == MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[2]):   
