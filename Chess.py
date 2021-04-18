@@ -6,11 +6,16 @@ Scroll bar for moves based on https://www.reddit.com/r/pygame/comments/94czzs/te
 PLEASE do new console after each time exiting the program
 
 Round 2 Thoughts:
+Replace the scroll bar logic with the following. Create a list of SelectedMoveRectangle(s) from parent class. Self.text should be the move. The text blitted to the screen should take from the rectangle with the same X. When scrolling, the rectangle Y will change, and when it's out of boundary of 19 moves then be invisible and unclickable.
+Prior move color
+Play back one move
+Undo move
 Highlight move (that we're on, or examining) on the right side. I will probably want to get move number on left side and white move, and then black move several spaces from the end of the width. Will need to work on body_text Text_Controller stuff
 Pause mode- The board has the Placed pieces, and you can go back and forward in your analysis. But you can't bring in new pieces
-Eventually when figuring out how to do undo move, the dead pieces should still remember their last square (in the order that they've gone away)
 I'd really like to get rid of hardcoding values, like pos_load_file for resetting board
 Sounds
+Making sure that we are doing promotion correctly
+Perhaps using a direction arrow (like babaschess) to determine which piece could take the other piece. This could get confusing when flipping board though
                                                                                                          
 Testing (these are all in logs or PGN_Incorrect_Notation folder):
 Found a bug in castling there's a screenshot of it. This was before figuring out how to do moves, so ignore until you find again
@@ -63,6 +68,7 @@ import logging
 import logging.handlers
 import pandas as pd
 import numpy as np
+import initvar
 
 #############
 # Logging
@@ -90,26 +96,16 @@ console_handler.setLevel(logging.DEBUG)
 log.addHandler(console_handler)
 
 #############
-# Functions and Grouping
+# Functions
 #############
-
-#Grouping Images and Sounds
-STARTPOS = {'white_pawn': (480, 390), 'white_bishop':(480, 340), 'white_knight':(480, 290),
-             'white_rook':(480, 240), 'white_queen':(480, 190), 'white_king':(480, 140),
-             'black_pawn': (540, 390), 'black_bishop':(540, 340), 'black_knight':(540, 290),
-             'black_rook':(540, 240), 'black_queen':(540, 190), 'black_king':(540, 140)}
-
-move_bg_image = pygame.image.load('Sprites/move_bg.png')
-START_SPRITES = pygame.sprite.Group()
-
 
 def snap_to_grid(pos, x_range, y_range):
     best_num_X, best_num_Y = x_range[0], y_range[0] #So Y doesn't go above the menu
     for x in range(x_range[0], x_range[1], x_range[2]):
-        if pos[0]-x <= 48 and pos[0]-x >= 0:
+        if pos[0]-x <= initvar.X_GRID_WIDTH and pos[0]-x >= 0:
             best_num_X = x
     for y in range(y_range[0], y_range[1], y_range[2]):
-        if pos[1]-y <= 48 and pos[1]-y >= 0:
+        if pos[1]-y <= initvar.Y_GRID_HEIGHT and pos[1]-y >= 0:
             best_num_Y = y
     best_grid_snap = (best_num_X, best_num_Y)
     return best_grid_snap
@@ -129,18 +125,18 @@ def remove_placed_object(PLACED_SPRITES, mousepos):
 
 
 def restart_start_objects(START):
-    START.white_pawn.rect.topleft = STARTPOS['white_pawn']
-    START.white_bishop.rect.topleft = STARTPOS['white_bishop']
-    START.white_knight.rect.topleft = STARTPOS['white_knight']
-    START.white_rook.rect.topleft = STARTPOS['white_rook']
-    START.white_queen.rect.topleft = STARTPOS['white_queen']
-    START.white_king.rect.topleft = STARTPOS['white_king']
-    START.black_pawn.rect.topleft = STARTPOS['black_pawn']
-    START.black_bishop.rect.topleft = STARTPOS['black_bishop']
-    START.black_knight.rect.topleft = STARTPOS['black_knight']
-    START.black_rook.rect.topleft = STARTPOS['black_rook']
-    START.black_queen.rect.topleft = STARTPOS['black_queen']
-    START.black_king.rect.topleft = STARTPOS['black_king']
+    START.white_pawn.rect.topleft = initvar.STARTPOS['white_pawn']
+    START.white_bishop.rect.topleft = initvar.STARTPOS['white_bishop']
+    START.white_knight.rect.topleft = initvar.STARTPOS['white_knight']
+    START.white_rook.rect.topleft = initvar.STARTPOS['white_rook']
+    START.white_queen.rect.topleft = initvar.STARTPOS['white_queen']
+    START.white_king.rect.topleft = initvar.STARTPOS['white_king']
+    START.black_pawn.rect.topleft = initvar.STARTPOS['black_pawn']
+    START.black_bishop.rect.topleft = initvar.STARTPOS['black_bishop']
+    START.black_knight.rect.topleft = initvar.STARTPOS['black_knight']
+    START.black_rook.rect.topleft = initvar.STARTPOS['black_rook']
+    START.black_queen.rect.topleft = initvar.STARTPOS['black_queen']
+    START.black_king.rect.topleft = initvar.STARTPOS['black_king']
     return START
 
 def get_color():
@@ -268,6 +264,7 @@ class ChessPiece:
         self.disable = False
         self.taken_off_board = False
         self.coordinate = self.get_coordinate()
+        self.coordinate_history = {}
         self.previous_coordinate = self.get_coordinate()
     def get_coordinate(self):
         for grid in Grid.grid_list:
@@ -1148,31 +1145,31 @@ class Dragging():
 class Start():
     def __init__(self):
         self.blank_box = StartBlankBox()
-        START_SPRITES.add(self.blank_box)
+        initvar.START_SPRITES.add(self.blank_box)
         self.white_pawn = StartPawn("white")
-        START_SPRITES.add(self.white_pawn)
+        initvar.START_SPRITES.add(self.white_pawn)
         self.white_bishop = StartBishop("white")
-        START_SPRITES.add(self.white_bishop)
+        initvar.START_SPRITES.add(self.white_bishop)
         self.white_knight = StartKnight("white")
-        START_SPRITES.add(self.white_knight)        
+        initvar.START_SPRITES.add(self.white_knight)        
         self.white_rook = StartRook("white")
-        START_SPRITES.add(self.white_rook)        
+        initvar.START_SPRITES.add(self.white_rook)        
         self.white_queen = StartQueen("white")
-        START_SPRITES.add(self.white_queen)        
+        initvar.START_SPRITES.add(self.white_queen)        
         self.white_king = StartKing("white")
-        START_SPRITES.add(self.white_king)        
+        initvar.START_SPRITES.add(self.white_king)        
         self.black_pawn = StartPawn("black")
-        START_SPRITES.add(self.black_pawn)
+        initvar.START_SPRITES.add(self.black_pawn)
         self.black_bishop = StartBishop("black")
-        START_SPRITES.add(self.black_bishop)
+        initvar.START_SPRITES.add(self.black_bishop)
         self.black_knight = StartKnight("black")
-        START_SPRITES.add(self.black_knight)        
+        initvar.START_SPRITES.add(self.black_knight)        
         self.black_rook = StartRook("black")
-        START_SPRITES.add(self.black_rook)        
+        initvar.START_SPRITES.add(self.black_rook)        
         self.black_queen = StartQueen("black")
-        START_SPRITES.add(self.black_queen)        
+        initvar.START_SPRITES.add(self.black_queen)        
         self.black_king = StartKing("black")
-        START_SPRITES.add(self.black_king)
+        initvar.START_SPRITES.add(self.black_king)
             
 # Returns the tuples of each objects' positions within all classes
 def get_dict_rect_positions():
@@ -1264,24 +1261,30 @@ class Game_Controller():
         self.game_mode = self.EDIT_MODE
         self.check_attacking_coordinates = []
         self.attacker_piece = ""
-        self.black_captured_x = 50
-        self.white_captured_x = 50
+        self.black_captured_x = initvar.CAPTURED_X
+        self.white_captured_x = initvar.CAPTURED_X
         self.move_counter = 1
         self.df_moves = pd.DataFrame(columns=["white_move", "black_move"])
         self.df_moves.index = np.arange(1, len(self.df_moves)+1) # Index at 1 rather than 0 because chess starts that way
+        self.df_prior_moves = pd.DataFrame(columns=["white_move", "black_move"])
+        self.df_prior_moves.index = np.arange(1, len(self.df_prior_moves)+1)
         self.result_abb = "*"
+        self.selected_move = [0, "", ""] #move number, move, color of moved piece
     def reset_board(self):
         self.WHOSETURN = "white"
         self.color_in_check = ""
         self.game_mode = self.EDIT_MODE
         self.check_attacking_coordinates = []
         self.attacker_piece = ""
-        self.black_captured_x = 50
-        self.white_captured_x = 50
+        self.black_captured_x = initvar.CAPTURED_X
+        self.white_captured_x = initvar.CAPTURED_X
         self.move_counter = 1
         self.df_moves = pd.DataFrame(columns=["white_move", "black_move"])
         self.df_moves.index = np.arange(1, len(self.df_moves)+1) # Index at 1 rather than 0 because chess starts that way
+        self.df_prior_moves = pd.DataFrame(columns=["white_move", "black_move"])
+        self.df_prior_moves.index = np.arange(1, len(self.df_prior_moves)+1)
         self.result_abb = "*"
+        self.selected_move = [0, "", ""]
         Text_Controller.check_checkmate_text = ""
         for spr_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                  PlayKnight.white_knight_list, PlayRook.white_rook_list,
@@ -1398,125 +1401,50 @@ class Game_Controller():
 
 class Text_Controller():
     check_checkmate_text = ""
-    body_text = ""
-    max_moves_that_fits_pane = 19
-    # Example Games
-    """
-    body_text = "1. e4 c6 2. c4 d5 3. exd5 cxd5 4. cxd5 Nf6 5. Nc3 Nxd5 6. d4 Nc6 7. Nf3 e6 8. Bd3 Be7 \
-        9. O-O O-O 10. Re1 Bf6 11. Be4 Nce7 12. a3 Rb8 13. h4 b6 14. Qd3 g6 15. h5 Bb7 16. Bh6 Re8 \
-        17. Rac1 Nxc3 18. bxc3 Bxe4 19. Rxe4 Nf5 20. Bf4 Rc8 21. hxg6 hxg6 22. Be5 Bxe5 \
-        23. Nxe5 Qg5 24. Rd1 Kg7 25. Qf3 Rh8 "
-    body_text = "1.e4 c5 2.Nf3 d6 3.Bb5+ Nc6 4.O-O Bd7 5.Re1 Nf6 6.c3 a6 7.Ba4 b5 8.Bc2 e5 9.h3 Be7 10.d4 O-O 11.d5 Na5 12.Nbd2 g6 13.b4 Nb7 14.a4 Qc7 15.Nf1 Nh5 16.Bh6 Ng7 17.Ng3 f6 18.Qd2 Rfc8 19.Ra2 a5 20.Rea1 axb4 21.cxb4 bxa4 22.Bxa4 Bxa4 23.Rxa4 Rxa4 24.Rxa4 cxb4 25.Rxb4 Nc5 26.Be3 Qd7 27.Rc4 Rb8 28.Bxc5 dxc5 29.Nf1 Ne8 30.Qc2 Qb5 31.N3d2 Qb2 32.Qa4 Kf7 33.Rc2 Qb4 34.Qd7 Nd6 35.Ne3 Kf8 36.Kh2 Rd8 37.Qg4 Qd4 38.Nec4 f5 39.Qe2 Nxe4 40.Nxe4 Qxe4 41.Qxe4 fxe4 42.Rd2 Bg5 43.Rd1 Rb8 44.Kg1 Rb4 45.Nxe5 c4 46.Nc6 Rb2 47.Nd4 c3 48.Re1 c2 49.Nxc2 Rxc2 50.Rxe4 Rd2 51.g3 Be7 52.Rf4+ Kg7 53.Kg2 Bc5 54.h4 Rxd5 55.Rc4 Kf6 56.Rc2 Kf5 57.Ra2 Bb4 58.Rb2 Bc3 59.Rc2 Rd3 60.Kf1 Bd4 61.Kg2 Rb3 62.Rc7 h6 63.Rf7+ Ke6 64.Rf4 Bb6 65.Rf8 Rb2 66.Rf3 g5 67.hxg5 hxg5 68.Rf8 Bc5 69.Rf3 Ra2 70.Kg1 Ra7 71.Kg2 Ke5 72.Kh3 Ra4 73.Kg2 Ra2 74.Rf7 Ke4 75.Rf3 Bd4 76.Rf8 Kd3 77.Rf5 Ke4 78.Rxg5 Rxf2+ 79.Kh3 Rf8 80.Rg4+ Ke3 81.Rf4 Rg8 82.Rg4 Bg7 83.Kg2 Kd3 84.Rg6 Ke4 85.Rg5 Kd4 86.Kg1 Kd3 87.Kg2 Ke4 88.Rg4+ Kf5 89.Rf4+ Kg5 90.Kf3 Ra8 91.Rg4+ Kf6 92.Rf4+ Ke6 93.Kg2 Be5 94.Rf3 Rh8 95.Kg1 Kd5 96.Kg2 Ke4 97.Rb3 Rc8 98.Kh3 Rc2 99.Kg4 Rg2 100.Ra3 Rg1 101.Rb3 Bd6 102.Rc3 Kd4 103.Rb3 Bc5 104.Rf3 Bb4 "
-    """
-    scroll = 0
-    def latest_scroll(body_text, scroll):
-        if body_text == "":
-            return 0
-        else:
-            final_move = int(re.findall(re.compile(r'\d{1,3}\.'), body_text)[-1].replace(".",""))
-            # 19 moves at a time
-            return final_move-Text_Controller.max_moves_that_fits_pane
-
-def draw_text(surface, text, color, rectangle, scroll, my_font):
-    y = rectangle[1]
-    line_spacing = 2
-    line_text_black = ""
-
-    # get the height of the font
-    font_height = my_font.size("Tg")[1]
-    while text:
-        
-        # determine if the row of text will be outside our area
-        if y + font_height > rectangle[1] + rectangle[3]:
-            break
-        
-        # determine maximum width of line purely based on the starting move digits on white's turn
-        
-        for i in range(1, len(text)):
-            if bool(re.findall(re.compile(r'\d{3}\.'), text[i:i+4])) == True:
-                break
-            elif bool(re.findall(re.compile(r'\d{2}\.'), text[i:i+3])) == True:
-                if(text[i-1].isdigit()):
-                    continue
-                else:
-                    break
-            elif bool(re.findall(re.compile(r'\d\.'), text[i:i+2])) == True:
-                if(text[i-1].isdigit()):
-                    continue
-                else:
-                    break
-
-        if scroll > 0:
-            scroll -= 1
-        else:
-            # render the line and blit it to the surface
-            line_text_list = text[:i].split()
-            if len(line_text_list) == 3:
-                # Move number, space, white move, calculated space, black move
-                line_text_white = line_text_list[0] + " " + line_text_list[1] + " "
-                line_text_black = line_text_list[2]
-            else:
-                # Move number, space, white move
-                line_text_white = text[:i]
-            line_text_white_split = line_text_white.split()
-            if line_text_white_split:
-                # If the move number is only a single digit (ie "5.") then include a space at the beginning so that the rest of moves can align
-                if len(line_text_white_split[0]) == 2:
-                    line_text_white = "  " + line_text_white_split[0] + " " + line_text_white_split[1]
-                else:
-                    line_text_white = line_text_white_split[0] + " " + line_text_white_split[1]
-            image_white = my_font.render(line_text_white, True, color)
+    def draw_text(surface, my_font, game_controller):
+        for move_num_rect in MoveNumberRectangle.rectangle_list:
+            # Only draw the text if the rectangle is below the top of the pane
+            if move_num_rect.text_is_visible == True:
+                move_num_text = my_font.render(move_num_rect.text, True, initvar.TEXT_COLOR)
+                surface.blit(move_num_text, (move_num_rect.x, move_num_rect.y))
+        for piece_move_rect in PieceMoveRectangle.rectangle_list:
+            if piece_move_rect.text_is_visible == True:
+                move_notation_text = my_font.render(piece_move_rect.move_notation, True, initvar.TEXT_COLOR)
+                surface.blit(move_notation_text, (piece_move_rect.x, piece_move_rect.y))
             
-            surface.blit(image_white, (rectangle[0], y))
-            if line_text_black:
-                image_black = my_font.render(line_text_black, True, color)
-                surface.blit(image_black, (rectangle[0]+100, y))
-                # Move to next line
-                y += font_height + line_spacing
-                # Reset line text black since we moved to next line (and white is now to move)
-                line_text_black = ""
-
-        # remove the text we just blitted
-        text = text[i:]
-        
-    return text
-                
 #draw the text window at coordinates x,y
-def draw_moves(my_font, body_text, scroll, game_controller):
-    SCREEN.blit(move_bg_image, (675,70))
+def draw_moves(my_font, game_controller):
     if len(game_controller.df_moves) >= 1:
-        spacing_length = 21
-        # White was latest move
-        #print("SCROLL: " + str(scroll))
-        if game_controller.WHOSETURN == "black":
-            if len(game_controller.df_moves) < 10:
-                selected_move_rectangle = SelectedMoveRectangle(SCREEN_WIDTH-206, 89+spacing_length*(len(game_controller.df_moves)), 20, 45)
-                selected_move_rectangle.draw(SCREEN)
-            elif len(game_controller.df_moves) >= 10 and len(game_controller.df_moves) < 20:
-                selected_move_rectangle = SelectedMoveRectangle(SCREEN_WIDTH-206, 89+spacing_length*(len(game_controller.df_moves)), 20, 45)
-                selected_move_rectangle.draw(SCREEN)   
-            elif len(game_controller.df_moves) >= 20 and game_controller.move_counter - Text_Controller.scroll == Text_Controller.max_moves_that_fits_pane:
-                # If current move then highlight
-                selected_move_rectangle = SelectedMoveRectangle(SCREEN_WIDTH-206, 89+spacing_length*19, 20, 45)
-                selected_move_rectangle.draw(SCREEN)
-
-        elif game_controller.WHOSETURN == "white":
-            if len(game_controller.df_moves) < 20:
-                selected_move_rectangle_black = SelectedMoveRectangle(SCREEN_WIDTH-127, 89+spacing_length*(len(game_controller.df_moves)), 20, 45)
-                selected_move_rectangle_black.draw(SCREEN)
-            elif len(game_controller.df_moves) >= 20 and game_controller.move_counter - Text_Controller.scroll == Text_Controller.max_moves_that_fits_pane + 1:
-                # If current move then highlight
-                selected_move_rectangle_black = SelectedMoveRectangle(SCREEN_WIDTH-127, 89+spacing_length*19, 20, 45)
-                selected_move_rectangle_black.draw(SCREEN)
-    
-    #draw the floating header
-    #text = my_font.render(header_text, True, [255,255,255])
-    #SCREEN.blit(text, [100, 20])
-
-    #draw the main text
-    draw_text(SCREEN, body_text, [255,255,255], [SCREEN_WIDTH-225, 110, 200, 400], scroll, my_font)
-
-
+        # Creating move notation rectangles if they haven't been created before for the respective move
+        # If the last move is not in the dictionary, then add it
+        if len(game_controller.df_moves) not in PieceMoveRectangle.rectangle_dict:
+            PieceMoveRectangle.rectangle_dict[len(game_controller.df_moves)] = []
+            MoveNumberRectangle.rectangle_dict[len(game_controller.df_moves)] = []
+        # If last move is in dictionary but has no white move, and rectangle_dict key for that move is length 0
+        if game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'] != '' and len(PieceMoveRectangle.rectangle_dict[len(game_controller.df_moves)]) == 0:
+            # Create new move number rectangle once white makes a move
+            MoveNumberRectangle(len(game_controller.df_moves), initvar.MOVES_PANE_MOVE_NUMBER_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(game_controller.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)
+            PieceMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'], 'white', initvar.MOVES_PANE_WHITE_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(game_controller.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)
+            # Scroll down automatically when a move is made
+            if len(game_controller.df_moves) > initvar.MOVES_PANE_MAX_MOVES:
+                MoveNumberRectangle.scroll_range[0] = len(game_controller.df_moves) - (initvar.MOVES_PANE_MAX_MOVES-1)
+                MoveNumberRectangle.scroll_range[1] = len(game_controller.df_moves)
+                for move_num_rect in MoveNumberRectangle.rectangle_list:
+                    move_num_rect.update_Y()
+                for piece_move_rect in PieceMoveRectangle.rectangle_list:
+                    piece_move_rect.update_Y()
+        # If last move is in dictionary but has no black move, and rectangle_dict key for that move is length 1
+        if game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'] != '' and len(PieceMoveRectangle.rectangle_dict[len(game_controller.df_moves)]) == 1:
+            PieceMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'], 'black', initvar.MOVES_PANE_BLACK_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(game_controller.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)        
+            # Scroll down automatically when a move is made
+            if len(game_controller.df_moves) > initvar.MOVES_PANE_MAX_MOVES:
+                MoveNumberRectangle.scroll_range[0] = len(game_controller.df_moves) - (initvar.MOVES_PANE_MAX_MOVES-1)
+                MoveNumberRectangle.scroll_range[1] = len(game_controller.df_moves)
+                for move_num_rect in MoveNumberRectangle.rectangle_list:
+                    move_num_rect.update_Y()
+                for piece_move_rect in PieceMoveRectangle.rectangle_list:
+                    piece_move_rect.update_Y()
+        Text_Controller.draw_text(SCREEN, my_font, game_controller)
 
 def main():
     try:
@@ -1525,24 +1453,13 @@ def main():
         root.withdraw()
         #Global variables
         MENUON = 1
-        Text_Controller.scroll = Text_Controller.latest_scroll(Text_Controller.body_text, Text_Controller.scroll)
-        #header_text = "This is the header text which will not scroll"
         
-        #################
-        # USER CAN SET BELOW PARAMETERS
-        #################
-        COLORKEY = [160, 160, 160]
-        X_GRID_START = 48 # First board coordinate for X
-        X_GRID_WIDTH = 48 # How many pixels X is separated by
-        Y_GRID_START = 96 # First board coordinate for Y
-        Y_GRID_HEIGHT = 48 # How many pixels Y is separated by
+        COLORKEY = initvar.COLORKEY_RGB
         
-        #################
-        #################
-        X_GRID_END = X_GRID_START+(X_GRID_WIDTH*8)
-        Y_GRID_END = Y_GRID_START+(Y_GRID_HEIGHT*8)
-        XGRIDRANGE = [X_GRID_START, X_GRID_END, X_GRID_WIDTH] #1st num: begin 2nd: end 3rd: step
-        YGRIDRANGE = [Y_GRID_START, Y_GRID_END, Y_GRID_HEIGHT] #1st num: begin 2nd: end 3rd: step
+        X_GRID_END = initvar.X_GRID_START+(initvar.X_GRID_WIDTH*8)
+        Y_GRID_END = initvar.Y_GRID_START+(initvar.Y_GRID_HEIGHT*8)
+        XGRIDRANGE = [initvar.X_GRID_START, X_GRID_END, initvar.X_GRID_WIDTH] #1st num: begin 2nd: end 3rd: step
+        YGRIDRANGE = [initvar.Y_GRID_START, Y_GRID_END, initvar.Y_GRID_HEIGHT] #1st num: begin 2nd: end 3rd: step
         
         RUNNING, DEBUG = 0, 1
         state = RUNNING
@@ -1567,36 +1484,36 @@ def main():
         
         PGN_WRITER = PGN_Writer()
         
-        PLAY_EDIT_SWITCH_BUTTON = PlayEditSwitchButton((SCREEN_WIDTH-50, 8), GAME_MODE_SPRITES)
-        FLIP_BOARD_BUTTON = FlipBoardButton((SCREEN_WIDTH-480, 10))
-        START_SPRITES.add(FLIP_BOARD_BUTTON)
-        GAME_PROPERTIES_BUTTON = GamePropertiesButton((SCREEN_WIDTH-430, 10))
-        START_SPRITES.add(GAME_PROPERTIES_BUTTON)
-        INFO_BUTTON = InfoButton((SCREEN_WIDTH-360, 10))
-        START_SPRITES.add(INFO_BUTTON)
-        POS_LOAD_FILE_BUTTON = PosLoadFileButton((SCREEN_WIDTH-305, 10))
-        START_SPRITES.add(POS_LOAD_FILE_BUTTON)
-        POS_SAVE_FILE_BUTTON = PosSaveFileButton((SCREEN_WIDTH-270, 10))
-        START_SPRITES.add(POS_SAVE_FILE_BUTTON)
-        PGN_LOAD_FILE_BUTTON = PGNLoadFileButton((SCREEN_WIDTH-50, 100))
-        PGN_SAVE_FILE_BUTTON = PGNSaveFileButton((SCREEN_WIDTH-50, 60))
-        COLOR_BUTTON = ColorButton((SCREEN_WIDTH-235, 10))
-        START_SPRITES.add(COLOR_BUTTON)
-        RESET_BOARD_BUTTON = ResetBoardButton((SCREEN_WIDTH-190, 10))
-        START_SPRITES.add(RESET_BOARD_BUTTON)
-        CLEAR_BUTTON = ClearButton((SCREEN_WIDTH-115, 10))
-        START_SPRITES.add(CLEAR_BUTTON)
-        SCROLL_UP_BUTTON = ScrollUpButton((686, 80))
-        SCROLL_DOWN_BUTTON = ScrollDownButton((686, 510))
+        PLAY_EDIT_SWITCH_BUTTON = PlayEditSwitchButton(initvar.PLAY_EDIT_SWITCH_BUTTON_TOPLEFT, GAME_MODE_SPRITES)
+        FLIP_BOARD_BUTTON = FlipBoardButton(initvar.FLIP_BOARD_BUTTON_TOPLEFT)
+        initvar.START_SPRITES.add(FLIP_BOARD_BUTTON)
+        GAME_PROPERTIES_BUTTON = GamePropertiesButton(initvar.GAME_PROPERTIES_BUTTON_TOPLEFT)
+        initvar.START_SPRITES.add(GAME_PROPERTIES_BUTTON)
+        INFO_BUTTON = InfoButton(initvar.INFO_BUTTON_TOPLEFT)
+        initvar.START_SPRITES.add(INFO_BUTTON)
+        POS_LOAD_FILE_BUTTON = PosLoadFileButton(initvar.POS_LOAD_FILE_BUTTON_TOPLEFT)
+        initvar.START_SPRITES.add(POS_LOAD_FILE_BUTTON)
+        POS_SAVE_FILE_BUTTON = PosSaveFileButton(initvar.POS_SAVE_FILE_BUTTON_TOPLEFT)
+        initvar.START_SPRITES.add(POS_SAVE_FILE_BUTTON)
+        PGN_LOAD_FILE_BUTTON = PGNLoadFileButton(initvar.PGN_LOAD_FILE_BUTTON_TOPLEFT)
+        PGN_SAVE_FILE_BUTTON = PGNSaveFileButton(initvar.PGN_SAVE_FILE_BUTTON_TOPLEFT)
+        COLOR_BUTTON = ColorButton(initvar.COLOR_BUTTON_TOPLEFT)
+        initvar.START_SPRITES.add(COLOR_BUTTON)
+        RESET_BOARD_BUTTON = ResetBoardButton(initvar.RESET_BOARD_BUTTON_TOPLEFT)
+        initvar.START_SPRITES.add(RESET_BOARD_BUTTON)
+        CLEAR_BUTTON = ClearButton(initvar.CLEAR_BUTTON_TOPLEFT)
+        initvar.START_SPRITES.add(CLEAR_BUTTON)
+        SCROLL_UP_BUTTON = ScrollUpButton(initvar.SCROLL_UP_BUTTON_TOPLEFT)
+        SCROLL_DOWN_BUTTON = ScrollDownButton(initvar.SCROLL_DOWN_BUTTON_TOPLEFT)
         GAME_MODE_SPRITES.add(SCROLL_DOWN_BUTTON)
-        BEGINNING_MOVE_BUTTON = BeginningMoveButton((SCREEN_WIDTH-235, 545), PLAY_SPRITES)
-        PREV_MOVE_BUTTON = PrevMoveButton((SCREEN_WIDTH-195, 545), PLAY_SPRITES)
-        NEXT_MOVE_BUTTON = NextMoveButton((SCREEN_WIDTH-155, 545), PLAY_SPRITES)
-        LAST_MOVE_BUTTON = LastMoveButton((SCREEN_WIDTH-115, 545), PLAY_SPRITES)
+        BEGINNING_MOVE_BUTTON = BeginningMoveButton(initvar.BEGINNING_MOVE_BUTTON_TOPLEFT, PLAY_SPRITES)
+        PREV_MOVE_BUTTON = PrevMoveButton(initvar.PREV_MOVE_BUTTON_TOPLEFT, PLAY_SPRITES)
+        NEXT_MOVE_BUTTON = NextMoveButton(initvar.NEXT_MOVE_BUTTON_TOPLEFT, PLAY_SPRITES)
+        LAST_MOVE_BUTTON = LastMoveButton(initvar.LAST_MOVE_BUTTON_TOPLEFT, PLAY_SPRITES)
         
         #Backgrounds
         INFO_SCREEN = pygame.image.load("Sprites/infoscreen.bmp").convert()
-        INFO_SCREEN = pygame.transform.scale(INFO_SCREEN, (SCREEN_WIDTH, SCREEN_HEIGHT))
+        INFO_SCREEN = pygame.transform.scale(INFO_SCREEN, (initvar.SCREEN_WIDTH, initvar.SCREEN_HEIGHT))
         #window
         gameicon = pygame.image.load("Sprites/chessico.png")
         pygame.display.set_icon(gameicon)
@@ -1620,10 +1537,10 @@ def main():
         coor_8_text = arial_font.render("8", 1, (0, 0, 0))
         
         # Creates grid setting coordinate as list with first element being letter and second being number
-        for x in range(X_GRID_START, X_GRID_END, X_GRID_WIDTH): 
-            for y in range(Y_GRID_START, Y_GRID_END, Y_GRID_HEIGHT): 
+        for x in range(initvar.X_GRID_START, X_GRID_END, initvar.X_GRID_WIDTH): 
+            for y in range(initvar.Y_GRID_START, Y_GRID_END, initvar.Y_GRID_HEIGHT): 
                 grid_pos = x, y
-                grid_coordinate_as_list_element = [chr(int((x-X_GRID_START)/X_GRID_WIDTH)+97), int((Y_GRID_END-y)/Y_GRID_HEIGHT)]
+                grid_coordinate_as_list_element = [chr(int((x-initvar.X_GRID_START)/initvar.X_GRID_WIDTH)+97), int((Y_GRID_END-y)/initvar.Y_GRID_HEIGHT)]
                 grid_coordinate = "".join(map(str, (grid_coordinate_as_list_element)))
                 grid = Grid(GRID_SPRITES, grid_pos, grid_coordinate)
         for grid in Grid.grid_list:
@@ -1656,18 +1573,18 @@ def main():
             MOUSEPOS = pygame.mouse.get_pos()
             if state == RUNNING and MENUON == 1: # Initiate room
                 #Start Objects
-                START.white_pawn.rect.topleft = STARTPOS['white_pawn']
-                START.white_bishop.rect.topleft = STARTPOS['white_bishop']
-                START.white_knight.rect.topleft = STARTPOS['white_knight']
-                START.white_rook.rect.topleft = STARTPOS['white_rook']
-                START.white_queen.rect.topleft = STARTPOS['white_queen']
-                START.white_king.rect.topleft = STARTPOS['white_king']
-                START.black_pawn.rect.topleft = STARTPOS['black_pawn']
-                START.black_bishop.rect.topleft = STARTPOS['black_bishop']
-                START.black_knight.rect.topleft = STARTPOS['black_knight']
-                START.black_rook.rect.topleft = STARTPOS['black_rook']
-                START.black_queen.rect.topleft = STARTPOS['black_queen']
-                START.black_king.rect.topleft = STARTPOS['black_king']
+                START.white_pawn.rect.topleft = initvar.STARTPOS['white_pawn']
+                START.white_bishop.rect.topleft = initvar.STARTPOS['white_bishop']
+                START.white_knight.rect.topleft = initvar.STARTPOS['white_knight']
+                START.white_rook.rect.topleft = initvar.STARTPOS['white_rook']
+                START.white_queen.rect.topleft = initvar.STARTPOS['white_queen']
+                START.white_king.rect.topleft = initvar.STARTPOS['white_king']
+                START.black_pawn.rect.topleft = initvar.STARTPOS['black_pawn']
+                START.black_bishop.rect.topleft = initvar.STARTPOS['black_bishop']
+                START.black_knight.rect.topleft = initvar.STARTPOS['black_knight']
+                START.black_rook.rect.topleft = initvar.STARTPOS['black_rook']
+                START.black_queen.rect.topleft = initvar.STARTPOS['black_queen']
+                START.black_king.rect.topleft = initvar.STARTPOS['black_king']
                 
                 for event in pygame.event.get():
                     if event.type == QUIT:
@@ -1683,21 +1600,30 @@ def main():
                             state = DEBUG
                     # Menu, inanimate buttons at top, and on right side of game board
                     if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and MOUSEPOS[0] > X_GRID_END:
-                        if SCROLL_UP_BUTTON.rect.collidepoint(MOUSEPOS): # Scroll up
-                            if Text_Controller.scroll > 0:
-                                Text_Controller.scroll -= 1
-                        if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS): # Scroll down
-                            if game_controller.move_counter > Text_Controller.max_moves_that_fits_pane:
-                                if game_controller.move_counter - Text_Controller.scroll > Text_Controller.max_moves_that_fits_pane + 1 \
-                                    and game_controller.WHOSETURN == "white":
-                                        Text_Controller.scroll += 1
-                                elif game_controller.move_counter - Text_Controller.scroll > Text_Controller.max_moves_that_fits_pane \
-                                    and game_controller.WHOSETURN == "black":
-                                        Text_Controller.scroll += 1
+                        if SCROLL_UP_BUTTON.rect.collidepoint(MOUSEPOS) and MoveNumberRectangle.scroll_range[0] > 1: # Scroll up
+                            MoveNumberRectangle.scroll_range[0] -= 1
+                            MoveNumberRectangle.scroll_range[1] -= 1
+                            for move_num_rect in MoveNumberRectangle.rectangle_list:
+                                move_num_rect.update_Y()
+                            for piece_move_rect in PieceMoveRectangle.rectangle_list:
+                                piece_move_rect.update_Y()
+                        if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS) and len(MoveNumberRectangle.rectangle_list) > initvar.MOVES_PANE_MAX_MOVES and MoveNumberRectangle.scroll_range[1] < len(MoveNumberRectangle.rectangle_list): # Scroll down
+                            MoveNumberRectangle.scroll_range[0] += 1
+                            MoveNumberRectangle.scroll_range[1] += 1
+                            for move_num_rect in MoveNumberRectangle.rectangle_list:
+                                move_num_rect.update_Y()
+                            for piece_move_rect in PieceMoveRectangle.rectangle_list:
+                                piece_move_rect.update_Y()
                         if PGN_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
                             pass
                         if PGN_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
                             PGN_WRITER.write_moves(game_controller.df_moves, game_controller.result_abb)
+                        # When clicking on a move on the right pane, it is your selected move
+                        for piece_move_rect in PieceMoveRectangle.rectangle_list:
+                            if piece_move_rect.rect.collidepoint(MOUSEPOS) and piece_move_rect.text_is_visible:
+                                game_controller.selected_move[0] = piece_move_rect.move_number
+                                game_controller.selected_move[1] = piece_move_rect.move_notation
+                                game_controller.selected_move[2] = piece_move_rect.move_color
                         # Editing mode only
                         if game_controller.game_mode == game_controller.EDIT_MODE:
                             #BUTTONS
@@ -1737,8 +1663,8 @@ def main():
                     
                     # Placed object placed on location of mouse release
                     elif (event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and
-                          MOUSEPOS[0] > X_GRID_START and MOUSEPOS[0] < X_GRID_END and
-                          MOUSEPOS[1] > Y_GRID_START and MOUSEPOS[1] < Y_GRID_END): 
+                          MOUSEPOS[0] > initvar.X_GRID_START and MOUSEPOS[0] < X_GRID_END and
+                          MOUSEPOS[1] > initvar.Y_GRID_START and MOUSEPOS[1] < Y_GRID_END): 
                         def dragging_to_placed_no_dups():
                             for piece_list in [PlacedPawn.white_pawn_list, PlacedBishop.white_bishop_list, 
                                                PlacedKnight.white_knight_list, PlacedRook.white_rook_list, 
@@ -1869,6 +1795,7 @@ def main():
                             check_abb = ""
                             # White win, draw, black win
                             game_controller.result_abb = "*"
+                            prior_moves_dict = {}
                             for grid in Grid.grid_list:
                                 for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                                                    PlayKnight.white_knight_list, PlayRook.white_rook_list, 
@@ -1928,11 +1855,15 @@ def main():
                                                 if old_grid.coordinate == piece.coordinate:
                                                     old_grid.occupied = False
                                                     piece.previous_coordinate = old_grid.coordinate
+                                                    piece.coordinate_history[game_controller.move_counter] = {'before':piece.previous_coordinate}
+                                                    prior_moves_dict['before'] = piece.previous_coordinate
                                                     old_grid.prior_move_color = True
                                                     
                                             # Moving piece, removing piece and grid highlights, changing Turn
                                             piece.rect.topleft = grid.rect.topleft
                                             piece.coordinate = grid.coordinate
+                                            piece.coordinate_history[game_controller.move_counter]['after'] = piece.coordinate
+                                            prior_moves_dict['after'] = piece.coordinate
                                             grid.occupied = True
                                             piece.no_highlight()
                                             
@@ -2081,29 +2012,45 @@ def main():
                                                 # No checks
                                                 Text_Controller.check_checkmate_text = ""
                                             if(game_controller.WHOSETURN == "white"):
+                                                # Log the move
+                                                # Record the move in the df_moves dataframe
+                                                # Record the move in that piece's history
+                                                # Record the move in the prior_moves_history then add that to prior_move_history dataframe
+                                                # Automatically make the move the selected move (thus highlighting in right panel)
                                                 if special_abb == "=Q":
                                                     # When the piece became promoted to a Queen
                                                     move_text = move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb) + " "
                                                     game_controller.df_moves.loc[game_controller.move_counter-1, "black_move"] = move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
+                                                    piece.coordinate_history[game_controller.move_counter-1]['move_notation'] = move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
+                                                    prior_moves_dict['move_notation'] = move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
+                                                    game_controller.selected_move = [game_controller.move_counter-1, move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb), "black"]
                                                 else:
                                                     move_text = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb) + " "
                                                     game_controller.df_moves.loc[game_controller.move_counter-1, "black_move"] = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
-                                                Text_Controller.body_text += move_text
-                                                log.info(move_text)
+                                                    piece.coordinate_history[game_controller.move_counter-1]['move_notation'] = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
+                                                    prior_moves_dict['move_notation'] = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
+                                                    game_controller.selected_move = [game_controller.move_counter-1, move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb), "black"]
+                                                game_controller.df_prior_moves.loc[game_controller.move_counter-1, "black_move"] = str(prior_moves_dict)
                                             elif(game_controller.WHOSETURN == "black"):
                                                 if special_abb == "=Q":
                                                     move_text = str(game_controller.move_counter) + ". " + \
                                                           move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb) + " "
                                                     game_controller.df_moves.loc[game_controller.move_counter] = [move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb), '']
+                                                    piece.coordinate_history[game_controller.move_counter]['move_notation'] = move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
+                                                    prior_moves_dict['move_notation'] = move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
+                                                    game_controller.selected_move = [game_controller.move_counter, move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb), "white"]
                                                 else:
                                                     move_text = str(game_controller.move_counter) + ". " + \
                                                           move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb) + " "
                                                     game_controller.df_moves.loc[game_controller.move_counter] = [move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb), '']
-                                                Text_Controller.body_text += move_text
-                                                log.info(move_text)
+                                                    piece.coordinate_history[game_controller.move_counter]['move_notation'] = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
+                                                    prior_moves_dict['move_notation'] = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
+                                                    game_controller.selected_move = [game_controller.move_counter, move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb), "white"]
+                                                game_controller.df_prior_moves.loc[game_controller.move_counter, "white_move"] = str(prior_moves_dict)
+                                            log.info(move_text)
                                             if game_controller.result_abb != "*":
                                                 log.info(game_controller.result_abb)
-                                            Text_Controller.scroll = Text_Controller.latest_scroll(Text_Controller.body_text, Text_Controller.scroll)
+                                            
                                             return
                         move_piece_on_grid()
     
@@ -2143,16 +2090,22 @@ def main():
                     if event.type == pygame.MOUSEBUTTONDOWN and (event.button == 4 or event.button == 5):
                         #scroll wheel
                         if event.button == 4: # Scroll up
-                            if Text_Controller.scroll > 0:
-                                Text_Controller.scroll -= 1
+                            if MoveNumberRectangle.scroll_range[0] > 1:
+                                MoveNumberRectangle.scroll_range[0] -= 1
+                                MoveNumberRectangle.scroll_range[1] -= 1
+                                for move_num_rect in MoveNumberRectangle.rectangle_list:
+                                    move_num_rect.update_Y()
+                                for piece_move_rect in PieceMoveRectangle.rectangle_list:
+                                    piece_move_rect.update_Y()
                         if event.button == 5: # Scroll down
-                            if game_controller.move_counter > Text_Controller.max_moves_that_fits_pane:
-                                if game_controller.move_counter - Text_Controller.scroll > Text_Controller.max_moves_that_fits_pane + 1 \
-                                    and game_controller.WHOSETURN == "white":
-                                    Text_Controller.scroll += 1
-                                elif game_controller.move_counter - Text_Controller.scroll > Text_Controller.max_moves_that_fits_pane \
-                                    and game_controller.WHOSETURN == "black":
-                                    Text_Controller.scroll += 1
+                            if len(MoveNumberRectangle.rectangle_list) > initvar.MOVES_PANE_MAX_MOVES and MoveNumberRectangle.scroll_range[1] < len(MoveNumberRectangle.rectangle_list):
+                                MoveNumberRectangle.scroll_range[0] += 1
+                                MoveNumberRectangle.scroll_range[1] += 1
+                                for move_num_rect in MoveNumberRectangle.rectangle_list:
+                                    move_num_rect.update_Y()
+                                for piece_move_rect in PieceMoveRectangle.rectangle_list:
+                                    piece_move_rect.update_Y()
+                                #print("New MoveNumber List: " + str(MoveNumberRectangle.scroll_range))
                     if game_controller.game_mode == game_controller.EDIT_MODE:
                         # Right click on obj, destroy
                         if(event.type == MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[2]):   
@@ -2168,7 +2121,6 @@ def main():
                             # Makes clicking play again unclickable    
                             game_controller.game_mode = game_controller.PLAY_MODE
                             PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(game_controller.game_mode)
-                            Text_Controller.body_text = ""
                             log.info("Play Mode Activated\n")
                             
                             def placed_to_play(placed_list, class_obj, sprite_group, color):
@@ -2214,12 +2166,16 @@ def main():
                     
                     # MIDDLE MOUSE DEBUGGER
                     if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[1]:
+                        for black_pawn in PlayPawn.black_pawn_list:
+                            log.info(str(black_pawn.__dict__))
+                        """
                         for grid in Grid.grid_list:
                             if grid.rect.collidepoint(MOUSEPOS):
                                 log.info("Coordinate: " + str(grid.coordinate) \
                                        + ", White Pieces Attacking: " + str(grid.list_of_white_pieces_attacking) \
                                        + ", Black Pieces Attacking: " + str(grid.list_of_black_pieces_attacking) \
                                        + ", Grid occupied? " + str(grid.__dict__))
+                        """
                                 
                 ##################
                 # ALL EDIT ACTIONS
@@ -2233,18 +2189,18 @@ def main():
                                                       mouse_pos[1]-(start_obj.image.get_height()/2))
                         else:
                             start_obj.rect.topleft = start_obj_pos
-                    replace_start_sprite_with_black_box(DRAGGING.white_pawn, START.blank_box, STARTPOS['white_pawn'], START.white_pawn, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.white_bishop, START.blank_box, STARTPOS['white_bishop'], START.white_bishop, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.white_knight, START.blank_box, STARTPOS['white_knight'], START.white_knight, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.white_rook, START.blank_box, STARTPOS['white_rook'], START.white_rook, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.white_queen, START.blank_box, STARTPOS['white_queen'], START.white_queen, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.white_king, START.blank_box, STARTPOS['white_king'], START.white_king, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.black_pawn, START.blank_box, STARTPOS['black_pawn'], START.black_pawn, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.black_bishop, START.blank_box, STARTPOS['black_bishop'], START.black_bishop, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.black_knight, START.blank_box, STARTPOS['black_knight'], START.black_knight, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.black_rook, START.blank_box, STARTPOS['black_rook'], START.black_rook, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.black_queen, START.blank_box, STARTPOS['black_queen'], START.black_queen, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.black_king, START.blank_box, STARTPOS['black_king'], START.black_king, MOUSEPOS)                      
+                    replace_start_sprite_with_black_box(DRAGGING.white_pawn, START.blank_box, initvar.STARTPOS['white_pawn'], START.white_pawn, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.white_bishop, START.blank_box, initvar.STARTPOS['white_bishop'], START.white_bishop, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.white_knight, START.blank_box, initvar.STARTPOS['white_knight'], START.white_knight, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.white_rook, START.blank_box, initvar.STARTPOS['white_rook'], START.white_rook, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.white_queen, START.blank_box, initvar.STARTPOS['white_queen'], START.white_queen, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.white_king, START.blank_box, initvar.STARTPOS['white_king'], START.white_king, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.black_pawn, START.blank_box, initvar.STARTPOS['black_pawn'], START.black_pawn, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.black_bishop, START.blank_box, initvar.STARTPOS['black_bishop'], START.black_bishop, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.black_knight, START.blank_box, initvar.STARTPOS['black_knight'], START.black_knight, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.black_rook, START.blank_box, initvar.STARTPOS['black_rook'], START.black_rook, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.black_queen, START.blank_box, initvar.STARTPOS['black_queen'], START.black_queen, MOUSEPOS)
+                    replace_start_sprite_with_black_box(DRAGGING.black_king, START.blank_box, initvar.STARTPOS['black_king'], START.black_king, MOUSEPOS)                      
             
                 ##################
                 # IN-GAME ACTIONS
@@ -2254,52 +2210,56 @@ def main():
                 #FOR DEBUGGING PURPOSES, PUT TEST CODE BELOW
                 
                 #Update all sprites
-                #START_SPRITES.update()
+                #initvar.START_SPRITES.update()
                 PLACED_SPRITES.update(Grid.grid_list)
                 #PLAY_SPRITES.update()
                 SCREEN.fill(COLORKEY)
                 
-                draw_moves(move_notation_font, Text_Controller.body_text, Text_Controller.scroll, game_controller)
-                
                 GAME_MODE_SPRITES.draw(SCREEN)
                 GRID_SPRITES.draw(SCREEN)
                 GRID_SPRITES.update(game_controller)
+                
+                SCREEN.blit(initvar.MOVE_BG_IMAGE, (initvar.MOVE_BG_IMAGE_HEIGHT,initvar.MOVE_BG_IMAGE_WIDTH))
                 if(game_controller.game_mode == game_controller.EDIT_MODE): #Only draw placed sprites in editing mode
-                    START_SPRITES.draw(SCREEN)
+                    initvar.START_SPRITES.draw(SCREEN)
                     PLACED_SPRITES.draw(SCREEN)    
                 elif(game_controller.game_mode == game_controller.PLAY_MODE): #Only draw play sprites in play mode
                     PLAY_SPRITES.draw(SCREEN)
+                for rectangle in PieceMoveRectangle.rectangle_list:
+                    if rectangle.move_number == game_controller.selected_move[0] and rectangle.move_notation == game_controller.selected_move[1]\
+                        and rectangle.move_color == game_controller.selected_move[2]:
+                            rectangle.draw(SCREEN)
+                draw_moves(move_notation_font, game_controller)
                 # Update objects that aren't in a sprite group
-                SCROLL_UP_BUTTON.update(Text_Controller.scroll)
                 SCROLL_UP_BUTTON.draw(SCREEN)
-                SCROLL_DOWN_BUTTON.update(game_controller.move_counter, game_controller.WHOSETURN, Text_Controller.max_moves_that_fits_pane, Text_Controller.scroll)
-                SCROLL_DOWN_BUTTON.draw(SCREEN)
+                SCROLL_DOWN_BUTTON.draw(SCREEN, len(game_controller.df_moves))
                 PGN_LOAD_FILE_BUTTON.draw(SCREEN)
                 PGN_SAVE_FILE_BUTTON.draw(SCREEN)
                 # Board Coordinates Drawing
                 coor_letter_text_list = [coor_A_text, coor_B_text, coor_C_text, coor_D_text, coor_E_text, coor_F_text, coor_G_text, coor_H_text]
                 for text in range(0,len(coor_letter_text_list)):
-                    SCREEN.blit(coor_letter_text_list[text], (X_GRID_START+X_GRID_WIDTH/3+(X_GRID_WIDTH*text), Y_GRID_START-(Y_GRID_HEIGHT*0.75)))
-                    SCREEN.blit(coor_letter_text_list[text], (X_GRID_START+X_GRID_WIDTH/3+(X_GRID_WIDTH*text), Y_GRID_END+(Y_GRID_HEIGHT*0.25)))
+                    SCREEN.blit(coor_letter_text_list[text], (initvar.X_GRID_START+initvar.X_GRID_WIDTH/3+(initvar.X_GRID_WIDTH*text), initvar.Y_GRID_START-(initvar.Y_GRID_HEIGHT*0.75)))
+                    SCREEN.blit(coor_letter_text_list[text], (initvar.X_GRID_START+initvar.X_GRID_WIDTH/3+(initvar.X_GRID_WIDTH*text), Y_GRID_END+(initvar.Y_GRID_HEIGHT*0.25)))
                 coor_number_text_list = [coor_8_text, coor_7_text, coor_6_text, coor_5_text, coor_4_text, coor_3_text, coor_2_text, coor_1_text]
                 for text in range(0,len(coor_number_text_list)):
-                    SCREEN.blit(coor_number_text_list[text], (X_GRID_START-X_GRID_WIDTH/2, Y_GRID_START+Y_GRID_HEIGHT/4+(Y_GRID_HEIGHT*text)))
-                    SCREEN.blit(coor_number_text_list[text], (X_GRID_END+X_GRID_WIDTH/3, Y_GRID_START+Y_GRID_HEIGHT/4+(Y_GRID_HEIGHT*text)))
+                    SCREEN.blit(coor_number_text_list[text], (initvar.X_GRID_START-initvar.X_GRID_WIDTH/2, initvar.Y_GRID_START+initvar.Y_GRID_HEIGHT/4+(initvar.Y_GRID_HEIGHT*text)))
+                    SCREEN.blit(coor_number_text_list[text], (X_GRID_END+initvar.X_GRID_WIDTH/3, initvar.Y_GRID_START+initvar.Y_GRID_HEIGHT/4+(initvar.Y_GRID_HEIGHT*text)))
                 if(game_controller.game_mode == game_controller.PLAY_MODE):
                     check_checkmate_text_render = arial_font.render(Text_Controller.check_checkmate_text, 1, (0, 0, 0))
                     if game_controller.WHOSETURN == "white":
                         whose_turn_text = arial_font.render("White's move", 1, (0, 0, 0))
                     elif game_controller.WHOSETURN == "black":
                         whose_turn_text = arial_font.render("Black's move", 1, (0, 0, 0))
-                    SCREEN.blit(whose_turn_text, (X_GRID_END+X_GRID_WIDTH, SCREEN_HEIGHT/2))
-                    SCREEN.blit(check_checkmate_text_render, (X_GRID_END+X_GRID_WIDTH, 200))
+                    SCREEN.blit(whose_turn_text, (X_GRID_END+initvar.X_GRID_WIDTH, initvar.SCREEN_HEIGHT/2))
+                    SCREEN.blit(check_checkmate_text_render, (X_GRID_END+initvar.X_GRID_WIDTH, 200))
                 pygame.display.update()
             elif state == DEBUG:
                 if debug_message == 1:
                     log.info("Entering debug mode")
                     debug_message = 0
                     # USE BREAKPOINT HERE
-                    print(str(START.__dict__))
+                    print(len(MoveNumberRectangle.rectangle_list))
+                    #print(str(game_controller.df_prior_moves))
                     log.info("Use breakpoint here")
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
