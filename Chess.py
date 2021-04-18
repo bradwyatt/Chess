@@ -1622,17 +1622,19 @@ def main():
                     if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and MOUSEPOS[0] > X_GRID_END:
                         if SCROLL_UP_BUTTON.rect.collidepoint(MOUSEPOS) and MoveNumberRectangle.scroll_range[0] > 1: # Scroll up
                             print("scroll up test")
-                            for rect in MoveNumberRectangle.rectangle_list:
-                                rect.scroll_up()
                             MoveNumberRectangle.scroll_range[0] -= 1
                             MoveNumberRectangle.scroll_range[1] -= 1
+                            for rect in MoveNumberRectangle.rectangle_list:
+                                rect.update_Y()
+                                #rect.scroll_up()
                             print("New MoveNumber List: " + str(MoveNumberRectangle.scroll_range))
                         if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS) and len(MoveNumberRectangle.rectangle_list) >= 20 and MoveNumberRectangle.scroll_range[1] < len(MoveNumberRectangle.rectangle_list): # Scroll down
                             print("scroll down test")
-                            for rect in MoveNumberRectangle.rectangle_list:
-                                rect.scroll_down()
                             MoveNumberRectangle.scroll_range[0] += 1
                             MoveNumberRectangle.scroll_range[1] += 1
+                            for rect in MoveNumberRectangle.rectangle_list:
+                                rect.update_Y()
+                                #rect.scroll_down()
                             print("New MoveNumber List: " + str(MoveNumberRectangle.scroll_range))
                         if PGN_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
                             pass

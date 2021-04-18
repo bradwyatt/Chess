@@ -194,4 +194,11 @@ class MoveNumberRectangle(pygame.sprite.Sprite):
     def scroll_up(self):
         line_spacing = 21
         self.y = self.y + line_spacing
+    def update_Y(self):
+        line_spacing = 21
+        if self.move_number >= MoveNumberRectangle.scroll_range[0] and self.move_number <= MoveNumberRectangle.scroll_range[1]:
+            self.y = 89 + line_spacing*((self.move_number+1) - MoveNumberRectangle.scroll_range[0])
+        else:
+            self.y = -100
+            
 
