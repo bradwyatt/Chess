@@ -188,11 +188,6 @@ class MoveNumberRectangle(pygame.sprite.Sprite):
         MoveNumberRectangle.rectangle_list.append(self)
         MoveNumberRectangle.rectangle_dict[move_number] = self
         self.text_is_visible = True
-    def draw(self, screen):
-        if self.text_is_visible == True:
-            screen.blit(self.image, (self.rect.topleft))
-        else:
-            pass
     def update_Y(self):
         if self.move_number >= MoveNumberRectangle.scroll_range[0] and self.move_number <= MoveNumberRectangle.scroll_range[1]:
             # Include rectangle

@@ -1620,11 +1620,12 @@ def main():
                             pass
                         if PGN_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
                             PGN_WRITER.write_moves(game_controller.df_moves, game_controller.result_abb)
-                        # for rectangle in PieceMoveRectangle.rectangle_list:
-                        #     if rectangle.rect.collidepoint(MOUSEPOS):
-                        #         game_controller.selected_move[0] = rectangle.move_number
-                        #         game_controller.selected_move[1] = rectangle.move_notation
-                        #         game_controller.selected_move[2] = rectangle.move_color
+                        for rectangle in PieceMoveRectangle.rectangle_list:
+                            if rectangle.rect.collidepoint(MOUSEPOS):
+                                game_controller.selected_move[0] = rectangle.move_number
+                                game_controller.selected_move[1] = rectangle.move_notation
+                                game_controller.selected_move[2] = rectangle.move_color
+                                print("Move chosen: " + rectangle.move_notation)
                         # Editing mode only
                         if game_controller.game_mode == game_controller.EDIT_MODE:
                             #BUTTONS
@@ -2091,9 +2092,22 @@ def main():
                     if event.type == pygame.MOUSEBUTTONDOWN and (event.button == 4 or event.button == 5):
                         #scroll wheel
                         if event.button == 4: # Scroll up
-                            pass
+                            if MoveNumberRectangle.scroll_range[0] > 1:
+                                MoveNumberRectangle.scroll_range[0] -= 1
+                                MoveNumberRectangle.scroll_range[1] -= 1
+                                for move_num_rect in MoveNumberRectangle.rectangle_list:
+                                    move_num_rect.update_Y()
+                                for piece_move_rect in PieceMoveRectangle.rectangle_list:
+                                    piece_move_rect.update_Y()
                         if event.button == 5: # Scroll down
-                            pass
+                            if len(MoveNumberRectangle.rectangle_list) > initvar.MOVES_PANE_MAX_MOVES and MoveNumberRectangle.scroll_range[1] < len(MoveNumberRectangle.rectangle_list):
+                                MoveNumberRectangle.scroll_range[0] += 1
+                                MoveNumberRectangle.scroll_range[1] += 1
+                                for move_num_rect in MoveNumberRectangle.rectangle_list:
+                                    move_num_rect.update_Y()
+                                for piece_move_rect in PieceMoveRectangle.rectangle_list:
+                                    piece_move_rect.update_Y()
+                                #print("New MoveNumber List: " + str(MoveNumberRectangle.scroll_range))
                     if game_controller.game_mode == game_controller.EDIT_MODE:
                         # Right click on obj, destroy
                         if(event.type == MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[2]):   
