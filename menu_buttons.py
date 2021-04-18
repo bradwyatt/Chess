@@ -172,12 +172,7 @@ class MoveNumberRectangle(pygame.sprite.Sprite):
     scroll_range = [1, initvar.MOVES_PANE_MAX_MOVES]
     def __init__(self, move_number, x, y, width, height):
         pygame.sprite.Sprite.__init__(self)
-        if move_number < 10:
-            self.x = x
-        elif move_number >= 10 and move_number <= 99:
-            self.x = x-7
-        elif move_number >= 100:
-            self.x = x-14
+        self.x = x - 7*(len(str(move_number))-1) # X moves backward by 7 after each digit (ie 10 moves is 7, 100 moves is 14, etc)
         self.y = y
         self.image = pygame.Surface((height, width))
         self.rect = self.image.get_rect()
