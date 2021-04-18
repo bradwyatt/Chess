@@ -1,12 +1,9 @@
 """
 Chess created by Brad Wyatt
 Python 3
-Credits:
-Scroll bar for moves based on https://www.reddit.com/r/pygame/comments/94czzs/text_boxes_with_scrollbars_and_changing_buttons/
-PLEASE do new console after each time exiting the program
 
 Round 2 Thoughts:
-Replace the scroll bar logic with the following. Create a list of SelectedMoveRectangle(s) from parent class. Self.text should be the move. The text blitted to the screen should take from the rectangle with the same X. When scrolling, the rectangle Y will change, and when it's out of boundary of 19 moves then be invisible and unclickable.
+Trying to be able to still display text through moves pane
 Prior move color
 Play back one move
 Undo move
@@ -1286,12 +1283,14 @@ class Game_Controller():
         self.result_abb = "*"
         self.selected_move = [0, "", ""]
         Text_Controller.check_checkmate_text = ""
+        # Kill all Objects within their Class lists/dicts
         for spr_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                  PlayKnight.white_knight_list, PlayRook.white_rook_list,
                  PlayQueen.white_queen_list, PlayKing.white_king_list, 
                  PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
                  PlayKnight.black_knight_list, PlayRook.black_rook_list,
-                 PlayQueen.black_queen_list, PlayKing.black_king_list]:
+                 PlayQueen.black_queen_list, PlayKing.black_king_list,
+                 MoveNumberRectangle.rectangle_list, PieceMoveRectangle.rectangle_list]:
             for obj in spr_list:
                 obj.kill()
         PlayPawn.white_pawn_list = []
@@ -1309,6 +1308,12 @@ class Game_Controller():
         for grid in Grid.grid_list:
             grid.reset_board()
             grid.attack_count_reset()
+        # Reset Moves Panel
+        MoveNumberRectangle.rectangle_list = []
+        PieceMoveRectangle.rectangle_list = []
+        MoveNumberRectangle.rectangle_dict = {}
+        PieceMoveRectangle.rectangle_dict = {}
+        PanelRectangles.scroll_range = [1, initvar.MOVES_PANE_MAX_MOVES]
     def switch_turn(self, color_turn):
         self.WHOSETURN = color_turn
         self.check_attacking_coordinates = []
@@ -1401,50 +1406,58 @@ class Game_Controller():
 
 class Text_Controller():
     check_checkmate_text = ""
-    def draw_text(surface, my_font, game_controller):
-        for move_num_rect in MoveNumberRectangle.rectangle_list:
+
+def draw_text_on_rects_in_moves_pane(surface, my_font):
+    for move_num_rect in MoveNumberRectangle.rectangle_list:
+        if move_num_rect.text_is_visible == True:
             # Only draw the text if the rectangle is below the top of the pane
-            if move_num_rect.text_is_visible == True:
-                move_num_text = my_font.render(move_num_rect.text, True, initvar.TEXT_COLOR)
-                surface.blit(move_num_text, (move_num_rect.x, move_num_rect.y))
+            move_num_text = my_font.render(move_num_rect.text, True, initvar.TEXT_COLOR)
+            surface.blit(move_num_text, (move_num_rect.x, move_num_rect.y))
+    for piece_move_rect in PieceMoveRectangle.rectangle_list:
+        if piece_move_rect.text_is_visible == True:
+            move_notation_text = my_font.render(piece_move_rect.move_notation, True, initvar.TEXT_COLOR)
+            surface.blit(move_notation_text, (piece_move_rect.x, piece_move_rect.y))
+
+def scroll_to_latest_move(latest_move_number):
+    if latest_move_number > initvar.MOVES_PANE_MAX_MOVES:
+        PanelRectangles.scroll_range[0] = latest_move_number - (initvar.MOVES_PANE_MAX_MOVES-1)
+        PanelRectangles.scroll_range[1] = latest_move_number
+        for move_num_rect in MoveNumberRectangle.rectangle_list:
+            move_num_rect.update_Y()
         for piece_move_rect in PieceMoveRectangle.rectangle_list:
-            if piece_move_rect.text_is_visible == True:
-                move_notation_text = my_font.render(piece_move_rect.move_notation, True, initvar.TEXT_COLOR)
-                surface.blit(move_notation_text, (piece_move_rect.x, piece_move_rect.y))
+            piece_move_rect.update_Y()
             
-#draw the text window at coordinates x,y
-def draw_moves(my_font, game_controller):
+def update_scroll_range(unit_change):
+    # unit_change refers to how many moves up/down to go
+    # unit_change = -1 means scrolling up one unit, unit_change = 1 means scrolling down one unit
+    PanelRectangles.scroll_range[0] += unit_change
+    PanelRectangles.scroll_range[1] += unit_change
+    for move_num_rect in MoveNumberRectangle.rectangle_list:
+        move_num_rect.update_Y()
+    for piece_move_rect in PieceMoveRectangle.rectangle_list:
+        piece_move_rect.update_Y()
+
+def draw_move_rects_on_moves_pane(my_font, game_controller):
     if len(game_controller.df_moves) >= 1:
         # Creating move notation rectangles if they haven't been created before for the respective move
         # If the last move is not in the dictionary, then add it
         if len(game_controller.df_moves) not in PieceMoveRectangle.rectangle_dict:
             PieceMoveRectangle.rectangle_dict[len(game_controller.df_moves)] = []
             MoveNumberRectangle.rectangle_dict[len(game_controller.df_moves)] = []
-        # If last move is in dictionary but has no white move, and rectangle_dict key for that move is length 0
+        # We want the PieceMoveRectangle.rectangle_dict to correspond to the df_moves dataframe
         if game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'] != '' and len(PieceMoveRectangle.rectangle_dict[len(game_controller.df_moves)]) == 0:
-            # Create new move number rectangle once white makes a move
+            # Create new move number rectangle since white made a move
             MoveNumberRectangle(len(game_controller.df_moves), initvar.MOVES_PANE_MOVE_NUMBER_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(game_controller.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)
+            # Create rectangle which will eventually be used to blit text on it
+            # Parameters: Total number of moves in the game, the move itself, the color of the piece that moved, and position & size of rectangle
             PieceMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'], 'white', initvar.MOVES_PANE_WHITE_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(game_controller.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)
             # Scroll down automatically when a move is made
-            if len(game_controller.df_moves) > initvar.MOVES_PANE_MAX_MOVES:
-                MoveNumberRectangle.scroll_range[0] = len(game_controller.df_moves) - (initvar.MOVES_PANE_MAX_MOVES-1)
-                MoveNumberRectangle.scroll_range[1] = len(game_controller.df_moves)
-                for move_num_rect in MoveNumberRectangle.rectangle_list:
-                    move_num_rect.update_Y()
-                for piece_move_rect in PieceMoveRectangle.rectangle_list:
-                    piece_move_rect.update_Y()
-        # If last move is in dictionary but has no black move, and rectangle_dict key for that move is length 1
+            scroll_to_latest_move(len(game_controller.df_moves))
         if game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'] != '' and len(PieceMoveRectangle.rectangle_dict[len(game_controller.df_moves)]) == 1:
+            # Only create PieceMoveRectangle when black moved last, don't create a new MoveNumberRectangle
             PieceMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'], 'black', initvar.MOVES_PANE_BLACK_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(game_controller.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)        
-            # Scroll down automatically when a move is made
-            if len(game_controller.df_moves) > initvar.MOVES_PANE_MAX_MOVES:
-                MoveNumberRectangle.scroll_range[0] = len(game_controller.df_moves) - (initvar.MOVES_PANE_MAX_MOVES-1)
-                MoveNumberRectangle.scroll_range[1] = len(game_controller.df_moves)
-                for move_num_rect in MoveNumberRectangle.rectangle_list:
-                    move_num_rect.update_Y()
-                for piece_move_rect in PieceMoveRectangle.rectangle_list:
-                    piece_move_rect.update_Y()
-        Text_Controller.draw_text(SCREEN, my_font, game_controller)
+            scroll_to_latest_move(len(game_controller.df_moves))
+        draw_text_on_rects_in_moves_pane(SCREEN, my_font)
 
 def main():
     try:
@@ -1600,20 +1613,10 @@ def main():
                             state = DEBUG
                     # Menu, inanimate buttons at top, and on right side of game board
                     if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and MOUSEPOS[0] > X_GRID_END:
-                        if SCROLL_UP_BUTTON.rect.collidepoint(MOUSEPOS) and MoveNumberRectangle.scroll_range[0] > 1: # Scroll up
-                            MoveNumberRectangle.scroll_range[0] -= 1
-                            MoveNumberRectangle.scroll_range[1] -= 1
-                            for move_num_rect in MoveNumberRectangle.rectangle_list:
-                                move_num_rect.update_Y()
-                            for piece_move_rect in PieceMoveRectangle.rectangle_list:
-                                piece_move_rect.update_Y()
-                        if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS) and len(MoveNumberRectangle.rectangle_list) > initvar.MOVES_PANE_MAX_MOVES and MoveNumberRectangle.scroll_range[1] < len(MoveNumberRectangle.rectangle_list): # Scroll down
-                            MoveNumberRectangle.scroll_range[0] += 1
-                            MoveNumberRectangle.scroll_range[1] += 1
-                            for move_num_rect in MoveNumberRectangle.rectangle_list:
-                                move_num_rect.update_Y()
-                            for piece_move_rect in PieceMoveRectangle.rectangle_list:
-                                piece_move_rect.update_Y()
+                        if SCROLL_UP_BUTTON.rect.collidepoint(MOUSEPOS) and PanelRectangles.scroll_range[0] > 1: # Scroll up
+                            update_scroll_range(-1)
+                        if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS) and len(MoveNumberRectangle.rectangle_list) > initvar.MOVES_PANE_MAX_MOVES and PanelRectangles.scroll_range[1] < len(MoveNumberRectangle.rectangle_list): # Scroll down
+                            update_scroll_range(1)
                         if PGN_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
                             pass
                         if PGN_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
@@ -2090,22 +2093,11 @@ def main():
                     if event.type == pygame.MOUSEBUTTONDOWN and (event.button == 4 or event.button == 5):
                         #scroll wheel
                         if event.button == 4: # Scroll up
-                            if MoveNumberRectangle.scroll_range[0] > 1:
-                                MoveNumberRectangle.scroll_range[0] -= 1
-                                MoveNumberRectangle.scroll_range[1] -= 1
-                                for move_num_rect in MoveNumberRectangle.rectangle_list:
-                                    move_num_rect.update_Y()
-                                for piece_move_rect in PieceMoveRectangle.rectangle_list:
-                                    piece_move_rect.update_Y()
+                            if PanelRectangles.scroll_range[0] > 1:
+                                update_scroll_range(-1)
                         if event.button == 5: # Scroll down
-                            if len(MoveNumberRectangle.rectangle_list) > initvar.MOVES_PANE_MAX_MOVES and MoveNumberRectangle.scroll_range[1] < len(MoveNumberRectangle.rectangle_list):
-                                MoveNumberRectangle.scroll_range[0] += 1
-                                MoveNumberRectangle.scroll_range[1] += 1
-                                for move_num_rect in MoveNumberRectangle.rectangle_list:
-                                    move_num_rect.update_Y()
-                                for piece_move_rect in PieceMoveRectangle.rectangle_list:
-                                    piece_move_rect.update_Y()
-                                #print("New MoveNumber List: " + str(MoveNumberRectangle.scroll_range))
+                            if len(MoveNumberRectangle.rectangle_list) > initvar.MOVES_PANE_MAX_MOVES and PanelRectangles.scroll_range[1] < len(MoveNumberRectangle.rectangle_list):
+                                update_scroll_range(1)
                     if game_controller.game_mode == game_controller.EDIT_MODE:
                         # Right click on obj, destroy
                         if(event.type == MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[2]):   
@@ -2210,9 +2202,7 @@ def main():
                 #FOR DEBUGGING PURPOSES, PUT TEST CODE BELOW
                 
                 #Update all sprites
-                #initvar.START_SPRITES.update()
                 PLACED_SPRITES.update(Grid.grid_list)
-                #PLAY_SPRITES.update()
                 SCREEN.fill(COLORKEY)
                 
                 GAME_MODE_SPRITES.draw(SCREEN)
@@ -2225,11 +2215,12 @@ def main():
                     PLACED_SPRITES.draw(SCREEN)    
                 elif(game_controller.game_mode == game_controller.PLAY_MODE): #Only draw play sprites in play mode
                     PLAY_SPRITES.draw(SCREEN)
-                for rectangle in PieceMoveRectangle.rectangle_list:
-                    if rectangle.move_number == game_controller.selected_move[0] and rectangle.move_notation == game_controller.selected_move[1]\
-                        and rectangle.move_color == game_controller.selected_move[2]:
-                            rectangle.draw(SCREEN)
-                draw_moves(move_notation_font, game_controller)
+                # When the piece is selected on the right pane, fill the rectangle corresponding to the move
+                for piece_move_rect in PieceMoveRectangle.rectangle_list:
+                    if piece_move_rect.move_number == game_controller.selected_move[0] and piece_move_rect.move_notation == game_controller.selected_move[1]\
+                        and piece_move_rect.move_color == game_controller.selected_move[2]:
+                            piece_move_rect.draw(SCREEN)
+                draw_move_rects_on_moves_pane(move_notation_font, game_controller)
                 # Update objects that aren't in a sprite group
                 SCROLL_UP_BUTTON.draw(SCREEN)
                 SCROLL_DOWN_BUTTON.draw(SCREEN, len(game_controller.df_moves))
@@ -2258,7 +2249,7 @@ def main():
                     log.info("Entering debug mode")
                     debug_message = 0
                     # USE BREAKPOINT HERE
-                    print(len(MoveNumberRectangle.rectangle_list))
+                    print(str(PieceMoveRectangle.rectangle_list))
                     #print(str(game_controller.df_prior_moves))
                     log.info("Use breakpoint here")
                 for event in pygame.event.get():
