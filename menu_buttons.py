@@ -156,10 +156,6 @@ class PieceMoveRectangle(pygame.sprite.Sprite):
             screen.blit(self.image, (self.rect.topleft))
         else:
             pass
-    def scroll_down(self):
-        self.y = self.y - initvar.LINE_SPACING
-    def scroll_up(self):
-        self.y = self.y + initvar.LINE_SPACING
     def update_Y(self):
         if self.move_number >= MoveNumberRectangle.scroll_range[0] and self.move_number <= MoveNumberRectangle.scroll_range[1]:
             # Include rectangle
@@ -198,10 +194,6 @@ class MoveNumberRectangle(pygame.sprite.Sprite):
             screen.blit(self.image, (self.rect.topleft))
         else:
             pass
-    def scroll_down(self):
-        self.y = self.y - initvar.LINE_SPACING
-    def scroll_up(self):
-        self.y = self.y + initvar.LINE_SPACING
     def update_Y(self):
         if self.move_number >= MoveNumberRectangle.scroll_range[0] and self.move_number <= MoveNumberRectangle.scroll_range[1]:
             # Include rectangle
