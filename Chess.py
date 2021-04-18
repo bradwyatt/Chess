@@ -1429,14 +1429,6 @@ class Text_Controller():
         for rectangle in SelectedMoveRectangle.rectangle_list:
             move_notation_text = my_font.render(rectangle.move_notation, True, [255,255,255])
             surface.blit(move_notation_text, (rectangle.x, rectangle.y))
-
-def reposition_rectangles(selected_move):
-    #scroll = selected_move[0] - 4
-    spacing_length = 21
-    for rect in MoveNumberRectangle.rectangle_list:
-        rect.update_position(selected_move[0], spacing_length)
-    MoveNumberRectangle.scroll_range[0] += 1
-    MoveNumberRectangle.scroll_range[1] += 1
             
 #draw the text window at coordinates x,y
 def draw_moves(my_font, game_controller):
@@ -1452,12 +1444,10 @@ def draw_moves(my_font, game_controller):
         if len(game_controller.df_moves) not in SelectedMoveRectangle.rectangle_dict:
             SelectedMoveRectangle.rectangle_dict[len(game_controller.df_moves)] = []
             MoveNumberRectangle.rectangle_dict[len(game_controller.df_moves)] = []
-            reposition_rectangles(game_controller.selected_move)
         # If last move is in dictionary but has no white move, and rectangle_dict key for that move is length 0
         if game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'] != '' and len(SelectedMoveRectangle.rectangle_dict[len(game_controller.df_moves)]) == 0:
             MoveNumberRectangle(len(game_controller.df_moves), SCREEN_WIDTH-220, 89+spacing_length*len(game_controller.df_moves), 20, 56)
             SelectedMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'], SCREEN_WIDTH-206, 89+spacing_length*len(game_controller.df_moves), 20, 56)
-            reposition_rectangles(game_controller.selected_move)
         # If last move is in dictionary but has no black move, and rectangle_dict key for that move is length 1
         if game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'] != '' and len(SelectedMoveRectangle.rectangle_dict[len(game_controller.df_moves)]) == 1:
             SelectedMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'], SCREEN_WIDTH-127, 89+spacing_length*len(game_controller.df_moves), 20, 56)
@@ -2066,7 +2056,6 @@ def main():
                                                     prior_moves_dict['move_notation'] = move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
                                                     game_controller.selected_move = [game_controller.move_counter, move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)]
                                                 game_controller.df_prior_moves.loc[game_controller.move_counter, "white_move"] = str(prior_moves_dict)
-                                                reposition_rectangles(game_controller.selected_move)
                                             log.info(move_text)
                                             if game_controller.result_abb != "*":
                                                 log.info(game_controller.result_abb)
