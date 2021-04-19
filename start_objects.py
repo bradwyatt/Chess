@@ -1,7 +1,7 @@
 import pygame
 from load_images_sounds import *
 
-class StartBlankBox(pygame.sprite.Sprite):
+class StartObjImagePlaceholder(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.image = IMAGES["SPR_BLANKBOX"]
