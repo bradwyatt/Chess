@@ -3,7 +3,6 @@ Chess created by Brad Wyatt
 Python 3
 
 Round 2 Thoughts:
-Prior move color
 Function to put a piece on the board (with right X and Y) based only on coordinates
 When I press Play, I want it to act as if there was a move before it, seamless. I don't want to do extra code starting from beginning (when program launches) AND starting over again during game
 Grid class looks messy
@@ -22,7 +21,6 @@ Ne2 illegal
 Features To-Do (short-term):
 Instead of using rect to place pieces on the grid, use coordinates (this will help when we flip the board too)
 Save states (IS THIS REALLY NEEDED?), be able to undo and redo moves
-Previous move highlighted different color
 Record moves correctly (keep in mind which direction the other piece is coming from)
 If no king then don't start game
 
@@ -39,9 +37,6 @@ Create function where given coordinates, return X, Y of square (for loaded_file 
 Save positions rather than restarting when pressing stop button
 Customized Turns for black and white
 Choose piece for Promotion
-
-Already Solved? :
-Notation moves for moves past 10
 """
 from start_objects import *
 from placed_objects import *
@@ -297,10 +292,6 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
             self.image = IMAGES["SPR_WHITE_PAWN"]
         elif(self.color == "black"):
             self.image = IMAGES["SPR_BLACK_PAWN"]
-    def promoted(self):
-        self.taken_off_board = True
-        self.coordinate = None
-        self.rect.topleft = -100, -100
     def highlight(self):
         if self.taken_off_board != True:
             if(self.color == "white"):
@@ -1948,7 +1939,8 @@ def main():
                                                     promoted_queen = PlayQueen(piece.rect.topleft, PLAY_SPRITES, "white")
                                                     promoted_queen.previous_coordinate = piece.previous_coordinate
                                                     # Take white pawn off the board
-                                                    piece.promoted()
+                                                    piece.captured(game_controller.white_captured_x, white_captured_y)
+                                                    game_controller.white_captured_x += incremental_x
                                                 # Detects that pawn was just moved
                                                 elif int(piece.coordinate[1]) == 4 and piece.previous_coordinate[0] == piece.coordinate[0] and \
                                                     int(piece.previous_coordinate[1]) == 2:
@@ -1965,7 +1957,8 @@ def main():
                                                     promoted_queen = PlayQueen(piece.rect.topleft, PLAY_SPRITES, "black")
                                                     promoted_queen.previous_coordinate = piece.previous_coordinate
                                                     # Take black pawn off the board
-                                                    piece.promoted()
+                                                    piece.captured(game_controller.black_captured_x, black_captured_y)
+                                                    game_controller.black_captured_x += incremental_x
                                                 # Detects that pawn was just moved
                                                 elif int(piece.coordinate[1]) == 5 and piece.previous_coordinate[0] == piece.coordinate[0] and \
                                                     int(piece.previous_coordinate[1]) == 7:
