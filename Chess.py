@@ -3,13 +3,13 @@ Chess created by Brad Wyatt
 Python 3
 
 Round 2 Thoughts:
-Trying to be able to still display text through moves pane
 Prior move color
+Function to put a piece on the board (with right X and Y) based only on coordinates
+When I press Play, I want it to act as if there was a move before it, seamless. I don't want to do extra code starting from beginning (when program launches) AND starting over again during game
+Grid class looks messy
 Play back one move
 Undo move
-Highlight move (that we're on, or examining) on the right side. I will probably want to get move number on left side and white move, and then black move several spaces from the end of the width. Will need to work on body_text Text_Controller stuff
 Pause mode- The board has the Placed pieces, and you can go back and forward in your analysis. But you can't bring in new pieces
-I'd really like to get rid of hardcoding values, like pos_load_file for resetting board
 Sounds
 Making sure that we are doing promotion correctly
 Perhaps using a direction arrow (like babaschess) to determine which piece could take the other piece. This could get confusing when flipping board though
@@ -263,6 +263,7 @@ class ChessPiece:
         self.coordinate = self.get_coordinate()
         self.coordinate_history = {}
         self.previous_coordinate = self.get_coordinate()
+        self.prior_move_color = False
     def get_coordinate(self):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
@@ -291,6 +292,11 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
         self.taken_off_board = True
         self.coordinate = None
         self.rect.topleft = x, y
+        self.prior_move_color = False
+        if(self.color == "white"):
+            self.image = IMAGES["SPR_WHITE_PAWN"]
+        elif(self.color == "black"):
+            self.image = IMAGES["SPR_BLACK_PAWN"]
     def promoted(self):
         self.taken_off_board = True
         self.coordinate = None
@@ -305,9 +311,15 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
     def no_highlight(self):
         if self.taken_off_board != True:
             if(self.color == "white"):
-                self.image = IMAGES["SPR_WHITE_PAWN"]
+                if(self.prior_move_color == True):
+                    self.image = IMAGES["SPR_WHITE_PAWN_PRIORMOVE"]
+                else:
+                    self.image = IMAGES["SPR_WHITE_PAWN"]
             elif(self.color == "black"):
-                self.image = IMAGES["SPR_BLACK_PAWN"]
+                if(self.prior_move_color == True):
+                    self.image = IMAGES["SPR_BLACK_PAWN_PRIORMOVE"]
+                else:
+                    self.image = IMAGES["SPR_BLACK_PAWN"]
             self.select = False
     def projected(self, game_controller):
         if self.taken_off_board != True:
@@ -455,6 +467,11 @@ class PlayKnight(ChessPiece, pygame.sprite.Sprite):
         self.taken_off_board = True
         self.coordinate = None
         self.rect.topleft = x, y
+        self.prior_move_color = False
+        if(self.color == "white"):
+            self.image = IMAGES["SPR_WHITE_KNIGHT"]
+        elif(self.color == "black"):
+            self.image = IMAGES["SPR_BLACK_KNIGHT"]
     def highlight(self):
         if self.taken_off_board != True:
             if(self.color == "white"):
@@ -486,9 +503,15 @@ class PlayKnight(ChessPiece, pygame.sprite.Sprite):
     def no_highlight(self):
         if self.taken_off_board != True:
             if(self.color == "white"):
-                self.image = IMAGES["SPR_WHITE_KNIGHT"]
+                if(self.prior_move_color == True):
+                    self.image = IMAGES["SPR_WHITE_KNIGHT_PRIORMOVE"]
+                else:
+                    self.image = IMAGES["SPR_WHITE_KNIGHT"]
             elif(self.color == "black"):
-                self.image = IMAGES["SPR_BLACK_KNIGHT"]
+                if(self.prior_move_color == True):
+                    self.image = IMAGES["SPR_BLACK_KNIGHT_PRIORMOVE"]
+                else:
+                    self.image = IMAGES["SPR_BLACK_KNIGHT"]
             self.select = False
 
 def bishop_projected(piece_name, piece, game_controller, x, y):
@@ -626,6 +649,11 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
         self.taken_off_board = True
         self.coordinate = None
         self.rect.topleft = x, y
+        self.prior_move_color = False
+        if(self.color == "white"):
+            self.image = IMAGES["SPR_WHITE_BISHOP"]
+        elif(self.color == "black"):
+            self.image = IMAGES["SPR_BLACK_BISHOP"]
     def highlight(self):
         if self.taken_off_board != True:
             if(self.color == "white"):
@@ -642,9 +670,15 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
     def no_highlight(self):
         if self.taken_off_board != True:
             if(self.color == "white"):
-                self.image = IMAGES["SPR_WHITE_BISHOP"]
+                if(self.prior_move_color == True):
+                    self.image = IMAGES["SPR_WHITE_BISHOP_PRIORMOVE"]
+                else:
+                    self.image = IMAGES["SPR_WHITE_BISHOP"]
             elif(self.color == "black"):
-                self.image = IMAGES["SPR_BLACK_BISHOP"]
+                if(self.prior_move_color == True):
+                    self.image = IMAGES["SPR_BLACK_BISHOP_PRIORMOVE"]
+                else:
+                    self.image = IMAGES["SPR_BLACK_BISHOP"]
             self.select = False
 
 def rook_projected(piece_name, piece, game_controller, x, y):
@@ -774,6 +808,11 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
         self.taken_off_board = True
         self.coordinate = None
         self.rect.topleft = x, y
+        self.prior_move_color = False
+        if(self.color == "white"):
+            self.image = IMAGES["SPR_WHITE_ROOK"]
+        elif(self.color == "black"):
+            self.image = IMAGES["SPR_BLACK_ROOK"]
     def projected(self, game_controller):
         if(self.taken_off_board != True):
             rook_projected("rook", self, game_controller, -1, 0) #west
@@ -794,9 +833,15 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
             rook_direction_spaces_available(self, game_controller, 0, -1) #south
     def no_highlight(self):
         if(self.color == "white"):
-            self.image = IMAGES["SPR_WHITE_ROOK"]
+            if(self.prior_move_color == True):
+                self.image = IMAGES["SPR_WHITE_ROOK_PRIORMOVE"]
+            else:
+                self.image = IMAGES["SPR_WHITE_ROOK"]
         elif(self.color == "black"):
-            self.image = IMAGES["SPR_BLACK_ROOK"]
+            if(self.prior_move_color == True):
+                self.image = IMAGES["SPR_BLACK_ROOK_PRIORMOVE"]
+            else:
+                self.image = IMAGES["SPR_BLACK_ROOK"]
         self.select = False
 
 class PlayQueen(ChessPiece, pygame.sprite.Sprite):
@@ -819,6 +864,11 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
         self.taken_off_board = True
         self.coordinate = None
         self.rect.topleft = x, y
+        self.prior_move_color = False
+        if(self.color == "white"):
+            self.image = IMAGES["SPR_WHITE_QUEEN"]
+        elif(self.color == "black"):
+            self.image = IMAGES["SPR_BLACK_QUEEN"]
     def projected(self, game_controller):
         if(self.taken_off_board != True):
             bishop_projected("queen", self, game_controller, -1, -1) #southwest
@@ -849,9 +899,15 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
     def no_highlight(self):
         if self.taken_off_board != True:
             if(self.color == "white"):
-                self.image = IMAGES["SPR_WHITE_QUEEN"]
+                if(self.prior_move_color == True):
+                    self.image = IMAGES["SPR_WHITE_QUEEN_PRIORMOVE"]
+                else:
+                    self.image = IMAGES["SPR_WHITE_QUEEN"]
             if(self.color == "black"):
-                self.image = IMAGES["SPR_BLACK_QUEEN"]
+                if(self.prior_move_color == True):
+                    self.image = IMAGES["SPR_BLACK_QUEEN_PRIORMOVE"]
+                else:
+                    self.image = IMAGES["SPR_BLACK_QUEEN"]
             self.select = False
 
 class PlayKing(ChessPiece, pygame.sprite.Sprite):
@@ -984,9 +1040,15 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
                         grid.highlight()
     def no_highlight(self):
         if(self.color == "white"):
-            self.image = IMAGES["SPR_WHITE_KING"]
+            if(self.prior_move_color == True):
+                self.image = IMAGES["SPR_WHITE_KING_PRIORMOVE"]
+            else:
+                self.image = IMAGES["SPR_WHITE_KING"]
         elif(self.color == "black"):
-            self.image = IMAGES["SPR_BLACK_KING"]
+            if(self.prior_move_color == True):
+                self.image = IMAGES["SPR_BLACK_KING_PRIORMOVE"]
+            else:
+                self.image = IMAGES["SPR_BLACK_KING"]
         self.select = 0
 
 class PlayEditSwitchButton(pygame.sprite.Sprite):
@@ -1025,21 +1087,20 @@ class Grid(pygame.sprite.Sprite):
         self.en_passant_skipover = False
         self.prior_move_color = False
     def reset_board(self):
+        self.prior_move_color = False
         self.no_highlight()
         self.list_of_white_pieces_attacking = []
         self.list_of_black_pieces_attacking = []
     def attack_count_reset(self):
         self.list_of_white_pieces_attacking = []
         self.list_of_black_pieces_attacking = []
-    def remove_count_remove(self, coordinate):
-        self.list_of_white_pieces_attacking.remove(coordinate)
-        self.list_of_black_pieces_attacking.remove(coordinate)
     def attack_count_increment(self, color, attack_coord):
         if color == "white":
             self.list_of_white_pieces_attacking.append(attack_coord)
         elif color == "black":
             self.list_of_black_pieces_attacking.append(attack_coord)
     def update(self, game_controller):
+        # For every frame, grid checks if there is a piece occupying it and the piece color
         if game_controller.game_mode == game_controller.PLAY_MODE:
             def grid_occupied_by_piece():
                 for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
@@ -1141,8 +1202,8 @@ class Dragging():
         
 class Start():
     def __init__(self):
-        self.blank_box = StartBlankBox()
-        initvar.START_SPRITES.add(self.blank_box)
+        self.start_obj_image_placeholder = StartObjImagePlaceholder()
+        initvar.START_SPRITES.add(self.start_obj_image_placeholder)
         self.white_pawn = StartPawn("white")
         initvar.START_SPRITES.add(self.white_pawn)
         self.white_bishop = StartBishop("white")
@@ -1658,7 +1719,7 @@ def main():
                                 if list_of_start_objs.get(piece_name).rect.collidepoint(MOUSEPOS):
                                     START = restart_start_objects(START)
                                     DRAGGING.drag_piece(piece_name)
-                                    START.blank_box.flip_start_sprite(DRAGGING, list_of_start_objs.get(piece_name).rect.topleft)
+                                    START.start_obj_image_placeholder.flip_start_sprite(DRAGGING, list_of_start_objs.get(piece_name).rect.topleft)
                                 
                     #################
                     # LEFT CLICK (PRESSED DOWN)
@@ -1807,6 +1868,8 @@ def main():
                                                    PlayKnight.black_knight_list, PlayRook.black_rook_list, 
                                                    PlayQueen.black_queen_list, PlayKing.black_king_list]:
                                     for piece in piece_list:
+                                        # Reset the prior move color variable from all pieces
+                                        piece.prior_move_color = False
                                         if (grid.rect.collidepoint(MOUSEPOS) and grid.highlighted==True and piece.select==True):
                                             # Taking a piece by checking if highlighted grid is opposite color of piece
                                             # And iterating through all pieces to check if coordinates of that grid
@@ -1861,6 +1924,9 @@ def main():
                                                     piece.coordinate_history[game_controller.move_counter] = {'before':piece.previous_coordinate}
                                                     prior_moves_dict['before'] = piece.previous_coordinate
                                                     old_grid.prior_move_color = True
+                                                else:
+                                                    old_grid.prior_move_color = False
+                                                    old_grid.no_highlight()
                                                     
                                             # Moving piece, removing piece and grid highlights, changing Turn
                                             piece.rect.topleft = grid.rect.topleft
@@ -1868,6 +1934,7 @@ def main():
                                             piece.coordinate_history[game_controller.move_counter]['after'] = piece.coordinate
                                             prior_moves_dict['after'] = piece.coordinate
                                             grid.occupied = True
+                                            piece.prior_move_color = True
                                             piece.no_highlight()
                                             
                                             #########
@@ -2174,25 +2241,25 @@ def main():
                 ##################
                 # Start piece is dragging according to where the mouse is
                 if game_controller.game_mode == game_controller.EDIT_MODE:
-                    def replace_start_sprite_with_black_box(dragging_obj, start_blank_box_var, start_obj_pos, start_obj, mouse_pos):
+                    def drag_and_replace_start_obj_image(dragging_obj, start_substitute_image, start_obj_pos, start_obj, mouse_pos):
                         if dragging_obj:
-                            start_blank_box_var.rect.topleft = start_obj_pos
+                            start_substitute_image.rect.topleft = start_obj_pos
                             start_obj.rect.topleft = (mouse_pos[0]-(start_obj.image.get_width()/2),
                                                       mouse_pos[1]-(start_obj.image.get_height()/2))
                         else:
                             start_obj.rect.topleft = start_obj_pos
-                    replace_start_sprite_with_black_box(DRAGGING.white_pawn, START.blank_box, initvar.STARTPOS['white_pawn'], START.white_pawn, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.white_bishop, START.blank_box, initvar.STARTPOS['white_bishop'], START.white_bishop, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.white_knight, START.blank_box, initvar.STARTPOS['white_knight'], START.white_knight, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.white_rook, START.blank_box, initvar.STARTPOS['white_rook'], START.white_rook, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.white_queen, START.blank_box, initvar.STARTPOS['white_queen'], START.white_queen, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.white_king, START.blank_box, initvar.STARTPOS['white_king'], START.white_king, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.black_pawn, START.blank_box, initvar.STARTPOS['black_pawn'], START.black_pawn, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.black_bishop, START.blank_box, initvar.STARTPOS['black_bishop'], START.black_bishop, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.black_knight, START.blank_box, initvar.STARTPOS['black_knight'], START.black_knight, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.black_rook, START.blank_box, initvar.STARTPOS['black_rook'], START.black_rook, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.black_queen, START.blank_box, initvar.STARTPOS['black_queen'], START.black_queen, MOUSEPOS)
-                    replace_start_sprite_with_black_box(DRAGGING.black_king, START.blank_box, initvar.STARTPOS['black_king'], START.black_king, MOUSEPOS)                      
+                    drag_and_replace_start_obj_image(DRAGGING.white_pawn, START.start_obj_image_placeholder, initvar.STARTPOS['white_pawn'], START.white_pawn, MOUSEPOS)
+                    drag_and_replace_start_obj_image(DRAGGING.white_bishop, START.start_obj_image_placeholder, initvar.STARTPOS['white_bishop'], START.white_bishop, MOUSEPOS)
+                    drag_and_replace_start_obj_image(DRAGGING.white_knight, START.start_obj_image_placeholder, initvar.STARTPOS['white_knight'], START.white_knight, MOUSEPOS)
+                    drag_and_replace_start_obj_image(DRAGGING.white_rook, START.start_obj_image_placeholder, initvar.STARTPOS['white_rook'], START.white_rook, MOUSEPOS)
+                    drag_and_replace_start_obj_image(DRAGGING.white_queen, START.start_obj_image_placeholder, initvar.STARTPOS['white_queen'], START.white_queen, MOUSEPOS)
+                    drag_and_replace_start_obj_image(DRAGGING.white_king, START.start_obj_image_placeholder, initvar.STARTPOS['white_king'], START.white_king, MOUSEPOS)
+                    drag_and_replace_start_obj_image(DRAGGING.black_pawn, START.start_obj_image_placeholder, initvar.STARTPOS['black_pawn'], START.black_pawn, MOUSEPOS)
+                    drag_and_replace_start_obj_image(DRAGGING.black_bishop, START.start_obj_image_placeholder, initvar.STARTPOS['black_bishop'], START.black_bishop, MOUSEPOS)
+                    drag_and_replace_start_obj_image(DRAGGING.black_knight, START.start_obj_image_placeholder, initvar.STARTPOS['black_knight'], START.black_knight, MOUSEPOS)
+                    drag_and_replace_start_obj_image(DRAGGING.black_rook, START.start_obj_image_placeholder, initvar.STARTPOS['black_rook'], START.black_rook, MOUSEPOS)
+                    drag_and_replace_start_obj_image(DRAGGING.black_queen, START.start_obj_image_placeholder, initvar.STARTPOS['black_queen'], START.black_queen, MOUSEPOS)
+                    drag_and_replace_start_obj_image(DRAGGING.black_king, START.start_obj_image_placeholder, initvar.STARTPOS['black_king'], START.black_king, MOUSEPOS)                      
             
                 ##################
                 # IN-GAME ACTIONS
