@@ -263,6 +263,7 @@ class ChessPiece:
         self.coordinate = self.get_coordinate()
         self.coordinate_history = {}
         self.previous_coordinate = self.get_coordinate()
+        self.prior_move_color = False
     def get_coordinate(self):
         for grid in Grid.grid_list:
             if self.rect.colliderect(grid):
@@ -291,6 +292,11 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
         self.taken_off_board = True
         self.coordinate = None
         self.rect.topleft = x, y
+        self.prior_move_color = False
+        if(self.color == "white"):
+            self.image = IMAGES["SPR_WHITE_PAWN"]
+        elif(self.color == "black"):
+            self.image = IMAGES["SPR_BLACK_PAWN"]
     def promoted(self):
         self.taken_off_board = True
         self.coordinate = None
@@ -305,9 +311,15 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
     def no_highlight(self):
         if self.taken_off_board != True:
             if(self.color == "white"):
-                self.image = IMAGES["SPR_WHITE_PAWN"]
+                if(self.prior_move_color == True):
+                    self.image = IMAGES["SPR_WHITE_PAWN_PRIORMOVE"]
+                else:
+                    self.image = IMAGES["SPR_WHITE_PAWN"]
             elif(self.color == "black"):
-                self.image = IMAGES["SPR_BLACK_PAWN"]
+                if(self.prior_move_color == True):
+                    self.image = IMAGES["SPR_BLACK_PAWN_PRIORMOVE"]
+                else:
+                    self.image = IMAGES["SPR_BLACK_PAWN"]
             self.select = False
     def projected(self, game_controller):
         if self.taken_off_board != True:
@@ -455,6 +467,11 @@ class PlayKnight(ChessPiece, pygame.sprite.Sprite):
         self.taken_off_board = True
         self.coordinate = None
         self.rect.topleft = x, y
+        self.prior_move_color = False
+        if(self.color == "white"):
+            self.image = IMAGES["SPR_WHITE_KNIGHT"]
+        elif(self.color == "black"):
+            self.image = IMAGES["SPR_BLACK_KNIGHT"]
     def highlight(self):
         if self.taken_off_board != True:
             if(self.color == "white"):
@@ -486,9 +503,15 @@ class PlayKnight(ChessPiece, pygame.sprite.Sprite):
     def no_highlight(self):
         if self.taken_off_board != True:
             if(self.color == "white"):
-                self.image = IMAGES["SPR_WHITE_KNIGHT"]
+                if(self.prior_move_color == True):
+                    self.image = IMAGES["SPR_WHITE_KNIGHT_PRIORMOVE"]
+                else:
+                    self.image = IMAGES["SPR_WHITE_KNIGHT"]
             elif(self.color == "black"):
-                self.image = IMAGES["SPR_BLACK_KNIGHT"]
+                if(self.prior_move_color == True):
+                    self.image = IMAGES["SPR_BLACK_KNIGHT_PRIORMOVE"]
+                else:
+                    self.image = IMAGES["SPR_BLACK_KNIGHT"]
             self.select = False
 
 def bishop_projected(piece_name, piece, game_controller, x, y):
@@ -626,6 +649,11 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
         self.taken_off_board = True
         self.coordinate = None
         self.rect.topleft = x, y
+        self.prior_move_color = False
+        if(self.color == "white"):
+            self.image = IMAGES["SPR_WHITE_BISHOP"]
+        elif(self.color == "black"):
+            self.image = IMAGES["SPR_BLACK_BISHOP"]
     def highlight(self):
         if self.taken_off_board != True:
             if(self.color == "white"):
@@ -642,9 +670,15 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
     def no_highlight(self):
         if self.taken_off_board != True:
             if(self.color == "white"):
-                self.image = IMAGES["SPR_WHITE_BISHOP"]
+                if(self.prior_move_color == True):
+                    self.image = IMAGES["SPR_WHITE_BISHOP_PRIORMOVE"]
+                else:
+                    self.image = IMAGES["SPR_WHITE_BISHOP"]
             elif(self.color == "black"):
-                self.image = IMAGES["SPR_BLACK_BISHOP"]
+                if(self.prior_move_color == True):
+                    self.image = IMAGES["SPR_BLACK_BISHOP_PRIORMOVE"]
+                else:
+                    self.image = IMAGES["SPR_BLACK_BISHOP"]
             self.select = False
 
 def rook_projected(piece_name, piece, game_controller, x, y):
@@ -774,6 +808,11 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
         self.taken_off_board = True
         self.coordinate = None
         self.rect.topleft = x, y
+        self.prior_move_color = False
+        if(self.color == "white"):
+            self.image = IMAGES["SPR_WHITE_ROOK"]
+        elif(self.color == "black"):
+            self.image = IMAGES["SPR_BLACK_ROOK"]
     def projected(self, game_controller):
         if(self.taken_off_board != True):
             rook_projected("rook", self, game_controller, -1, 0) #west
@@ -794,9 +833,15 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
             rook_direction_spaces_available(self, game_controller, 0, -1) #south
     def no_highlight(self):
         if(self.color == "white"):
-            self.image = IMAGES["SPR_WHITE_ROOK"]
+            if(self.prior_move_color == True):
+                self.image = IMAGES["SPR_WHITE_ROOK_PRIORMOVE"]
+            else:
+                self.image = IMAGES["SPR_WHITE_ROOK"]
         elif(self.color == "black"):
-            self.image = IMAGES["SPR_BLACK_ROOK"]
+            if(self.prior_move_color == True):
+                self.image = IMAGES["SPR_BLACK_ROOK_PRIORMOVE"]
+            else:
+                self.image = IMAGES["SPR_BLACK_ROOK"]
         self.select = False
 
 class PlayQueen(ChessPiece, pygame.sprite.Sprite):
@@ -819,6 +864,11 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
         self.taken_off_board = True
         self.coordinate = None
         self.rect.topleft = x, y
+        self.prior_move_color = False
+        if(self.color == "white"):
+            self.image = IMAGES["SPR_WHITE_QUEEN"]
+        elif(self.color == "black"):
+            self.image = IMAGES["SPR_BLACK_QUEEN"]
     def projected(self, game_controller):
         if(self.taken_off_board != True):
             bishop_projected("queen", self, game_controller, -1, -1) #southwest
@@ -849,9 +899,15 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
     def no_highlight(self):
         if self.taken_off_board != True:
             if(self.color == "white"):
-                self.image = IMAGES["SPR_WHITE_QUEEN"]
+                if(self.prior_move_color == True):
+                    self.image = IMAGES["SPR_WHITE_QUEEN_PRIORMOVE"]
+                else:
+                    self.image = IMAGES["SPR_WHITE_QUEEN"]
             if(self.color == "black"):
-                self.image = IMAGES["SPR_BLACK_QUEEN"]
+                if(self.prior_move_color == True):
+                    self.image = IMAGES["SPR_BLACK_QUEEN_PRIORMOVE"]
+                else:
+                    self.image = IMAGES["SPR_BLACK_QUEEN"]
             self.select = False
 
 class PlayKing(ChessPiece, pygame.sprite.Sprite):
@@ -984,9 +1040,15 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
                         grid.highlight()
     def no_highlight(self):
         if(self.color == "white"):
-            self.image = IMAGES["SPR_WHITE_KING"]
+            if(self.prior_move_color == True):
+                self.image = IMAGES["SPR_WHITE_KING_PRIORMOVE"]
+            else:
+                self.image = IMAGES["SPR_WHITE_KING"]
         elif(self.color == "black"):
-            self.image = IMAGES["SPR_BLACK_KING"]
+            if(self.prior_move_color == True):
+                self.image = IMAGES["SPR_BLACK_KING_PRIORMOVE"]
+            else:
+                self.image = IMAGES["SPR_BLACK_KING"]
         self.select = 0
 
 class PlayEditSwitchButton(pygame.sprite.Sprite):
@@ -1806,6 +1868,8 @@ def main():
                                                    PlayKnight.black_knight_list, PlayRook.black_rook_list, 
                                                    PlayQueen.black_queen_list, PlayKing.black_king_list]:
                                     for piece in piece_list:
+                                        # Reset the prior move color variable from all pieces
+                                        piece.prior_move_color = False
                                         if (grid.rect.collidepoint(MOUSEPOS) and grid.highlighted==True and piece.select==True):
                                             # Taking a piece by checking if highlighted grid is opposite color of piece
                                             # And iterating through all pieces to check if coordinates of that grid
@@ -1870,6 +1934,7 @@ def main():
                                             piece.coordinate_history[game_controller.move_counter]['after'] = piece.coordinate
                                             prior_moves_dict['after'] = piece.coordinate
                                             grid.occupied = True
+                                            piece.prior_move_color = True
                                             piece.no_highlight()
                                             
                                             #########
