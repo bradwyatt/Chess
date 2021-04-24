@@ -91,17 +91,6 @@ log.addHandler(console_handler)
 #############
 # Functions
 #############
-
-def snap_to_grid(pos, x_range, y_range):
-    best_num_X, best_num_Y = x_range[0], y_range[0] #So Y doesn't go above the menu
-    for x in range(x_range[0], x_range[1], x_range[2]):
-        if pos[0]-x <= initvar.X_GRID_WIDTH and pos[0]-x >= 0:
-            best_num_X = x
-    for y in range(y_range[0], y_range[1], y_range[2]):
-        if pos[1]-y <= initvar.Y_GRID_HEIGHT and pos[1]-y >= 0:
-            best_num_Y = y
-    best_grid_snap = (best_num_X, best_num_Y)
-    return best_grid_snap
              
 def remove_placed_object(PLACED_SPRITES, mousepos):
     for placed_item_list in (PlacedPawn.white_pawn_list, PlacedBishop.white_bishop_list,
@@ -1478,11 +1467,6 @@ def main():
         
         COLORKEY = initvar.COLORKEY_RGB
         
-        X_GRID_END = initvar.X_GRID_START+(initvar.X_GRID_WIDTH*8)
-        Y_GRID_END = initvar.Y_GRID_START+(initvar.Y_GRID_HEIGHT*8)
-        XGRIDRANGE = [initvar.X_GRID_START, X_GRID_END, initvar.X_GRID_WIDTH] #1st num: begin 2nd: end 3rd: step
-        YGRIDRANGE = [initvar.Y_GRID_START, Y_GRID_END, initvar.Y_GRID_HEIGHT] #1st num: begin 2nd: end 3rd: step
-        
         RUNNING, DEBUG = 0, 1
         state = RUNNING
         debug_message = 0
@@ -1557,8 +1541,6 @@ def main():
         coor_6_text = arial_font.render("6", 1, (0, 0, 0))
         coor_7_text= arial_font.render("7", 1, (0, 0, 0))
         coor_8_text = arial_font.render("8", 1, (0, 0, 0))
-        
-
                         
         # Load the starting positions of chessboard first
         pos_load_file(PLACED_SPRITES, COLORKEY, reset=True)
@@ -1609,7 +1591,7 @@ def main():
                             debug_message = 1
                             state = DEBUG
                     # Menu, inanimate buttons at top, and on right side of game board
-                    if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and MOUSEPOS[0] > X_GRID_END:
+                    if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and MOUSEPOS[0] > StartRoom.X_GRID_END:
                         if SCROLL_UP_BUTTON.rect.collidepoint(MOUSEPOS) and PanelRectangles.scroll_range[0] > 1: # Scroll up
                             update_scroll_range(-1)
                         if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS) and len(MoveNumberRectangle.rectangle_list) > initvar.MOVES_PANE_MAX_MOVES and PanelRectangles.scroll_range[1] < len(MoveNumberRectangle.rectangle_list): # Scroll down
@@ -1663,8 +1645,8 @@ def main():
                     
                     # Placed object placed on location of mouse release
                     elif (event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and
-                          MOUSEPOS[0] > initvar.X_GRID_START and MOUSEPOS[0] < X_GRID_END and
-                          MOUSEPOS[1] > initvar.Y_GRID_START and MOUSEPOS[1] < Y_GRID_END): 
+                          MOUSEPOS[0] > initvar.X_GRID_START and MOUSEPOS[0] < StartRoom.X_GRID_END and
+                          MOUSEPOS[1] > initvar.Y_GRID_START and MOUSEPOS[1] < StartRoom.Y_GRID_END): 
                         def dragging_to_placed_no_dups():
                             for piece_list in [PlacedPawn.white_pawn_list, PlacedBishop.white_bishop_list, 
                                                PlacedKnight.white_knight_list, PlacedRook.white_rook_list, 
@@ -2231,19 +2213,19 @@ def main():
                 coor_letter_text_list = [coor_A_text, coor_B_text, coor_C_text, coor_D_text, coor_E_text, coor_F_text, coor_G_text, coor_H_text]
                 for text in range(0,len(coor_letter_text_list)):
                     SCREEN.blit(coor_letter_text_list[text], (initvar.X_GRID_START+initvar.X_GRID_WIDTH/3+(initvar.X_GRID_WIDTH*text), initvar.Y_GRID_START-(initvar.Y_GRID_HEIGHT*0.75)))
-                    SCREEN.blit(coor_letter_text_list[text], (initvar.X_GRID_START+initvar.X_GRID_WIDTH/3+(initvar.X_GRID_WIDTH*text), Y_GRID_END+(initvar.Y_GRID_HEIGHT*0.25)))
+                    SCREEN.blit(coor_letter_text_list[text], (initvar.X_GRID_START+initvar.X_GRID_WIDTH/3+(initvar.X_GRID_WIDTH*text), StartRoom.Y_GRID_END+(initvar.Y_GRID_HEIGHT*0.25)))
                 coor_number_text_list = [coor_8_text, coor_7_text, coor_6_text, coor_5_text, coor_4_text, coor_3_text, coor_2_text, coor_1_text]
                 for text in range(0,len(coor_number_text_list)):
                     SCREEN.blit(coor_number_text_list[text], (initvar.X_GRID_START-initvar.X_GRID_WIDTH/2, initvar.Y_GRID_START+initvar.Y_GRID_HEIGHT/4+(initvar.Y_GRID_HEIGHT*text)))
-                    SCREEN.blit(coor_number_text_list[text], (X_GRID_END+initvar.X_GRID_WIDTH/3, initvar.Y_GRID_START+initvar.Y_GRID_HEIGHT/4+(initvar.Y_GRID_HEIGHT*text)))
+                    SCREEN.blit(coor_number_text_list[text], (StartRoom.X_GRID_END+initvar.X_GRID_WIDTH/3, initvar.Y_GRID_START+initvar.Y_GRID_HEIGHT/4+(initvar.Y_GRID_HEIGHT*text)))
                 if(game_controller.game_mode == game_controller.PLAY_MODE):
                     check_checkmate_text_render = arial_font.render(Text_Controller.check_checkmate_text, 1, (0, 0, 0))
                     if game_controller.WHOSETURN == "white":
                         whose_turn_text = arial_font.render("White's move", 1, (0, 0, 0))
                     elif game_controller.WHOSETURN == "black":
                         whose_turn_text = arial_font.render("Black's move", 1, (0, 0, 0))
-                    SCREEN.blit(whose_turn_text, (X_GRID_END+initvar.X_GRID_WIDTH, initvar.SCREEN_HEIGHT/2))
-                    SCREEN.blit(check_checkmate_text_render, (X_GRID_END+initvar.X_GRID_WIDTH, 200))
+                    SCREEN.blit(whose_turn_text, (StartRoom.X_GRID_END+initvar.X_GRID_WIDTH, initvar.SCREEN_HEIGHT/2))
+                    SCREEN.blit(check_checkmate_text_render, (StartRoom.X_GRID_END+initvar.X_GRID_WIDTH, 200))
                 pygame.display.update()
             elif state == DEBUG:
                 if debug_message == 1:
