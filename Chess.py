@@ -206,6 +206,23 @@ def pos_load_file(PLACED_SPRITES, colorkey, reset=False):
     log.info("Positioning Loaded Successfully")
     return PLACED_SPRITES, colorkey
 
+            
+# Returns the tuples of each objects' positions within all classes
+def get_dict_rect_positions():
+    total_placed_list = {'white_pawn': PlacedPawn.white_pawn_list, 'white_bishop': PlacedBishop.white_bishop_list, 
+                         'white_knight': PlacedKnight.white_knight_list, 'white_rook': PlacedRook.white_rook_list,
+                         'white_queen': PlacedQueen.white_queen_list, 'white_king': PlacedKing.white_king_list,
+                         'black_pawn': PlacedPawn.black_pawn_list, 'black_bishop': PlacedBishop.black_bishop_list,
+                         'black_knight': PlacedKnight.black_knight_list, 'black_rook': PlacedRook.black_rook_list,
+                         'black_queen': PlacedQueen.black_queen_list, 'black_king': PlacedKing.black_king_list}
+    get_coord_for_all_obj = dict.fromkeys(total_placed_list, list)
+    for item_key, item_list in total_placed_list.items():
+        item_list_in_name = []
+        for item_coord in item_list:
+            item_list_in_name.append(item_coord.coordinate)
+        get_coord_for_all_obj[item_key] = item_list_in_name
+    return get_coord_for_all_obj
+
 def pos_save_file(colorkey):
     try:
         # default extension is optional, here will add .txt if missing
@@ -235,7 +252,6 @@ class ChessPiece:
     def __init__(self, coord, PLAY_SPRITES, image, col):
         PLAY_SPRITES.add(self)
         self.image = image
-
         self.color = col
         COLOR_POSSIBILITIES = ["white", "black"]
         OTHER_COLOR_INDEX = (COLOR_POSSIBILITIES.index(self.color)+1)%2
@@ -1127,22 +1143,6 @@ class Start():
         initvar.START_SPRITES.add(self.black_queen)        
         self.black_king = StartKing("black")
         initvar.START_SPRITES.add(self.black_king)
-            
-# Returns the tuples of each objects' positions within all classes
-def get_dict_rect_positions():
-    total_placed_list = {'white_pawn': PlacedPawn.white_pawn_list, 'white_bishop': PlacedBishop.white_bishop_list, 
-                         'white_knight': PlacedKnight.white_knight_list, 'white_rook': PlacedRook.white_rook_list,
-                         'white_queen': PlacedQueen.white_queen_list, 'white_king': PlacedKing.white_king_list,
-                         'black_pawn': PlacedPawn.black_pawn_list, 'black_bishop': PlacedBishop.black_bishop_list,
-                         'black_knight': PlacedKnight.black_knight_list, 'black_rook': PlacedRook.black_rook_list,
-                         'black_queen': PlacedQueen.black_queen_list, 'black_king': PlacedKing.black_king_list}
-    get_rect_for_all_obj = dict.fromkeys(total_placed_list, list)
-    for item_key, item_list in total_placed_list.items():
-        item_list_in_name = []
-        for item_rect in item_list:
-            item_list_in_name.append(item_rect.rect.topleft)
-        get_rect_for_all_obj[item_key] = item_list_in_name
-    return get_rect_for_all_obj
 
 def remove_all_placed():
     for spr_list in [PlacedPawn.white_pawn_list, PlacedBishop.white_bishop_list,
@@ -1659,7 +1659,7 @@ def main():
                                         return
                             # Created Placed objects at the snapped grid location of the piece that's being dragged
                             if DRAGGING.white_pawn:
-                                if int(MOUSE_COORD[1]) != 1 and int(MOUSE_COORD.coordinate[1]) != 8:
+                                if int(MOUSE_COORD[1]) != 1 and int(MOUSE_COORD[1]) != 8:
                                     PlacedPawn(MOUSE_COORD, PLACED_SPRITES, "white")
                                 else:
                                     log.info("You are not allowed to place a pawn on rank " + MOUSE_COORD[1])
