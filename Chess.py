@@ -887,13 +887,8 @@ def main():
                                             if(board.Grid.grid_dict[attacker_grid].occupied_piece == piece_name \
                                                 and piece_name != "pawn" and special_abb != "=Q"):
                                                 same_piece_list.append(attacker_grid)
-                                        #log.info("SAME PIECE LIST " + str(same_piece_list))
                                         letter_coords = [coords_from_same_piece[0] for coords_from_same_piece in same_piece_list] 
                                         number_coords = [coords_from_same_piece[1] for coords_from_same_piece in same_piece_list] 
-                                        #log.info("LETTER COORDS " + str(letter_coords))
-                                        #log.info("NUMBER COORDS " + str(number_coords))
-                                        #log.info("previous coord " + str(piece.previous_coordinate))
-                                        print("PREVIOUS COORDINATE: " + str(piece.previous_coordinate))
                                         if(len(same_piece_list) > 0 and ((piece.previous_coordinate[0] not in letter_coords and piece.previous_coordinate[1] in number_coords) \
                                             or (piece.previous_coordinate[0] not in letter_coords and piece.previous_coordinate[1] not in number_coords))):
                                             prefix += piece.previous_coordinate[0]
@@ -903,7 +898,6 @@ def main():
                                             return prefix
                                         if((piece_name == "pawn" and captured_abb == "x") or (special_abb == "=Q" and captured_abb == "x")):
                                             prefix += piece.previous_coordinate[0]
-                                        print("Same piece list: " + str(same_piece_list))
                                         return prefix
                             if piece.color == "white":
                                 prefix = prefix_func(piece, piece_name, captured_abb, special_abb)
