@@ -1,11 +1,11 @@
 import pygame
 from load_images_sounds import *
-from Chess import Grid
+import StartRoom
 
 class PlacedPawn(pygame.sprite.Sprite):
     white_pawn_list = []
     black_pawn_list = []
-    def __init__(self, pos, PLACED_SPRITES, col):
+    def __init__(self, coord, PLACED_SPRITES, col):
         pygame.sprite.Sprite.__init__(self)
         self.col = col
         if self.col == "white":
@@ -16,13 +16,13 @@ class PlacedPawn(pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_PAWN"]
             PLACED_SPRITES.add(self)
             PlacedPawn.black_pawn_list.append(self)
+        self.coordinate = coord
         self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        self.coordinate = None
-    def update(self, grid_list):
-        for grid in grid_list:
-            if self.rect.colliderect(grid):
-                self.coordinate = grid.coordinate
+        for grid in StartRoom.Grid.grid_list:
+            if grid.coordinate == self.coordinate:
+                self.rect.topleft = grid.rect.topleft
+    def update(self):
+        pass
     def destroy(self):
         if self.col == "white":
             PlacedPawn.white_pawn_list.remove(self)
@@ -33,7 +33,7 @@ class PlacedPawn(pygame.sprite.Sprite):
 class PlacedBishop(pygame.sprite.Sprite):
     white_bishop_list = []
     black_bishop_list = []
-    def __init__(self, pos, PLACED_SPRITES, col):
+    def __init__(self, coord, PLACED_SPRITES, col):
         pygame.sprite.Sprite.__init__(self)
         self.col = col
         if self.col == "white":
@@ -44,13 +44,13 @@ class PlacedBishop(pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_BISHOP"]
             PLACED_SPRITES.add(self)
             PlacedBishop.black_bishop_list.append(self)
+        self.coordinate = coord
         self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        self.coordinate = None
-    def update(self, grid_list):
-        for grid in grid_list:
-            if self.rect.colliderect(grid):
-                self.coordinate = grid.coordinate
+        for grid in StartRoom.Grid.grid_list:
+            if grid.coordinate == self.coordinate:
+                self.rect.topleft = grid.rect.topleft
+    def update(self):
+        pass
     def destroy(self):
         if self.col == "white":
             PlacedBishop.white_bishop_list.remove(self)
@@ -61,7 +61,7 @@ class PlacedBishop(pygame.sprite.Sprite):
 class PlacedKnight(pygame.sprite.Sprite):
     white_knight_list = []
     black_knight_list = []
-    def __init__(self, pos, PLACED_SPRITES, col):
+    def __init__(self, coord, PLACED_SPRITES, col):
         pygame.sprite.Sprite.__init__(self)
         self.col = col
         if self.col == "white":
@@ -72,13 +72,13 @@ class PlacedKnight(pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_KNIGHT"]
             PLACED_SPRITES.add(self)
             PlacedKnight.black_knight_list.append(self)
+        self.coordinate = coord
         self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        self.coordinate = None
-    def update(self, grid_list):
-        for grid in grid_list:
-            if self.rect.colliderect(grid):
-                self.coordinate = grid.coordinate
+        for grid in StartRoom.Grid.grid_list:
+            if grid.coordinate == self.coordinate:
+                self.rect.topleft = grid.rect.topleft
+    def update(self):
+        pass
     def destroy(self):
         if self.col == "white":
             PlacedKnight.white_knight_list.remove(self)
@@ -89,7 +89,7 @@ class PlacedKnight(pygame.sprite.Sprite):
 class PlacedRook(pygame.sprite.Sprite):
     white_rook_list = []
     black_rook_list = []
-    def __init__(self, pos, PLACED_SPRITES, col):
+    def __init__(self, coord, PLACED_SPRITES, col):
         pygame.sprite.Sprite.__init__(self)
         self.col = col
         if self.col == "white":
@@ -100,9 +100,11 @@ class PlacedRook(pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_ROOK"]
             PLACED_SPRITES.add(self)
             PlacedRook.black_rook_list.append(self)
+        self.coordinate = coord
         self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        self.coordinate = None
+        for grid in StartRoom.Grid.grid_list:
+            if grid.coordinate == self.coordinate:
+                self.rect.topleft = grid.rect.topleft
     def update(self, grid_list):
         for grid in grid_list:
             if self.rect.colliderect(grid):
@@ -117,7 +119,7 @@ class PlacedRook(pygame.sprite.Sprite):
 class PlacedQueen(pygame.sprite.Sprite):
     white_queen_list = []
     black_queen_list = []
-    def __init__(self, pos, PLACED_SPRITES, col):
+    def __init__(self, coord, PLACED_SPRITES, col):
         pygame.sprite.Sprite.__init__(self)
         self.col = col
         if self.col == "white":
@@ -128,13 +130,13 @@ class PlacedQueen(pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_QUEEN"]
             PLACED_SPRITES.add(self)
             PlacedQueen.black_queen_list.append(self)
+        self.coordinate = coord
         self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        self.coordinate = None
-    def update(self, grid_list):
-        for grid in grid_list:
-            if self.rect.colliderect(grid):
-                self.coordinate = grid.coordinate
+        for grid in StartRoom.Grid.grid_list:
+            if grid.coordinate == self.coordinate:
+                self.rect.topleft = grid.rect.topleft
+    def update(self):
+        pass
     def destroy(self):
         if self.col == "white":
             PlacedQueen.white_queen_list.remove(self)
@@ -145,7 +147,7 @@ class PlacedQueen(pygame.sprite.Sprite):
 class PlacedKing(pygame.sprite.Sprite):
     white_king_list = []
     black_king_list = []
-    def __init__(self, pos, PLACED_SPRITES, col):
+    def __init__(self, coord, PLACED_SPRITES, col):
         pygame.sprite.Sprite.__init__(self)
         self.col = col
         if self.col == "white":
@@ -156,13 +158,13 @@ class PlacedKing(pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_KING"]
             PLACED_SPRITES.add(self)
             PlacedKing.black_king_list.append(self)
+        self.coordinate = coord
         self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        self.coordinate = None
-    def update(self, grid_list):
-        for grid in grid_list:
-            if self.rect.colliderect(grid):
-                self.coordinate = grid.coordinate
+        for grid in StartRoom.Grid.grid_list:
+            if grid.coordinate == self.coordinate:
+                self.rect.topleft = grid.rect.topleft
+    def update(self):
+        pass
     def destroy(self):
         if self.col == "white":
             PlacedKing.white_king_list.remove(self)
