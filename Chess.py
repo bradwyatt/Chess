@@ -1927,7 +1927,7 @@ def main():
                                             elif piece in PlayRook.white_rook_list or PlayRook.black_rook_list:
                                                 piece.allowed_to_castle = False
                                             # Update all grids to reflect the coordinates of the pieces
-                                            StartRoom.GRID_SPRITES.update(game_controller)
+                                            Grid_Controller.update_grid(game_controller)
                                             # Switch turns
                                             if(game_controller.WHOSETURN == "white"):
                                                 game_controller.switch_turn("black")
@@ -2117,7 +2117,7 @@ def main():
                             placed_to_play(PlacedKing.black_king_list, PlayKing, PLAY_SPRITES, "black")
                             
                             game_controller.WHOSETURN = "white"
-                            StartRoom.GRID_SPRITES.update(game_controller)
+                            Grid_Controller.update_grid(game_controller)
                             game_controller.projected_white_update()
                             game_controller.projected_black_update()
                         #################
