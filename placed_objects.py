@@ -105,10 +105,8 @@ class PlacedRook(pygame.sprite.Sprite):
         for grid in board.Grid.grid_list:
             if grid.coordinate == self.coordinate:
                 self.rect.topleft = grid.rect.topleft
-    def update(self, grid_list):
-        for grid in grid_list:
-            if self.rect.colliderect(grid):
-                self.coordinate = grid.coordinate
+    def update(self):
+        pass
     def destroy(self):
         if self.col == "white":
             PlacedRook.white_rook_list.remove(self)
