@@ -21,10 +21,8 @@ class PlacedPawn(pygame.sprite.Sprite):
         for grid in StartRoom.Grid.grid_list:
             if grid.coordinate == self.coordinate:
                 self.rect.topleft = grid.rect.topleft
-    def update(self, grid_list):
-        for grid in grid_list:
-            if self.rect.colliderect(grid):
-                self.coordinate = grid.coordinate
+    def update(self):
+        pass
     def destroy(self):
         if self.col == "white":
             PlacedPawn.white_pawn_list.remove(self)
@@ -51,10 +49,8 @@ class PlacedBishop(pygame.sprite.Sprite):
         for grid in StartRoom.Grid.grid_list:
             if grid.coordinate == self.coordinate:
                 self.rect.topleft = grid.rect.topleft
-    def update(self, grid_list):
-        for grid in grid_list:
-            if self.rect.colliderect(grid):
-                self.coordinate = grid.coordinate
+    def update(self):
+        pass
     def destroy(self):
         if self.col == "white":
             PlacedBishop.white_bishop_list.remove(self)
@@ -81,10 +77,8 @@ class PlacedKnight(pygame.sprite.Sprite):
         for grid in StartRoom.Grid.grid_list:
             if grid.coordinate == self.coordinate:
                 self.rect.topleft = grid.rect.topleft
-    def update(self, grid_list):
-        for grid in grid_list:
-            if self.rect.colliderect(grid):
-                self.coordinate = grid.coordinate
+    def update(self):
+        pass
     def destroy(self):
         if self.col == "white":
             PlacedKnight.white_knight_list.remove(self)
@@ -141,10 +135,8 @@ class PlacedQueen(pygame.sprite.Sprite):
         for grid in StartRoom.Grid.grid_list:
             if grid.coordinate == self.coordinate:
                 self.rect.topleft = grid.rect.topleft
-    def update(self, grid_list):
-        for grid in grid_list:
-            if self.rect.colliderect(grid):
-                self.coordinate = grid.coordinate
+    def update(self):
+        pass
     def destroy(self):
         if self.col == "white":
             PlacedQueen.white_queen_list.remove(self)
@@ -171,10 +163,8 @@ class PlacedKing(pygame.sprite.Sprite):
         for grid in StartRoom.Grid.grid_list:
             if grid.coordinate == self.coordinate:
                 self.rect.topleft = grid.rect.topleft
-    def update(self, grid_list):
-        for grid in grid_list:
-            if self.rect.colliderect(grid):
-                self.coordinate = grid.coordinate
+    def update(self):
+        pass
     def destroy(self):
         if self.col == "white":
             PlacedKing.white_king_list.remove(self)

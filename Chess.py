@@ -271,6 +271,8 @@ class ChessPiece:
     def pinned_restrict(self, pin_attacking_coordinates):
         self.pinned = True
         self.pin_attacking_coordinates = pin_attacking_coordinates
+    def update(self):
+        pass
 
 class PlayPawn(ChessPiece, pygame.sprite.Sprite):
     white_pawn_list = []
@@ -284,10 +286,6 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_PAWN"]
             PlayPawn.black_pawn_list.append(self)
         super().__init__(pos, PLAY_SPRITES, self.image, col)
-    def update(self):
-        for grid in StartRoom.Grid.grid_list:
-            if self.rect.colliderect(grid):
-                self.coordinate = grid.coordinate
     def captured(self, x, y):
         self.taken_off_board = True
         self.coordinate = None
@@ -437,10 +435,6 @@ class PlayKnight(ChessPiece, pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_KNIGHT"]
             PlayKnight.black_knight_list.append(self)
         super().__init__(pos, PLAY_SPRITES, self.image, col)
-    def update(self):
-        for grid in StartRoom.Grid.grid_list:
-            if self.rect.colliderect(grid):
-                self.coordinate = grid.coordinate
     def projected(self, game_controller):
         if(self.taken_off_board != True):
             self.proj_attacking_coordinates = [self.coordinate]
@@ -631,10 +625,6 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_BISHOP"]
             PlayBishop.black_bishop_list.append(self)
         super().__init__(pos, PLAY_SPRITES, self.image, col)
-    def update(self):
-        for grid in StartRoom.Grid.grid_list:
-            if self.rect.colliderect(grid):
-                self.coordinate = grid.coordinate
     def projected(self, game_controller):
         if(self.taken_off_board != True):
             bishop_projected("bishop", self, game_controller, -1, -1) #southwest
@@ -796,10 +786,6 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
             PlayRook.black_rook_list.append(self)
         super().__init__(pos, PLAY_SPRITES, self.image, col)
         self.allowed_to_castle = True
-    def update(self):
-        for grid in StartRoom.Grid.grid_list:
-            if self.rect.colliderect(grid):
-                self.coordinate = grid.coordinate
     def captured(self, x, y):
         self.taken_off_board = True
         self.coordinate = None
@@ -852,10 +838,6 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_QUEEN"]
             PlayQueen.black_queen_list.append(self)
         super().__init__(pos, PLAY_SPRITES, self.image, col)
-    def update(self):
-        for grid in StartRoom.Grid.grid_list:
-            if self.rect.colliderect(grid):
-                self.coordinate = grid.coordinate
     def captured(self, x, y):
         self.taken_off_board = True
         self.coordinate = None
@@ -921,10 +903,6 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
         self.right_castle_ability = False
         self.castled = False
         super().__init__(pos, PLAY_SPRITES, self.image, col)
-    def update(self):
-        for grid in StartRoom.Grid.grid_list:
-            if self.rect.colliderect(grid):
-                self.coordinate = grid.coordinate
     def castle_check(self, game_controller):
         if(self.castled == False and game_controller.color_in_check != self.color):
             if self.color == "white":
@@ -2184,7 +2162,6 @@ def main():
                 #FOR DEBUGGING PURPOSES, PUT TEST CODE BELOW
                 
                 #Update all sprites
-                PLACED_SPRITES.update(StartRoom.Grid.grid_list)
                 SCREEN.fill(COLORKEY)
                 
                 GAME_MODE_SPRITES.draw(SCREEN)
