@@ -1,4 +1,3 @@
-import initvar
 import pygame
 from load_images_sounds import *
 
