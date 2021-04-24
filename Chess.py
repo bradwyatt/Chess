@@ -232,11 +232,10 @@ def quit():
 #############
 
 class ChessPiece:
-    def __init__(self, pos, PLAY_SPRITES, image, col):
+    def __init__(self, coord, PLAY_SPRITES, image, col):
         PLAY_SPRITES.add(self)
         self.image = image
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
+
         self.color = col
         COLOR_POSSIBILITIES = ["white", "black"]
         OTHER_COLOR_INDEX = (COLOR_POSSIBILITIES.index(self.color)+1)%2
@@ -245,14 +244,14 @@ class ChessPiece:
         self.pinned = False
         self.disable = False
         self.taken_off_board = False
-        self.coordinate = self.get_coordinate()
-        self.coordinate_history = {}
-        self.previous_coordinate = self.get_coordinate()
-        self.prior_move_color = False
-    def get_coordinate(self):
+        self.coordinate = coord
+        self.rect = self.image.get_rect()
         for grid in StartRoom.Grid.grid_list:
-            if self.rect.colliderect(grid):
-                return grid.coordinate
+            if grid.coordinate == self.coordinate:
+                self.rect.topleft = grid.rect.topleft
+        self.previous_coordinate = self.coordinate
+        self.coordinate_history = {}
+        self.prior_move_color = False
     def pinned_restrict(self, pin_attacking_coordinates):
         self.pinned = True
         self.pin_attacking_coordinates = pin_attacking_coordinates
@@ -2101,7 +2100,7 @@ def main():
                             def placed_to_play(placed_list, class_obj, sprite_group, color):
                                 # Play pieces spawn where their placed piece correspondents are located
                                 for placed_obj in placed_list:
-                                    class_obj(placed_obj.rect.topleft, sprite_group, color)
+                                    class_obj(placed_obj.coordinate, sprite_group, color)
 
                             placed_to_play(PlacedPawn.white_pawn_list, PlayPawn, PLAY_SPRITES, "white")
                             placed_to_play(PlacedBishop.white_bishop_list, PlayBishop, PLAY_SPRITES, "white")
