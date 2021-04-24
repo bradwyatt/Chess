@@ -122,6 +122,28 @@ def restart_start_objects(START):
     START.black_king.rect.topleft = initvar.STARTPOS['black_king']
     return START
 
+def remove_all_placed():
+    for spr_list in [PlacedPawn.white_pawn_list, PlacedBishop.white_bishop_list,
+                     PlacedKnight.white_knight_list, PlacedRook.white_rook_list,
+                     PlacedQueen.white_queen_list, PlacedKing.white_king_list, 
+                     PlacedPawn.black_pawn_list, PlacedBishop.black_bishop_list, 
+                     PlacedKnight.black_knight_list, PlacedRook.black_rook_list,
+                     PlacedQueen.black_queen_list, PlacedKing.black_king_list]:
+        for obj in spr_list:
+            obj.kill()
+    PlacedPawn.white_pawn_list = []
+    PlacedBishop.white_bishop_list = []
+    PlacedKnight.white_knight_list = []
+    PlacedRook.white_rook_list = []
+    PlacedQueen.white_queen_list = []
+    PlacedKing.white_king_list = []
+    PlacedPawn.black_pawn_list = []
+    PlacedBishop.black_bishop_list = []
+    PlacedKnight.black_knight_list = []
+    PlacedRook.black_rook_list = []
+    PlacedQueen.black_queen_list = []
+    PlacedKing.black_king_list = []
+
 def get_color():
     color = askcolor()
     return [color[0][0], color[0][1], color[0][2]]
@@ -317,28 +339,6 @@ class Start():
         self.black_rook = StartRook("black")      
         self.black_queen = StartQueen("black")      
         self.black_king = StartKing("black")
-
-def remove_all_placed():
-    for spr_list in [PlacedPawn.white_pawn_list, PlacedBishop.white_bishop_list,
-                     PlacedKnight.white_knight_list, PlacedRook.white_rook_list,
-                     PlacedQueen.white_queen_list, PlacedKing.white_king_list, 
-                     PlacedPawn.black_pawn_list, PlacedBishop.black_bishop_list, 
-                     PlacedKnight.black_knight_list, PlacedRook.black_rook_list,
-                     PlacedQueen.black_queen_list, PlacedKing.black_king_list]:
-        for obj in spr_list:
-            obj.kill()
-    PlacedPawn.white_pawn_list = []
-    PlacedBishop.white_bishop_list = []
-    PlacedKnight.white_knight_list = []
-    PlacedRook.white_rook_list = []
-    PlacedQueen.white_queen_list = []
-    PlacedKing.white_king_list = []
-    PlacedPawn.black_pawn_list = []
-    PlacedBishop.black_bishop_list = []
-    PlacedKnight.black_knight_list = []
-    PlacedRook.black_rook_list = []
-    PlacedQueen.black_queen_list = []
-    PlacedKing.black_king_list = []
     
 class PGN_Writer():
     def __init__(self):
