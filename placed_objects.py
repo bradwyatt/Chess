@@ -1,6 +1,6 @@
 import pygame
 from load_images_sounds import *
-from StartRoom import Grid
+import StartRoom
 
 class PlacedPawn(pygame.sprite.Sprite):
     white_pawn_list = []
@@ -20,7 +20,7 @@ class PlacedPawn(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         for grid in StartRoom.Grid.grid_list:
             if grid.coordinate == self.coordinate:
-                self.rect.topleft = grid.coordinate
+                self.rect.topleft = grid.rect.topleft
     def update(self, grid_list):
         for grid in grid_list:
             if self.rect.colliderect(grid):
@@ -50,7 +50,7 @@ class PlacedBishop(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         for grid in StartRoom.Grid.grid_list:
             if grid.coordinate == self.coordinate:
-                self.rect.topleft = grid.coordinate
+                self.rect.topleft = grid.rect.topleft
     def update(self, grid_list):
         for grid in grid_list:
             if self.rect.colliderect(grid):
@@ -80,7 +80,7 @@ class PlacedKnight(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         for grid in StartRoom.Grid.grid_list:
             if grid.coordinate == self.coordinate:
-                self.rect.topleft = grid.coordinate
+                self.rect.topleft = grid.rect.topleft
     def update(self, grid_list):
         for grid in grid_list:
             if self.rect.colliderect(grid):
@@ -110,7 +110,7 @@ class PlacedRook(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         for grid in StartRoom.Grid.grid_list:
             if grid.coordinate == self.coordinate:
-                self.rect.topleft = grid.coordinate
+                self.rect.topleft = grid.rect.topleft
     def update(self, grid_list):
         for grid in grid_list:
             if self.rect.colliderect(grid):
@@ -140,7 +140,7 @@ class PlacedQueen(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         for grid in StartRoom.Grid.grid_list:
             if grid.coordinate == self.coordinate:
-                self.rect.topleft = grid.coordinate
+                self.rect.topleft = grid.rect.topleft
     def update(self, grid_list):
         for grid in grid_list:
             if self.rect.colliderect(grid):
@@ -170,7 +170,7 @@ class PlacedKing(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         for grid in StartRoom.Grid.grid_list:
             if grid.coordinate == self.coordinate:
-                self.rect.topleft = grid.coordinate
+                self.rect.topleft = grid.rect.topleft
     def update(self, grid_list):
         for grid in grid_list:
             if self.rect.colliderect(grid):

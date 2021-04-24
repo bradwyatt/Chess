@@ -1490,7 +1490,7 @@ def main():
         game_controller = Game_Controller()
         
         GAME_MODE_SPRITES = pygame.sprite.Group()
-        GRID_SPRITES = pygame.sprite.Group()
+        
         PLACED_SPRITES = pygame.sprite.Group()
         PLAY_SPRITES = pygame.sprite.Group()
         CLOCK = pygame.time.Clock()
@@ -1558,34 +1558,7 @@ def main():
         coor_7_text= arial_font.render("7", 1, (0, 0, 0))
         coor_8_text = arial_font.render("8", 1, (0, 0, 0))
         
-        # Creates grid setting coordinate as list with first element being letter and second being number
-        for x in range(initvar.X_GRID_START, X_GRID_END, initvar.X_GRID_WIDTH): 
-            for y in range(initvar.Y_GRID_START, Y_GRID_END, initvar.Y_GRID_HEIGHT): 
-                grid_pos = x, y
-                grid_coordinate_as_list_element = [chr(int((x-initvar.X_GRID_START)/initvar.X_GRID_WIDTH)+97), int((Y_GRID_END-y)/initvar.Y_GRID_HEIGHT)]
-                grid_coordinate = "".join(map(str, (grid_coordinate_as_list_element)))
-                grid = StartRoom.Grid(GRID_SPRITES, grid_pos, grid_coordinate)
-        for grid in StartRoom.Grid.grid_list:
-            for i in range(ord("a"), ord("h"), 2):
-                for j in range(2, 9, 2):
-                    if(ord(grid.coordinate[0]) == i and int(grid.coordinate[1]) == j):
-                        grid.image = IMAGES["SPR_WHITE_GRID"]
-                        grid.color = "white"
-            for i in range(ord("b"), ord("i"), 2):
-                for j in range(1, 8, 2):
-                    if(ord(grid.coordinate[0]) == i and int(grid.coordinate[1]) == j):
-                        grid.image = IMAGES["SPR_WHITE_GRID"]
-                        grid.color = "white"
-            for i in range(ord("a"), ord("h"), 2):
-                for j in range(1, 8, 2):
-                    if(ord(grid.coordinate[0]) == i and int(grid.coordinate[1]) == j):
-                        grid.image = IMAGES["SPR_GREEN_GRID"]
-                        grid.color = "green"
-            for i in range(ord("b"), ord("i"), 2):
-                for j in range(2, 9, 2):
-                    if(ord(grid.coordinate[0]) == i and int(grid.coordinate[1]) == j):
-                        grid.image = IMAGES["SPR_GREEN_GRID"]
-                        grid.color = "green"
+
                         
         # Load the starting positions of chessboard first
         pos_load_file(PLACED_SPRITES, COLORKEY, reset=True)
@@ -1972,7 +1945,7 @@ def main():
                                             elif piece in PlayRook.white_rook_list or PlayRook.black_rook_list:
                                                 piece.allowed_to_castle = False
                                             # Update all grids to reflect the coordinates of the pieces
-                                            GRID_SPRITES.update(game_controller)
+                                            StartRoom.GRID_SPRITES.update(game_controller)
                                             # Switch turns
                                             if(game_controller.WHOSETURN == "white"):
                                                 game_controller.switch_turn("black")
@@ -2162,7 +2135,7 @@ def main():
                             placed_to_play(PlacedKing.black_king_list, PlayKing, PLAY_SPRITES, "black")
                             
                             game_controller.WHOSETURN = "white"
-                            GRID_SPRITES.update(game_controller)
+                            StartRoom.GRID_SPRITES.update(game_controller)
                             game_controller.projected_white_update()
                             game_controller.projected_black_update()
                         #################
@@ -2234,7 +2207,7 @@ def main():
                 SCREEN.fill(COLORKEY)
                 
                 GAME_MODE_SPRITES.draw(SCREEN)
-                GRID_SPRITES.draw(SCREEN)
+                StartRoom.GRID_SPRITES.draw(SCREEN)
                 Grid_Controller.update_grid(game_controller)
                 
                 SCREEN.blit(initvar.MOVE_BG_IMAGE, (initvar.MOVE_BG_IMAGE_HEIGHT,initvar.MOVE_BG_IMAGE_WIDTH))
