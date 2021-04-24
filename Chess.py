@@ -973,6 +973,7 @@ def main():
                                                             if black_pawn.coordinate[0] == grid.coordinate[0] and \
                                                                 int(black_pawn.coordinate[1]) == 5:
                                                                     black_pawn.captured(game_controller.black_captured_x, black_captured_y)
+                                                                    game_controller.black_captured_x += incremental_x
                                                                     captured_abb = "x"
                                                 elif piece in PlayPawn.black_pawn_list:
                                                     for white_pawn in PlayPawn.white_pawn_list:
@@ -981,6 +982,7 @@ def main():
                                                             if white_pawn.coordinate[0] == grid.coordinate[0] and \
                                                                 int(white_pawn.coordinate[1]) == 4:
                                                                     white_pawn.captured(game_controller.white_captured_x, white_captured_y)
+                                                                    game_controller.white_captured_x += incremental_x
                                                                     captured_abb = "x"
                                                                 
                                             # Reset en passant skipover for all squares
