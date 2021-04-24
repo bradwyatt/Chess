@@ -893,10 +893,9 @@ def main():
                                         #log.info("LETTER COORDS " + str(letter_coords))
                                         #log.info("NUMBER COORDS " + str(number_coords))
                                         #log.info("previous coord " + str(piece.previous_coordinate))
-                                        if piece.previous_coordinate[0] in letter_coords and piece.previous_coordinate[1] in number_coords:
-                                            prefix = piece.previous_coordinate[0] + piece.previous_coordinate[1]
-                                            return prefix
-                                        elif piece.previous_coordinate[0] not in letter_coords and piece.previous_coordinate[1] in number_coords:
+                                        print("PREVIOUS COORDINATE: " + str(piece.previous_coordinate))
+                                        if(piece.previous_coordinate[0] not in letter_coords and piece.previous_coordinate[1] in number_coords) \
+                                            or (piece.previous_coordinate[0] not in letter_coords and piece.previous_coordinate[1] not in number_coords):
                                             prefix += piece.previous_coordinate[0]
                                             return prefix
                                         elif piece.previous_coordinate[0] in letter_coords and piece.previous_coordinate[1] not in number_coords:
@@ -904,6 +903,7 @@ def main():
                                             return prefix
                                         if((piece_name == "pawn" and captured_abb == "x") or (special_abb == "=Q" and captured_abb == "x")):
                                             prefix += piece.previous_coordinate[0]
+                                        print("Same piece list: " + str(same_piece_list))
                                         return prefix
                             if piece.color == "white":
                                 prefix = prefix_func(piece, piece_name, captured_abb, special_abb)
@@ -1300,16 +1300,12 @@ def main():
                     
                     # MIDDLE MOUSE DEBUGGER
                     if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[1]:
-                        for black_pawn in PlayPawn.black_pawn_list:
-                            log.info(str(black_pawn.__dict__))
-                        """
                         for grid in board.Grid.grid_list:
                             if grid.rect.collidepoint(MOUSEPOS):
                                 log.info("Coordinate: " + str(grid.coordinate) \
                                        + ", White Pieces Attacking: " + str(grid.list_of_white_pieces_attacking) \
                                        + ", Black Pieces Attacking: " + str(grid.list_of_black_pieces_attacking) \
                                        + ", Grid occupied? " + str(grid.__dict__))
-                        """
                                 
                 ##################
                 # ALL EDIT ACTIONS
