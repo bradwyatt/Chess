@@ -261,18 +261,7 @@ class PlayEditSwitchButton(pygame.sprite.Sprite):
     
 class Dragging():
     def __init__(self):
-        self.white_pawn = False
-        self.white_bishop = False
-        self.white_knight = False
-        self.white_rook = False
-        self.white_queen = False
-        self.white_king = False
-        self.black_pawn = False
-        self.black_bishop = False
-        self.black_knight = False
-        self.black_rook = False
-        self.black_queen = False
-        self.black_king = False
+        self.dragging_all_false()
     def dragging_all_false(self):
         self.white_pawn = False
         self.white_bishop = False
@@ -316,31 +305,18 @@ class Dragging():
 class Start():
     def __init__(self):
         self.start_obj_image_placeholder = StartObjImagePlaceholder()
-        initvar.START_SPRITES.add(self.start_obj_image_placeholder)
         self.white_pawn = StartPawn("white")
-        initvar.START_SPRITES.add(self.white_pawn)
         self.white_bishop = StartBishop("white")
-        initvar.START_SPRITES.add(self.white_bishop)
-        self.white_knight = StartKnight("white")
-        initvar.START_SPRITES.add(self.white_knight)        
-        self.white_rook = StartRook("white")
-        initvar.START_SPRITES.add(self.white_rook)        
-        self.white_queen = StartQueen("white")
-        initvar.START_SPRITES.add(self.white_queen)        
-        self.white_king = StartKing("white")
-        initvar.START_SPRITES.add(self.white_king)        
+        self.white_knight = StartKnight("white")        
+        self.white_rook = StartRook("white")      
+        self.white_queen = StartQueen("white")      
+        self.white_king = StartKing("white")      
         self.black_pawn = StartPawn("black")
-        initvar.START_SPRITES.add(self.black_pawn)
         self.black_bishop = StartBishop("black")
-        initvar.START_SPRITES.add(self.black_bishop)
-        self.black_knight = StartKnight("black")
-        initvar.START_SPRITES.add(self.black_knight)        
-        self.black_rook = StartRook("black")
-        initvar.START_SPRITES.add(self.black_rook)        
-        self.black_queen = StartQueen("black")
-        initvar.START_SPRITES.add(self.black_queen)        
+        self.black_knight = StartKnight("black")      
+        self.black_rook = StartRook("black")      
+        self.black_queen = StartQueen("black")      
         self.black_king = StartKing("black")
-        initvar.START_SPRITES.add(self.black_king)
 
 def remove_all_placed():
     for spr_list in [PlacedPawn.white_pawn_list, PlacedBishop.white_bishop_list,
@@ -689,23 +665,15 @@ def main():
         
         PLAY_EDIT_SWITCH_BUTTON = PlayEditSwitchButton(initvar.PLAY_EDIT_SWITCH_BUTTON_TOPLEFT, GAME_MODE_SPRITES)
         FLIP_BOARD_BUTTON = FlipBoardButton(initvar.FLIP_BOARD_BUTTON_TOPLEFT)
-        initvar.START_SPRITES.add(FLIP_BOARD_BUTTON)
         GAME_PROPERTIES_BUTTON = GamePropertiesButton(initvar.GAME_PROPERTIES_BUTTON_TOPLEFT)
-        initvar.START_SPRITES.add(GAME_PROPERTIES_BUTTON)
         INFO_BUTTON = InfoButton(initvar.INFO_BUTTON_TOPLEFT)
-        initvar.START_SPRITES.add(INFO_BUTTON)
         POS_LOAD_FILE_BUTTON = PosLoadFileButton(initvar.POS_LOAD_FILE_BUTTON_TOPLEFT)
-        initvar.START_SPRITES.add(POS_LOAD_FILE_BUTTON)
         POS_SAVE_FILE_BUTTON = PosSaveFileButton(initvar.POS_SAVE_FILE_BUTTON_TOPLEFT)
-        initvar.START_SPRITES.add(POS_SAVE_FILE_BUTTON)
         PGN_LOAD_FILE_BUTTON = PGNLoadFileButton(initvar.PGN_LOAD_FILE_BUTTON_TOPLEFT)
         PGN_SAVE_FILE_BUTTON = PGNSaveFileButton(initvar.PGN_SAVE_FILE_BUTTON_TOPLEFT)
         COLOR_BUTTON = ColorButton(initvar.COLOR_BUTTON_TOPLEFT)
-        initvar.START_SPRITES.add(COLOR_BUTTON)
         RESET_BOARD_BUTTON = ResetBoardButton(initvar.RESET_BOARD_BUTTON_TOPLEFT)
-        initvar.START_SPRITES.add(RESET_BOARD_BUTTON)
         CLEAR_BUTTON = ClearButton(initvar.CLEAR_BUTTON_TOPLEFT)
-        initvar.START_SPRITES.add(CLEAR_BUTTON)
         SCROLL_UP_BUTTON = ScrollUpButton(initvar.SCROLL_UP_BUTTON_TOPLEFT)
         SCROLL_DOWN_BUTTON = ScrollDownButton(initvar.SCROLL_DOWN_BUTTON_TOPLEFT)
         GAME_MODE_SPRITES.add(SCROLL_DOWN_BUTTON)
