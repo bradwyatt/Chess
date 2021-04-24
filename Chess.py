@@ -139,12 +139,12 @@ def get_color():
 def pos_load_file(PLACED_SPRITES, colorkey, reset=False):
     open_file = None
     if reset == True:
-        loaded_dict = {'white_pawn': [(48, 384), (96, 384), (144, 384), (192, 384), (240, 384), (288, 384), (336, 384), (384, 384)],
-                       'white_bishop': [(288, 432), (144, 432)], 'white_knight': [(336, 432), (96, 432)],
-                       'white_rook': [(384, 432), (48, 432)], 'white_queen': [(192, 432)], 'white_king': [(240, 432)],
-                       'black_pawn': [(48, 144), (96, 144), (144, 144), (192, 144), (240, 144), (288, 144), (336, 144), (384, 144)],
-                       'black_bishop': [(144, 96), (288, 96)], 'black_knight': [(336, 96), (96, 96)],
-                       'black_rook': [(384, 96), (48, 96)], 'black_queen': [(192, 96)], 'black_king': [(240, 96)],
+        loaded_dict = {'white_pawn': ['a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'],
+                       'white_bishop': ['c1', 'f1'], 'white_knight': ['b1', 'g1'],
+                       'white_rook': ['a1', 'h1'], 'white_queen': ['d1'], 'white_king': ['e1'],
+                       'black_pawn': ['a7', 'b7', 'c7', 'd7', 'e7', 'f7', 'g7', 'h7'],
+                       'black_bishop': ['c8', 'f8'], 'black_knight': ['b8', 'g8'],
+                       'black_rook': ['a8', 'h8'], 'black_queen': ['d8'], 'black_king': ['e8'],
                        'RGB': colorkey}
     else:
         request_file_name = askopenfilename(defaultextension=".lvl")
@@ -1593,20 +1593,21 @@ def main():
         
         def mouse_coordinate(mousepos):
             mouse_coord = ""
-            for grid in Grid.grid_list:
+            for grid in StartRoom.Grid.grid_list:
                 if grid.rect.collidepoint(mousepos):
                     mouse_coord = grid.coordinate
                     return mouse_coord
             return mouse_coord
         
         def grid_topleft_based_on_coord(given_coordinate):
-            for grid in Grid.grid_dict:
+            for grid in StartRoom.Grid.grid_list:
                 if grid.coordinate == given_coordinate:
                     return grid.rect.topleft
             
         while True:
             CLOCK.tick(60)
             MOUSEPOS = pygame.mouse.get_pos()
+            MOUSE_COORD = mouse_coordinate(MOUSEPOS)
             if state == RUNNING and MENUON == 1: # Initiate room
                 #Start Objects
                 START.white_pawn.rect.topleft = initvar.STARTPOS['white_pawn']
@@ -1700,47 +1701,43 @@ def main():
                                                PlacedQueen.black_queen_list, PlacedKing.black_king_list]:
                                 # If there is already a piece on grid then don't create new Placed object
                                 for piece in piece_list:
-                                    if piece.rect.topleft == snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE):
+                                    if piece.coordinate == MOUSE_COORD:
                                         return
                             # Created Placed objects at the snapped grid location of the piece that's being dragged
                             if DRAGGING.white_pawn:
-                                for grid in StartRoom.Grid.grid_list:
-                                    if grid.rect.topleft == snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE):
-                                        if int(grid.coordinate[1]) != 1 and int(grid.coordinate[1]) != 8:
-                                            PlacedPawn(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
-                                        else:
-                                            log.info("You are not allowed to place a pawn on rank " + grid.coordinate[1])
+                                if int(MOUSE_COORD[1]) != 1 and int(MOUSE_COORD.coordinate[1]) != 8:
+                                    PlacedPawn(MOUSE_COORD, PLACED_SPRITES, "white")
+                                else:
+                                    log.info("You are not allowed to place a pawn on rank " + MOUSE_COORD[1])
                             elif DRAGGING.white_bishop:
-                                PlacedBishop(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
+                                PlacedBishop(MOUSE_COORD, PLACED_SPRITES, "white")
                             elif DRAGGING.white_knight:
-                                PlacedKnight(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
+                                PlacedKnight(MOUSE_COORD, PLACED_SPRITES, "white")
                             elif DRAGGING.white_rook:
-                                PlacedRook(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
+                                PlacedRook(MOUSE_COORD, PLACED_SPRITES, "white")
                             elif DRAGGING.white_queen:
-                                PlacedQueen(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
+                                PlacedQueen(MOUSE_COORD, PLACED_SPRITES, "white")
                             elif DRAGGING.white_king:
                                 if not PlacedKing.white_king_list:
-                                    PlacedKing(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "white")
+                                    PlacedKing(MOUSE_COORD, PLACED_SPRITES, "white")
                                 else:
                                     log.info("You can only have one white king.")
                             elif DRAGGING.black_pawn:
-                                for grid in StartRoom.Grid.grid_list:
-                                    if grid.rect.topleft == snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE):
-                                        if int(grid.coordinate[1]) != 1 and int(grid.coordinate[1]) != 8:
-                                            PlacedPawn(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
-                                        else:
-                                            log.info("You are not allowed to place a pawn on rank " + grid.coordinate[1])
+                                if int(MOUSE_COORD[1]) != 1 and int(MOUSE_COORD[1]) != 8:
+                                    PlacedPawn(MOUSE_COORD, PLACED_SPRITES, "black")
+                                else:
+                                    log.info("You are not allowed to place a pawn on rank " + grid.coordinate[1])
                             elif DRAGGING.black_bishop:
-                                PlacedBishop(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
+                                PlacedBishop(MOUSE_COORD, PLACED_SPRITES, "black")
                             elif DRAGGING.black_knight:
-                                PlacedKnight(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
+                                PlacedKnight(MOUSE_COORD, PLACED_SPRITES, "black")
                             elif DRAGGING.black_rook:
-                                PlacedRook(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
+                                PlacedRook(MOUSE_COORD, PLACED_SPRITES, "black")
                             elif DRAGGING.black_queen:
-                                PlacedQueen(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
+                                PlacedQueen(MOUSE_COORD, PLACED_SPRITES, "black")
                             elif DRAGGING.black_king:
                                 if not PlacedKing.black_king_list:
-                                    PlacedKing(snap_to_grid(MOUSEPOS, XGRIDRANGE, YGRIDRANGE), PLACED_SPRITES, "black")
+                                    PlacedKing(MOUSE_COORD, PLACED_SPRITES, "black")
                                 else:
                                     log.info("You can only have one black king.")
                             
@@ -2280,7 +2277,7 @@ def main():
                     log.info("Entering debug mode")
                     debug_message = 0
                     # USE BREAKPOINT HERE
-                    print(str(PieceMoveRectangle.rectangle_list))
+                    #print(str(MOUSE_COORD))
                     #print(str(game_controller.df_prior_moves))
                     log.info("Use breakpoint here")
                 for event in pygame.event.get():
