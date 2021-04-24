@@ -1589,6 +1589,20 @@ def main():
                         
         # Load the starting positions of chessboard first
         pos_load_file(PLACED_SPRITES, COLORKEY, reset=True)
+        MOUSE_COORD = ""
+        
+        def mouse_coordinate(mousepos):
+            mouse_coord = ""
+            for grid in Grid.grid_list:
+                if grid.rect.collidepoint(mousepos):
+                    mouse_coord = grid.coordinate
+                    return mouse_coord
+            return mouse_coord
+        
+        def grid_topleft_based_on_coord(given_coordinate):
+            for grid in Grid.grid_dict:
+                if grid.coordinate == given_coordinate:
+                    return grid.rect.topleft
             
         while True:
             CLOCK.tick(60)
