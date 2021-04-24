@@ -894,8 +894,8 @@ def main():
                                         #log.info("NUMBER COORDS " + str(number_coords))
                                         #log.info("previous coord " + str(piece.previous_coordinate))
                                         print("PREVIOUS COORDINATE: " + str(piece.previous_coordinate))
-                                        if(piece.previous_coordinate[0] not in letter_coords and piece.previous_coordinate[1] in number_coords) \
-                                            or (piece.previous_coordinate[0] not in letter_coords and piece.previous_coordinate[1] not in number_coords):
+                                        if(len(same_piece_list) > 0 and ((piece.previous_coordinate[0] not in letter_coords and piece.previous_coordinate[1] in number_coords) \
+                                            or (piece.previous_coordinate[0] not in letter_coords and piece.previous_coordinate[1] not in number_coords))):
                                             prefix += piece.previous_coordinate[0]
                                             return prefix
                                         elif piece.previous_coordinate[0] in letter_coords and piece.previous_coordinate[1] not in number_coords:
