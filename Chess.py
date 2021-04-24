@@ -1680,7 +1680,7 @@ def main():
                                 if int(MOUSE_COORD[1]) != 1 and int(MOUSE_COORD[1]) != 8:
                                     PlacedPawn(MOUSE_COORD, PLACED_SPRITES, "black")
                                 else:
-                                    log.info("You are not allowed to place a pawn on rank " + grid.coordinate[1])
+                                    log.info("You are not allowed to place a pawn on rank " + MOUSE_COORD[1])
                             elif DRAGGING.black_bishop:
                                 PlacedBishop(MOUSE_COORD, PLACED_SPRITES, "black")
                             elif DRAGGING.black_knight:
