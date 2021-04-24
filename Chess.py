@@ -423,25 +423,12 @@ class Grid_Controller():
 
 class Game_Controller():
     def __init__(self):
-        self.WHOSETURN = "white"
-        self.color_in_check = ""
         self.EDIT_MODE, self.PLAY_MODE = 0, 1
         self.game_mode = self.EDIT_MODE
-        self.check_attacking_coordinates = []
-        self.attacker_piece = ""
-        self.black_captured_x = initvar.CAPTURED_X
-        self.white_captured_x = initvar.CAPTURED_X
-        self.move_counter = 1
-        self.df_moves = pd.DataFrame(columns=["white_move", "black_move"])
-        self.df_moves.index = np.arange(1, len(self.df_moves)+1) # Index at 1 rather than 0 because chess starts that way
-        self.df_prior_moves = pd.DataFrame(columns=["white_move", "black_move"])
-        self.df_prior_moves.index = np.arange(1, len(self.df_prior_moves)+1)
-        self.result_abb = "*"
-        self.selected_move = [0, "", ""] #move number, move, color of moved piece
-    def reset_board(self):
+        self.reset_initial_vars()
+    def reset_initial_vars(self):
         self.WHOSETURN = "white"
         self.color_in_check = ""
-        self.game_mode = self.EDIT_MODE
         self.check_attacking_coordinates = []
         self.attacker_piece = ""
         self.black_captured_x = initvar.CAPTURED_X
@@ -453,7 +440,10 @@ class Game_Controller():
         self.df_prior_moves.index = np.arange(1, len(self.df_prior_moves)+1)
         self.result_abb = "*"
         self.selected_move = [0, "", ""]
-        Text_Controller.check_checkmate_text = ""
+    def reset_board(self):
+        self.game_mode = self.EDIT_MODE
+        self.reset_initial_vars()
+        Text_Controller.reset()
         # Kill all Objects within their Class lists/dicts
         for spr_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                  PlayKnight.white_knight_list, PlayRook.white_rook_list,
@@ -577,6 +567,8 @@ class Game_Controller():
 
 class Text_Controller():
     check_checkmate_text = ""
+    def reset():
+        check_checkmate_text = ""
 
 def draw_text_on_rects_in_moves_pane(surface, my_font):
     for move_num_rect in MoveNumberRectangle.rectangle_list:
@@ -1024,7 +1016,7 @@ def main():
                                             if piece in PlayPawn.white_pawn_list:
                                                 if int(piece.coordinate[1]) == 8:
                                                     special_abb = "=Q"
-                                                    promoted_queen = PlayQueen(piece.rect.topleft, PLAY_SPRITES, "white")
+                                                    promoted_queen = PlayQueen(piece.coordinate, PLAY_SPRITES, "white")
                                                     promoted_queen.previous_coordinate = piece.previous_coordinate
                                                     # Take white pawn off the board
                                                     piece.captured(game_controller.white_captured_x, white_captured_y)
@@ -1042,7 +1034,7 @@ def main():
                                             elif piece in PlayPawn.black_pawn_list:
                                                 if int(piece.coordinate[1]) == 1:
                                                     special_abb = "=Q"
-                                                    promoted_queen = PlayQueen(piece.rect.topleft, PLAY_SPRITES, "black")
+                                                    promoted_queen = PlayQueen(piece.coordinate, PLAY_SPRITES, "black")
                                                     promoted_queen.previous_coordinate = piece.previous_coordinate
                                                     # Take black pawn off the board
                                                     piece.captured(game_controller.black_captured_x, black_captured_y)
