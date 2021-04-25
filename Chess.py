@@ -487,10 +487,10 @@ class PGN_Writer_and_Loader():
             for piece in piece_list:
                 if (piece in PlayPawn.white_pawn_list or piece in PlayPawn.black_pawn_list) and piece.coordinate is not None:
                     piece.spaces_available(game_controller)
-                    if board.Grid.grid_dict[grid_coordinate].highlighted == True:
+                    if board.Grid.grid_dict[grid_coordinate].available == True:
                         #print("This is apparently eligible " + str(piece.coordinate))
                         eligible_pieces.append(piece)
-                        board.Grid.grid_dict[grid_coordinate].highlighted = False
+                        board.Grid.grid_dict[grid_coordinate].available = False
                 else:
                     piece.spaces_available(game_controller)
                     if (piece.coordinate in board.Grid.grid_dict[grid_coordinate].coords_of_attacking_pieces['white'] \
@@ -498,7 +498,7 @@ class PGN_Writer_and_Loader():
                             and piece.coordinate is not None:
                         #print("This is apparently eligible " + str(piece.coordinate))
                             eligible_pieces.append(piece)
-                            board.Grid.grid_dict[grid_coordinate].highlighted = False
+                            board.Grid.grid_dict[grid_coordinate].available = False
             if len(eligible_pieces) == 1:
                 # List only has one eligible piece
                 return eligible_pieces[0]
@@ -683,6 +683,7 @@ class Game_Controller():
         # No highlights and ensuring that attacking squares (used by diagonal pieces) are set to 0
         for grid in board.Grid.grid_list:
             grid.no_highlight()
+            grid.set_availability(False)
             grid.coords_of_attacking_pieces['white'] = []
             grid.coords_of_attacking_pieces['black'] = []
         for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
@@ -840,7 +841,7 @@ class Move_Controller():
         # White win, draw, black win
         game_controller.result_abb = "*"
         prior_moves_dict = {}
-        # Taking a piece by checking if highlighted grid is opposite color of piece
+        # Taking a piece by checking if available grid is opposite color of piece
         # And iterating through all pieces to check if coordinates of that grid
         # are the same as any of the pieces
         if((piece.color == "white" and grid.occupied_piece_color == "black") or
@@ -898,6 +899,7 @@ class Move_Controller():
             else:
                 old_grid.prior_move_color = False
                 old_grid.no_highlight()
+                old_grid.set_availability(False)
                 
         # Moving piece, removing piece and grid highlights, changing Turn
         piece.rect.topleft = grid.rect.topleft
@@ -1000,8 +1002,8 @@ class Move_Controller():
                     sub_piece.spaces_available(game_controller)
             def checkmate_check(game_controller):
                 for subgrid in board.Grid.grid_list:
-                    if subgrid.highlighted == True:
-                        # If able to detect that a grid can be highlighted, that means it's NOT checkmate
+                    if subgrid.available == True:
+                        # If able to detect that a grid can be available, that means it's NOT checkmate
                         return "+", "*"
                 Text_Controller.check_checkmate_text = "White wins"
                 return "#", "1-0"
@@ -1015,8 +1017,8 @@ class Move_Controller():
                     sub_piece.spaces_available(game_controller)
             def checkmate_check(game_controller):
                 for subgrid in board.Grid.grid_list:
-                    if subgrid.highlighted == True:
-                        # If able to detect that a grid can be highlighted, that means it's NOT checkmate
+                    if subgrid.available == True:
+                        # If able to detect that a grid can be available, that means it's NOT checkmate
                         return "+", "*"
                 Text_Controller.check_checkmate_text = "Black wins"
                 return "#", "0-1"
@@ -1029,7 +1031,7 @@ class Move_Controller():
                     sub_piece.spaces_available(game_controller)
             def stalemate_check(game_controller):
                 for subgrid in board.Grid.grid_list:
-                    if subgrid.highlighted == True:
+                    if subgrid.available == True:
                         # No check, no checkmate, no stalemate
                         Text_Controller.check_checkmate_text = ""
                         return "*"
@@ -1044,7 +1046,7 @@ class Move_Controller():
                     sub_piece.spaces_available(game_controller)
             def stalemate_check(game_controller):
                 for subgrid in board.Grid.grid_list:
-                    if subgrid.highlighted == True:
+                    if subgrid.available == True:
                         # No check, no checkmate, no stalemate
                         Text_Controller.check_checkmate_text = ""
                         return "*"
@@ -1093,7 +1095,7 @@ class Move_Controller():
         log.info(move_text)
         for grid in board.Grid.grid_list:
             pass
-            #print("Grid coord " + str(grid.coordinate) + " highlight? " + str(grid.highlighted))
+            #print("Grid coord " + str(grid.coordinate) + " highlight? " + str(grid.available))
         if game_controller.result_abb != "*":
             log.info(game_controller.result_abb)
         
@@ -1397,7 +1399,7 @@ def main():
                                     for piece in piece_list:
                                         # Reset the prior move color variable from all pieces
                                         piece.prior_move_color = False
-                                        if (grid.rect.collidepoint(MOUSEPOS) and grid.highlighted==True and piece.select==True):
+                                        if (grid.rect.collidepoint(MOUSEPOS) and grid.available==True and piece.select==True):
                                             Move_Controller.make_move(grid, piece, game_controller, PLAY_SPRITES)
                         update_pieces_and_board()
     

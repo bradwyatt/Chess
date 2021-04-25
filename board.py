@@ -15,6 +15,7 @@ class Grid(pygame.sprite.Sprite):
         GRID_SPRITES.add(self)
         self.coordinate = coordinate
         self.highlighted = False
+        self.available = False
         self.occupied = False
         self.color = None
         self.occupied_piece = ""
@@ -37,9 +38,15 @@ class Grid(pygame.sprite.Sprite):
             self.coords_of_attacking_pieces['black'].append(attack_coord)
     def update(self, game_controller):
         pass
+    def set_availability(self, availability):
+        if availability == True:
+            self.available = True
+        else:
+            self.available = False
     def highlight(self):
         self.image = IMAGES["SPR_HIGHLIGHT"]
         self.highlighted = True
+        self.set_availability(True)
     def no_highlight(self):
         if(self.prior_move_color == True):
             self.image = IMAGES["SPR_PRIOR_MOVE_GRID"]
