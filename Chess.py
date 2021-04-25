@@ -525,7 +525,7 @@ class PGN_Writer_and_Loader():
 
         for move in number_move_splits:
             # MAKING MOVES
-            if "10." in move:
+            if "11." in move:
                 break
             if ("." in move) or ("*" in move) or ("#" in move):
                 #print("Blocked moves? ")
@@ -555,7 +555,10 @@ class PGN_Writer_and_Loader():
                 else:
                     # NORMAL MOVES
                     # Last 2 characters are always the coordinate of the grid besides special exceptions above
-                    grid_coordinate = move[-2:]
+                    if move[-1] == "+":
+                        grid_coordinate = move[-3:-1]
+                    else:
+                        grid_coordinate = move[-2:]
                     piece = determine_piece(type_of_piece_list, move, grid_coordinate, game_controller)
                     Move_Controller.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller, PLAY_SPRITES)
                 draw_move_rects_on_moves_pane(pygame.font.SysFont('Arial', 16), game_controller)
