@@ -507,7 +507,7 @@ class PGN_Writer_and_Loader():
 
         for move in number_move_splits:
             # MAKING MOVES
-            if "8." in move:
+            if "9." in move:
                 break
             if ("." in move) or ("*" in move) or ("#" in move):
                 #print("Blocked moves? ")
@@ -522,24 +522,24 @@ class PGN_Writer_and_Loader():
                     elif game_controller.WHOSETURN == "black":
                         grid_coordinate = 'f8'
                     piece = determine_piece(type_of_piece_list, move, grid_coordinate, game_controller)
-                    Move_Controller.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller)
+                    Move_Controller.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller, PLAY_SPRITES)
                 elif move == "0-0-0":
                     if game_controller.WHOSETURN == "white":
                         grid_coordinate = 'c1'
                     elif game_controller.WHOSETURN == "black":
                         grid_coordinate = 'c8'
                     piece = determine_piece(type_of_piece_list, move, grid_coordinate, game_controller)
-                    Move_Controller.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller)
+                    Move_Controller.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller, PLAY_SPRITES)
                 elif move[-2:] == "=Q":
                     grid_coordinate = move[-4:-2]
                     piece = determine_piece(type_of_piece_list, move, grid_coordinate, game_controller)
-                    Move_Controller.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller)
+                    Move_Controller.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller, PLAY_SPRITES)
                 else:
                     # NORMAL MOVES
                     # Last 2 characters are always the coordinate of the grid besides special exceptions above
                     grid_coordinate = move[-2:]
                     piece = determine_piece(type_of_piece_list, move, grid_coordinate, game_controller)
-                    Move_Controller.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller)
+                    Move_Controller.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller, PLAY_SPRITES)
                 board.GRID_SPRITES.draw(SCREEN)
                 Grid_Controller.update_grid(game_controller)
                 PLAY_SPRITES.draw(SCREEN)
@@ -794,7 +794,7 @@ class Move_Controller():
         elif special_abb == "=Q":
             recorded_move = prefix + captured_abb + piece.coordinate[0] + piece.coordinate[1] + special_abb + check_abb
         return recorded_move
-    def make_move(grid, piece, game_controller):
+    def make_move(grid, piece, game_controller, PLAY_SPRITES):
         # Default captured_abb for function to be empty string
         captured_abb = ""
         # Castle, pawn promotion
@@ -902,7 +902,7 @@ class Move_Controller():
                 promoted_queen.previous_coordinate = piece.previous_coordinate
                 # Take black pawn off the board
                 piece.captured(game_controller.black_captured_x, initvar.BLACK_CAPTURED_Y)
-                game_controller.black_captured_x += incremental_x
+                game_controller.black_captured_x += initvar.BLACKANDWHITE_INCREMENTAL_X
             # Detects that pawn was just moved
             elif int(piece.coordinate[1]) == 5 and piece.previous_coordinate[0] == piece.coordinate[0] and \
                 int(piece.previous_coordinate[1]) == 7:
@@ -1353,7 +1353,7 @@ def main():
                                         # Reset the prior move color variable from all pieces
                                         piece.prior_move_color = False
                                         if (grid.rect.collidepoint(MOUSEPOS) and grid.highlighted==True and piece.select==True):
-                                            Move_Controller.make_move(grid, piece, game_controller)
+                                            Move_Controller.make_move(grid, piece, game_controller, PLAY_SPRITES)
                         update_pieces_and_board()
     
                         clicked_piece = None
