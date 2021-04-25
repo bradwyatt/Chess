@@ -499,8 +499,10 @@ class PGN_Writer_and_Loader():
                             eligible_pieces.append(piece)
                             board.Grid.grid_dict[grid_coordinate].highlighted = False
             if len(eligible_pieces) == 1:
+                # List only has one eligible piece
                 return eligible_pieces[0]
             elif(piece_list != PlayPawn.white_pawn_list and piece_list != PlayPawn.black_pawn_list):
+                # Decide the logic of if there are at least 2 eligible pieces
                 for piece in eligible_pieces:
                     if piece.coordinate[1] == move[1]:
                         return piece
@@ -554,9 +556,7 @@ class PGN_Writer_and_Loader():
                 board.GRID_SPRITES.draw(SCREEN)
                 Grid_Controller.update_grid(game_controller)
                 PLAY_SPRITES.draw(SCREEN)
-                print(str(game_controller.df_moves))
             
-
         log.info("PGN Loaded")
         return
 
@@ -1254,6 +1254,11 @@ def main():
                             update_scroll_range(1)
                         if PGN_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
                             PGN_WRITER_AND_LOADER.pgn_load(game_controller, PLAY_SPRITES)
+                            for grid in board.Grid.grid_list:
+                                grid.prior_move_color = False
+                                grid.no_highlight()
+                            Grid_Controller.update_grid(game_controller)
+                            board.GRID_SPRITES.draw(SCREEN)
                         if PGN_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
                             PGN_WRITER.write_moves(game_controller.df_moves, game_controller.result_abb)
                         # When clicking on a move on the right pane, it is your selected move
