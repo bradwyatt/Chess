@@ -125,7 +125,6 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                                 grid.highlight(self.color, self.coordinate)
                             elif self.pinned == True and grid.coordinate in self.pin_attacking_coordinates:
                                 grid.highlight(self.color, self.coordinate)
-                                grid.available_count_increment(self.color, self.coordinate)
                     # Move two spaces up
                     if (int(self.coordinate[1]) == initial_space and grid.coordinate[0] == self.coordinate[0] and \
                         int(grid.coordinate[1]) == hop_space and grid.occupied == False):

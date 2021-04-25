@@ -1005,6 +1005,11 @@ class Move_Controller():
         elif(game_controller.WHOSETURN == "black"):
             game_controller.switch_turn("white")
             game_controller.move_counter += 1
+            
+        return prior_moves_dict, captured_abb, special_abb
+    
+    def game_status_check(game_controller, grid, piece, prior_moves_dict, captured_abb, special_abb):
+        check_abb = ""
         if game_controller.color_in_check == "black":
             Text_Controller.check_checkmate_text = "Black King checked"
             for piece_list in [PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
@@ -1014,7 +1019,7 @@ class Move_Controller():
                     sub_piece.spaces_available(game_controller)
             def checkmate_check(game_controller):
                 for subgrid in board.Grid.grid_list:
-                    if subgrid.highlighted == True:
+                    if subgrid.available == True:
                         # If able to detect that a grid can be available, that means it's NOT checkmate
                         return "+", "*"
                 Text_Controller.check_checkmate_text = "White wins"
@@ -1029,7 +1034,7 @@ class Move_Controller():
                     sub_piece.spaces_available(game_controller)
             def checkmate_check(game_controller):
                 for subgrid in board.Grid.grid_list:
-                    if subgrid.highlighted == True:
+                    if subgrid.available == True:
                         # If able to detect that a grid can be available, that means it's NOT checkmate
                         return "+", "*"
                 Text_Controller.check_checkmate_text = "Black wins"
@@ -1043,7 +1048,7 @@ class Move_Controller():
                     sub_piece.spaces_available(game_controller)
             def stalemate_check(game_controller):
                 for subgrid in board.Grid.grid_list:
-                    if subgrid.highlighted == True:
+                    if subgrid.available == True:
                         # No check, no checkmate, no stalemate
                         Text_Controller.check_checkmate_text = ""
                         return "*"
@@ -1058,7 +1063,7 @@ class Move_Controller():
                     sub_piece.spaces_available(game_controller)
             def stalemate_check(game_controller):
                 for subgrid in board.Grid.grid_list:
-                    if subgrid.highlighted == True:
+                    if subgrid.available == True:
                         # No check, no checkmate, no stalemate
                         Text_Controller.check_checkmate_text = ""
                         return "*"
@@ -1105,9 +1110,6 @@ class Move_Controller():
                 game_controller.selected_move = [game_controller.move_counter, Move_Controller.move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb), "white"]
             game_controller.df_prior_moves.loc[game_controller.move_counter, "white_move"] = str(prior_moves_dict)
         log.info(move_text)
-        for grid in board.Grid.grid_list:
-            pass
-            #print("Grid coord " + str(grid.coordinate) + " highlight? " + str(grid.available))
         if game_controller.result_abb != "*":
             log.info(game_controller.result_abb)
         
@@ -1409,7 +1411,8 @@ def main():
                                         # Reset the prior move color variable from all pieces
                                         piece.prior_move_color = False
                                         if (grid.rect.collidepoint(MOUSEPOS) and grid.available==True and piece.select==True):
-                                            Move_Controller.make_move(grid, piece, game_controller, PLAY_SPRITES)
+                                            prior_moves_dict, captured_abb, special_abb = Move_Controller.make_move(grid, piece, game_controller, PLAY_SPRITES)
+                                            Move_Controller.game_status_check(game_controller, grid, piece, prior_moves_dict, captured_abb, special_abb)
                         update_pieces_and_board()
     
                         clicked_piece = None
