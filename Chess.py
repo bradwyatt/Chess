@@ -338,7 +338,7 @@ class Start():
         self.black_queen = StartQueen("black")      
         self.black_king = StartKing("black")
     
-class PGN_Writer():
+class PGN_Writer_and_Loader():
     def __init__(self):
         self.Event = ""
         self.Site = ""
@@ -381,6 +381,96 @@ class PGN_Writer():
                 log.info("Error! Need king to save!")
         except IOError:
             log.info("Save File Error, please restart game and try again.")
+    def pgn_load(self):
+        open_file = None
+        request_file_name = askopenfilename(defaultextension=".pgn")
+        try:
+            open_file = open(request_file_name, "r")
+        except FileNotFoundError:
+            log.info("File not found")
+            return
+        loaded_file = open_file.read()
+        all_components_split = loaded_file.split("\n")
+        parameters = {}
+        chess_game = []
+        for row in all_components_split:
+            updated_row = row.replace('[', '').replace(']','')
+            if '[' in row:
+                parameters[updated_row.split(" ")[0]] = " ".join(updated_row.split(" ")[1:])
+            if '1.' in chess_game:
+                chess_game += row
+        print("\nPARAMETERS: " + str(parameters))
+        
+        self.Event = parameters['Event']
+        self.Site = parameters['Site']
+        self.Date = parameters['Date']
+        self.Round = parameters['Round']
+        self.White = parameters['White']
+        self.Black = parameters['Black']
+        self.Result = parameters['Result']
+        self.WhiteElo = parameters['WhiteElo']
+        self.BlackElo = parameters['BlackElo']
+        self.ECO = parameters['ECO']
+        
+        for play_white_pawn in PlayPawn.white_pawn_list:
+            play_white_pawn.destroy()
+        for play_white_bishop in PlayBishop.white_bishop_list:
+            play_white_bishop.destroy()
+        for play_white_knight in PlayKnight.white_knight_list:
+            play_white_knight.destroy()
+        for play_white_rook in PlayRook.white_rook_list:
+            play_white_rook.destroy()
+        for play_white_queen in PlayQueen.white_queen_list:
+            play_white_queen.destroy()
+        for play_white_king in PlayKing.white_king_list:
+            play_white_king.destroy()
+        for play_black_pawn in PlayPawn.black_pawn_list:
+            play_black_pawn.destroy()
+        for play_black_bishop in PlayBishop.black_bishop_list:
+            play_black_bishop.destroy()
+        for play_black_knight in PlayKnight.black_knight_list:
+            play_black_knight.destroy()
+        for play_black_rook in PlayRook.black_rook_list:
+            play_black_rook.destroy()
+        for play_black_queen in PlayQueen.black_queen_list:
+            play_black_queen.destroy()
+        for play_black_king in PlayKing.black_king_list:
+            play_black_king.destroy()
+        if open_file:
+            open_file.close()
+        
+        # Removes all placed lists
+        remove_all_placed()
+        
+        log.info("Removed all sprites. Now creating lists for loaded level.")
+        """
+        for white_pawn_pos in loaded_dict['white_pawn']:
+            PlacedPawn(white_pawn_pos, PLACED_SPRITES, "white")
+        for white_bishop_pos in loaded_dict['white_bishop']:
+            PlacedBishop(white_bishop_pos, PLACED_SPRITES, "white")
+        for white_knight_pos in loaded_dict['white_knight']:
+            PlacedKnight(white_knight_pos, PLACED_SPRITES, "white")
+        for white_rook_pos in loaded_dict['white_rook']:
+            PlacedRook(white_rook_pos, PLACED_SPRITES, "white")
+        for white_queen_pos in loaded_dict['white_queen']:
+            PlacedQueen(white_queen_pos, PLACED_SPRITES, "white")
+        for white_king_pos in loaded_dict['white_king']:
+            PlacedKing(white_king_pos, PLACED_SPRITES, "white")
+        for black_pawn_pos in loaded_dict['black_pawn']:
+            PlacedPawn(black_pawn_pos, PLACED_SPRITES, "black")
+        for black_bishop_pos in loaded_dict['black_bishop']:
+            PlacedBishop(black_bishop_pos, PLACED_SPRITES, "black")
+        for black_knight_pos in loaded_dict['black_knight']:
+            PlacedKnight(black_knight_pos, PLACED_SPRITES, "black")
+        for black_rook_pos in loaded_dict['black_rook']:
+            PlacedRook(black_rook_pos, PLACED_SPRITES, "black")
+        for black_queen_pos in loaded_dict['black_queen']:
+            PlacedQueen(black_queen_pos, PLACED_SPRITES, "black")
+        for black_king_pos in loaded_dict['black_king']:
+            PlacedKing(black_king_pos, PLACED_SPRITES, "black")
+        """
+        log.info("Positioning Loaded Successfully")
+        return
 
 class Grid_Controller():
     def update_grid(game_controller):
@@ -976,7 +1066,7 @@ def main():
         #DRAGGING Variables
         DRAGGING = Dragging()
         
-        PGN_WRITER = PGN_Writer()
+        PGN_WRITER_AND_LOADER = PGN_Writer_and_Loader()
         
         PLAY_EDIT_SWITCH_BUTTON = PlayEditSwitchButton(initvar.PLAY_EDIT_SWITCH_BUTTON_TOPLEFT, GAME_MODE_SPRITES)
         FLIP_BOARD_BUTTON = FlipBoardButton(initvar.FLIP_BOARD_BUTTON_TOPLEFT)
@@ -1072,7 +1162,7 @@ def main():
                         if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS) and len(MoveNumberRectangle.rectangle_list) > initvar.MOVES_PANE_MAX_MOVES and PanelRectangles.scroll_range[1] < len(MoveNumberRectangle.rectangle_list): # Scroll down
                             update_scroll_range(1)
                         if PGN_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
-                            pass
+                            PGN_WRITER_AND_LOADER.pgn_load()
                         if PGN_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
                             PGN_WRITER.write_moves(game_controller.df_moves, game_controller.result_abb)
                         # When clicking on a move on the right pane, it is your selected move
@@ -1170,11 +1260,9 @@ def main():
                                     PlacedKing(MOUSE_COORD, PLACED_SPRITES, "black")
                                 else:
                                     log.info("You can only have one black king.")
-                            
+            
                         dragging_to_placed_no_dups()
-                        
-
-                                    
+        
                         # Moves piece
                         def update_pieces_and_board():
                             for grid in board.Grid.grid_list:
