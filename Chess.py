@@ -524,28 +524,38 @@ class PGN_Writer_and_Loader():
             else:
                 #print("Move: " + str(move))
                 # type_of_piece list in Nce2 would be "N"
-                type_of_piece_list = determine_piece_list(move[0], game_controller.WHOSETURN)
-                if move == "0-0":
+                
+                if move == "O-O":
                     if game_controller.WHOSETURN == "white":
+                        type_of_piece_list = PlayKing.white_king_list
                         grid_coordinate = 'f1'
                     elif game_controller.WHOSETURN == "black":
+                        type_of_piece_list = PlayKing.black_king_list
                         grid_coordinate = 'f8'
                     piece = determine_piece(type_of_piece_list, move, grid_coordinate, game_controller)
+                    print("THIS PIECE IS: " + str(piece.__dict__))
                     Move_Controller.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller, PLAY_SPRITES)
-                elif move == "0-0-0":
+                elif move == "O-O-O":
                     if game_controller.WHOSETURN == "white":
+                        type_of_piece_list = PlayKing.white_king_list
                         grid_coordinate = 'c1'
                     elif game_controller.WHOSETURN == "black":
+                        type_of_piece_list = PlayKing.black_king_list
                         grid_coordinate = 'c8'
                     piece = determine_piece(type_of_piece_list, move, grid_coordinate, game_controller)
                     Move_Controller.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller, PLAY_SPRITES)
                 elif move[-2:] == "=Q":
+                    if game_controller.WHOSETURN == "white":
+                        type_of_piece_list = PlayPawn.white_pawn_list
+                    elif game_controller.WHOSETURN == "black":
+                        type_of_piece_list = PlayPawn.black_pawn_list
                     grid_coordinate = move[-4:-2]
                     piece = determine_piece(type_of_piece_list, move, grid_coordinate, game_controller)
                     Move_Controller.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller, PLAY_SPRITES)
                 else:
                     # NORMAL MOVES
                     # Last 2 characters are always the coordinate of the grid besides special exceptions above
+                    type_of_piece_list = determine_piece_list(move[0], game_controller.WHOSETURN)
                     if move[-1] == "+" or move[-1] == "#":
                         grid_coordinate = move[-3:-1]
                     else:
@@ -1276,7 +1286,7 @@ def main():
                             board.GRID_SPRITES.draw(SCREEN)
                             PLAY_SPRITES.draw(SCREEN)
                         if PGN_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
-                            PGN_WRITER.write_moves(game_controller.df_moves, game_controller.result_abb)
+                            PGN_WRITER_AND_LOADER.write_moves(game_controller.df_moves, game_controller.result_abb)
                         # When clicking on a move on the right pane, it is your selected move
                         for piece_move_rect in PieceMoveRectangle.rectangle_list:
                             if piece_move_rect.rect.collidepoint(MOUSEPOS) and piece_move_rect.text_is_visible:
