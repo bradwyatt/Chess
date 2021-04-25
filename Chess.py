@@ -484,18 +484,15 @@ class PGN_Writer_and_Loader():
         def determine_piece(piece_list, move, grid_coordinate, game_controller):
             eligible_pieces = []
             for piece in piece_list:
-                print("piece LIST!! " + str(piece.coordinate))
-                print("c4 DICT:" + str(board.Grid.grid_dict['c4'].__dict__))
                 piece.spaces_available(game_controller)
                 if board.Grid.grid_dict[grid_coordinate].highlighted == True:
                     #print("This is apparently eligible " + str(piece.coordinate))
                     eligible_pieces.append(piece)
                     board.Grid.grid_dict[grid_coordinate].highlighted = False
             if len(eligible_pieces) == 1:
-                print("YESSSS!!!! " + str(eligible_pieces[0]) + " and coord: " + str(eligible_pieces[0].coordinate))
+                print("YESSSS!!!! " + str(eligible_pieces[0].coordinate))
                 return eligible_pieces[0]
             elif(piece_list != PlayPawn.white_pawn_list and piece_list != PlayPawn.black_pawn_list):
-                print("ELIGIBLE PIECES " + str(eligible_pieces))
                 for piece in eligible_pieces:
                     if piece.coordinate[1] == move[1]:
                         return piece
@@ -504,13 +501,13 @@ class PGN_Writer_and_Loader():
             else:
                 # Pawns
                 for piece in eligible_pieces:
-                    #print("ELIGIBLE PIECES " + str(piece.coordinate))
+                    print("ELIGIBLE PIECES " + str(piece.coordinate))
                     if piece.coordinate[0] == move[0]:
                         return piece
 
         for move in number_move_splits:
             # MAKING MOVES
-            if "10." in move:
+            if "9." in move:
                 break
             if ("." in move) or ("*" in move) or ("#" in move):
                 #print("Blocked moves? ")
@@ -540,15 +537,12 @@ class PGN_Writer_and_Loader():
                 else:
                     # NORMAL MOVES
                     # Last 2 characters are always the coordinate of the grid besides special exceptions above
-                    
                     grid_coordinate = move[-2:]
-                    
                     piece = determine_piece(type_of_piece_list, move, grid_coordinate, game_controller)
-                    print("piece: " + str(piece.coordinate) + " grid: " + str(grid_coordinate))
                     Move_Controller.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller, PLAY_SPRITES)
                 draw_move_rects_on_moves_pane(pygame.font.SysFont('Arial', 16), game_controller)
-                Grid_Controller.update_grid(game_controller)
                 board.GRID_SPRITES.draw(SCREEN)
+                Grid_Controller.update_grid(game_controller)
                 PLAY_SPRITES.draw(SCREEN)
                 print(str(game_controller.df_moves))
             
