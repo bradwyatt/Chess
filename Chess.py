@@ -540,6 +540,7 @@ class PGN_Writer_and_Loader():
                     grid_coordinate = move[-2:]
                     piece = determine_piece(type_of_piece_list, move, grid_coordinate, game_controller)
                     Move_Controller.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller, PLAY_SPRITES)
+                draw_move_rects_on_moves_pane(pygame.font.SysFont('Arial', 16), game_controller)
                 board.GRID_SPRITES.draw(SCREEN)
                 Grid_Controller.update_grid(game_controller)
                 PLAY_SPRITES.draw(SCREEN)
