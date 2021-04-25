@@ -680,7 +680,6 @@ class Game_Controller():
         PlayKing.black_king_list = []
         for grid in board.Grid.grid_list:
             grid.reset_board()
-            grid.attack_count_reset()
         # Reset Moves Panel
         MoveNumberRectangle.rectangle_list = []
         PieceMoveRectangle.rectangle_list = []
@@ -747,16 +746,6 @@ class Game_Controller():
                                            PlayQueen.black_queen_list]:
                             for piece in piece_list:
                                 piece.disable = True
-        # This goes through all pieces available moves
-        for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
-                           PlayKnight.white_knight_list, PlayRook.white_rook_list, 
-                           PlayQueen.white_queen_list, PlayKing.white_king_list,
-                           PlayPawn.black_pawn_list, PlayBishop.black_bishop_list,
-                           PlayKnight.black_knight_list, PlayRook.black_rook_list,
-                           PlayQueen.black_queen_list, PlayKing.black_king_list]:
-            for piece in piece_list:
-                piece.spaces_available(self)
-        print("Went through all moves ! ")
     def projected_white_update(self):
         # Project pieces attacking movements starting now
         for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
@@ -1025,7 +1014,7 @@ class Move_Controller():
                     sub_piece.spaces_available(game_controller)
             def checkmate_check(game_controller):
                 for subgrid in board.Grid.grid_list:
-                    if subgrid.available == True:
+                    if subgrid.highlighted == True:
                         # If able to detect that a grid can be available, that means it's NOT checkmate
                         return "+", "*"
                 Text_Controller.check_checkmate_text = "White wins"
@@ -1040,7 +1029,7 @@ class Move_Controller():
                     sub_piece.spaces_available(game_controller)
             def checkmate_check(game_controller):
                 for subgrid in board.Grid.grid_list:
-                    if subgrid.available == True:
+                    if subgrid.highlighted == True:
                         # If able to detect that a grid can be available, that means it's NOT checkmate
                         return "+", "*"
                 Text_Controller.check_checkmate_text = "Black wins"
@@ -1054,7 +1043,7 @@ class Move_Controller():
                     sub_piece.spaces_available(game_controller)
             def stalemate_check(game_controller):
                 for subgrid in board.Grid.grid_list:
-                    if subgrid.available == True:
+                    if subgrid.highlighted == True:
                         # No check, no checkmate, no stalemate
                         Text_Controller.check_checkmate_text = ""
                         return "*"
@@ -1069,7 +1058,7 @@ class Move_Controller():
                     sub_piece.spaces_available(game_controller)
             def stalemate_check(game_controller):
                 for subgrid in board.Grid.grid_list:
-                    if subgrid.available == True:
+                    if subgrid.highlighted == True:
                         # No check, no checkmate, no stalemate
                         Text_Controller.check_checkmate_text = ""
                         return "*"
@@ -1500,9 +1489,21 @@ def main():
                             placed_to_play(PlacedKing.black_king_list, PlayKing, PLAY_SPRITES, "black")
                             
                             game_controller.WHOSETURN = "white"
+                            #game_controller.switch_turn(game_controller.WHOSETURN)
                             Grid_Controller.update_grid(game_controller)
                             game_controller.projected_white_update()
                             game_controller.projected_black_update()
+                            
+                            for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
+                                               PlayKnight.white_knight_list, PlayRook.white_rook_list, 
+                                               PlayQueen.white_queen_list, PlayKing.white_king_list,
+                                               PlayPawn.black_pawn_list, PlayBishop.black_bishop_list,
+                                               PlayKnight.black_knight_list, PlayRook.black_rook_list,
+                                               PlayQueen.black_queen_list, PlayKing.black_king_list]:
+                                for piece in piece_list:
+                                    piece.spaces_available(game_controller)
+                            for grid in board.Grid.grid_list:
+                                grid.no_highlight()
                         #################
                         # LEFT CLICK (RELEASE) STOP BUTTON
                         #################
