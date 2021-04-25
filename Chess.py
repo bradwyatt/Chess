@@ -3,23 +3,25 @@ Chess created by Brad Wyatt
 Python 3
 
 Round 2 Thoughts:
-Function to put a piece on the board (with right X and Y) based only on coordinates
-When I press Play, I want it to act as if there was a move before it, seamless. I don't want to do extra code starting from beginning (when program launches) AND starting over again during game
+For PGN:
+- cleanup (PLAY_SPRITES? GRID_SPRITES?)
+- if you load 2 pgns in a row you get an error
+- more testing of games, longer games?
+- Pawns and other pieces are treated differently in notation. I think the other pieces look good, but still want to check on pawns. Bigger sample size helps
+    
 Play back one move
 Undo move
 Pause mode- The board has the Placed pieces, and you can go back and forward in your analysis. But you can't bring in new pieces
 Sounds
+When I press Play, I want it to act as if there was a move before it, seamless. I don't want to do extra code starting from beginning (when program launches) AND starting over again during game
 Making sure that we are doing promotion correctly
 Perhaps using a direction arrow (like babaschess) to determine which piece could take the other piece. This could get confusing when flipping board though
                                                                                                          
 Testing (these are all in logs or PGN_Incorrect_Notation folder):
-Found a bug in castling there's a screenshot of it. This was before figuring out how to do moves, so ignore until you find again
-Found a bug with two queens having a spot available and then move notation didnt specify which one
-Ne2 illegal
+(haven't replicated again) Found a bug in castling there's a screenshot of it. This was before figuring out how to do moves, so ignore until you find again
 
 Features To-Do (short-term):
 Save states (IS THIS REALLY NEEDED?), be able to undo and redo moves
-Record moves correctly (keep in mind which direction the other piece is coming from)
 If no king then don't start game
 
 Buttons to Implement:
@@ -31,7 +33,6 @@ Game Properties (use Babaschess for model)
 Flip Board
 
 Features To-Do (long-term):
-Create function where given coordinates, return X, Y of square (for loaded_file func)
 Save positions rather than restarting when pressing stop button
 Customized Turns for black and white
 Choose piece for Promotion
@@ -515,14 +516,13 @@ class PGN_Writer_and_Loader():
                         return piece
 
         for move in number_move_splits:
-            # MAKING MOVES
+            # Breakpoint for a specific move on PGN
             #if "14." in move:
             #    break
             if ("." in move) or ("*" in move):
-                #print("Blocked moves? ")
                 pass
             else:
-                print("Move: " + str(move))
+                #print("Move: " + str(move))
                 # type_of_piece list in Nce2 would be "N"
                 type_of_piece_list = determine_piece_list(move[0], game_controller.WHOSETURN)
                 if move == "0-0":
@@ -555,10 +555,25 @@ class PGN_Writer_and_Loader():
                 draw_move_rects_on_moves_pane(pygame.font.SysFont('Arial', 16), game_controller)
                 board.GRID_SPRITES.draw(SCREEN)
                 Grid_Controller.update_grid(game_controller)
+                
+                def prior_move_off(PLAY_SPRITES):
+                    for play_obj_list in (PlayPawn.white_pawn_list, PlayBishop.white_bishop_list,
+                                             PlayKnight.white_knight_list, PlayRook.white_rook_list,
+                                             PlayQueen.white_queen_list, PlayKing.white_king_list,
+                                             PlayPawn.black_pawn_list, PlayBishop.black_bishop_list,
+                                             PlayKnight.black_knight_list, PlayRook.black_rook_list,
+                                             PlayQueen.black_queen_list, PlayKing.black_king_list):
+                        for play_obj in play_obj_list:
+                            if play_obj.previous_coordinate == move:
+                                pass
+                            else:
+                                play_obj.prior_move_color = False
+                                play_obj.no_highlight()
+                prior_move_off(PLAY_SPRITES)
                 PLAY_SPRITES.draw(SCREEN)
             
         log.info("PGN Loaded")
-        return
+        return PLAY_SPRITES
 
 class Grid_Controller():
     def update_grid(game_controller):
@@ -1253,12 +1268,14 @@ def main():
                         if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS) and len(MoveNumberRectangle.rectangle_list) > initvar.MOVES_PANE_MAX_MOVES and PanelRectangles.scroll_range[1] < len(MoveNumberRectangle.rectangle_list): # Scroll down
                             update_scroll_range(1)
                         if PGN_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
-                            PGN_WRITER_AND_LOADER.pgn_load(game_controller, PLAY_SPRITES)
+                            PLAY_SPRITES = PGN_WRITER_AND_LOADER.pgn_load(game_controller, PLAY_SPRITES)
                             for grid in board.Grid.grid_list:
                                 grid.prior_move_color = False
                                 grid.no_highlight()
                             Grid_Controller.update_grid(game_controller)
                             board.GRID_SPRITES.draw(SCREEN)
+                            PLAY_SPRITES.draw(SCREEN)
+                            print("Rook details: " + str(PlayRook.white_rook_list[0].__dict__))
                         if PGN_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
                             PGN_WRITER.write_moves(game_controller.df_moves, game_controller.result_abb)
                         # When clicking on a move on the right pane, it is your selected move
@@ -1480,7 +1497,8 @@ def main():
                             if grid.rect.collidepoint(MOUSEPOS):
                                 log.info("Coordinate: " + str(grid.coordinate) \
                                        + ", White Pieces Attacking: " + str(grid.list_of_white_pieces_attacking) \
-                                       + ", Black Pieces Attacking: " + str(grid.list_of_black_pieces_attacking))
+                                       + ", Black Pieces Attacking: " + str(grid.list_of_black_pieces_attacking) \
+                                           + ", prior move color: " + str(grid.prior_move_color))
                                 
                 ##################
                 # ALL EDIT ACTIONS
