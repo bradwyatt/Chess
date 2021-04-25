@@ -381,7 +381,7 @@ class PGN_Writer_and_Loader():
                 log.info("Error! Need king to save!")
         except IOError:
             log.info("Save File Error, please restart game and try again.")
-    def pgn_load(self, game_controller):
+    def pgn_load(self, game_controller, PLAY_SPRITES):
         open_file = None
         request_file_name = askopenfilename(defaultextension=".pgn")
         try:
@@ -486,9 +486,12 @@ class PGN_Writer_and_Loader():
             for piece in piece_list:
                 piece.spaces_available(game_controller)
                 if board.Grid.grid_dict[grid_coordinate].highlighted == True:
+                    #print("This is apparently eligible " + str(piece.coordinate))
                     eligible_pieces.append(piece)
+                    board.Grid.grid_dict[grid_coordinate].highlighted = False
             if len(eligible_pieces) == 1:
-                return piece
+                print("YESSSS!!!! " + str(eligible_pieces[0].coordinate))
+                return eligible_pieces[0]
             elif(piece_list != PlayPawn.white_pawn_list and piece_list != PlayPawn.black_pawn_list):
                 for piece in eligible_pieces:
                     if piece.coordinate[1] == move[1]:
@@ -498,11 +501,14 @@ class PGN_Writer_and_Loader():
             else:
                 # Pawns
                 for piece in eligible_pieces:
+                    print("ELIGIBLE PIECES " + str(piece.coordinate))
                     if piece.coordinate[0] == move[0]:
                         return piece
 
         for move in number_move_splits:
             # MAKING MOVES
+            if "8." in move:
+                break
             if ("." in move) or ("*" in move) or ("#" in move):
                 #print("Blocked moves? ")
                 pass
@@ -534,6 +540,11 @@ class PGN_Writer_and_Loader():
                     grid_coordinate = move[-2:]
                     piece = determine_piece(type_of_piece_list, move, grid_coordinate, game_controller)
                     Move_Controller.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller)
+                board.GRID_SPRITES.draw(SCREEN)
+                Grid_Controller.update_grid(game_controller)
+                PLAY_SPRITES.draw(SCREEN)
+                print(str(game_controller.df_moves))
+            
 
         log.info("PGN Loaded")
         return
@@ -1228,7 +1239,7 @@ def main():
                         if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS) and len(MoveNumberRectangle.rectangle_list) > initvar.MOVES_PANE_MAX_MOVES and PanelRectangles.scroll_range[1] < len(MoveNumberRectangle.rectangle_list): # Scroll down
                             update_scroll_range(1)
                         if PGN_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
-                            PGN_WRITER_AND_LOADER.pgn_load(game_controller)
+                            PGN_WRITER_AND_LOADER.pgn_load(game_controller, PLAY_SPRITES)
                         if PGN_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
                             PGN_WRITER.write_moves(game_controller.df_moves, game_controller.result_abb)
                         # When clicking on a move on the right pane, it is your selected move
