@@ -525,9 +525,9 @@ class PGN_Writer_and_Loader():
 
         for move in number_move_splits:
             # MAKING MOVES
-            if "11." in move:
-                break
-            if ("." in move) or ("*" in move) or ("#" in move):
+            #if "14." in move:
+            #    break
+            if ("." in move) or ("*" in move):
                 #print("Blocked moves? ")
                 pass
             else:
@@ -555,7 +555,7 @@ class PGN_Writer_and_Loader():
                 else:
                     # NORMAL MOVES
                     # Last 2 characters are always the coordinate of the grid besides special exceptions above
-                    if move[-1] == "+":
+                    if move[-1] == "+" or move[-1] == "#":
                         grid_coordinate = move[-3:-1]
                     else:
                         grid_coordinate = move[-2:]
