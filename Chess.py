@@ -514,15 +514,15 @@ class PGN_Writer_and_Loader():
                 for piece in eligible_pieces:
                     if piece.coordinate[0] == move[0]:
                         return piece
-
-        for move in number_move_splits:
+                    
+        for row in number_move_splits:
             # Breakpoint for a specific move on PGN
             #if "14." in move:
             #    break
-            if ("." in move) or ("*" in move) or ("0-1" in move) or ("1-0" in move) or ("1/2-1/2" in move):
+            if ("." in row) or ("*" in row) or ("0-1" in row) or ("1-0" in row) or ("1/2-1/2" in row):
                 pass
             else:
-                #print("Move: " + str(move))
+                move = row
                 # type_of_piece list in Nce2 would be "N"
                 
                 if move == "O-O":
@@ -563,24 +563,27 @@ class PGN_Writer_and_Loader():
                     piece = determine_piece(type_of_piece_list, move, grid_coordinate, game_controller)
                     Move_Controller.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller, PLAY_SPRITES)
                 draw_move_rects_on_moves_pane(pygame.font.SysFont('Arial', 16), game_controller)
-                board.GRID_SPRITES.draw(SCREEN)
-                Grid_Controller.update_grid(game_controller)
                 
-                def prior_move_off(PLAY_SPRITES):
-                    for play_obj_list in (PlayPawn.white_pawn_list, PlayBishop.white_bishop_list,
-                                             PlayKnight.white_knight_list, PlayRook.white_rook_list,
-                                             PlayQueen.white_queen_list, PlayKing.white_king_list,
-                                             PlayPawn.black_pawn_list, PlayBishop.black_bishop_list,
-                                             PlayKnight.black_knight_list, PlayRook.black_rook_list,
-                                             PlayQueen.black_queen_list, PlayKing.black_king_list):
-                        for play_obj in play_obj_list:
-                            if play_obj.previous_coordinate == move:
-                                pass
-                            else:
-                                play_obj.prior_move_color = False
-                                play_obj.no_highlight()
-                prior_move_off(PLAY_SPRITES)
-                PLAY_SPRITES.draw(SCREEN)
+        def prior_move_off(PLAY_SPRITES, current_coord):
+            for play_obj_list in (PlayPawn.white_pawn_list, PlayBishop.white_bishop_list,
+                                     PlayKnight.white_knight_list, PlayRook.white_rook_list,
+                                     PlayQueen.white_queen_list, PlayKing.white_king_list,
+                                     PlayPawn.black_pawn_list, PlayBishop.black_bishop_list,
+                                     PlayKnight.black_knight_list, PlayRook.black_rook_list,
+                                     PlayQueen.black_queen_list, PlayKing.black_king_list):
+                for play_obj in play_obj_list:
+                    if play_obj.coordinate == grid_coordinate:
+                        play_obj.prior_move_color = True
+                        print("PREVIOUS COORD: " + str(play_obj.previous_coordinate))
+                        board.Grid.grid_dict[play_obj.previous_coordinate].prior_move_color = True
+                        play_obj.no_highlight()
+                        board.Grid.grid_dict[play_obj.previous_coordinate].no_highlight()
+                        return
+                    else:
+                        play_obj.prior_move_color = False
+                        play_obj.no_highlight()
+            return
+        prior_move_off(PLAY_SPRITES, grid_coordinate)
             
         log.info("PGN Loaded")
         return PLAY_SPRITES
@@ -1282,7 +1285,6 @@ def main():
                         if PGN_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
                             PLAY_SPRITES = PGN_WRITER_AND_LOADER.pgn_load(game_controller, PLAY_SPRITES)
                             for grid in board.Grid.grid_list:
-                                grid.prior_move_color = False
                                 grid.no_highlight()
                             Grid_Controller.update_grid(game_controller)
                             board.GRID_SPRITES.draw(SCREEN)
