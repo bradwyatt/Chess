@@ -21,23 +21,20 @@ class Grid(pygame.sprite.Sprite):
         self.occupied_piece_color = ""
         Grid.grid_list.append(self)
         Grid.grid_dict[self.coordinate] = self
-        self.list_of_white_pieces_attacking = []
-        self.list_of_black_pieces_attacking = []
+        self.coords_of_attacking_pieces = {'white': [], 'black': []}
         self.en_passant_skipover = False
         self.prior_move_color = False
     def reset_board(self):
         self.prior_move_color = False
         self.no_highlight()
-        self.list_of_white_pieces_attacking = []
-        self.list_of_black_pieces_attacking = []
+        self.coords_of_attacking_pieces = {'white': [], 'black': []}
     def attack_count_reset(self):
-        self.list_of_white_pieces_attacking = []
-        self.list_of_black_pieces_attacking = []
+        self.coords_of_attacking_pieces = {'white': [], 'black': []}
     def attack_count_increment(self, color, attack_coord):
         if color == "white":
-            self.list_of_white_pieces_attacking.append(attack_coord)
+            self.coords_of_attacking_pieces['white'].append(attack_coord)
         elif color == "black":
-            self.list_of_black_pieces_attacking.append(attack_coord)
+            self.coords_of_attacking_pieces['black'].append(attack_coord)
     def update(self, game_controller):
         pass
     def highlight(self):

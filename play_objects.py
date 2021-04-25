@@ -664,14 +664,14 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
                     if white_rook.allowed_to_castle == True:
                         if(white_rook.coordinate == 'a1'):
                             if(board.Grid.grid_dict['b1'].occupied == 0 and board.Grid.grid_dict['c1'].occupied == 0 and board.Grid.grid_dict['d1'].occupied == 0 \
-                               and len(board.Grid.grid_dict['b1'].list_of_black_pieces_attacking) == 0 and len(board.Grid.grid_dict['c1'].list_of_black_pieces_attacking) == 0 \
-                               and len(board.Grid.grid_dict['d1'].list_of_black_pieces_attacking) == 0):
+                               and len(board.Grid.grid_dict['b1'].coords_of_attacking_pieces['black']) == 0 and len(board.Grid.grid_dict['c1'].coords_of_attacking_pieces['black']) == 0 \
+                               and len(board.Grid.grid_dict['d1'].coords_of_attacking_pieces['black']) == 0):
                                 self.left_castle_ability = True
                             else:
                                 self.left_castle_ability = False
                         if(white_rook.coordinate == 'h1'):
                             if(board.Grid.grid_dict['f1'].occupied == 0 and board.Grid.grid_dict['g1'].occupied == 0 \
-                               and len(board.Grid.grid_dict['f1'].list_of_black_pieces_attacking) == 0 and len(board.Grid.grid_dict['g1'].list_of_black_pieces_attacking) == 0):
+                               and len(board.Grid.grid_dict['f1'].coords_of_attacking_pieces['black']) == 0 and len(board.Grid.grid_dict['g1'].coords_of_attacking_pieces['black']) == 0):
                                 self.right_castle_ability = True
                             else:
                                 self.right_castle_ability = False
@@ -680,14 +680,14 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
                     if black_rook.allowed_to_castle == True:
                         if(black_rook.coordinate == 'a8'):
                             if(board.Grid.grid_dict['b8'].occupied == 0 and board.Grid.grid_dict['c8'].occupied == 0 and board.Grid.grid_dict['d8'].occupied == 0 \
-                               and len(board.Grid.grid_dict['b8'].list_of_white_pieces_attacking) == 0 and len(board.Grid.grid_dict['c8'].list_of_white_pieces_attacking) == 0 \
-                               and len(board.Grid.grid_dict['d8'].list_of_white_pieces_attacking) == 0):
+                               and len(board.Grid.grid_dict['b8'].coords_of_attacking_pieces['white']) == 0 and len(board.Grid.grid_dict['c8'].coords_of_attacking_pieces['white']) == 0 \
+                               and len(board.Grid.grid_dict['d8'].coords_of_attacking_pieces['white']) == 0):
                                 self.left_castle_ability = True
                             else:
                                 self.left_castle_ability = False
                         if(black_rook.coordinate == 'h8'):
                             if(board.Grid.grid_dict['f8'].occupied == 0 and board.Grid.grid_dict['g8'].occupied == 0 \
-                               and len(board.Grid.grid_dict['f8'].list_of_white_pieces_attacking) == 0 and len(board.Grid.grid_dict['g8'].list_of_white_pieces_attacking) == 0):
+                               and len(board.Grid.grid_dict['f8'].coords_of_attacking_pieces['white']) == 0 and len(board.Grid.grid_dict['g8'].coords_of_attacking_pieces['white']) == 0):
                                 self.right_castle_ability = True
                             else:
                                 self.right_castle_ability = False
@@ -730,9 +730,9 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
         for grid in board.Grid.grid_list:
             # Direct Enemy Threat refers to how many opposing color pieces are attacking square
             if self.color == "white":
-                direct_enemy_threat = len(grid.list_of_black_pieces_attacking) > 0
+                direct_enemy_threat = len(grid.coords_of_attacking_pieces['black']) > 0
             elif self.color == "black":
-                direct_enemy_threat = len(grid.list_of_white_pieces_attacking) > 0
+                direct_enemy_threat = len(grid.coords_of_attacking_pieces['black']) > 0
             # Projected Enemy Threat refers to threatening squares past the king
             projected_enemy_threat = grid.coordinate in game_controller.check_attacking_coordinates
             # If square does not have same color piece on it
