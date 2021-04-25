@@ -485,12 +485,8 @@ class PGN_Writer_and_Loader():
             eligible_pieces = []
             for piece in piece_list:
                 if (piece in PlayPawn.white_pawn_list or piece in PlayPawn.black_pawn_list) and piece.coordinate is not None:
-                    if(move == "d6"):
-                        print("test1: " + str(piece.coordinate))
                     piece.spaces_available(game_controller)
                     if board.Grid.grid_dict[grid_coordinate].highlighted == True:
-                        if(move == "d6"):
-                            print("test2" + str(piece.coordinate))
                         #print("This is apparently eligible " + str(piece.coordinate))
                         eligible_pieces.append(piece)
                         board.Grid.grid_dict[grid_coordinate].highlighted = False
@@ -503,21 +499,14 @@ class PGN_Writer_and_Loader():
                             eligible_pieces.append(piece)
                             board.Grid.grid_dict[grid_coordinate].highlighted = False
             if len(eligible_pieces) == 1:
-                if(move == "d6"):
-                    print("test11")
                 return eligible_pieces[0]
             elif(piece_list != PlayPawn.white_pawn_list and piece_list != PlayPawn.black_pawn_list):
-                if(move == "d6"):
-                    print("test12")
                 for piece in eligible_pieces:
                     if piece.coordinate[1] == move[1]:
                         return piece
                     elif piece.coordinate[0] == move[1]:
                         return piece
             else:
-                if(move == "d6"):
-                    for p in eligible_pieces:
-                        print("test13 " + str(p.coordinate))
                 # Pawns
                 for piece in eligible_pieces:
                     if piece.coordinate[0] == move[0]:
