@@ -564,7 +564,7 @@ class PGN_Writer_and_Loader():
                     Move_Controller.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller, PLAY_SPRITES)
                 draw_move_rects_on_moves_pane(pygame.font.SysFont('Arial', 16), game_controller)
                 
-        def prior_move_off(PLAY_SPRITES, current_coord):
+        def prior_move_off(current_coord):
             for play_obj_list in (PlayPawn.white_pawn_list, PlayBishop.white_bishop_list,
                                      PlayKnight.white_knight_list, PlayRook.white_rook_list,
                                      PlayQueen.white_queen_list, PlayKing.white_king_list,
@@ -583,10 +583,10 @@ class PGN_Writer_and_Loader():
                         play_obj.prior_move_color = False
                         play_obj.no_highlight()
             return
-        prior_move_off(PLAY_SPRITES, grid_coordinate)
+        prior_move_off(grid_coordinate)
             
         log.info("PGN Loaded")
-        return PLAY_SPRITES
+        return
 
 class Grid_Controller():
     def update_grid(game_controller):
@@ -1283,12 +1283,10 @@ def main():
                         if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS) and len(MoveNumberRectangle.rectangle_list) > initvar.MOVES_PANE_MAX_MOVES and PanelRectangles.scroll_range[1] < len(MoveNumberRectangle.rectangle_list): # Scroll down
                             update_scroll_range(1)
                         if PGN_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
-                            PLAY_SPRITES = PGN_WRITER_AND_LOADER.pgn_load(game_controller, PLAY_SPRITES)
+                            PGN_WRITER_AND_LOADER.pgn_load(game_controller, PLAY_SPRITES)
                             for grid in board.Grid.grid_list:
                                 grid.no_highlight()
                             Grid_Controller.update_grid(game_controller)
-                            board.GRID_SPRITES.draw(SCREEN)
-                            PLAY_SPRITES.draw(SCREEN)
                         if PGN_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
                             PGN_WRITER_AND_LOADER.write_moves(game_controller.df_moves, game_controller.result_abb)
                         # When clicking on a move on the right pane, it is your selected move
