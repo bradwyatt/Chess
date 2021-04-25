@@ -396,11 +396,13 @@ class PGN_Writer_and_Loader():
         for row in all_components_split:
             updated_row = row.replace('[', '').replace(']','')
             if '[' in row:
+                # For the row that contains the parameters, only include the first item on the line and set as key
                 parameters[updated_row.split(" ")[0]] = " ".join(updated_row.split(" ")[1:])
-            if '1.' in chess_game:
-                chess_game += row
-        print("\nPARAMETERS: " + str(parameters))
-        
+            else:
+                if row != '':
+                    # Skip any lines that have empty spaces, we are only getting the chess game moves
+                    chess_game.append(row)
+                    
         self.Event = parameters['Event']
         self.Site = parameters['Site']
         self.Date = parameters['Date']
