@@ -519,7 +519,7 @@ class PGN_Writer_and_Loader():
             # Breakpoint for a specific move on PGN
             #if "14." in move:
             #    break
-            if ("." in move) or ("*" in move):
+            if ("." in move) or ("*" in move) or ("0-1" in move) or ("1-0" in move) or ("1/2-1/2" in move):
                 pass
             else:
                 #print("Move: " + str(move))
@@ -1275,7 +1275,6 @@ def main():
                             Grid_Controller.update_grid(game_controller)
                             board.GRID_SPRITES.draw(SCREEN)
                             PLAY_SPRITES.draw(SCREEN)
-                            print("Rook details: " + str(PlayRook.white_rook_list[0].__dict__))
                         if PGN_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
                             PGN_WRITER.write_moves(game_controller.df_moves, game_controller.result_abb)
                         # When clicking on a move on the right pane, it is your selected move
