@@ -5,7 +5,6 @@ Python 3
 Round 2 Thoughts:
 Function to put a piece on the board (with right X and Y) based only on coordinates
 When I press Play, I want it to act as if there was a move before it, seamless. I don't want to do extra code starting from beginning (when program launches) AND starting over again during game
-Grid class looks messy
 Play back one move
 Undo move
 Pause mode- The board has the Placed pieces, and you can go back and forward in your analysis. But you can't bring in new pieces
@@ -19,7 +18,6 @@ Found a bug with two queens having a spot available and then move notation didnt
 Ne2 illegal
 
 Features To-Do (short-term):
-Instead of using rect to place pieces on the grid, use coordinates (this will help when we flip the board too)
 Save states (IS THIS REALLY NEEDED?), be able to undo and redo moves
 Record moves correctly (keep in mind which direction the other piece is coming from)
 If no king then don't start game
@@ -38,9 +36,10 @@ Save positions rather than restarting when pressing stop button
 Customized Turns for black and white
 Choose piece for Promotion
 """
-import StartRoom
+import board
 from start_objects import *
 from placed_objects import *
+from play_objects import *
 from load_images_sounds import *
 from menu_buttons import *
 import random
@@ -120,6 +119,28 @@ def restart_start_objects(START):
     START.black_queen.rect.topleft = initvar.STARTPOS['black_queen']
     START.black_king.rect.topleft = initvar.STARTPOS['black_king']
     return START
+
+def remove_all_placed():
+    for spr_list in [PlacedPawn.white_pawn_list, PlacedBishop.white_bishop_list,
+                     PlacedKnight.white_knight_list, PlacedRook.white_rook_list,
+                     PlacedQueen.white_queen_list, PlacedKing.white_king_list, 
+                     PlacedPawn.black_pawn_list, PlacedBishop.black_bishop_list, 
+                     PlacedKnight.black_knight_list, PlacedRook.black_rook_list,
+                     PlacedQueen.black_queen_list, PlacedKing.black_king_list]:
+        for obj in spr_list:
+            obj.kill()
+    PlacedPawn.white_pawn_list = []
+    PlacedBishop.white_bishop_list = []
+    PlacedKnight.white_knight_list = []
+    PlacedRook.white_rook_list = []
+    PlacedQueen.white_queen_list = []
+    PlacedKing.white_king_list = []
+    PlacedPawn.black_pawn_list = []
+    PlacedBishop.black_bishop_list = []
+    PlacedKnight.black_knight_list = []
+    PlacedRook.black_rook_list = []
+    PlacedQueen.black_queen_list = []
+    PlacedKing.black_king_list = []
 
 def get_color():
     color = askcolor()
@@ -244,787 +265,6 @@ def quit():
     log.info('Thanks for playing')
     sys.exit()
 
-#############
-# PLAY PIECES
-#############
-
-class ChessPiece:
-    def __init__(self, coord, PLAY_SPRITES, image, col):
-        PLAY_SPRITES.add(self)
-        self.image = image
-        self.color = col
-        COLOR_POSSIBILITIES = ["white", "black"]
-        OTHER_COLOR_INDEX = (COLOR_POSSIBILITIES.index(self.color)+1)%2
-        self.enemy_color = COLOR_POSSIBILITIES[OTHER_COLOR_INDEX]
-        self.select = False
-        self.pinned = False
-        self.disable = False
-        self.taken_off_board = False
-        self.coordinate = coord
-        self.rect = self.image.get_rect()
-        for grid in StartRoom.Grid.grid_list:
-            if grid.coordinate == self.coordinate:
-                self.rect.topleft = grid.rect.topleft
-        self.previous_coordinate = self.coordinate
-        self.coordinate_history = {}
-        self.prior_move_color = False
-    def pinned_restrict(self, pin_attacking_coordinates):
-        self.pinned = True
-        self.pin_attacking_coordinates = pin_attacking_coordinates
-    def update(self):
-        pass
-
-class PlayPawn(ChessPiece, pygame.sprite.Sprite):
-    white_pawn_list = []
-    black_pawn_list = []
-    def __init__(self, pos, PLAY_SPRITES, col):
-        pygame.sprite.Sprite.__init__(self)
-        if(col == "white"):
-            self.image = IMAGES["SPR_WHITE_PAWN"]
-            PlayPawn.white_pawn_list.append(self)
-        elif(col == "black"):
-            self.image = IMAGES["SPR_BLACK_PAWN"]
-            PlayPawn.black_pawn_list.append(self)
-        super().__init__(pos, PLAY_SPRITES, self.image, col)
-    def captured(self, x, y):
-        self.taken_off_board = True
-        self.coordinate = None
-        self.rect.topleft = x, y
-        self.prior_move_color = False
-        if(self.color == "white"):
-            self.image = IMAGES["SPR_WHITE_PAWN"]
-        elif(self.color == "black"):
-            self.image = IMAGES["SPR_BLACK_PAWN"]
-    def highlight(self):
-        if self.taken_off_board != True:
-            if(self.color == "white"):
-                self.image = IMAGES["SPR_WHITE_PAWN_HIGHLIGHTED"]
-            elif(self.color == "black"):
-                self.image = IMAGES["SPR_BLACK_PAWN_HIGHLIGHTED"]
-            self.select = True
-    def no_highlight(self):
-        if self.taken_off_board != True:
-            if(self.color == "white"):
-                if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_WHITE_PAWN_PRIORMOVE"]
-                else:
-                    self.image = IMAGES["SPR_WHITE_PAWN"]
-            elif(self.color == "black"):
-                if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_BLACK_PAWN_PRIORMOVE"]
-                else:
-                    self.image = IMAGES["SPR_BLACK_PAWN"]
-            self.select = False
-    def projected(self, game_controller):
-        if self.taken_off_board != True:
-            self.proj_attacking_coordinates = [self.coordinate]
-            if(self.color == "white"):
-                for grid in StartRoom.Grid.grid_list:
-                    # Enemy pieces
-                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and int(grid.coordinate[1]) == int(self.coordinate[1])+1):
-                        grid.attack_count_increment(self.color, self.coordinate)
-                        if grid.occupied_piece == "king" and grid.occupied_piece_color == self.enemy_color:
-                            #log.info("Check for coordinate " + str(grid.coordinate))
-                            game_controller.king_in_check("pawn", self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
-                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and int(grid.coordinate[1]) == int(self.coordinate[1])+1):
-                        grid.attack_count_increment(self.color, self.coordinate)
-                        if grid.occupied_piece == "king" and grid.occupied_piece_color == self.enemy_color:
-                            #log.info("Check for coordinate " + str(grid.coordinate))
-                            game_controller.king_in_check("pawn", self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
-            elif(self.color == "black"):
-                for grid in StartRoom.Grid.grid_list:
-                    # Enemy pieces
-                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and int(grid.coordinate[1]) == int(self.coordinate[1])-1):
-                        grid.attack_count_increment(self.color, self.coordinate)
-                        if grid.occupied_piece == "king" and grid.occupied_piece_color == self.enemy_color:
-                            #log.info("Check for coordinate " + str(grid.coordinate))
-                            game_controller.king_in_check("pawn", self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
-                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and int(grid.coordinate[1]) == int(self.coordinate[1])-1):
-                        grid.attack_count_increment(self.color, self.coordinate)
-                        if grid.occupied_piece == "king" and grid.occupied_piece_color == self.enemy_color:
-                            #log.info("Check for coordinate " + str(grid.coordinate))
-                            game_controller.king_in_check("pawn", self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
-                
-    def spaces_available(self, game_controller):
-        if(self.taken_off_board != True and self.disable == False):
-            def pawn_movement():
-                if self.color == "white":
-                    movement = 1
-                    initial_space = 2
-                    hop_space = 4
-                elif self.color == "black":
-                    movement = -1
-                    initial_space = 7
-                    hop_space = 5
-                for grid in StartRoom.Grid.grid_list:
-                    # Move one space up
-                    if (grid.coordinate[0] == self.coordinate[0] and \
-                        int(grid.coordinate[1]) == int(self.coordinate[1])+movement): 
-                        if grid.occupied == False:
-                            if game_controller.color_in_check == self.color:
-                                if self.pinned == True:
-                                    self.disable = True
-                                    return
-                                elif grid.coordinate in game_controller.check_attacking_coordinates:
-                                    grid.highlight()
-                            elif self.pinned == False:
-                                grid.highlight()
-                            elif self.pinned == True and grid.coordinate in self.pin_attacking_coordinates:
-                                grid.highlight()
-                    # Move two spaces up
-                    if (int(self.coordinate[1]) == initial_space and grid.coordinate[0] == self.coordinate[0] and \
-                        int(grid.coordinate[1]) == hop_space and grid.occupied == False):
-                        # If space before hop space is occupied by a piece
-                        if StartRoom.Grid.grid_dict[grid.coordinate[0] + str(hop_space-movement)].occupied == False:
-                            if grid.occupied == False:
-                                if game_controller.color_in_check == self.color:
-                                    if self.pinned == True:
-                                        self.disable = True
-                                        return
-                                    elif grid.coordinate in game_controller.check_attacking_coordinates:
-                                        grid.highlight()
-                                elif self.pinned == False:
-                                    grid.highlight()
-                                elif self.pinned == True and grid.coordinate in self.pin_attacking_coordinates:
-                                    grid.highlight()
-                    # Enemy pieces
-                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-movement and int(grid.coordinate[1]) == int(self.coordinate[1])+movement and \
-                    grid.occupied_piece_color == self.enemy_color):
-                        # No check and no pin is moving as normal
-                        if self.pinned == False and game_controller.color_in_check != self.color:
-                            grid.highlight()
-                        # When checked then only able to take the attacker piece in reach
-                        elif game_controller.color_in_check == self.color:
-                            if grid.coordinate == game_controller.check_attacking_coordinates[0]:
-                                grid.highlight()
-                        # If attacker is causing pin
-                        elif self.pinned == True and grid.coordinate in self.pin_attacking_coordinates:
-                            grid.highlight()
-                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+movement and int(grid.coordinate[1]) == int(self.coordinate[1])+movement and \
-                    grid.occupied_piece_color == self.enemy_color):
-                        # No check and no pin is moving as normal
-                        if self.pinned == False and game_controller.color_in_check != self.color:
-                            grid.highlight()
-                        # When checked then only able to take the attacker piece in reach
-                        elif game_controller.color_in_check == self.color:
-                            if grid.coordinate == game_controller.check_attacking_coordinates[0]:
-                                grid.highlight()
-                        # If attacker is causing pin
-                        elif self.pinned == True and grid.coordinate in self.pin_attacking_coordinates:
-                            grid.highlight()
-                    # En Passant
-                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-movement and int(grid.coordinate[1]) == int(self.coordinate[1])+movement and \
-                    grid.en_passant_skipover == True):
-                        if self.pinned == False:
-                            grid.highlight()
-                    if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+movement and int(grid.coordinate[1]) == int(self.coordinate[1])+movement and \
-                    grid.en_passant_skipover == True):
-                        if self.pinned == False:
-                            grid.highlight()
-            pawn_movement()
- 
-class PlayKnight(ChessPiece, pygame.sprite.Sprite):
-    white_knight_list = []
-    black_knight_list = []
-    def __init__(self, pos, PLAY_SPRITES, col):
-        pygame.sprite.Sprite.__init__(self)
-        if(col == "white"):
-            self.image = IMAGES["SPR_WHITE_KNIGHT"]
-            PlayKnight.white_knight_list.append(self)
-        elif(col == "black"):
-            self.image = IMAGES["SPR_BLACK_KNIGHT"]
-            PlayKnight.black_knight_list.append(self)
-        super().__init__(pos, PLAY_SPRITES, self.image, col)
-    def projected(self, game_controller):
-        if(self.taken_off_board != True):
-            self.proj_attacking_coordinates = [self.coordinate]
-            def knight_proj_direction(x, y):
-                for grid in StartRoom.Grid.grid_list:
-                    if ord(grid.coordinate[0]) == ord(self.coordinate[0])+x and int(grid.coordinate[1]) == int(self.coordinate[1])+y:
-                        grid.attack_count_increment(self.color, self.coordinate)
-                        if grid.occupied_piece == "king" and grid.occupied_piece_color == self.enemy_color:
-                            #log.info("Check for coordinate " + str(grid.coordinate))
-                            game_controller.king_in_check("knight", self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
-            knight_proj_direction(-1, -2)
-            knight_proj_direction(-1, 2)
-            knight_proj_direction(1, -2)
-            knight_proj_direction(1, 2)
-            knight_proj_direction(-2, -1)
-            knight_proj_direction(-2, 1)
-            knight_proj_direction(2, -1)
-            knight_proj_direction(2, 1)
-    def captured(self, x, y):
-        self.taken_off_board = True
-        self.coordinate = None
-        self.rect.topleft = x, y
-        self.prior_move_color = False
-        if(self.color == "white"):
-            self.image = IMAGES["SPR_WHITE_KNIGHT"]
-        elif(self.color == "black"):
-            self.image = IMAGES["SPR_BLACK_KNIGHT"]
-    def highlight(self):
-        if self.taken_off_board != True:
-            if(self.color == "white"):
-                self.image = IMAGES["SPR_WHITE_KNIGHT_HIGHLIGHTED"]
-            elif(self.color == "black"):
-                self.image = IMAGES["SPR_BLACK_KNIGHT_HIGHLIGHTED"]
-            self.select = True
-    def spaces_available(self, game_controller):
-        # A knight can't legally move when it is pinned in chess
-        if(self.taken_off_board != True and self.disable == False and self.pinned == False):
-            def knight_move_direction(x, y):
-                for grid in StartRoom.Grid.grid_list:
-                    if ord(grid.coordinate[0]) == ord(self.coordinate[0])+x and int(grid.coordinate[1]) == int(self.coordinate[1])+y \
-                        and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
-                            if game_controller.color_in_check == self.color:
-                                if grid.coordinate in game_controller.check_attacking_coordinates:
-                                    grid.highlight()
-                                else:
-                                    return
-                            grid.highlight()
-            knight_move_direction(-1, -2)
-            knight_move_direction(-1, 2)
-            knight_move_direction(1, -2)
-            knight_move_direction(1, 2)
-            knight_move_direction(-2, -1)
-            knight_move_direction(-2, 1)
-            knight_move_direction(2, -1)
-            knight_move_direction(2, 1)
-    def no_highlight(self):
-        if self.taken_off_board != True:
-            if(self.color == "white"):
-                if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_WHITE_KNIGHT_PRIORMOVE"]
-                else:
-                    self.image = IMAGES["SPR_WHITE_KNIGHT"]
-            elif(self.color == "black"):
-                if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_BLACK_KNIGHT_PRIORMOVE"]
-                else:
-                    self.image = IMAGES["SPR_BLACK_KNIGHT"]
-            self.select = False
-
-def bishop_projected(piece_name, piece, game_controller, x, y):
-    pieces_in_way = 0 #Pieces between the bishop and the enemy King
-    king_count = 0 #Checks to see if there's a king in a direction
-    pinned_piece_coord = None
-    proj_attacking_coordinates = [piece.coordinate]
-    for i in range(1, 8):
-        for grid in StartRoom.Grid.grid_list:
-            if(ord(grid.coordinate[0]) == ord(piece.coordinate[0])+(x*i) and int(grid.coordinate[1]) == int(piece.coordinate[1])+(y*i)):
-                # Incrementing the count for allowable grids that this piece moves
-                proj_attacking_coordinates.append(grid.coordinate) 
-                # If King is already in check and it's iterating to next occupied grid space
-                if(pieces_in_way == 1 and king_count == 1):
-                    game_controller.king_in_check(piece_name, piece.coordinate, proj_attacking_coordinates, piece.enemy_color)
-                    return
-                # Passing this piece's coordinate to this grid
-                if pinned_piece_coord is None:
-                    grid.attack_count_increment(piece.color, piece.coordinate)
-                # Counting pieces and Ignoring pieces that are past the king
-                if(grid.occupied == 1 and king_count < 1): 
-                    pieces_in_way += 1
-                    if(grid.occupied_piece == "king" and grid.occupied_piece_color == piece.enemy_color):
-                        king_count += 1
-                    else:
-                        # If there's already no pin
-                        if pinned_piece_coord is None:
-                            pinned_piece_coord = grid.coordinate
-                        # 2 pieces without a king
-                        else:
-                            return
-                # 2 Pieces in way, includes 1 king
-                if(pieces_in_way == 2 and king_count == 1): 
-                    #log.info("King is pinned on coordinate " + str(grid.coordinate))
-                    game_controller.pinned_piece(pinned_piece_coord, proj_attacking_coordinates, piece.enemy_color)
-                    return
-                # 1 Piece in way which is King
-                # This is check, we will iterate one more time to cover the next square king is not allowed to go to
-                elif(pieces_in_way == 1 and king_count == 1 and grid.occupied_piece == "king"):
-                    #log.info("Check for coordinate " + str(grid.coordinate))
-                    # If the grid is at the last attacking square, there won't be a next iteration, so call king_in_check
-                    # Corner case where king is on the edge of the board
-                    if((grid.coordinate[0] == 'a' and x == -1) or (grid.coordinate[0] == 'h' and x == 1) or \
-                       (int(grid.coordinate[1]) == 8 and y == 1) or (int(grid.coordinate[1]) == 1 and y == -1)):
-                        game_controller.king_in_check(piece_name, piece.coordinate, proj_attacking_coordinates, piece.enemy_color)
-                        return
-
-def bishop_direction_spaces_available(bishop, game_controller, x, y):
-    for i in range(1,8):
-        for grid in StartRoom.Grid.grid_list:
-            if ord(grid.coordinate[0]) == ord(bishop.coordinate[0])+(x*i) \
-                   and int(grid.coordinate[1]) == int(bishop.coordinate[1])+(y*i):
-                # If no enemy piece on grid
-                if grid.occupied == 0:
-                    # If current king not in check and this piece is not pinned
-                    if(game_controller.color_in_check != bishop.color and bishop.pinned == False):
-                        grid.highlight()
-                    # If current king is in check
-                    elif game_controller.color_in_check == bishop.color:
-                        # Disable piece if it is pinned and checked from another enemy piece
-                        if bishop.pinned == True:
-                            bishop.disable = True
-                            return
-                        # Block path of enemy bishop, rook, or queen 
-                        # You cannot have multiple spaces in one direction when blocking so return
-                        elif grid.coordinate in game_controller.check_attacking_coordinates[:-1] \
-                            and (game_controller.attacker_piece == "bishop" or game_controller.attacker_piece == "rook" \
-                                 or game_controller.attacker_piece == "queen"):
-                            grid.highlight()
-                            return
-                        # The only grid available is the attacker piece when pawn or knight
-                        elif grid.coordinate == game_controller.check_attacking_coordinates[0] \
-                            and (game_controller.attacker_piece == "pawn" or game_controller.attacker_piece == "knight"):
-                            grid.highlight()
-                            return
-                    # If pinned and the grid is within the attacking coordinates restraint
-                    # Includes grid.coordinate != self.coordinate so that staying at same coordinate doesn't count as move
-                    elif(bishop.pinned == True and grid.coordinate in bishop.pin_attacking_coordinates \
-                         and grid.occupied_piece != 'king' and grid.coordinate != bishop.coordinate):
-                            grid.highlight()
-                    else:
-                        # When all the above conditions aren't met, then the bishop can't move further
-                        return
-                # If enemy piece on grid
-                elif grid.occupied == 1 and grid.occupied_piece_color == bishop.enemy_color:
-                    # Check_Attacking_Coordinates only exists when there is check
-                    if game_controller.color_in_check == bishop.color:
-                        if grid.coordinate in game_controller.check_attacking_coordinates[:-1] \
-                            and (game_controller.attacker_piece == "bishop" or game_controller.attacker_piece == "rook" \
-                                 or game_controller.attacker_piece == "queen"):
-                            grid.highlight()
-                        elif grid.coordinate == game_controller.check_attacking_coordinates[0] \
-                            and (game_controller.attacker_piece == "pawn" or game_controller.attacker_piece == "knight"):
-                            grid.highlight()
-                    # If pinned and grid is within the attacking coordinates restraint
-                    elif(bishop.pinned == True and grid.occupied_piece != 'king'):
-                        if grid.coordinate in bishop.pin_attacking_coordinates:
-                            # If not in check from another piece
-                            if not game_controller.check_attacking_coordinates:
-                                grid.highlight()
-                                # No return since there are more than one possibility when between king and attacker piece
-                    else:
-                        # In all other cases where no check and no pin
-                        grid.highlight()
-                    # Will always return function on square with enemy piece
-                    return
-                # If same color piece in the way
-                elif grid.occupied == 1 and grid.occupied_piece_color == bishop.color:
-                    # Will always return function on square with friendly piece
-                    return
-
-class PlayBishop(ChessPiece, pygame.sprite.Sprite):
-    white_bishop_list = []
-    black_bishop_list = []
-    def __init__(self, pos, PLAY_SPRITES, col):
-        pygame.sprite.Sprite.__init__(self)
-        if(col == "white"):
-            self.image = IMAGES["SPR_WHITE_BISHOP"]
-            PlayBishop.white_bishop_list.append(self)
-        elif(col == "black"):
-            self.image = IMAGES["SPR_BLACK_BISHOP"]
-            PlayBishop.black_bishop_list.append(self)
-        super().__init__(pos, PLAY_SPRITES, self.image, col)
-    def projected(self, game_controller):
-        if(self.taken_off_board != True):
-            bishop_projected("bishop", self, game_controller, -1, -1) #southwest
-            bishop_projected("bishop", self, game_controller, -1, 1) #northwest
-            bishop_projected("bishop", self, game_controller, 1, -1) #southeast
-            bishop_projected("bishop", self, game_controller, 1, 1) #northeast
-    def captured(self, x, y):
-        self.taken_off_board = True
-        self.coordinate = None
-        self.rect.topleft = x, y
-        self.prior_move_color = False
-        if(self.color == "white"):
-            self.image = IMAGES["SPR_WHITE_BISHOP"]
-        elif(self.color == "black"):
-            self.image = IMAGES["SPR_BLACK_BISHOP"]
-    def highlight(self):
-        if self.taken_off_board != True:
-            if(self.color == "white"):
-                self.image = IMAGES["SPR_WHITE_BISHOP_HIGHLIGHTED"]
-            elif(self.color == "black"):
-                self.image = IMAGES["SPR_BLACK_BISHOP_HIGHLIGHTED"]
-            self.select = True
-    def spaces_available(self, game_controller):
-        if(self.taken_off_board != True and self.disable == False):
-            bishop_direction_spaces_available(self, game_controller, -1, -1) #southwest
-            bishop_direction_spaces_available(self, game_controller, -1, 1) #northwest
-            bishop_direction_spaces_available(self, game_controller, 1, -1) #southeast
-            bishop_direction_spaces_available(self, game_controller, 1, 1) #northeast
-    def no_highlight(self):
-        if self.taken_off_board != True:
-            if(self.color == "white"):
-                if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_WHITE_BISHOP_PRIORMOVE"]
-                else:
-                    self.image = IMAGES["SPR_WHITE_BISHOP"]
-            elif(self.color == "black"):
-                if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_BLACK_BISHOP_PRIORMOVE"]
-                else:
-                    self.image = IMAGES["SPR_BLACK_BISHOP"]
-            self.select = False
-
-def rook_projected(piece_name, piece, game_controller, x, y):
-    pieces_in_way = 0 #Pieces between the rook and the enemy King
-    king_count = 0 #Checks to see if there's a king in a direction
-    pinned_piece_coord = None
-    proj_attacking_coordinates = [piece.coordinate]
-    for i in range(1, 8):
-        for grid in StartRoom.Grid.grid_list:
-            if(ord(grid.coordinate[0]) == ord(piece.coordinate[0])+(x*i) \
-               and int(grid.coordinate[1]) == int(piece.coordinate[1])+(y*i)):
-                # Incrementing the count for allowable grids that this piece moves
-                proj_attacking_coordinates.append(grid.coordinate)
-                # If King is already in check and it's iterating to next occupied grid space
-                if(pieces_in_way == 1 and king_count == 1):
-                    game_controller.king_in_check(piece_name, piece.coordinate, proj_attacking_coordinates, piece.enemy_color)
-                    return
-                # Passing this piece's coordinate to this grid
-                if pinned_piece_coord is None:
-                    grid.attack_count_increment(piece.color, piece.coordinate)
-                # Counting pieces and Ignoring pieces that are past the king
-                if(grid.occupied == 1 and king_count < 1): 
-                    pieces_in_way += 1
-                    if(grid.occupied_piece == "king" and grid.occupied_piece_color == piece.enemy_color):
-                        king_count += 1
-                    else:
-                        # If there's already no pin
-                        if pinned_piece_coord is None:
-                            pinned_piece_coord = grid.coordinate
-                        # 2 pieces without a king
-                        else:
-                            return
-                # 2 Pieces in way, includes 1 king
-                if(pieces_in_way == 2 and king_count == 1): #2 Pieces in way, includes 1 king
-                    #log.info("King is pinned on coordinate " + str(grid.coordinate))
-                    game_controller.pinned_piece(pinned_piece_coord, proj_attacking_coordinates, piece.enemy_color)
-                    return
-                # 1 Piece in way which is King
-                # This is check, we will iterate one more time to cover the next square king is not allowed to go to
-                elif(pieces_in_way == 1 and king_count == 1 and grid.occupied_piece == "king"):
-                    #log.info("Check for coordinate " + str(grid.coordinate))
-                    # If the grid is at the last attacking square, there won't be a next iteration, so call king_in_check
-                    if((grid.coordinate[0] == 'a' and y == 0) or (grid.coordinate[0] == 'h' and y == 0) or \
-                       (int(grid.coordinate[1]) == 1 and x == 0) or (int(grid.coordinate[1]) == 8 and x == 0)):
-                        game_controller.king_in_check(piece_name, piece.coordinate, proj_attacking_coordinates, piece.enemy_color)
-                        return
-    return
-
-def rook_direction_spaces_available(rook, game_controller, x, y):
-    for i in range(1,8):
-        for grid in StartRoom.Grid.grid_list:
-            if ord(grid.coordinate[0]) == ord(rook.coordinate[0])+(x*i) and int(grid.coordinate[1]) == int(rook.coordinate[1])+(y*i):
-                # If no enemy piece on grid
-                if grid.occupied == 0:
-                    # If current king not in check and this piece is not pinned
-                    if(game_controller.color_in_check != rook.color and rook.pinned == False):
-                        grid.highlight()
-                    # If current king is in check
-                    elif game_controller.color_in_check == rook.color:
-                        # Disable piece if it is pinned and checked from another enemy piece
-                        if rook.pinned == True:
-                            rook.disable = True
-                            return
-                        # Block path of enemy bishop, rook, or queen 
-                        # You cannot have multiple spaces in one direction when blocking so return
-                        elif grid.coordinate in game_controller.check_attacking_coordinates[:-1] \
-                            and (game_controller.attacker_piece == "bishop" or game_controller.attacker_piece == "rook" \
-                                 or game_controller.attacker_piece == "queen"):
-                            grid.highlight()
-                            return
-                        # The only grid available is the attacker piece when pawn or knight
-                        elif grid.coordinate == game_controller.check_attacking_coordinates[0] \
-                            and (game_controller.attacker_piece == "pawn" or game_controller.attacker_piece == "knight"):
-                            grid.highlight()
-                            return
-                    # If pinned and grid is within the attacking coordinates restraint
-                    elif(rook.pinned == True and grid.coordinate in rook.pin_attacking_coordinates \
-                         and grid.occupied_piece != 'king' and grid.coordinate != rook.coordinate):
-                        grid.highlight() 
-                    else:
-                        # When all the above conditions aren't met, then the bishop can't move further
-                        return
-                # If enemy piece on grid
-                elif grid.occupied == 1 and grid.occupied_piece_color == rook.enemy_color:
-                    # Check_Attacking_Coordinates only exists when there is check
-                    if game_controller.color_in_check == rook.color:
-                        # Block path of enemy bishop, rook, or queen 
-                        # You cannot have multiple spaces in one direction when blocking so return
-                        if grid.coordinate in game_controller.check_attacking_coordinates[:-1] \
-                            and (game_controller.attacker_piece == "bishop" or game_controller.attacker_piece == "rook" \
-                                 or game_controller.attacker_piece == "queen"):
-                            grid.highlight()
-                        # The only grid available is the attacker piece when pawn or knight
-                        elif grid.coordinate == game_controller.check_attacking_coordinates[0] \
-                            and (game_controller.attacker_piece == "pawn" or game_controller.attacker_piece == "knight"):
-                            grid.highlight()
-                    # If pinned and grid is within the attacking coordinates restraint
-                    elif(rook.pinned == True and grid.coordinate in rook.pin_attacking_coordinates \
-                         and grid.occupied_piece != 'king'):
-                        grid.highlight()      
-                    else:
-                        # In all other cases where no check and no pin
-                        grid.highlight()
-                    return
-                # If same color piece in the way
-                elif grid.occupied == 1 and grid.occupied_piece_color == rook.color:
-                    return
-
-class PlayRook(ChessPiece, pygame.sprite.Sprite):
-    white_rook_list = []
-    black_rook_list = []
-    def __init__(self, pos, PLAY_SPRITES, col):
-        pygame.sprite.Sprite.__init__(self)
-        if(col == "white"):
-            self.image = IMAGES["SPR_WHITE_ROOK"]
-            PlayRook.white_rook_list.append(self)
-        elif(col == "black"):
-            self.image = IMAGES["SPR_BLACK_ROOK"]
-            PlayRook.black_rook_list.append(self)
-        super().__init__(pos, PLAY_SPRITES, self.image, col)
-        self.allowed_to_castle = True
-    def captured(self, x, y):
-        self.taken_off_board = True
-        self.coordinate = None
-        self.rect.topleft = x, y
-        self.prior_move_color = False
-        if(self.color == "white"):
-            self.image = IMAGES["SPR_WHITE_ROOK"]
-        elif(self.color == "black"):
-            self.image = IMAGES["SPR_BLACK_ROOK"]
-    def projected(self, game_controller):
-        if(self.taken_off_board != True):
-            rook_projected("rook", self, game_controller, -1, 0) #west
-            rook_projected("rook", self, game_controller, 1, 0) #east
-            rook_projected("rook", self, game_controller, 0, 1) #north
-            rook_projected("rook", self, game_controller, 0, -1) #south
-    def highlight(self):
-        if(self.color == "white"):
-            self.image = IMAGES["SPR_WHITE_ROOK_HIGHLIGHTED"]
-        elif(self.color == "black"):
-            self.image = IMAGES["SPR_BLACK_ROOK_HIGHLIGHTED"]
-        self.select = True
-    def spaces_available(self, game_controller):
-        if(self.taken_off_board != True and self.disable == False):
-            rook_direction_spaces_available(self, game_controller, -1, 0) #west
-            rook_direction_spaces_available(self, game_controller, 1, 0) #east
-            rook_direction_spaces_available(self, game_controller, 0, 1) #north
-            rook_direction_spaces_available(self, game_controller, 0, -1) #south
-    def no_highlight(self):
-        if(self.color == "white"):
-            if(self.prior_move_color == True):
-                self.image = IMAGES["SPR_WHITE_ROOK_PRIORMOVE"]
-            else:
-                self.image = IMAGES["SPR_WHITE_ROOK"]
-        elif(self.color == "black"):
-            if(self.prior_move_color == True):
-                self.image = IMAGES["SPR_BLACK_ROOK_PRIORMOVE"]
-            else:
-                self.image = IMAGES["SPR_BLACK_ROOK"]
-        self.select = False
-
-class PlayQueen(ChessPiece, pygame.sprite.Sprite):
-    white_queen_list = []
-    black_queen_list = []
-    def __init__(self, pos, PLAY_SPRITES, col):
-        pygame.sprite.Sprite.__init__(self)
-        if(col == "white"):
-            self.image = IMAGES["SPR_WHITE_QUEEN"]
-            PlayQueen.white_queen_list.append(self)
-        elif(col == "black"):
-            self.image = IMAGES["SPR_BLACK_QUEEN"]
-            PlayQueen.black_queen_list.append(self)
-        super().__init__(pos, PLAY_SPRITES, self.image, col)
-    def captured(self, x, y):
-        self.taken_off_board = True
-        self.coordinate = None
-        self.rect.topleft = x, y
-        self.prior_move_color = False
-        if(self.color == "white"):
-            self.image = IMAGES["SPR_WHITE_QUEEN"]
-        elif(self.color == "black"):
-            self.image = IMAGES["SPR_BLACK_QUEEN"]
-    def projected(self, game_controller):
-        if(self.taken_off_board != True):
-            bishop_projected("queen", self, game_controller, -1, -1) #southwest
-            bishop_projected("queen", self, game_controller, -1, 1) #northwest
-            bishop_projected("queen", self, game_controller, 1, -1) #southeast
-            bishop_projected("queen", self, game_controller, 1, 1) #northeast
-            rook_projected("rook", self, game_controller, -1, 0) #west
-            rook_projected("rook", self, game_controller, 1, 0) #east
-            rook_projected("rook", self, game_controller, 0, 1) #north
-            rook_projected("rook", self, game_controller, 0, -1) #south
-    def highlight(self):
-        if self.taken_off_board != True:
-            if(self.color == "white"):
-                self.image = IMAGES["SPR_WHITE_QUEEN_HIGHLIGHTED"]
-            if(self.color == "black"):
-                self.image = IMAGES["SPR_BLACK_QUEEN_HIGHLIGHTED"]
-            self.select = True
-    def spaces_available(self, game_controller):
-        if(self.taken_off_board != True and self.disable == False):
-            bishop_direction_spaces_available(self, game_controller, -1, -1) #southwest
-            bishop_direction_spaces_available(self, game_controller, -1, 1) #northwest
-            bishop_direction_spaces_available(self, game_controller, 1, -1) #southeast
-            bishop_direction_spaces_available(self, game_controller, 1, 1) #northeast
-            rook_direction_spaces_available(self, game_controller, -1, 0) #west
-            rook_direction_spaces_available(self, game_controller, 1, 0) #east
-            rook_direction_spaces_available(self, game_controller, 0, 1) #north
-            rook_direction_spaces_available(self, game_controller, 0, -1) #south
-    def no_highlight(self):
-        if self.taken_off_board != True:
-            if(self.color == "white"):
-                if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_WHITE_QUEEN_PRIORMOVE"]
-                else:
-                    self.image = IMAGES["SPR_WHITE_QUEEN"]
-            if(self.color == "black"):
-                if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_BLACK_QUEEN_PRIORMOVE"]
-                else:
-                    self.image = IMAGES["SPR_BLACK_QUEEN"]
-            self.select = False
-
-class PlayKing(ChessPiece, pygame.sprite.Sprite):
-    white_king_list = []
-    black_king_list = []
-    def __init__(self, pos, PLAY_SPRITES, col):
-        pygame.sprite.Sprite.__init__(self)
-        if(col == "white"):
-            self.image = IMAGES["SPR_WHITE_KING"]
-            PlayKing.white_king_list.append(self)
-        elif(col == "black"):
-            self.image = IMAGES["SPR_BLACK_KING"]
-            PlayKing.black_king_list.append(self)
-        self.left_castle_ability = False
-        self.right_castle_ability = False
-        self.castled = False
-        super().__init__(pos, PLAY_SPRITES, self.image, col)
-    def castle_check(self, game_controller):
-        if(self.castled == False and game_controller.color_in_check != self.color):
-            if self.color == "white":
-                for white_rook in PlayRook.white_rook_list:
-                    if white_rook.allowed_to_castle == True:
-                        if(white_rook.coordinate == 'a1'):
-                            if(StartRoom.Grid.grid_dict['b1'].occupied == 0 and StartRoom.Grid.grid_dict['c1'].occupied == 0 and StartRoom.Grid.grid_dict['d1'].occupied == 0 \
-                               and len(StartRoom.Grid.grid_dict['b1'].list_of_black_pieces_attacking) == 0 and len(StartRoom.Grid.grid_dict['c1'].list_of_black_pieces_attacking) == 0 \
-                               and len(StartRoom.Grid.grid_dict['d1'].list_of_black_pieces_attacking) == 0):
-                                self.left_castle_ability = True
-                            else:
-                                self.left_castle_ability = False
-                        if(white_rook.coordinate == 'h1'):
-                            if(StartRoom.Grid.grid_dict['f1'].occupied == 0 and StartRoom.Grid.grid_dict['g1'].occupied == 0 \
-                               and len(StartRoom.Grid.grid_dict['f1'].list_of_black_pieces_attacking) == 0 and len(StartRoom.Grid.grid_dict['g1'].list_of_black_pieces_attacking) == 0):
-                                self.right_castle_ability = True
-                            else:
-                                self.right_castle_ability = False
-            elif self.color == "black":
-                for black_rook in PlayRook.black_rook_list:
-                    if black_rook.allowed_to_castle == True:
-                        if(black_rook.coordinate == 'a8'):
-                            if(StartRoom.Grid.grid_dict['b8'].occupied == 0 and StartRoom.Grid.grid_dict['c8'].occupied == 0 and StartRoom.Grid.grid_dict['d8'].occupied == 0 \
-                               and len(StartRoom.Grid.grid_dict['b8'].list_of_white_pieces_attacking) == 0 and len(StartRoom.Grid.grid_dict['c8'].list_of_white_pieces_attacking) == 0 \
-                               and len(StartRoom.Grid.grid_dict['d8'].list_of_white_pieces_attacking) == 0):
-                                self.left_castle_ability = True
-                            else:
-                                self.left_castle_ability = False
-                        if(black_rook.coordinate == 'h8'):
-                            if(StartRoom.Grid.grid_dict['f8'].occupied == 0 and StartRoom.Grid.grid_dict['g8'].occupied == 0 \
-                               and len(StartRoom.Grid.grid_dict['f8'].list_of_white_pieces_attacking) == 0 and len(StartRoom.Grid.grid_dict['g8'].list_of_white_pieces_attacking) == 0):
-                                self.right_castle_ability = True
-                            else:
-                                self.right_castle_ability = False
-    def highlight(self):
-        if(self.color == "white"):
-            self.image = IMAGES["SPR_WHITE_KING_HIGHLIGHTED"]
-        elif(self.color == "black"):
-            self.image = IMAGES["SPR_BLACK_KING_HIGHLIGHTED"]
-        self.select = 1
-    def projected(self, game_controller):
-        if self.taken_off_board == False:
-            for grid in StartRoom.Grid.grid_list:
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and int(grid.coordinate[1]) == int(self.coordinate[1])-1:
-                    grid.attack_count_increment(self.color, self.coordinate)
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and int(grid.coordinate[1]) == int(self.coordinate[1]):
-                    grid.attack_count_increment(self.color, self.coordinate)
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and int(grid.coordinate[1]) == int(self.coordinate[1])+1:
-                    grid.attack_count_increment(self.color, self.coordinate)
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0]) and int(grid.coordinate[1]) == int(self.coordinate[1])-1:
-                    grid.attack_count_increment(self.color, self.coordinate)
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0]) and int(grid.coordinate[1]) == int(self.coordinate[1])+1:
-                    grid.attack_count_increment(self.color, self.coordinate)
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and int(grid.coordinate[1]) == int(self.coordinate[1])-1:
-                    grid.attack_count_increment(self.color, self.coordinate)
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and int(grid.coordinate[1]) == int(self.coordinate[1]):
-                    grid.attack_count_increment(self.color, self.coordinate)
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and int(grid.coordinate[1]) == int(self.coordinate[1])+1:
-                    grid.attack_count_increment(self.color, self.coordinate)
-                if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and int(grid.coordinate[1]) == int(self.coordinate[1]) and \
-                    (grid.occupied == 0 or grid.occupied_piece_color != self.color) and
-                    self.right_castle_ability == 1 and (int(self.coordinate[1]) == 1 or int(self.coordinate[1])==8)):
-                        grid.attack_count_increment(self.color, self.coordinate)
-                if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-2 and int(grid.coordinate[1]) == int(self.coordinate[1]) and \
-                    (grid.occupied == 0 or grid.occupied_piece_color != self.color) and
-                    self.left_castle_ability == 1 and (int(self.coordinate[1]) == 1 or int(self.coordinate[1])==8)):
-                        grid.attack_count_increment(self.color, self.coordinate)
-    def spaces_available(self, game_controller):
-        if((self.color == "white" and self.coordinate == 'e1') or (self.color == "black" and self.coordinate == 'e8')):
-            self.castle_check(game_controller)
-        for grid in StartRoom.Grid.grid_list:
-            # Direct Enemy Threat refers to how many opposing color pieces are attacking square
-            if self.color == "white":
-                direct_enemy_threat = len(grid.list_of_black_pieces_attacking) > 0
-            elif self.color == "black":
-                direct_enemy_threat = len(grid.list_of_white_pieces_attacking) > 0
-            # Projected Enemy Threat refers to threatening squares past the king
-            projected_enemy_threat = grid.coordinate in game_controller.check_attacking_coordinates
-            # If square does not have same color piece on it
-            # If square is not directly threatened by opposing piece
-            # If square is not in enemy piece projection OR if enemy piece in reach to be take-able
-            if(grid.occupied_piece_color != self.color and direct_enemy_threat == False and \
-               (projected_enemy_threat == False or grid.occupied_piece_color == self.enemy_color)):
-                # King can have only one move in all directions
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and int(grid.coordinate[1]) == int(self.coordinate[1])-1:
-                    grid.highlight()
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and int(grid.coordinate[1]) == int(self.coordinate[1]):
-                    grid.highlight()
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and int(grid.coordinate[1]) == int(self.coordinate[1])+1:
-                    grid.highlight()
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0]) and int(grid.coordinate[1]) == int(self.coordinate[1])-1:
-                    grid.highlight()
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0]) and int(grid.coordinate[1]) == int(self.coordinate[1])+1:
-                    grid.highlight()
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and int(grid.coordinate[1]) == int(self.coordinate[1])-1:
-                    grid.highlight()
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and int(grid.coordinate[1]) == int(self.coordinate[1]):
-                    grid.highlight()
-                if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and int(grid.coordinate[1]) == int(self.coordinate[1])+1:
-                    grid.highlight()
-                # Castle
-                if(ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and int(grid.coordinate[1]) == int(self.coordinate[1]) and \
-                    self.right_castle_ability == 1 and (int(self.coordinate[1]) == 1 or int(self.coordinate[1])==8) and \
-                    self.castled == False):
-                        grid.highlight()
-                if(ord(grid.coordinate[0]) == ord(self.coordinate[0])-2 and int(grid.coordinate[1]) == int(self.coordinate[1]) and \
-                    self.left_castle_ability == 1 and (int(self.coordinate[1]) == 1 or int(self.coordinate[1])==8) and \
-                    self.castled == False):
-                        grid.highlight()
-    def no_highlight(self):
-        if(self.color == "white"):
-            if(self.prior_move_color == True):
-                self.image = IMAGES["SPR_WHITE_KING_PRIORMOVE"]
-            else:
-                self.image = IMAGES["SPR_WHITE_KING"]
-        elif(self.color == "black"):
-            if(self.prior_move_color == True):
-                self.image = IMAGES["SPR_BLACK_KING_PRIORMOVE"]
-            else:
-                self.image = IMAGES["SPR_BLACK_KING"]
-        self.select = 0
-
 class PlayEditSwitchButton(pygame.sprite.Sprite):
     def __init__(self, pos, GAME_MODE_SPRITES):
         pygame.sprite.Sprite.__init__(self)
@@ -1041,18 +281,7 @@ class PlayEditSwitchButton(pygame.sprite.Sprite):
     
 class Dragging():
     def __init__(self):
-        self.white_pawn = False
-        self.white_bishop = False
-        self.white_knight = False
-        self.white_rook = False
-        self.white_queen = False
-        self.white_king = False
-        self.black_pawn = False
-        self.black_bishop = False
-        self.black_knight = False
-        self.black_rook = False
-        self.black_queen = False
-        self.black_king = False
+        self.dragging_all_false()
     def dragging_all_false(self):
         self.white_pawn = False
         self.white_bishop = False
@@ -1096,53 +325,18 @@ class Dragging():
 class Start():
     def __init__(self):
         self.start_obj_image_placeholder = StartObjImagePlaceholder()
-        initvar.START_SPRITES.add(self.start_obj_image_placeholder)
         self.white_pawn = StartPawn("white")
-        initvar.START_SPRITES.add(self.white_pawn)
         self.white_bishop = StartBishop("white")
-        initvar.START_SPRITES.add(self.white_bishop)
-        self.white_knight = StartKnight("white")
-        initvar.START_SPRITES.add(self.white_knight)        
-        self.white_rook = StartRook("white")
-        initvar.START_SPRITES.add(self.white_rook)        
-        self.white_queen = StartQueen("white")
-        initvar.START_SPRITES.add(self.white_queen)        
-        self.white_king = StartKing("white")
-        initvar.START_SPRITES.add(self.white_king)        
+        self.white_knight = StartKnight("white")        
+        self.white_rook = StartRook("white")      
+        self.white_queen = StartQueen("white")      
+        self.white_king = StartKing("white")      
         self.black_pawn = StartPawn("black")
-        initvar.START_SPRITES.add(self.black_pawn)
         self.black_bishop = StartBishop("black")
-        initvar.START_SPRITES.add(self.black_bishop)
-        self.black_knight = StartKnight("black")
-        initvar.START_SPRITES.add(self.black_knight)        
-        self.black_rook = StartRook("black")
-        initvar.START_SPRITES.add(self.black_rook)        
-        self.black_queen = StartQueen("black")
-        initvar.START_SPRITES.add(self.black_queen)        
+        self.black_knight = StartKnight("black")      
+        self.black_rook = StartRook("black")      
+        self.black_queen = StartQueen("black")      
         self.black_king = StartKing("black")
-        initvar.START_SPRITES.add(self.black_king)
-
-def remove_all_placed():
-    for spr_list in [PlacedPawn.white_pawn_list, PlacedBishop.white_bishop_list,
-                     PlacedKnight.white_knight_list, PlacedRook.white_rook_list,
-                     PlacedQueen.white_queen_list, PlacedKing.white_king_list, 
-                     PlacedPawn.black_pawn_list, PlacedBishop.black_bishop_list, 
-                     PlacedKnight.black_knight_list, PlacedRook.black_rook_list,
-                     PlacedQueen.black_queen_list, PlacedKing.black_king_list]:
-        for obj in spr_list:
-            obj.kill()
-    PlacedPawn.white_pawn_list = []
-    PlacedBishop.white_bishop_list = []
-    PlacedKnight.white_knight_list = []
-    PlacedRook.white_rook_list = []
-    PlacedQueen.white_queen_list = []
-    PlacedKing.white_king_list = []
-    PlacedPawn.black_pawn_list = []
-    PlacedBishop.black_bishop_list = []
-    PlacedKnight.black_knight_list = []
-    PlacedRook.black_rook_list = []
-    PlacedQueen.black_queen_list = []
-    PlacedKing.black_king_list = []
     
 class PGN_Writer():
     def __init__(self):
@@ -1190,7 +384,7 @@ class PGN_Writer():
 
 class Grid_Controller():
     def update_grid(game_controller):
-        for grid in StartRoom.Grid.grid_list:
+        for grid in board.Grid.grid_list:
             if game_controller.game_mode == game_controller.PLAY_MODE:
                 def grid_occupied_by_piece():
                     for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
@@ -1227,25 +421,12 @@ class Grid_Controller():
 
 class Game_Controller():
     def __init__(self):
-        self.WHOSETURN = "white"
-        self.color_in_check = ""
         self.EDIT_MODE, self.PLAY_MODE = 0, 1
         self.game_mode = self.EDIT_MODE
-        self.check_attacking_coordinates = []
-        self.attacker_piece = ""
-        self.black_captured_x = initvar.CAPTURED_X
-        self.white_captured_x = initvar.CAPTURED_X
-        self.move_counter = 1
-        self.df_moves = pd.DataFrame(columns=["white_move", "black_move"])
-        self.df_moves.index = np.arange(1, len(self.df_moves)+1) # Index at 1 rather than 0 because chess starts that way
-        self.df_prior_moves = pd.DataFrame(columns=["white_move", "black_move"])
-        self.df_prior_moves.index = np.arange(1, len(self.df_prior_moves)+1)
-        self.result_abb = "*"
-        self.selected_move = [0, "", ""] #move number, move, color of moved piece
-    def reset_board(self):
+        self.reset_initial_vars()
+    def reset_initial_vars(self):
         self.WHOSETURN = "white"
         self.color_in_check = ""
-        self.game_mode = self.EDIT_MODE
         self.check_attacking_coordinates = []
         self.attacker_piece = ""
         self.black_captured_x = initvar.CAPTURED_X
@@ -1257,7 +438,10 @@ class Game_Controller():
         self.df_prior_moves.index = np.arange(1, len(self.df_prior_moves)+1)
         self.result_abb = "*"
         self.selected_move = [0, "", ""]
-        Text_Controller.check_checkmate_text = ""
+    def reset_board(self):
+        self.game_mode = self.EDIT_MODE
+        self.reset_initial_vars()
+        Text_Controller.reset()
         # Kill all Objects within their Class lists/dicts
         for spr_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                  PlayKnight.white_knight_list, PlayRook.white_rook_list,
@@ -1280,7 +464,7 @@ class Game_Controller():
         PlayRook.black_rook_list = []
         PlayQueen.black_queen_list = []
         PlayKing.black_king_list = []
-        for grid in StartRoom.Grid.grid_list:
+        for grid in board.Grid.grid_list:
             grid.reset_board()
             grid.attack_count_reset()
         # Reset Moves Panel
@@ -1294,7 +478,7 @@ class Game_Controller():
         self.check_attacking_coordinates = []
         self.attacker_piece = ""
         # No highlights and ensuring that attacking squares (used by diagonal pieces) are set to 0
-        for grid in StartRoom.Grid.grid_list:
+        for grid in board.Grid.grid_list:
             grid.no_highlight()
             grid.list_of_white_pieces_attacking = []
             grid.list_of_black_pieces_attacking = []
@@ -1315,12 +499,12 @@ class Game_Controller():
             self.projected_white_update()
             # If white king is not in check, reset color_in_check, else white in check
             for white_king in PlayKing.white_king_list:
-                if StartRoom.Grid.grid_dict[white_king.coordinate].list_of_black_pieces_attacking == []:
+                if board.Grid.grid_dict[white_king.coordinate].list_of_black_pieces_attacking == []:
                     self.color_in_check = ""
                 else:
                     self.color_in_check = "white"
                     # Disable pieces if their king is in double-check
-                    if len(StartRoom.Grid.grid_dict[white_king.coordinate].list_of_black_pieces_attacking) > 1:
+                    if len(board.Grid.grid_dict[white_king.coordinate].list_of_black_pieces_attacking) > 1:
                         for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                                            PlayKnight.white_knight_list, PlayRook.white_rook_list, 
                                            PlayQueen.white_queen_list]:
@@ -1335,12 +519,12 @@ class Game_Controller():
             self.projected_black_update()
             # If black king is not in check, reset color_in_check, else black in check
             for black_king in PlayKing.black_king_list:
-                if StartRoom.Grid.grid_dict[black_king.coordinate].list_of_white_pieces_attacking == []:
+                if board.Grid.grid_dict[black_king.coordinate].list_of_white_pieces_attacking == []:
                     self.color_in_check = ""
                 else:
                     self.color_in_check = "black"
                     # Disable pieces if their king is in double-check
-                    if len(StartRoom.Grid.grid_dict[black_king.coordinate].list_of_white_pieces_attacking) > 1:
+                    if len(board.Grid.grid_dict[black_king.coordinate].list_of_white_pieces_attacking) > 1:
                         for piece_list in [PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
                                            PlayKnight.black_knight_list, PlayRook.black_rook_list, 
                                            PlayQueen.black_queen_list]:
@@ -1370,7 +554,7 @@ class Game_Controller():
                            PlayKnight.black_knight_list, PlayRook.black_rook_list,
                            PlayQueen.black_queen_list, PlayKing.black_king_list]:
             for piece in piece_list:
-                if StartRoom.Grid.grid_dict[pinned_piece_coordinate].coordinate == piece.coordinate \
+                if board.Grid.grid_dict[pinned_piece_coordinate].coordinate == piece.coordinate \
                     and piece.color == color:
                     piece.pinned_restrict(pin_attacking_coordinates)
     def king_in_check(self, attacker_piece, check_piece_coordinate, check_attacking_coordinates, color):
@@ -1381,6 +565,8 @@ class Game_Controller():
 
 class Text_Controller():
     check_checkmate_text = ""
+    def reset():
+        check_checkmate_text = ""
 
 def draw_text_on_rects_in_moves_pane(surface, my_font):
     for move_num_rect in MoveNumberRectangle.rectangle_list:
@@ -1469,23 +655,15 @@ def main():
         
         PLAY_EDIT_SWITCH_BUTTON = PlayEditSwitchButton(initvar.PLAY_EDIT_SWITCH_BUTTON_TOPLEFT, GAME_MODE_SPRITES)
         FLIP_BOARD_BUTTON = FlipBoardButton(initvar.FLIP_BOARD_BUTTON_TOPLEFT)
-        initvar.START_SPRITES.add(FLIP_BOARD_BUTTON)
         GAME_PROPERTIES_BUTTON = GamePropertiesButton(initvar.GAME_PROPERTIES_BUTTON_TOPLEFT)
-        initvar.START_SPRITES.add(GAME_PROPERTIES_BUTTON)
         INFO_BUTTON = InfoButton(initvar.INFO_BUTTON_TOPLEFT)
-        initvar.START_SPRITES.add(INFO_BUTTON)
         POS_LOAD_FILE_BUTTON = PosLoadFileButton(initvar.POS_LOAD_FILE_BUTTON_TOPLEFT)
-        initvar.START_SPRITES.add(POS_LOAD_FILE_BUTTON)
         POS_SAVE_FILE_BUTTON = PosSaveFileButton(initvar.POS_SAVE_FILE_BUTTON_TOPLEFT)
-        initvar.START_SPRITES.add(POS_SAVE_FILE_BUTTON)
         PGN_LOAD_FILE_BUTTON = PGNLoadFileButton(initvar.PGN_LOAD_FILE_BUTTON_TOPLEFT)
         PGN_SAVE_FILE_BUTTON = PGNSaveFileButton(initvar.PGN_SAVE_FILE_BUTTON_TOPLEFT)
         COLOR_BUTTON = ColorButton(initvar.COLOR_BUTTON_TOPLEFT)
-        initvar.START_SPRITES.add(COLOR_BUTTON)
         RESET_BOARD_BUTTON = ResetBoardButton(initvar.RESET_BOARD_BUTTON_TOPLEFT)
-        initvar.START_SPRITES.add(RESET_BOARD_BUTTON)
         CLEAR_BUTTON = ClearButton(initvar.CLEAR_BUTTON_TOPLEFT)
-        initvar.START_SPRITES.add(CLEAR_BUTTON)
         SCROLL_UP_BUTTON = ScrollUpButton(initvar.SCROLL_UP_BUTTON_TOPLEFT)
         SCROLL_DOWN_BUTTON = ScrollDownButton(initvar.SCROLL_DOWN_BUTTON_TOPLEFT)
         GAME_MODE_SPRITES.add(SCROLL_DOWN_BUTTON)
@@ -1525,14 +703,14 @@ def main():
         
         def mouse_coordinate(mousepos):
             mouse_coord = ""
-            for grid in StartRoom.Grid.grid_list:
+            for grid in board.Grid.grid_list:
                 if grid.rect.collidepoint(mousepos):
                     mouse_coord = grid.coordinate
                     return mouse_coord
             return mouse_coord
         
         def grid_topleft_based_on_coord(given_coordinate):
-            for grid in StartRoom.Grid.grid_list:
+            for grid in board.Grid.grid_list:
                 if grid.coordinate == given_coordinate:
                     return grid.rect.topleft
             
@@ -1568,7 +746,7 @@ def main():
                             debug_message = 1
                             state = DEBUG
                     # Menu, inanimate buttons at top, and on right side of game board
-                    if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and MOUSEPOS[0] > StartRoom.X_GRID_END:
+                    if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and MOUSEPOS[0] > board.X_GRID_END:
                         if SCROLL_UP_BUTTON.rect.collidepoint(MOUSEPOS) and PanelRectangles.scroll_range[0] > 1: # Scroll up
                             update_scroll_range(-1)
                         if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS) and len(MoveNumberRectangle.rectangle_list) > initvar.MOVES_PANE_MAX_MOVES and PanelRectangles.scroll_range[1] < len(MoveNumberRectangle.rectangle_list): # Scroll down
@@ -1622,8 +800,8 @@ def main():
                     
                     # Placed object placed on location of mouse release
                     elif (event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and
-                          MOUSEPOS[0] > initvar.X_GRID_START and MOUSEPOS[0] < StartRoom.X_GRID_END and
-                          MOUSEPOS[1] > initvar.Y_GRID_START and MOUSEPOS[1] < StartRoom.Y_GRID_END): 
+                          MOUSEPOS[0] > initvar.X_GRID_START and MOUSEPOS[0] < board.X_GRID_END and
+                          MOUSEPOS[1] > initvar.Y_GRID_START and MOUSEPOS[1] < board.Y_GRID_END): 
                         def dragging_to_placed_no_dups():
                             for piece_list in [PlacedPawn.white_pawn_list, PlacedBishop.white_bishop_list, 
                                                PlacedKnight.white_knight_list, PlacedRook.white_rook_list, 
@@ -1693,7 +871,7 @@ def main():
                                 # In order to get the prefix, we call out the positioning of piece
                                 # When there is another of the same piece
                                 prefix = ""
-                                for grid in StartRoom.Grid.grid_list:
+                                for grid in board.Grid.grid_list:
                                     if piece.color == "white":
                                         list_of_attack_pieces = grid.list_of_white_pieces_attacking
                                     elif piece.color == "black":
@@ -1704,19 +882,13 @@ def main():
                                         same_piece_list = []
                                         for attacker_grid in list_of_attack_pieces:
                                             # Pawn is only piece that can enter space without attacking it
-                                            if(StartRoom.Grid.grid_dict[attacker_grid].occupied_piece == piece_name \
+                                            if(board.Grid.grid_dict[attacker_grid].occupied_piece == piece_name \
                                                 and piece_name != "pawn" and special_abb != "=Q"):
                                                 same_piece_list.append(attacker_grid)
-                                        #log.info("SAME PIECE LIST " + str(same_piece_list))
                                         letter_coords = [coords_from_same_piece[0] for coords_from_same_piece in same_piece_list] 
                                         number_coords = [coords_from_same_piece[1] for coords_from_same_piece in same_piece_list] 
-                                        #log.info("LETTER COORDS " + str(letter_coords))
-                                        #log.info("NUMBER COORDS " + str(number_coords))
-                                        #log.info("previous coord " + str(piece.previous_coordinate))
-                                        if piece.previous_coordinate[0] in letter_coords and piece.previous_coordinate[1] in number_coords:
-                                            prefix = piece.previous_coordinate[0] + piece.previous_coordinate[1]
-                                            return prefix
-                                        elif piece.previous_coordinate[0] not in letter_coords and piece.previous_coordinate[1] in number_coords:
+                                        if(len(same_piece_list) > 0 and ((piece.previous_coordinate[0] not in letter_coords and piece.previous_coordinate[1] in number_coords) \
+                                            or (piece.previous_coordinate[0] not in letter_coords and piece.previous_coordinate[1] not in number_coords))):
                                             prefix += piece.previous_coordinate[0]
                                             return prefix
                                         elif piece.previous_coordinate[0] in letter_coords and piece.previous_coordinate[1] not in number_coords:
@@ -1751,7 +923,7 @@ def main():
                             # White win, draw, black win
                             game_controller.result_abb = "*"
                             prior_moves_dict = {}
-                            for grid in StartRoom.Grid.grid_list:
+                            for grid in board.Grid.grid_list:
                                 for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                                                    PlayKnight.white_knight_list, PlayRook.white_rook_list, 
                                                    PlayQueen.white_queen_list, PlayKing.white_king_list,
@@ -1793,6 +965,7 @@ def main():
                                                             if black_pawn.coordinate[0] == grid.coordinate[0] and \
                                                                 int(black_pawn.coordinate[1]) == 5:
                                                                     black_pawn.captured(game_controller.black_captured_x, black_captured_y)
+                                                                    game_controller.black_captured_x += incremental_x
                                                                     captured_abb = "x"
                                                 elif piece in PlayPawn.black_pawn_list:
                                                     for white_pawn in PlayPawn.white_pawn_list:
@@ -1801,14 +974,15 @@ def main():
                                                             if white_pawn.coordinate[0] == grid.coordinate[0] and \
                                                                 int(white_pawn.coordinate[1]) == 4:
                                                                     white_pawn.captured(game_controller.white_captured_x, white_captured_y)
+                                                                    game_controller.white_captured_x += incremental_x
                                                                     captured_abb = "x"
                                                                 
                                             # Reset en passant skipover for all squares
-                                            for sub_grid in StartRoom.Grid.grid_list:
+                                            for sub_grid in board.Grid.grid_list:
                                                 sub_grid.en_passant_skipover = False
                                                 
                                             # Grid is no longer occupied by a piece
-                                            for old_grid in StartRoom.Grid.grid_list:
+                                            for old_grid in board.Grid.grid_list:
                                                 if old_grid.coordinate == piece.coordinate:
                                                     old_grid.occupied = False
                                                     piece.previous_coordinate = old_grid.coordinate
@@ -1836,7 +1010,7 @@ def main():
                                             if piece in PlayPawn.white_pawn_list:
                                                 if int(piece.coordinate[1]) == 8:
                                                     special_abb = "=Q"
-                                                    promoted_queen = PlayQueen(piece.rect.topleft, PLAY_SPRITES, "white")
+                                                    promoted_queen = PlayQueen(piece.coordinate, PLAY_SPRITES, "white")
                                                     promoted_queen.previous_coordinate = piece.previous_coordinate
                                                     # Take white pawn off the board
                                                     piece.captured(game_controller.white_captured_x, white_captured_y)
@@ -1844,7 +1018,7 @@ def main():
                                                 # Detects that pawn was just moved
                                                 elif int(piece.coordinate[1]) == 4 and piece.previous_coordinate[0] == piece.coordinate[0] and \
                                                     int(piece.previous_coordinate[1]) == 2:
-                                                    for sub_grid in StartRoom.Grid.grid_list:
+                                                    for sub_grid in board.Grid.grid_list:
                                                         if sub_grid.coordinate[0] == piece.coordinate[0] and int(sub_grid.coordinate[1]) == int(piece.coordinate[1])-1:
                                                             sub_grid.en_passant_skipover = True
                                                         else:
@@ -1854,7 +1028,7 @@ def main():
                                             elif piece in PlayPawn.black_pawn_list:
                                                 if int(piece.coordinate[1]) == 1:
                                                     special_abb = "=Q"
-                                                    promoted_queen = PlayQueen(piece.rect.topleft, PLAY_SPRITES, "black")
+                                                    promoted_queen = PlayQueen(piece.coordinate, PLAY_SPRITES, "black")
                                                     promoted_queen.previous_coordinate = piece.previous_coordinate
                                                     # Take black pawn off the board
                                                     piece.captured(game_controller.black_captured_x, black_captured_y)
@@ -1862,7 +1036,7 @@ def main():
                                                 # Detects that pawn was just moved
                                                 elif int(piece.coordinate[1]) == 5 and piece.previous_coordinate[0] == piece.coordinate[0] and \
                                                     int(piece.previous_coordinate[1]) == 7:
-                                                    for sub_grid in StartRoom.Grid.grid_list:
+                                                    for sub_grid in board.Grid.grid_list:
                                                         if sub_grid.coordinate[0] == piece.coordinate[0] and int(sub_grid.coordinate[1]) == int(piece.coordinate[1])+1:
                                                             sub_grid.en_passant_skipover = True
                                                         else:
@@ -1876,15 +1050,15 @@ def main():
                                                 for rook in PlayRook.white_rook_list:
                                                     if rook.allowed_to_castle == True:
                                                         if rook.coordinate == 'a1' and piece.coordinate == 'c1':
-                                                            rook.rect.topleft = StartRoom.Grid.grid_dict['d1'].rect.topleft
-                                                            rook.coordinate = StartRoom.Grid.grid_dict['d1'].coordinate
-                                                            StartRoom.Grid.grid_dict['d1'].occupied = True
+                                                            rook.rect.topleft = board.Grid.grid_dict['d1'].rect.topleft
+                                                            rook.coordinate = board.Grid.grid_dict['d1'].coordinate
+                                                            board.Grid.grid_dict['d1'].occupied = True
                                                             rook.allowed_to_castle = False
                                                             special_abb = "O-O-O"
                                                         elif rook.coordinate == 'h1' and piece.coordinate == 'g1':
-                                                            rook.rect.topleft = StartRoom.Grid.grid_dict['f1'].rect.topleft
-                                                            rook.coordinate = StartRoom.Grid.grid_dict['f1'].coordinate
-                                                            StartRoom.Grid.grid_dict['f1'].occupied = True
+                                                            rook.rect.topleft = board.Grid.grid_dict['f1'].rect.topleft
+                                                            rook.coordinate = board.Grid.grid_dict['f1'].coordinate
+                                                            board.Grid.grid_dict['f1'].occupied = True
                                                             rook.allowed_to_castle = False
                                                             special_abb = "O-O"
                                             elif piece in PlayKing.black_king_list:
@@ -1892,14 +1066,14 @@ def main():
                                                 for rook in PlayRook.black_rook_list:
                                                     if rook.allowed_to_castle == True:
                                                         if rook.coordinate == 'a8' and piece.coordinate == 'c8':
-                                                            rook.rect.topleft = StartRoom.Grid.grid_dict['d8'].rect.topleft
-                                                            rook.coordinate = StartRoom.Grid.grid_dict['d8'].coordinate
-                                                            StartRoom.Grid.grid_dict['d8'].occupied = True
+                                                            rook.rect.topleft = board.Grid.grid_dict['d8'].rect.topleft
+                                                            rook.coordinate = board.Grid.grid_dict['d8'].coordinate
+                                                            board.Grid.grid_dict['d8'].occupied = True
                                                             special_abb = "O-O-O"
                                                         elif rook.coordinate == 'h8' and piece.coordinate == 'g8':
-                                                            rook.rect.topleft = StartRoom.Grid.grid_dict['f8'].rect.topleft
-                                                            rook.coordinate = StartRoom.Grid.grid_dict['f8'].coordinate
-                                                            StartRoom.Grid.grid_dict['f8'].occupied = True
+                                                            rook.rect.topleft = board.Grid.grid_dict['f8'].rect.topleft
+                                                            rook.coordinate = board.Grid.grid_dict['f8'].coordinate
+                                                            board.Grid.grid_dict['f8'].occupied = True
                                                             special_abb = "O-O"
                                             elif piece in PlayRook.white_rook_list or PlayRook.black_rook_list:
                                                 piece.allowed_to_castle = False
@@ -1919,7 +1093,7 @@ def main():
                                                     for sub_piece in piece_list:
                                                         sub_piece.spaces_available(game_controller)
                                                 def checkmate_check(game_controller):
-                                                    for subgrid in StartRoom.Grid.grid_list:
+                                                    for subgrid in board.Grid.grid_list:
                                                         if subgrid.highlighted == True:
                                                             # If able to detect that a grid can be highlighted, that means it's NOT checkmate
                                                             return "+", "*"
@@ -1934,7 +1108,7 @@ def main():
                                                     for sub_piece in piece_list:
                                                         sub_piece.spaces_available(game_controller)
                                                 def checkmate_check(game_controller):
-                                                    for subgrid in StartRoom.Grid.grid_list:
+                                                    for subgrid in board.Grid.grid_list:
                                                         if subgrid.highlighted == True:
                                                             # If able to detect that a grid can be highlighted, that means it's NOT checkmate
                                                             return "+", "*"
@@ -1948,7 +1122,7 @@ def main():
                                                     for sub_piece in piece_list:
                                                         sub_piece.spaces_available(game_controller)
                                                 def stalemate_check(game_controller):
-                                                    for subgrid in StartRoom.Grid.grid_list:
+                                                    for subgrid in board.Grid.grid_list:
                                                         if subgrid.highlighted == True:
                                                             # No check, no checkmate, no stalemate
                                                             Text_Controller.check_checkmate_text = ""
@@ -1963,7 +1137,7 @@ def main():
                                                     for sub_piece in piece_list:
                                                         sub_piece.spaces_available(game_controller)
                                                 def stalemate_check(game_controller):
-                                                    for subgrid in StartRoom.Grid.grid_list:
+                                                    for subgrid in board.Grid.grid_list:
                                                         if subgrid.highlighted == True:
                                                             # No check, no checkmate, no stalemate
                                                             Text_Controller.check_checkmate_text = ""
@@ -2030,7 +1204,7 @@ def main():
                                     else:
                                         # Unselects piece
                                         piece.no_highlight()
-                                        for grid in StartRoom.Grid.grid_list:
+                                        for grid in board.Grid.grid_list:
                                             grid.no_highlight()
                         # Selecting and unselecting black pieces
                         elif game_controller.WHOSETURN == "black":
@@ -2042,7 +1216,7 @@ def main():
                                         clicked_piece = piece
                                     else:
                                         piece.no_highlight()
-                                        for grid in StartRoom.Grid.grid_list:
+                                        for grid in board.Grid.grid_list:
                                             grid.no_highlight()
                         # Just do this last, since we know only one piece will be selected
                         if clicked_piece is not None:
@@ -2118,16 +1292,12 @@ def main():
                     
                     # MIDDLE MOUSE DEBUGGER
                     if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[1]:
-                        for black_pawn in PlayPawn.black_pawn_list:
-                            log.info(str(black_pawn.__dict__))
-                        """
-                        for grid in StartRoom.Grid.grid_list:
+                        for grid in board.Grid.grid_list:
                             if grid.rect.collidepoint(MOUSEPOS):
                                 log.info("Coordinate: " + str(grid.coordinate) \
                                        + ", White Pieces Attacking: " + str(grid.list_of_white_pieces_attacking) \
                                        + ", Black Pieces Attacking: " + str(grid.list_of_black_pieces_attacking) \
                                        + ", Grid occupied? " + str(grid.__dict__))
-                        """
                                 
                 ##################
                 # ALL EDIT ACTIONS
@@ -2165,7 +1335,7 @@ def main():
                 SCREEN.fill(COLORKEY)
                 
                 GAME_MODE_SPRITES.draw(SCREEN)
-                StartRoom.GRID_SPRITES.draw(SCREEN)
+                board.GRID_SPRITES.draw(SCREEN)
                 Grid_Controller.update_grid(game_controller)
                 
                 SCREEN.blit(initvar.MOVE_BG_IMAGE, (initvar.MOVE_BG_IMAGE_HEIGHT,initvar.MOVE_BG_IMAGE_WIDTH))
@@ -2189,19 +1359,19 @@ def main():
                 coor_letter_text_list = [coor_A_text, coor_B_text, coor_C_text, coor_D_text, coor_E_text, coor_F_text, coor_G_text, coor_H_text]
                 for text in range(0,len(coor_letter_text_list)):
                     SCREEN.blit(coor_letter_text_list[text], (initvar.X_GRID_START+initvar.X_GRID_WIDTH/3+(initvar.X_GRID_WIDTH*text), initvar.Y_GRID_START-(initvar.Y_GRID_HEIGHT*0.75)))
-                    SCREEN.blit(coor_letter_text_list[text], (initvar.X_GRID_START+initvar.X_GRID_WIDTH/3+(initvar.X_GRID_WIDTH*text), StartRoom.Y_GRID_END+(initvar.Y_GRID_HEIGHT*0.25)))
+                    SCREEN.blit(coor_letter_text_list[text], (initvar.X_GRID_START+initvar.X_GRID_WIDTH/3+(initvar.X_GRID_WIDTH*text), board.Y_GRID_END+(initvar.Y_GRID_HEIGHT*0.25)))
                 coor_number_text_list = [coor_8_text, coor_7_text, coor_6_text, coor_5_text, coor_4_text, coor_3_text, coor_2_text, coor_1_text]
                 for text in range(0,len(coor_number_text_list)):
                     SCREEN.blit(coor_number_text_list[text], (initvar.X_GRID_START-initvar.X_GRID_WIDTH/2, initvar.Y_GRID_START+initvar.Y_GRID_HEIGHT/4+(initvar.Y_GRID_HEIGHT*text)))
-                    SCREEN.blit(coor_number_text_list[text], (StartRoom.X_GRID_END+initvar.X_GRID_WIDTH/3, initvar.Y_GRID_START+initvar.Y_GRID_HEIGHT/4+(initvar.Y_GRID_HEIGHT*text)))
+                    SCREEN.blit(coor_number_text_list[text], (board.X_GRID_END+initvar.X_GRID_WIDTH/3, initvar.Y_GRID_START+initvar.Y_GRID_HEIGHT/4+(initvar.Y_GRID_HEIGHT*text)))
                 if(game_controller.game_mode == game_controller.PLAY_MODE):
                     check_checkmate_text_render = arial_font.render(Text_Controller.check_checkmate_text, 1, (0, 0, 0))
                     if game_controller.WHOSETURN == "white":
                         whose_turn_text = arial_font.render("White's move", 1, (0, 0, 0))
                     elif game_controller.WHOSETURN == "black":
                         whose_turn_text = arial_font.render("Black's move", 1, (0, 0, 0))
-                    SCREEN.blit(whose_turn_text, (StartRoom.X_GRID_END+initvar.X_GRID_WIDTH, initvar.SCREEN_HEIGHT/2))
-                    SCREEN.blit(check_checkmate_text_render, (StartRoom.X_GRID_END+initvar.X_GRID_WIDTH, 200))
+                    SCREEN.blit(whose_turn_text, (board.X_GRID_END+initvar.X_GRID_WIDTH, initvar.SCREEN_HEIGHT/2))
+                    SCREEN.blit(check_checkmate_text_render, (board.X_GRID_END+initvar.X_GRID_WIDTH, 200))
                 pygame.display.update()
             elif state == DEBUG:
                 if debug_message == 1:

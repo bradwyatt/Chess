@@ -1,4 +1,5 @@
 import pygame
+import initvar
 from load_images_sounds import *
 
 class StartObjImagePlaceholder(pygame.sprite.Sprite):
@@ -6,6 +7,7 @@ class StartObjImagePlaceholder(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image = IMAGES["SPR_BLANKBOX"]
         self.rect = self.image.get_rect()
+        initvar.START_SPRITES.add(self)
     def update(self):
         pass
     def flip_start_sprite(self, DRAGGING, pos):
@@ -46,6 +48,7 @@ class StartPawn(pygame.sprite.Sprite):
         elif self.col == "black":
             self.image = IMAGES["SPR_BLACK_PAWN"]
         self.rect = self.image.get_rect() 
+        initvar.START_SPRITES.add(self)
     def update(self):
         pass
 
@@ -58,6 +61,7 @@ class StartBishop(pygame.sprite.Sprite):
         elif self.col == "black":
             self.image = IMAGES["SPR_BLACK_BISHOP"]
         self.rect = self.image.get_rect()
+        initvar.START_SPRITES.add(self)
     def update(self):
         pass
     
@@ -70,6 +74,7 @@ class StartKnight(pygame.sprite.Sprite):
         elif self.col == "black":
             self.image = IMAGES["SPR_BLACK_KNIGHT"]
         self.rect = self.image.get_rect()
+        initvar.START_SPRITES.add(self)
     def update(self):
         pass
 
@@ -82,6 +87,7 @@ class StartRook(pygame.sprite.Sprite):
         elif self.col == "black":
             self.image = IMAGES["SPR_BLACK_ROOK"]
         self.rect = self.image.get_rect()
+        initvar.START_SPRITES.add(self)
     def update(self):
         pass
     
@@ -94,6 +100,7 @@ class StartQueen(pygame.sprite.Sprite):
         elif self.col == "black":
             self.image = IMAGES["SPR_BLACK_QUEEN"]
         self.rect = self.image.get_rect()
+        initvar.START_SPRITES.add(self)
     def update(self):
         pass
 
@@ -106,5 +113,6 @@ class StartKing(pygame.sprite.Sprite):
         elif self.col == "black":
             self.image = IMAGES["SPR_BLACK_KING"]
         self.rect = self.image.get_rect()
+        initvar.START_SPRITES.add(self)
     def update(self):
         pass

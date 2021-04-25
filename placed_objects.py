@@ -1,6 +1,6 @@
 import pygame
 from load_images_sounds import *
-import StartRoom
+import board
 
 class PlacedPawn(pygame.sprite.Sprite):
     white_pawn_list = []
@@ -18,7 +18,7 @@ class PlacedPawn(pygame.sprite.Sprite):
             PlacedPawn.black_pawn_list.append(self)
         self.coordinate = coord
         self.rect = self.image.get_rect()
-        for grid in StartRoom.Grid.grid_list:
+        for grid in board.Grid.grid_list:
             if grid.coordinate == self.coordinate:
                 self.rect.topleft = grid.rect.topleft
     def update(self):
@@ -46,7 +46,7 @@ class PlacedBishop(pygame.sprite.Sprite):
             PlacedBishop.black_bishop_list.append(self)
         self.coordinate = coord
         self.rect = self.image.get_rect()
-        for grid in StartRoom.Grid.grid_list:
+        for grid in board.Grid.grid_list:
             if grid.coordinate == self.coordinate:
                 self.rect.topleft = grid.rect.topleft
     def update(self):
@@ -74,7 +74,7 @@ class PlacedKnight(pygame.sprite.Sprite):
             PlacedKnight.black_knight_list.append(self)
         self.coordinate = coord
         self.rect = self.image.get_rect()
-        for grid in StartRoom.Grid.grid_list:
+        for grid in board.Grid.grid_list:
             if grid.coordinate == self.coordinate:
                 self.rect.topleft = grid.rect.topleft
     def update(self):
@@ -102,13 +102,11 @@ class PlacedRook(pygame.sprite.Sprite):
             PlacedRook.black_rook_list.append(self)
         self.coordinate = coord
         self.rect = self.image.get_rect()
-        for grid in StartRoom.Grid.grid_list:
+        for grid in board.Grid.grid_list:
             if grid.coordinate == self.coordinate:
                 self.rect.topleft = grid.rect.topleft
-    def update(self, grid_list):
-        for grid in grid_list:
-            if self.rect.colliderect(grid):
-                self.coordinate = grid.coordinate
+    def update(self):
+        pass
     def destroy(self):
         if self.col == "white":
             PlacedRook.white_rook_list.remove(self)
@@ -132,7 +130,7 @@ class PlacedQueen(pygame.sprite.Sprite):
             PlacedQueen.black_queen_list.append(self)
         self.coordinate = coord
         self.rect = self.image.get_rect()
-        for grid in StartRoom.Grid.grid_list:
+        for grid in board.Grid.grid_list:
             if grid.coordinate == self.coordinate:
                 self.rect.topleft = grid.rect.topleft
     def update(self):
@@ -160,7 +158,7 @@ class PlacedKing(pygame.sprite.Sprite):
             PlacedKing.black_king_list.append(self)
         self.coordinate = coord
         self.rect = self.image.get_rect()
-        for grid in StartRoom.Grid.grid_list:
+        for grid in board.Grid.grid_list:
             if grid.coordinate == self.coordinate:
                 self.rect.topleft = grid.rect.topleft
     def update(self):
