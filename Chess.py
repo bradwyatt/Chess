@@ -493,8 +493,8 @@ class PGN_Writer_and_Loader():
                         board.Grid.grid_dict[grid_coordinate].highlighted = False
                 else:
                     piece.spaces_available(game_controller)
-                    if (piece.coordinate in board.Grid.grid_dict[grid_coordinate].list_of_white_pieces_attacking \
-                        or piece.coordinate in board.Grid.grid_dict[grid_coordinate].list_of_black_pieces_attacking) \
+                    if (piece.coordinate in board.Grid.grid_dict[grid_coordinate].coords_of_attacking_pieces['white'] \
+                        or piece.coordinate in board.Grid.grid_dict[grid_coordinate].coords_of_attacking_pieces['black']) \
                             and piece.coordinate is not None:
                         #print("This is apparently eligible " + str(piece.coordinate))
                             eligible_pieces.append(piece)
@@ -683,8 +683,8 @@ class Game_Controller():
         # No highlights and ensuring that attacking squares (used by diagonal pieces) are set to 0
         for grid in board.Grid.grid_list:
             grid.no_highlight()
-            grid.list_of_white_pieces_attacking = []
-            grid.list_of_black_pieces_attacking = []
+            grid.coords_of_attacking_pieces['white'] = []
+            grid.coords_of_attacking_pieces['black'] = []
         for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                            PlayKnight.white_knight_list, PlayRook.white_rook_list, 
                            PlayQueen.white_queen_list, PlayKing.white_king_list,
@@ -702,12 +702,12 @@ class Game_Controller():
             self.projected_white_update()
             # If white king is not in check, reset color_in_check, else white in check
             for white_king in PlayKing.white_king_list:
-                if board.Grid.grid_dict[white_king.coordinate].list_of_black_pieces_attacking == []:
+                if board.Grid.grid_dict[white_king.coordinate].coords_of_attacking_pieces['black'] == []:
                     self.color_in_check = ""
                 else:
                     self.color_in_check = "white"
                     # Disable pieces if their king is in double-check
-                    if len(board.Grid.grid_dict[white_king.coordinate].list_of_black_pieces_attacking) > 1:
+                    if len(board.Grid.grid_dict[white_king.coordinate].coords_of_attacking_pieces['black']) > 1:
                         for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                                            PlayKnight.white_knight_list, PlayRook.white_rook_list, 
                                            PlayQueen.white_queen_list]:
@@ -722,12 +722,12 @@ class Game_Controller():
             self.projected_black_update()
             # If black king is not in check, reset color_in_check, else black in check
             for black_king in PlayKing.black_king_list:
-                if board.Grid.grid_dict[black_king.coordinate].list_of_white_pieces_attacking == []:
+                if board.Grid.grid_dict[black_king.coordinate].coords_of_attacking_pieces['white'] == []:
                     self.color_in_check = ""
                 else:
                     self.color_in_check = "black"
                     # Disable pieces if their king is in double-check
-                    if len(board.Grid.grid_dict[black_king.coordinate].list_of_white_pieces_attacking) > 1:
+                    if len(board.Grid.grid_dict[black_king.coordinate].coords_of_attacking_pieces['white']) > 1:
                         for piece_list in [PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
                                            PlayKnight.black_knight_list, PlayRook.black_rook_list, 
                                            PlayQueen.black_queen_list]:
@@ -792,9 +792,9 @@ class Move_Controller():
             prefix = ""
             for grid in board.Grid.grid_list:
                 if piece.color == "white":
-                    list_of_attack_pieces = grid.list_of_white_pieces_attacking
+                    list_of_attack_pieces = grid.coords_of_attacking_pieces['white']
                 elif piece.color == "black":
-                    list_of_attack_pieces = grid.list_of_black_pieces_attacking
+                    list_of_attack_pieces = grid.coords_of_attacking_pieces['black']
                 # If piece (that just moved) coordinate is same as grid coordinate
                 if grid.coordinate == piece.coordinate:
                     # Going through list of other same color attackers (of new grid coordinate)
@@ -1505,8 +1505,8 @@ def main():
                         for grid in board.Grid.grid_list:
                             if grid.rect.collidepoint(MOUSEPOS):
                                 log.info("Coordinate: " + str(grid.coordinate) \
-                                       + ", White Pieces Attacking: " + str(grid.list_of_white_pieces_attacking) \
-                                       + ", Black Pieces Attacking: " + str(grid.list_of_black_pieces_attacking) \
+                                       + ", White Pieces Attacking: " + str(grid.coords_of_attacking_pieces['white']) \
+                                       + ", Black Pieces Attacking: " + str(grid.coords_of_attacking_pieces['black']) \
                                            + ", prior move color: " + str(grid.prior_move_color))
                                 
                 ##################
