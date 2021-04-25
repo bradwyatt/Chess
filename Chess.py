@@ -442,12 +442,14 @@ class PGN_Writer_and_Loader():
             self.ECO = parameters['ECO']
         except KeyError:
             self.ECO = ""
-            
+        #print("TESTING123: " + str(PlayPawn.white_pawn_list))
         
         # Removes line breaks and formulates all elements into one element in the list
         chess_game = "".join(chess_game).split("  ")
         #print(str(chess_game))
-        game_controller.reset_board()
+        
+        # FIND ANOTHER WAY TO RESET THE BOARD
+        #game_controller.reset_board()
         
         number_move_splits = "".join(chess_game).split()
         
@@ -456,70 +458,81 @@ class PGN_Writer_and_Loader():
                 if piece_abb == "N":
                     return PlayKnight.white_knight_list
                 elif piece_abb == "B":
-                    return PlayBishop.white_knight_list
+                    return PlayBishop.white_bishop_list
                 elif piece_abb == "R":
-                    return PlayRook.white_knight_list
+                    return PlayRook.white_rook_list
                 elif piece_abb == "Q":
-                    return PlayQueen.white_knight_list
+                    return PlayQueen.white_queen_list
                 elif piece_abb == "K":
-                    return PlayKing.white_knight_list
+                    return PlayKing.white_king_list
                 else:
-                    return PlayPawn.white_knight_list
+                    return PlayPawn.white_pawn_list
             elif whoseturn == "black":
                 if piece_abb == "N":
                     return PlayKnight.black_knight_list
                 elif piece_abb == "B":
-                    return PlayBishop.black_knight_list
+                    return PlayBishop.black_bishop_list
                 elif piece_abb == "R":
-                    return PlayRook.black_knight_list
+                    return PlayRook.black_rook_list
                 elif piece_abb == "Q":
-                    return PlayQueen.black_knight_list
+                    return PlayQueen.black_queen_list
                 elif piece_abb == "K":
-                    return PlayKing.black_knight_list
+                    return PlayKing.black_king_list
                 else:
-                    return PlayPawn.black_knight_list
+                    return PlayPawn.black_pawn_list
                 
-        def determine_piece(piece_list, move):
-            if len(piece_list) == 1:
-                # No other pieces can possibly go to the square
-                return piece_list[0]
-            else:
-                # At least one other similar piece can go to square
-                # We can take second character of the move argument
-                for piece in piece_list:
-                    if piece.coordinate[0] == move[1] or piece.coordinate[1] == move[1]:
+        def determine_piece(piece_list, move, grid_coordinate, game_controller):
+            eligible_pieces = []
+            for piece in piece_list:
+                piece.spaces_available(game_controller)
+                if board.Grid.grid_dict[grid_coordinate].highlighted == True:
+                    eligible_pieces.append(piece)
+            if len(eligible_pieces) == 1:
+                return piece
+            elif(piece_list != PlayPawn.white_pawn_list and piece_list != PlayPawn.black_pawn_list):
+                for piece in eligible_pieces:
+                    if piece.coordinate[1] == move[1]:
                         return piece
-                    
+                    elif piece.coordinate[0] == move[1]:
+                        return piece
+            else:
+                # Pawns
+                for piece in eligible_pieces:
+                    if piece.coordinate[0] == move[0]:
+                        return piece
 
         for move in number_move_splits:
             # MAKING MOVES
-            if "." or "*" or "#" in move:
-                print("Blocked moves? ")
+            if ("." in move) or ("*" in move) or ("#" in move):
+                #print("Blocked moves? ")
                 pass
             else:
                 print("Move: " + str(move))
                 # type_of_piece list in Nce2 would be "N"
                 type_of_piece_list = determine_piece_list(move[0], game_controller.WHOSETURN)
-                piece = determine_piece(type_of_piece_list, move)
                 if move == "0-0":
                     if game_controller.WHOSETURN == "white":
                         grid_coordinate = 'f1'
                     elif game_controller.WHOSETURN == "black":
                         grid_coordinate = 'f8'
+                    piece = determine_piece(type_of_piece_list, move, grid_coordinate, game_controller)
                     Move_Controller.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller)
                 elif move == "0-0-0":
                     if game_controller.WHOSETURN == "white":
                         grid_coordinate = 'c1'
                     elif game_controller.WHOSETURN == "black":
                         grid_coordinate = 'c8'
+                    piece = determine_piece(type_of_piece_list, move, grid_coordinate, game_controller)
                     Move_Controller.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller)
                 elif move[-2:] == "=Q":
                     grid_coordinate = move[-4:-2]
+                    piece = determine_piece(type_of_piece_list, move, grid_coordinate, game_controller)
                     Move_Controller.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller)
                 else:
                     # NORMAL MOVES
                     # Last 2 characters are always the coordinate of the grid besides special exceptions above
                     grid_coordinate = move[-2:]
+                    piece = determine_piece(type_of_piece_list, move, grid_coordinate, game_controller)
                     Move_Controller.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller)
 
         log.info("PGN Loaded")
