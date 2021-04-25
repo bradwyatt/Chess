@@ -573,7 +573,6 @@ class PGN_Writer_and_Loader():
                 for play_obj in play_obj_list:
                     if play_obj.coordinate == grid_coordinate:
                         play_obj.prior_move_color = True
-                        print("PREVIOUS COORD: " + str(play_obj.previous_coordinate))
                         board.Grid.grid_dict[play_obj.previous_coordinate].prior_move_color = True
                         play_obj.no_highlight()
                         board.Grid.grid_dict[play_obj.previous_coordinate].no_highlight()
@@ -583,6 +582,16 @@ class PGN_Writer_and_Loader():
                         play_obj.no_highlight()
             return
         prior_move_off(grid_coordinate)
+        
+        # This goes through all pieces available moves
+        for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
+                           PlayKnight.white_knight_list, PlayRook.white_rook_list, 
+                           PlayQueen.white_queen_list, PlayKing.white_king_list,
+                           PlayPawn.black_pawn_list, PlayBishop.black_bishop_list,
+                           PlayKnight.black_knight_list, PlayRook.black_rook_list,
+                           PlayQueen.black_queen_list, PlayKing.black_king_list]:
+            for piece in piece_list:
+                piece.spaces_available(game_controller)
             
         log.info("PGN Loaded")
         return
@@ -688,6 +697,8 @@ class Game_Controller():
             grid.set_availability(False)
             grid.coords_of_attacking_pieces['white'] = []
             grid.coords_of_attacking_pieces['black'] = []
+            grid.coords_of_available_pieces['white'] = []
+            grid.coords_of_available_pieces['black'] = []
         for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                            PlayKnight.white_knight_list, PlayRook.white_rook_list, 
                            PlayQueen.white_queen_list, PlayKing.white_king_list,
@@ -736,6 +747,16 @@ class Game_Controller():
                                            PlayQueen.black_queen_list]:
                             for piece in piece_list:
                                 piece.disable = True
+        # This goes through all pieces available moves
+        for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
+                           PlayKnight.white_knight_list, PlayRook.white_rook_list, 
+                           PlayQueen.white_queen_list, PlayKing.white_king_list,
+                           PlayPawn.black_pawn_list, PlayBishop.black_bishop_list,
+                           PlayKnight.black_knight_list, PlayRook.black_rook_list,
+                           PlayQueen.black_queen_list, PlayKing.black_king_list]:
+            for piece in piece_list:
+                piece.spaces_available(self)
+        print("Went through all moves ! ")
     def projected_white_update(self):
         # Project pieces attacking movements starting now
         for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
@@ -1508,7 +1529,7 @@ def main():
                                 log.info("Coordinate: " + str(grid.coordinate) \
                                        + ", White Pieces Attacking: " + str(grid.coords_of_attacking_pieces['white']) \
                                        + ", Black Pieces Attacking: " + str(grid.coords_of_attacking_pieces['black']) \
-                                           + ", prior move color: " + str(grid.prior_move_color))
+                                           + ", grid variable: " + str(grid.coords_of_available_pieces))
                                 
                 ##################
                 # ALL EDIT ACTIONS

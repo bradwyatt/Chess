@@ -120,11 +120,12 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                                     self.disable = True
                                     return
                                 elif grid.coordinate in game_controller.check_attacking_coordinates:
-                                    grid.highlight()
+                                    grid.highlight(self.color, self.coordinate)
                             elif self.pinned == False:
-                                grid.highlight()
+                                grid.highlight(self.color, self.coordinate)
                             elif self.pinned == True and grid.coordinate in self.pin_attacking_coordinates:
-                                grid.highlight()
+                                grid.highlight(self.color, self.coordinate)
+                                grid.available_count_increment(self.color, self.coordinate)
                     # Move two spaces up
                     if (int(self.coordinate[1]) == initial_space and grid.coordinate[0] == self.coordinate[0] and \
                         int(grid.coordinate[1]) == hop_space and grid.occupied == False):
@@ -136,45 +137,45 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                                         self.disable = True
                                         return
                                     elif grid.coordinate in game_controller.check_attacking_coordinates:
-                                        grid.highlight()
+                                        grid.highlight(self.color, self.coordinate)
                                 elif self.pinned == False:
-                                    grid.highlight()
+                                    grid.highlight(self.color, self.coordinate)
                                 elif self.pinned == True and grid.coordinate in self.pin_attacking_coordinates:
-                                    grid.highlight()
+                                    grid.highlight(self.color, self.coordinate)
                     # Enemy pieces
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-movement and int(grid.coordinate[1]) == int(self.coordinate[1])+movement and \
                     grid.occupied_piece_color == self.enemy_color):
                         # No check and no pin is moving as normal
                         if self.pinned == False and game_controller.color_in_check != self.color:
-                            grid.highlight()
+                            grid.highlight(self.color, self.coordinate)
                         # When checked then only able to take the attacker piece in reach
                         elif game_controller.color_in_check == self.color:
                             if grid.coordinate == game_controller.check_attacking_coordinates[0]:
-                                grid.highlight()
+                                grid.highlight(self.color, self.coordinate)
                         # If attacker is causing pin
                         elif self.pinned == True and grid.coordinate in self.pin_attacking_coordinates:
-                            grid.highlight()
+                            grid.highlight(self.color, self.coordinate)
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+movement and int(grid.coordinate[1]) == int(self.coordinate[1])+movement and \
                     grid.occupied_piece_color == self.enemy_color):
                         # No check and no pin is moving as normal
                         if self.pinned == False and game_controller.color_in_check != self.color:
-                            grid.highlight()
+                            grid.highlight(self.color, self.coordinate)
                         # When checked then only able to take the attacker piece in reach
                         elif game_controller.color_in_check == self.color:
                             if grid.coordinate == game_controller.check_attacking_coordinates[0]:
-                                grid.highlight()
+                                grid.highlight(self.color, self.coordinate)
                         # If attacker is causing pin
                         elif self.pinned == True and grid.coordinate in self.pin_attacking_coordinates:
-                            grid.highlight()
+                            grid.highlight(self.color, self.coordinate)
                     # En Passant
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-movement and int(grid.coordinate[1]) == int(self.coordinate[1])+movement and \
                     grid.en_passant_skipover == True):
                         if self.pinned == False:
-                            grid.highlight()
+                            grid.highlight(self.color, self.coordinate)
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+movement and int(grid.coordinate[1]) == int(self.coordinate[1])+movement and \
                     grid.en_passant_skipover == True):
                         if self.pinned == False:
-                            grid.highlight()
+                            grid.highlight(self.color, self.coordinate)
             pawn_movement()
  
 class PlayKnight(ChessPiece, pygame.sprite.Sprite):
@@ -232,10 +233,10 @@ class PlayKnight(ChessPiece, pygame.sprite.Sprite):
                         and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
                             if game_controller.color_in_check == self.color:
                                 if grid.coordinate in game_controller.check_attacking_coordinates:
-                                    grid.highlight()
+                                    grid.highlight(self.color, self.coordinate)
                                 else:
                                     return
-                            grid.highlight()
+                            grid.highlight(self.color, self.coordinate)
             knight_move_direction(-1, -2)
             knight_move_direction(-1, 2)
             knight_move_direction(1, -2)
@@ -312,7 +313,7 @@ def bishop_direction_spaces_available(bishop, game_controller, x, y):
                 if grid.occupied == 0:
                     # If current king not in check and this piece is not pinned
                     if(game_controller.color_in_check != bishop.color and bishop.pinned == False):
-                        grid.highlight()
+                        grid.highlight(bishop.color, bishop.coordinate)
                     # If current king is in check
                     elif game_controller.color_in_check == bishop.color:
                         # Disable piece if it is pinned and checked from another enemy piece
@@ -324,18 +325,18 @@ def bishop_direction_spaces_available(bishop, game_controller, x, y):
                         elif grid.coordinate in game_controller.check_attacking_coordinates[:-1] \
                             and (game_controller.attacker_piece == "bishop" or game_controller.attacker_piece == "rook" \
                                  or game_controller.attacker_piece == "queen"):
-                            grid.highlight()
+                            grid.highlight(bishop.color, bishop.coordinate)
                             return
                         # The only grid available is the attacker piece when pawn or knight
                         elif grid.coordinate == game_controller.check_attacking_coordinates[0] \
                             and (game_controller.attacker_piece == "pawn" or game_controller.attacker_piece == "knight"):
-                            grid.highlight()
+                            grid.highlight(bishop.color, bishop.coordinate)
                             return
                     # If pinned and the grid is within the attacking coordinates restraint
                     # Includes grid.coordinate != self.coordinate so that staying at same coordinate doesn't count as move
                     elif(bishop.pinned == True and grid.coordinate in bishop.pin_attacking_coordinates \
                          and grid.occupied_piece != 'king' and grid.coordinate != bishop.coordinate):
-                            grid.highlight()
+                            grid.highlight(bishop.color, bishop.coordinate)
                     else:
                         # When all the above conditions aren't met, then the bishop can't move further
                         return
@@ -346,20 +347,20 @@ def bishop_direction_spaces_available(bishop, game_controller, x, y):
                         if grid.coordinate in game_controller.check_attacking_coordinates[:-1] \
                             and (game_controller.attacker_piece == "bishop" or game_controller.attacker_piece == "rook" \
                                  or game_controller.attacker_piece == "queen"):
-                            grid.highlight()
+                            grid.highlight(bishop.color, bishop.coordinate)
                         elif grid.coordinate == game_controller.check_attacking_coordinates[0] \
                             and (game_controller.attacker_piece == "pawn" or game_controller.attacker_piece == "knight"):
-                            grid.highlight()
+                            grid.highlight(bishop.color, bishop.coordinate)
                     # If pinned and grid is within the attacking coordinates restraint
                     elif(bishop.pinned == True and grid.occupied_piece != 'king'):
                         if grid.coordinate in bishop.pin_attacking_coordinates:
                             # If not in check from another piece
                             if not game_controller.check_attacking_coordinates:
-                                grid.highlight()
+                                grid.highlight(bishop.color, bishop.coordinate)
                                 # No return since there are more than one possibility when between king and attacker piece
                     else:
                         # In all other cases where no check and no pin
-                        grid.highlight()
+                        grid.highlight(bishop.color, bishop.coordinate)
                     # Will always return function on square with enemy piece
                     return
                 # If same color piece in the way
@@ -475,7 +476,7 @@ def rook_direction_spaces_available(rook, game_controller, x, y):
                 if grid.occupied == 0:
                     # If current king not in check and this piece is not pinned
                     if(game_controller.color_in_check != rook.color and rook.pinned == False):
-                        grid.highlight()
+                        grid.highlight(rook.color, rook.coordinate)
                     # If current king is in check
                     elif game_controller.color_in_check == rook.color:
                         # Disable piece if it is pinned and checked from another enemy piece
@@ -487,17 +488,17 @@ def rook_direction_spaces_available(rook, game_controller, x, y):
                         elif grid.coordinate in game_controller.check_attacking_coordinates[:-1] \
                             and (game_controller.attacker_piece == "bishop" or game_controller.attacker_piece == "rook" \
                                  or game_controller.attacker_piece == "queen"):
-                            grid.highlight()
+                            grid.highlight(rook.color, rook.coordinate)
                             return
                         # The only grid available is the attacker piece when pawn or knight
                         elif grid.coordinate == game_controller.check_attacking_coordinates[0] \
                             and (game_controller.attacker_piece == "pawn" or game_controller.attacker_piece == "knight"):
-                            grid.highlight()
+                            grid.highlight(rook.color, rook.coordinate)
                             return
                     # If pinned and grid is within the attacking coordinates restraint
                     elif(rook.pinned == True and grid.coordinate in rook.pin_attacking_coordinates \
                          and grid.occupied_piece != 'king' and grid.coordinate != rook.coordinate):
-                        grid.highlight() 
+                        grid.highlight(rook.color, rook.coordinate) 
                     else:
                         # When all the above conditions aren't met, then the bishop can't move further
                         return
@@ -510,18 +511,18 @@ def rook_direction_spaces_available(rook, game_controller, x, y):
                         if grid.coordinate in game_controller.check_attacking_coordinates[:-1] \
                             and (game_controller.attacker_piece == "bishop" or game_controller.attacker_piece == "rook" \
                                  or game_controller.attacker_piece == "queen"):
-                            grid.highlight()
+                            grid.highlight(rook.color, rook.coordinate)
                         # The only grid available is the attacker piece when pawn or knight
                         elif grid.coordinate == game_controller.check_attacking_coordinates[0] \
                             and (game_controller.attacker_piece == "pawn" or game_controller.attacker_piece == "knight"):
-                            grid.highlight()
+                            grid.highlight(rook.color, rook.coordinate)
                     # If pinned and grid is within the attacking coordinates restraint
                     elif(rook.pinned == True and grid.coordinate in rook.pin_attacking_coordinates \
                          and grid.occupied_piece != 'king'):
-                        grid.highlight()      
+                        grid.highlight(rook.color, rook.coordinate)      
                     else:
                         # In all other cases where no check and no pin
-                        grid.highlight()
+                        grid.highlight(rook.color, rook.coordinate)
                     return
                 # If same color piece in the way
                 elif grid.occupied == 1 and grid.occupied_piece_color == rook.color:
@@ -742,30 +743,30 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
                (projected_enemy_threat == False or grid.occupied_piece_color == self.enemy_color)):
                 # King can have only one move in all directions
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and int(grid.coordinate[1]) == int(self.coordinate[1])-1:
-                    grid.highlight()
+                    grid.highlight(self.color, self.coordinate)
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and int(grid.coordinate[1]) == int(self.coordinate[1]):
-                    grid.highlight()
+                    grid.highlight(self.color, self.coordinate)
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])-1 and int(grid.coordinate[1]) == int(self.coordinate[1])+1:
-                    grid.highlight()
+                    grid.highlight(self.color, self.coordinate)
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0]) and int(grid.coordinate[1]) == int(self.coordinate[1])-1:
-                    grid.highlight()
+                    grid.highlight(self.color, self.coordinate)
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0]) and int(grid.coordinate[1]) == int(self.coordinate[1])+1:
-                    grid.highlight()
+                    grid.highlight(self.color, self.coordinate)
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and int(grid.coordinate[1]) == int(self.coordinate[1])-1:
-                    grid.highlight()
+                    grid.highlight(self.color, self.coordinate)
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and int(grid.coordinate[1]) == int(self.coordinate[1]):
-                    grid.highlight()
+                    grid.highlight(self.color, self.coordinate)
                 if ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and int(grid.coordinate[1]) == int(self.coordinate[1])+1:
-                    grid.highlight()
+                    grid.highlight(self.color, self.coordinate)
                 # Castle
                 if(ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and int(grid.coordinate[1]) == int(self.coordinate[1]) and \
                     self.right_castle_ability == 1 and (int(self.coordinate[1]) == 1 or int(self.coordinate[1])==8) and \
                     self.castled == False):
-                        grid.highlight()
+                        grid.highlight(self.color, self.coordinate)
                 if(ord(grid.coordinate[0]) == ord(self.coordinate[0])-2 and int(grid.coordinate[1]) == int(self.coordinate[1]) and \
                     self.left_castle_ability == 1 and (int(self.coordinate[1]) == 1 or int(self.coordinate[1])==8) and \
                     self.castled == False):
-                        grid.highlight()
+                        grid.highlight(self.color, self.coordinate)
     def no_highlight(self):
         if(self.color == "white"):
             if(self.prior_move_color == True):

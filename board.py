@@ -23,12 +23,14 @@ class Grid(pygame.sprite.Sprite):
         Grid.grid_list.append(self)
         Grid.grid_dict[self.coordinate] = self
         self.coords_of_attacking_pieces = {'white': [], 'black': []}
+        self.coords_of_available_pieces = {'white': [], 'black': []}
         self.en_passant_skipover = False
         self.prior_move_color = False
     def reset_board(self):
         self.prior_move_color = False
         self.no_highlight()
         self.coords_of_attacking_pieces = {'white': [], 'black': []}
+        self.coords_of_available_pieces = {'white': [], 'black': []}
     def attack_count_reset(self):
         self.coords_of_attacking_pieces = {'white': [], 'black': []}
     def attack_count_increment(self, color, attack_coord):
@@ -43,10 +45,16 @@ class Grid(pygame.sprite.Sprite):
             self.available = True
         else:
             self.available = False
-    def highlight(self):
+    def available_count_increment(self, color, piece_coord):
+        if color == "white" and piece_coord not in self.coords_of_available_pieces['white']:
+            self.coords_of_available_pieces['white'].append(piece_coord)
+        elif color == "black" and piece_coord not in self.coords_of_available_pieces['black']:
+            self.coords_of_available_pieces['black'].append(piece_coord)
+    def highlight(self, color, piece_coord):
         self.image = IMAGES["SPR_HIGHLIGHT"]
         self.highlighted = True
         self.set_availability(True)
+        self.available_count_increment(color, piece_coord)
     def no_highlight(self):
         if(self.prior_move_color == True):
             self.image = IMAGES["SPR_PRIOR_MOVE_GRID"]
