@@ -1414,7 +1414,10 @@ def main():
                                     for piece in piece_list:
                                         # Reset the prior move color variable from all pieces
                                         piece.prior_move_color = False
-                                        if (grid.rect.collidepoint(MOUSEPOS) and grid.available==True and piece.select==True):
+                                        if (grid.rect.collidepoint(MOUSEPOS) and grid.available==True \
+                                            and ((piece.coordinate in grid.coords_of_available_pieces['white'] and piece.color == "white") \
+                                                 or (piece.coordinate in grid.coords_of_available_pieces['black'] and piece.color == "black")) \
+                                                     and piece.select==True):
                                             prior_moves_dict, captured_abb, special_abb, promoted_queen = Move_Controller.make_move(grid, piece, game_controller, PLAY_SPRITES)
                                             Move_Controller.game_status_check(game_controller, grid, piece, prior_moves_dict, captured_abb, special_abb, promoted_queen)
                         update_pieces_and_board()
@@ -1537,7 +1540,9 @@ def main():
                                 log.info("Coordinate: " + str(grid.coordinate) \
                                        + ", White Pieces Attacking: " + str(grid.coords_of_attacking_pieces['white']) \
                                        + ", Black Pieces Attacking: " + str(grid.coords_of_attacking_pieces['black']) \
-                                           + ", grid variable: " + str(grid.coords_of_available_pieces))
+                                           + ", grid variable: " + str(grid.available) \
+                                               + ", White Pieces Available: " + str(grid.coords_of_available_pieces['white']) \
+                                                   + ", Black Pieces Available: " + str(grid.coords_of_available_pieces['black']))
                                 
                 ##################
                 # ALL EDIT ACTIONS
