@@ -484,30 +484,48 @@ class PGN_Writer_and_Loader():
         def determine_piece(piece_list, move, grid_coordinate, game_controller):
             eligible_pieces = []
             for piece in piece_list:
-                piece.spaces_available(game_controller)
-                if board.Grid.grid_dict[grid_coordinate].highlighted == True:
-                    #print("This is apparently eligible " + str(piece.coordinate))
-                    eligible_pieces.append(piece)
-                    board.Grid.grid_dict[grid_coordinate].highlighted = False
+                if (piece in PlayPawn.white_pawn_list or piece in PlayPawn.black_pawn_list) and piece.coordinate is not None:
+                    if(move == "d6"):
+                        print("test1: " + str(piece.coordinate))
+                    piece.spaces_available(game_controller)
+                    if board.Grid.grid_dict[grid_coordinate].highlighted == True:
+                        if(move == "d6"):
+                            print("test2" + str(piece.coordinate))
+                        #print("This is apparently eligible " + str(piece.coordinate))
+                        eligible_pieces.append(piece)
+                        board.Grid.grid_dict[grid_coordinate].highlighted = False
+                else:
+                    piece.spaces_available(game_controller)
+                    if (piece.coordinate in board.Grid.grid_dict[grid_coordinate].list_of_white_pieces_attacking \
+                        or piece.coordinate in board.Grid.grid_dict[grid_coordinate].list_of_black_pieces_attacking) \
+                            and piece.coordinate is not None:
+                        #print("This is apparently eligible " + str(piece.coordinate))
+                            eligible_pieces.append(piece)
+                            board.Grid.grid_dict[grid_coordinate].highlighted = False
             if len(eligible_pieces) == 1:
-                print("YESSSS!!!! " + str(eligible_pieces[0].coordinate))
+                if(move == "d6"):
+                    print("test11")
                 return eligible_pieces[0]
             elif(piece_list != PlayPawn.white_pawn_list and piece_list != PlayPawn.black_pawn_list):
+                if(move == "d6"):
+                    print("test12")
                 for piece in eligible_pieces:
                     if piece.coordinate[1] == move[1]:
                         return piece
                     elif piece.coordinate[0] == move[1]:
                         return piece
             else:
+                if(move == "d6"):
+                    for p in eligible_pieces:
+                        print("test13 " + str(p.coordinate))
                 # Pawns
                 for piece in eligible_pieces:
-                    print("ELIGIBLE PIECES " + str(piece.coordinate))
                     if piece.coordinate[0] == move[0]:
                         return piece
 
         for move in number_move_splits:
             # MAKING MOVES
-            if "9." in move:
+            if "10." in move:
                 break
             if ("." in move) or ("*" in move) or ("#" in move):
                 #print("Blocked moves? ")
@@ -1056,6 +1074,9 @@ class Move_Controller():
                 game_controller.selected_move = [game_controller.move_counter, Move_Controller.move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb), "white"]
             game_controller.df_prior_moves.loc[game_controller.move_counter, "white_move"] = str(prior_moves_dict)
         log.info(move_text)
+        for grid in board.Grid.grid_list:
+            pass
+            #print("Grid coord " + str(grid.coordinate) + " highlight? " + str(grid.highlighted))
         if game_controller.result_abb != "*":
             log.info(game_controller.result_abb)
         
@@ -1462,8 +1483,7 @@ def main():
                             if grid.rect.collidepoint(MOUSEPOS):
                                 log.info("Coordinate: " + str(grid.coordinate) \
                                        + ", White Pieces Attacking: " + str(grid.list_of_white_pieces_attacking) \
-                                       + ", Black Pieces Attacking: " + str(grid.list_of_black_pieces_attacking) \
-                                       + ", Grid occupied? " + str(grid.__dict__))
+                                       + ", Black Pieces Attacking: " + str(grid.list_of_black_pieces_attacking))
                                 
                 ##################
                 # ALL EDIT ACTIONS
