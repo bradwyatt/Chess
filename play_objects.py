@@ -732,7 +732,7 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
             if self.color == "white":
                 direct_enemy_threat = len(grid.coords_of_attacking_pieces['black']) > 0
             elif self.color == "black":
-                direct_enemy_threat = len(grid.coords_of_attacking_pieces['black']) > 0
+                direct_enemy_threat = len(grid.coords_of_attacking_pieces['white']) > 0
             # Projected Enemy Threat refers to threatening squares past the king
             projected_enemy_threat = grid.coordinate in game_controller.check_attacking_coordinates
             # If square does not have same color piece on it

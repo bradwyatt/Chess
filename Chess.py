@@ -443,7 +443,6 @@ class PGN_Writer_and_Loader():
             self.ECO = parameters['ECO']
         except KeyError:
             self.ECO = ""
-        #print("TESTING123: " + str(PlayPawn.white_pawn_list))
         
         # Removes line breaks and formulates all elements into one element in the list
         chess_game = "".join(chess_game).split("  ")
