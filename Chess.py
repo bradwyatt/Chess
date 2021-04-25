@@ -5,7 +5,6 @@ Python 3
 Round 2 Thoughts:
 Function to put a piece on the board (with right X and Y) based only on coordinates
 When I press Play, I want it to act as if there was a move before it, seamless. I don't want to do extra code starting from beginning (when program launches) AND starting over again during game
-Grid class looks messy
 Play back one move
 Undo move
 Pause mode- The board has the Placed pieces, and you can go back and forward in your analysis. But you can't bring in new pieces
@@ -19,7 +18,6 @@ Found a bug with two queens having a spot available and then move notation didnt
 Ne2 illegal
 
 Features To-Do (short-term):
-Instead of using rect to place pieces on the grid, use coordinates (this will help when we flip the board too)
 Save states (IS THIS REALLY NEEDED?), be able to undo and redo moves
 Record moves correctly (keep in mind which direction the other piece is coming from)
 If no king then don't start game
