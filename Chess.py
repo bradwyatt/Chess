@@ -382,10 +382,14 @@ class PGN_Writer_and_Loader():
                 log.info("Error! Need king to save!")
         except IOError:
             log.info("Save File Error, please restart game and try again.")
-    def pgn_load(self, game_controller, PLAY_SPRITES):
-        log.info("Loading PGN...")
+    def pgn_load(self, game_controller, PLAY_SPRITES, PLAY_EDIT_SWITCH_BUTTON):
+        
+        game_controller.switch_mode(game_controller.PLAY_MODE, PLAY_EDIT_SWITCH_BUTTON)
+        game_controller.spawn_play_objects(PLAY_SPRITES)
+        
         open_file = None
         request_file_name = askopenfilename(defaultextension=".pgn")
+        log.info("Loading PGN...")
         try:
             open_file = open(request_file_name, "r")
         except FileNotFoundError:
@@ -650,6 +654,52 @@ class Game_Controller():
         self.df_prior_moves.index = np.arange(1, len(self.df_prior_moves)+1)
         self.result_abb = "*"
         self.selected_move = [0, "", ""]
+    def switch_mode(self, game_mode, PLAY_EDIT_SWITCH_BUTTON):
+        if game_mode == self.EDIT_MODE:
+            log.info("\nEditing Mode Activated\n")
+            self.game_mode = self.EDIT_MODE
+            PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(self.game_mode)
+            self.reset_board()
+            Text_Controller.check_checkmate_text = ""
+        elif game_mode == self.PLAY_MODE:
+            log.info("Play Mode Activated\n")
+            self.game_mode = self.PLAY_MODE
+            PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(self.game_mode)
+    def spawn_play_objects(self, PLAY_SPRITES):
+        def placed_to_play(placed_list, class_obj, sprite_group, color):
+            # Play pieces spawn where their placed piece correspondents are located
+            for placed_obj in placed_list:
+                class_obj(placed_obj.coordinate, sprite_group, color)
+
+        placed_to_play(PlacedPawn.white_pawn_list, PlayPawn, PLAY_SPRITES, "white")
+        placed_to_play(PlacedBishop.white_bishop_list, PlayBishop, PLAY_SPRITES, "white")
+        placed_to_play(PlacedKnight.white_knight_list, PlayKnight, PLAY_SPRITES, "white")
+        placed_to_play(PlacedRook.white_rook_list, PlayRook, PLAY_SPRITES, "white")
+        placed_to_play(PlacedQueen.white_queen_list, PlayQueen, PLAY_SPRITES, "white")
+        placed_to_play(PlacedKing.white_king_list, PlayKing, PLAY_SPRITES, "white")
+        placed_to_play(PlacedPawn.black_pawn_list, PlayPawn, PLAY_SPRITES, "black")
+        placed_to_play(PlacedBishop.black_bishop_list, PlayBishop, PLAY_SPRITES, "black")
+        placed_to_play(PlacedKnight.black_knight_list, PlayKnight, PLAY_SPRITES, "black")
+        placed_to_play(PlacedRook.black_rook_list, PlayRook, PLAY_SPRITES, "black")
+        placed_to_play(PlacedQueen.black_queen_list, PlayQueen, PLAY_SPRITES, "black")
+        placed_to_play(PlacedKing.black_king_list, PlayKing, PLAY_SPRITES, "black")
+        
+        self.WHOSETURN = "white"
+        Grid_Controller.update_grid(self)
+        self.projected_white_update()
+        self.projected_black_update()
+        
+        for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
+                           PlayKnight.white_knight_list, PlayRook.white_rook_list, 
+                           PlayQueen.white_queen_list, PlayKing.white_king_list,
+                           PlayPawn.black_pawn_list, PlayBishop.black_bishop_list,
+                           PlayKnight.black_knight_list, PlayRook.black_rook_list,
+                           PlayQueen.black_queen_list, PlayKing.black_king_list]:
+            for piece in piece_list:
+                piece.spaces_available(self)
+        for grid in board.Grid.grid_list:
+            grid.no_highlight()
+            
     def reset_board(self):
         self.game_mode = self.EDIT_MODE
         self.reset_initial_vars()
@@ -1291,7 +1341,7 @@ def main():
                         if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS) and len(MoveNumberRectangle.rectangle_list) > initvar.MOVES_PANE_MAX_MOVES and PanelRectangles.scroll_range[1] < len(MoveNumberRectangle.rectangle_list): # Scroll down
                             update_scroll_range(1)
                         if PGN_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
-                            PGN_WRITER_AND_LOADER.pgn_load(game_controller, PLAY_SPRITES)
+                            PGN_WRITER_AND_LOADER.pgn_load(game_controller, PLAY_SPRITES, PLAY_EDIT_SWITCH_BUTTON)
                             for grid in board.Grid.grid_list:
                                 grid.no_highlight()
                             Grid_Controller.update_grid(game_controller)
@@ -1469,52 +1519,14 @@ def main():
                         #################
                         if PLAY_EDIT_SWITCH_BUTTON.rect.collidepoint(MOUSEPOS) and game_controller.game_mode == game_controller.EDIT_MODE: 
                             # Makes clicking play again unclickable    
-                            game_controller.game_mode = game_controller.PLAY_MODE
-                            PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(game_controller.game_mode)
-                            log.info("Play Mode Activated\n")
-                            
-                            def placed_to_play(placed_list, class_obj, sprite_group, color):
-                                # Play pieces spawn where their placed piece correspondents are located
-                                for placed_obj in placed_list:
-                                    class_obj(placed_obj.coordinate, sprite_group, color)
+                            game_controller.switch_mode(game_controller.PLAY_MODE, PLAY_EDIT_SWITCH_BUTTON)
+                            game_controller.spawn_play_objects(PLAY_SPRITES)
 
-                            placed_to_play(PlacedPawn.white_pawn_list, PlayPawn, PLAY_SPRITES, "white")
-                            placed_to_play(PlacedBishop.white_bishop_list, PlayBishop, PLAY_SPRITES, "white")
-                            placed_to_play(PlacedKnight.white_knight_list, PlayKnight, PLAY_SPRITES, "white")
-                            placed_to_play(PlacedRook.white_rook_list, PlayRook, PLAY_SPRITES, "white")
-                            placed_to_play(PlacedQueen.white_queen_list, PlayQueen, PLAY_SPRITES, "white")
-                            placed_to_play(PlacedKing.white_king_list, PlayKing, PLAY_SPRITES, "white")
-                            placed_to_play(PlacedPawn.black_pawn_list, PlayPawn, PLAY_SPRITES, "black")
-                            placed_to_play(PlacedBishop.black_bishop_list, PlayBishop, PLAY_SPRITES, "black")
-                            placed_to_play(PlacedKnight.black_knight_list, PlayKnight, PLAY_SPRITES, "black")
-                            placed_to_play(PlacedRook.black_rook_list, PlayRook, PLAY_SPRITES, "black")
-                            placed_to_play(PlacedQueen.black_queen_list, PlayQueen, PLAY_SPRITES, "black")
-                            placed_to_play(PlacedKing.black_king_list, PlayKing, PLAY_SPRITES, "black")
-                            
-                            game_controller.WHOSETURN = "white"
-                            #game_controller.switch_turn(game_controller.WHOSETURN)
-                            Grid_Controller.update_grid(game_controller)
-                            game_controller.projected_white_update()
-                            game_controller.projected_black_update()
-                            
-                            for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
-                                               PlayKnight.white_knight_list, PlayRook.white_rook_list, 
-                                               PlayQueen.white_queen_list, PlayKing.white_king_list,
-                                               PlayPawn.black_pawn_list, PlayBishop.black_bishop_list,
-                                               PlayKnight.black_knight_list, PlayRook.black_rook_list,
-                                               PlayQueen.black_queen_list, PlayKing.black_king_list]:
-                                for piece in piece_list:
-                                    piece.spaces_available(game_controller)
-                            for grid in board.Grid.grid_list:
-                                grid.no_highlight()
                         #################
                         # LEFT CLICK (RELEASE) STOP BUTTON
                         #################
                         elif PLAY_EDIT_SWITCH_BUTTON.rect.collidepoint(MOUSEPOS) and game_controller.game_mode == game_controller.PLAY_MODE:
-                            log.info("\nEditing Mode Activated\n")
-                            game_controller.game_mode = game_controller.EDIT_MODE
-                            PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(game_controller.game_mode)
-                            game_controller.reset_board()
+                            game_controller.switch_mode(game_controller.EDIT_MODE, PLAY_EDIT_SWITCH_BUTTON)
                         # Undo move through PREV_MOVE_BUTTON
                         if PREV_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
                             pass
