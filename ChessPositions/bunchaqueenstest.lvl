@@ -1,1 +1,0 @@
-{'white_pawn': [], 'white_bishop': [], 'white_knight': [], 'white_rook': [], 'white_queen': [(288, 192), (288, 240), (288, 288), (240, 240)], 'white_king': [], 'black_pawn': [], 'black_bishop': [], 'black_knight': [], 'black_rook': [(48, 144), (144, 96), (144, 144), (96, 144)], 'black_queen': [], 'black_king': [(48, 96)], 'RGB': [160, 160, 160]}
