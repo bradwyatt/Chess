@@ -65,8 +65,7 @@ class PGNLoadFileButton(pygame.sprite.Sprite):
         self.image = IMAGES["SPR_PGN_LOAD_FILE_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
-    def draw(self, screen):
-        screen.blit(self.image, (self.rect.topleft))
+        initvar.START_SPRITES.add(self)
 
 class FlipBoardButton(pygame.sprite.Sprite):
     def __init__(self, pos):

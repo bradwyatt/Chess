@@ -3,12 +3,8 @@ Chess created by Brad Wyatt
 Python 3
 
 Round 2 Thoughts:
-For PGN:
-- cleanup (PLAY_SPRITES? GRID_SPRITES?)
-- if you load 2 pgns in a row you get an error
-- more testing of games, longer games?
-- Pawns and other pieces are treated differently in notation. I think the other pieces look good, but still want to check on pawns. Bigger sample size helps
-    
+Menu objects are still invisible yet clickable
+
 Play back one move
 Undo move
 Pause mode- The board has the Placed pieces, and you can go back and forward in your analysis. But you can't bring in new pieces
@@ -496,18 +492,15 @@ class PGN_Writer_and_Loader():
                             eligible_pieces.append(piece)
             if len(eligible_pieces) == 1:
                 # List only has one eligible piece
-                print("aaa")
                 return eligible_pieces[0]
             elif(piece_list != PlayPawn.white_pawn_list and piece_list != PlayPawn.black_pawn_list):
                 # Decide the logic of if there are at least 2 eligible pieces
-                print("bbb")
                 for piece in eligible_pieces:
                     if piece.coordinate[1] == move[1]:
                         return piece
                     elif piece.coordinate[0] == move[1]:
                         return piece
             else:
-                print("cccc")
                 # Pawns
                 for piece in eligible_pieces:
                     if piece.coordinate[0] == move[0]:
@@ -561,7 +554,6 @@ class PGN_Writer_and_Loader():
                     else:
                         grid_coordinate = move[-2:]
                     piece = determine_piece(type_of_piece_list, move, grid_coordinate, game_controller)
-                    print("PIECE: " + str(piece))
                     prior_moves_dict, captured_abb, special_abb, promoted_queen = Move_Controller.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller, PLAY_SPRITES)
                     Move_Controller.game_status_check(game_controller, board.Grid.grid_dict[grid_coordinate], piece, prior_moves_dict, captured_abb, special_abb, promoted_queen)
                 draw_move_rects_on_moves_pane(pygame.font.SysFont('Arial', 16), game_controller)
@@ -1594,6 +1586,7 @@ def main():
                     PLACED_SPRITES.draw(SCREEN)    
                 elif(game_controller.game_mode == game_controller.PLAY_MODE): #Only draw play sprites in play mode
                     PLAY_SPRITES.draw(SCREEN)
+                    PGN_SAVE_FILE_BUTTON.draw(SCREEN)
                 # When the piece is selected on the right pane, fill the rectangle corresponding to the move
                 for piece_move_rect in PieceMoveRectangle.rectangle_list:
                     if piece_move_rect.move_number == game_controller.selected_move[0] and piece_move_rect.move_notation == game_controller.selected_move[1]\
@@ -1603,8 +1596,6 @@ def main():
                 # Update objects that aren't in a sprite group
                 SCROLL_UP_BUTTON.draw(SCREEN)
                 SCROLL_DOWN_BUTTON.draw(SCREEN, len(game_controller.df_moves))
-                PGN_LOAD_FILE_BUTTON.draw(SCREEN)
-                PGN_SAVE_FILE_BUTTON.draw(SCREEN)
                 # Board Coordinates Drawing
                 coor_letter_text_list = [coor_A_text, coor_B_text, coor_C_text, coor_D_text, coor_E_text, coor_F_text, coor_G_text, coor_H_text]
                 for text in range(0,len(coor_letter_text_list)):
