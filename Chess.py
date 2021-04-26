@@ -379,10 +379,6 @@ class PGN_Writer_and_Loader():
         except IOError:
             log.info("Save File Error, please restart game and try again.")
     def pgn_load(self, game_controller, PLAY_SPRITES, PLAY_EDIT_SWITCH_BUTTON):
-        
-        game_controller.switch_mode(game_controller.PLAY_MODE, PLAY_EDIT_SWITCH_BUTTON)
-        game_controller.spawn_play_objects(PLAY_SPRITES)
-        
         open_file = None
         request_file_name = askopenfilename(defaultextension=".pgn")
         log.info("Loading PGN...")
@@ -391,6 +387,9 @@ class PGN_Writer_and_Loader():
         except FileNotFoundError:
             log.info("File not found")
             return
+        game_controller.switch_mode(game_controller.PLAY_MODE, PLAY_EDIT_SWITCH_BUTTON)
+        game_controller.spawn_play_objects(PLAY_SPRITES)
+        
         loaded_file = open_file.read()
         all_components_split = loaded_file.split("\n")
         parameters = {}
@@ -447,10 +446,6 @@ class PGN_Writer_and_Loader():
         
         # Removes line breaks and formulates all elements into one element in the list
         chess_game = "".join(chess_game).split("  ")
-        #print(str(chess_game))
-        
-        # FIND ANOTHER WAY TO RESET THE BOARD
-        #game_controller.reset_board()
         
         number_move_splits = "".join(chess_game).split()
         
@@ -519,11 +514,11 @@ class PGN_Writer_and_Loader():
                 if move == "O-O":
                     if game_controller.WHOSETURN == "white":
                         type_of_piece_list = PlayKing.white_king_list
-                        grid_coordinate = 'f1'
+                        grid_coordinate = 'g1'
                     elif game_controller.WHOSETURN == "black":
                         type_of_piece_list = PlayKing.black_king_list
-                        grid_coordinate = 'f8'
-                    piece = determine_piece(type_of_piece_list, move, grid_coordinate, game_controller)
+                        grid_coordinate = 'g8'
+                    piece = type_of_piece_list[0]
                     prior_moves_dict, captured_abb, special_abb, promoted_queen = Move_Controller.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller, PLAY_SPRITES)
                     Move_Controller.game_status_check(game_controller, board.Grid.grid_dict[grid_coordinate], piece, prior_moves_dict, captured_abb, special_abb, promoted_queen)
                 elif move == "O-O-O":
