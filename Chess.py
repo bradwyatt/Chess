@@ -1,24 +1,15 @@
 """
 Chess created by Brad Wyatt
-Python 3
-
-Round 2 Thoughts:
-Menu objects are still invisible yet clickable
-
-Play back one move
-Undo move
-Pause mode- The board has the Placed pieces, and you can go back and forward in your analysis. But you can't bring in new pieces
-Sounds
-When I press Play, I want it to act as if there was a move before it, seamless. I don't want to do extra code starting from beginning (when program launches) AND starting over again during game
-Making sure that we are doing promotion correctly
-Perhaps using a direction arrow (like babaschess) to determine which piece could take the other piece. This could get confusing when flipping board though
-                                                                                                         
-Testing (these are all in logs or PGN_Incorrect_Notation folder):
-(haven't replicated again) Found a bug in castling there's a screenshot of it. This was before figuring out how to do moves, so ignore until you find again
 
 Features To-Do (short-term):
-Save states (IS THIS REALLY NEEDED?), be able to undo and redo moves
-If no king then don't start game
+Flip board 
+Undo move
+Play back one move
+Be able to click on a move in the pane to view it
+--> One idea I had before was pause mode (mode between edit and play)
+--> I think the right thing to do would take the df_prior_moves to get the move. The tricky part is differentiating this from Undo move (through a conditional variable checking within each class for example). And coloring prior_move_color appropriately.
+Game Properties
+Menu objects are still invisible yet clickable
 
 Buttons to Implement:
 Previous Move
@@ -29,9 +20,19 @@ Game Properties (use Babaschess for model)
 Flip Board
 
 Features To-Do (long-term):
-Save positions rather than restarting when pressing stop button
 Customized Turns for black and white
 Choose piece for Promotion
+Sounds
+If no king then don't start game
+
+Testing/Code Improvements:
+Getting rid of import *?
+Splitting groups of statements that were for after clicking into functions and methods within classes
+Feedback
+
+Optional:
+Perhaps using a direction arrow (like babaschess) to determine which piece could take the other piece. This could get confusing when flipping board though
+AI
 """
 import board
 from start_objects import *
