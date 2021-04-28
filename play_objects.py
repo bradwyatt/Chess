@@ -26,7 +26,7 @@ class ChessPiece:
         self.pinned = True
         self.pin_attacking_coordinates = pin_attacking_coordinates
     def update(self):
-        pass
+        self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
 
 class PlayPawn(ChessPiece, pygame.sprite.Sprite):
     white_pawn_list = []

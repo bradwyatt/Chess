@@ -1606,6 +1606,7 @@ def main():
                 #Update all sprites
                 SCREEN.fill(COLORKEY)
                 
+                FLIP_BOARD_BUTTON.draw(SCREEN)
                 GAME_MODE_SPRITES.draw(SCREEN)
                 board.GRID_SPRITES.draw(SCREEN)
                 Grid_Controller.update_grid(game_controller)
@@ -1615,8 +1616,11 @@ def main():
                     initvar.START_SPRITES.draw(SCREEN)
                     PLACED_SPRITES.draw(SCREEN)    
                 elif(game_controller.game_mode == game_controller.PLAY_MODE): #Only draw play sprites in play mode
+                    FLIP_BOARD_BUTTON.draw(SCREEN)
+                    PLAY_SPRITES.update()
                     PLAY_SPRITES.draw(SCREEN)
                     PGN_SAVE_FILE_BUTTON.draw(SCREEN)
+                    
                 # When the piece is selected on the right pane, fill the rectangle corresponding to the move
                 for piece_move_rect in PieceMoveRectangle.rectangle_list:
                     if piece_move_rect.move_number == game_controller.selected_move[0] and piece_move_rect.move_notation == game_controller.selected_move[1]\
