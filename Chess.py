@@ -590,41 +590,17 @@ class PGN_Writer_and_Loader():
 class Grid_Controller():
     flipped = False
     def flip_grids():
+        letters = 'abcdefgh'
+        numbers = '12345678'
         if Grid_Controller.flipped == False:
             for grid in board.Grid.grid_list:
                 mirror_grid_coordinate = ""
-                if grid.coordinate[0] == 'a':
-                    mirror_grid_coordinate += 'h'
-                elif grid.coordinate[0] == 'b':
-                    mirror_grid_coordinate += 'g'
-                elif grid.coordinate[0] == 'c':
-                    mirror_grid_coordinate += 'f'
-                elif grid.coordinate[0] == 'd':
-                    mirror_grid_coordinate += 'e'
-                elif grid.coordinate[0] == 'e':
-                    mirror_grid_coordinate += 'd'
-                elif grid.coordinate[0] == 'f':
-                    mirror_grid_coordinate += 'c'
-                elif grid.coordinate[0] == 'g':
-                    mirror_grid_coordinate += 'b'
-                elif grid.coordinate[0] == 'h':
-                    mirror_grid_coordinate += 'a'
-                if grid.coordinate[1] == '1':
-                    mirror_grid_coordinate += '8'
-                elif grid.coordinate[1] == '2':
-                    mirror_grid_coordinate += '7'
-                elif grid.coordinate[1] == '3':
-                    mirror_grid_coordinate +='6'
-                elif grid.coordinate[1] == '4':
-                    mirror_grid_coordinate += '5'
-                elif grid.coordinate[1] == '5':
-                    mirror_grid_coordinate += '4'
-                elif grid.coordinate[1] == '6':
-                    mirror_grid_coordinate += '3'
-                elif grid.coordinate[1] == '7':
-                    mirror_grid_coordinate += '2'
-                elif grid.coordinate[1] == '8':
-                    mirror_grid_coordinate += '1'
+                for l in letters:
+                    if l == grid.coordinate[0]:
+                        mirror_grid_coordinate += letters[-(letters.index(l)+1)]
+                for n in numbers:
+                    if n == grid.coordinate[1]:
+                        mirror_grid_coordinate += numbers[-(numbers.index(n)+1)]
                 grid.rect.topleft = board.Grid.grid_dict[mirror_grid_coordinate].initial_rect_top_left
             Grid_Controller.flipped = True
         else:
