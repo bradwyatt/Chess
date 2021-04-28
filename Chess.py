@@ -24,6 +24,7 @@ Customized Turns for black and white
 Choose piece for Promotion
 Sounds
 If no king then don't start game
+Remove yellow highlight on grid
 
 Testing/Code Improvements:
 Getting rid of import *?
