@@ -588,36 +588,49 @@ class PGN_Writer_and_Loader():
         return
 
 class Grid_Controller():
-    flipped = True
+    flipped = False
     def flip_grids():
-        if Grid_Controller.flipped == True:
+        if Grid_Controller.flipped == False:
             for grid in board.Grid.grid_list:
+                mirror_grid_coordinate = ""
+                if grid.coordinate[0] == 'a':
+                    mirror_grid_coordinate += 'h'
+                elif grid.coordinate[0] == 'b':
+                    mirror_grid_coordinate += 'g'
+                elif grid.coordinate[0] == 'c':
+                    mirror_grid_coordinate += 'f'
+                elif grid.coordinate[0] == 'd':
+                    mirror_grid_coordinate += 'e'
+                elif grid.coordinate[0] == 'e':
+                    mirror_grid_coordinate += 'd'
+                elif grid.coordinate[0] == 'f':
+                    mirror_grid_coordinate += 'c'
+                elif grid.coordinate[0] == 'g':
+                    mirror_grid_coordinate += 'b'
+                elif grid.coordinate[0] == 'h':
+                    mirror_grid_coordinate += 'a'
                 if grid.coordinate[1] == '1':
-                    mirror_grid_num = '8'
-                if grid.coordinate[1] == '2':
-                    mirror_grid_num = '7'
-                if grid.coordinate[1] == '3':
-                    mirror_grid_num = '6'
-                if grid.coordinate[1] == '4':
-                    mirror_grid_num = '5'
-                if grid.coordinate[1] == '5':
-                    mirror_grid_num = '4'
-                if grid.coordinate[1] == '6':
-                    mirror_grid_num = '3'
-                if grid.coordinate[1] == '7':
-                    mirror_grid_num = '2'
-                if grid.coordinate[1] == '8':
-                    mirror_grid_num = '1'
-                mirror_grid = grid.coordinate[0] + mirror_grid_num
-                grid.rect.topleft = board.Grid.grid_dict[mirror_grid].initial_rect_top_left
-                print("Original coordinate: " + grid.coordinate + " with mirror grid: " + mirror_grid + " wit recttopleft " + str(grid.rect.topleft))
-            Grid_Controller.flipped = False
-            print("Board flipped (you're black)")
+                    mirror_grid_coordinate += '8'
+                elif grid.coordinate[1] == '2':
+                    mirror_grid_coordinate += '7'
+                elif grid.coordinate[1] == '3':
+                    mirror_grid_coordinate +='6'
+                elif grid.coordinate[1] == '4':
+                    mirror_grid_coordinate += '5'
+                elif grid.coordinate[1] == '5':
+                    mirror_grid_coordinate += '4'
+                elif grid.coordinate[1] == '6':
+                    mirror_grid_coordinate += '3'
+                elif grid.coordinate[1] == '7':
+                    mirror_grid_coordinate += '2'
+                elif grid.coordinate[1] == '8':
+                    mirror_grid_coordinate += '1'
+                grid.rect.topleft = board.Grid.grid_dict[mirror_grid_coordinate].initial_rect_top_left
+            Grid_Controller.flipped = True
         else:
             for grid in board.Grid.grid_list:
                 grid.rect.topleft = grid.initial_rect_top_left
-            Grid_Controller.flipped = True
-            print("Board flipped (you're white)")
+            Grid_Controller.flipped = False
                 
     def update_grid(game_controller):
         for grid in board.Grid.grid_list:
@@ -1614,6 +1627,7 @@ def main():
                 SCREEN.blit(initvar.MOVE_BG_IMAGE, (initvar.MOVE_BG_IMAGE_HEIGHT,initvar.MOVE_BG_IMAGE_WIDTH))
                 if(game_controller.game_mode == game_controller.EDIT_MODE): #Only draw placed sprites in editing mode
                     initvar.START_SPRITES.draw(SCREEN)
+                    PLACED_SPRITES.update()
                     PLACED_SPRITES.draw(SCREEN)    
                 elif(game_controller.game_mode == game_controller.PLAY_MODE): #Only draw play sprites in play mode
                     FLIP_BOARD_BUTTON.draw(SCREEN)
