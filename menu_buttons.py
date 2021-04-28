@@ -73,7 +73,8 @@ class FlipBoardButton(pygame.sprite.Sprite):
         self.image = IMAGES["SPR_FLIP_BOARD_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
-        initvar.START_SPRITES.add(self)
+    def draw(self, screen):
+        screen.blit(self.image, (self.rect.topleft))
         
 class GamePropertiesButton(pygame.sprite.Sprite):
     def __init__(self, pos):

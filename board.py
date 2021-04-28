@@ -7,12 +7,14 @@ GRID_SPRITES = pygame.sprite.Group()
 class Grid(pygame.sprite.Sprite):
     grid_list = []
     grid_dict = {}
+    
     def __init__(self, GRID_SPRITES, pos, coordinate):
         pygame.sprite.Sprite.__init__(self)
         self.image = IMAGES["SPR_GRID"] # Default
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         GRID_SPRITES.add(self)
+        self.initial_rect_top_left = pos
         self.coordinate = coordinate
         self.highlighted = False
         self.occupied = False

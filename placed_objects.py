@@ -22,7 +22,7 @@ class PlacedPawn(pygame.sprite.Sprite):
             if grid.coordinate == self.coordinate:
                 self.rect.topleft = grid.rect.topleft
     def update(self):
-        pass
+        self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
     def destroy(self):
         if self.col == "white":
             PlacedPawn.white_pawn_list.remove(self)
@@ -50,7 +50,7 @@ class PlacedBishop(pygame.sprite.Sprite):
             if grid.coordinate == self.coordinate:
                 self.rect.topleft = grid.rect.topleft
     def update(self):
-        pass
+        self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
     def destroy(self):
         if self.col == "white":
             PlacedBishop.white_bishop_list.remove(self)
@@ -78,7 +78,7 @@ class PlacedKnight(pygame.sprite.Sprite):
             if grid.coordinate == self.coordinate:
                 self.rect.topleft = grid.rect.topleft
     def update(self):
-        pass
+        self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
     def destroy(self):
         if self.col == "white":
             PlacedKnight.white_knight_list.remove(self)
@@ -106,7 +106,7 @@ class PlacedRook(pygame.sprite.Sprite):
             if grid.coordinate == self.coordinate:
                 self.rect.topleft = grid.rect.topleft
     def update(self):
-        pass
+        self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
     def destroy(self):
         if self.col == "white":
             PlacedRook.white_rook_list.remove(self)
@@ -134,7 +134,7 @@ class PlacedQueen(pygame.sprite.Sprite):
             if grid.coordinate == self.coordinate:
                 self.rect.topleft = grid.rect.topleft
     def update(self):
-        pass
+        self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
     def destroy(self):
         if self.col == "white":
             PlacedQueen.white_queen_list.remove(self)
@@ -162,7 +162,7 @@ class PlacedKing(pygame.sprite.Sprite):
             if grid.coordinate == self.coordinate:
                 self.rect.topleft = grid.rect.topleft
     def update(self):
-        pass
+        self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
     def destroy(self):
         if self.col == "white":
             PlacedKing.white_king_list.remove(self)
