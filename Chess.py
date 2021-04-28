@@ -588,6 +588,37 @@ class PGN_Writer_and_Loader():
         return
 
 class Grid_Controller():
+    flipped = True
+    def flip_grids():
+        if Grid_Controller.flipped == True:
+            for grid in board.Grid.grid_list:
+                if grid.coordinate[1] == '1':
+                    mirror_grid_num = '8'
+                if grid.coordinate[1] == '2':
+                    mirror_grid_num = '7'
+                if grid.coordinate[1] == '3':
+                    mirror_grid_num = '6'
+                if grid.coordinate[1] == '4':
+                    mirror_grid_num = '5'
+                if grid.coordinate[1] == '5':
+                    mirror_grid_num = '4'
+                if grid.coordinate[1] == '6':
+                    mirror_grid_num = '3'
+                if grid.coordinate[1] == '7':
+                    mirror_grid_num = '2'
+                if grid.coordinate[1] == '8':
+                    mirror_grid_num = '1'
+                mirror_grid = grid.coordinate[0] + mirror_grid_num
+                grid.rect.topleft = board.Grid.grid_dict[mirror_grid].initial_rect_top_left
+                print("Original coordinate: " + grid.coordinate + " with mirror grid: " + mirror_grid + " wit recttopleft " + str(grid.rect.topleft))
+            Grid_Controller.flipped = False
+            print("Board flipped (you're black)")
+        else:
+            for grid in board.Grid.grid_list:
+                grid.rect.topleft = grid.initial_rect_top_left
+            Grid_Controller.flipped = True
+            print("Board flipped (you're white)")
+                
     def update_grid(game_controller):
         for grid in board.Grid.grid_list:
             if game_controller.game_mode == game_controller.PLAY_MODE:
@@ -1336,6 +1367,8 @@ def main():
                             Grid_Controller.update_grid(game_controller)
                         if PGN_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
                             PGN_WRITER_AND_LOADER.write_moves(game_controller.df_moves, game_controller.result_abb)
+                        if FLIP_BOARD_BUTTON.rect.collidepoint(MOUSEPOS):
+                            Grid_Controller.flip_grids()
                         # When clicking on a move on the right pane, it is your selected move
                         for piece_move_rect in PieceMoveRectangle.rectangle_list:
                             if piece_move_rect.rect.collidepoint(MOUSEPOS) and piece_move_rect.text_is_visible:
