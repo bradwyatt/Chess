@@ -605,6 +605,7 @@ class Grid_Controller():
             for grid in board.Grid.grid_list:
                 grid.rect.topleft = grid.initial_rect_top_left
             Grid_Controller.flipped = False
+        Text_Controller.flip_board()
                 
     def update_grid(game_controller):
         for grid in board.Grid.grid_list:
@@ -834,9 +835,33 @@ class Game_Controller():
 
 
 class Text_Controller():
+    arial_font = pygame.font.SysFont('Arial', 24)
+    #fonts
+    coor_A_text = arial_font.render("a", 1, (0, 0, 0))
+    coor_B_text = arial_font.render("b", 1, (0, 0, 0))
+    coor_C_text = arial_font.render("c", 1, (0, 0, 0))
+    coor_D_text = arial_font.render("d", 1, (0, 0, 0))
+    coor_E_text = arial_font.render("e", 1, (0, 0, 0))
+    coor_F_text = arial_font.render("f", 1, (0, 0, 0))
+    coor_G_text = arial_font.render("g", 1, (0, 0, 0))
+    coor_H_text = arial_font.render("h", 1, (0, 0, 0))
+    coor_1_text = arial_font.render("1", 1, (0, 0, 0))
+    coor_2_text = arial_font.render("2", 1, (0, 0, 0))
+    coor_3_text = arial_font.render("3", 1, (0, 0, 0))
+    coor_4_text= arial_font.render("4", 1, (0, 0, 0))
+    coor_5_text = arial_font.render("5", 1, (0, 0, 0))
+    coor_6_text = arial_font.render("6", 1, (0, 0, 0))
+    coor_7_text= arial_font.render("7", 1, (0, 0, 0))
+    coor_8_text = arial_font.render("8", 1, (0, 0, 0))
+    coor_letter_text_list = [coor_A_text, coor_B_text, coor_C_text, coor_D_text, coor_E_text, coor_F_text, coor_G_text, coor_H_text]
+    coor_number_text_list = [coor_8_text, coor_7_text, coor_6_text, coor_5_text, coor_4_text, coor_3_text, coor_2_text, coor_1_text]
     check_checkmate_text = ""
+    
     def reset():
-        check_checkmate_text = ""
+        Text_Controller.check_checkmate_text = ""
+    def flip_board():
+        Text_Controller.coor_letter_text_list.reverse()
+        Text_Controller.coor_number_text_list.reverse()
         
 class Move_Controller():
     def move_translator(piece_name, piece, captured_abb, special_abb="", check_abb=""):
@@ -1280,23 +1305,7 @@ def main():
         gameicon = pygame.image.load("Sprites/chessico.png")
         pygame.display.set_icon(gameicon)
         pygame.display.set_caption('Chess')
-        #fonts
-        coor_A_text = arial_font.render("a", 1, (0, 0, 0))
-        coor_B_text = arial_font.render("b", 1, (0, 0, 0))
-        coor_C_text = arial_font.render("c", 1, (0, 0, 0))
-        coor_D_text = arial_font.render("d", 1, (0, 0, 0))
-        coor_E_text = arial_font.render("e", 1, (0, 0, 0))
-        coor_F_text = arial_font.render("f", 1, (0, 0, 0))
-        coor_G_text = arial_font.render("g", 1, (0, 0, 0))
-        coor_H_text = arial_font.render("h", 1, (0, 0, 0))
-        coor_1_text = arial_font.render("1", 1, (0, 0, 0))
-        coor_2_text = arial_font.render("2", 1, (0, 0, 0))
-        coor_3_text = arial_font.render("3", 1, (0, 0, 0))
-        coor_4_text= arial_font.render("4", 1, (0, 0, 0))
-        coor_5_text = arial_font.render("5", 1, (0, 0, 0))
-        coor_6_text = arial_font.render("6", 1, (0, 0, 0))
-        coor_7_text= arial_font.render("7", 1, (0, 0, 0))
-        coor_8_text = arial_font.render("8", 1, (0, 0, 0))
+
                         
         # Load the starting positions of chessboard first
         pos_load_file(PLACED_SPRITES, COLORKEY, reset=True)
@@ -1619,14 +1628,12 @@ def main():
                 SCROLL_UP_BUTTON.draw(SCREEN)
                 SCROLL_DOWN_BUTTON.draw(SCREEN, len(game_controller.df_moves))
                 # Board Coordinates Drawing
-                coor_letter_text_list = [coor_A_text, coor_B_text, coor_C_text, coor_D_text, coor_E_text, coor_F_text, coor_G_text, coor_H_text]
-                for text in range(0,len(coor_letter_text_list)):
-                    SCREEN.blit(coor_letter_text_list[text], (initvar.X_GRID_START+initvar.X_GRID_WIDTH/3+(initvar.X_GRID_WIDTH*text), initvar.Y_GRID_START-(initvar.Y_GRID_HEIGHT*0.75)))
-                    SCREEN.blit(coor_letter_text_list[text], (initvar.X_GRID_START+initvar.X_GRID_WIDTH/3+(initvar.X_GRID_WIDTH*text), board.Y_GRID_END+(initvar.Y_GRID_HEIGHT*0.25)))
-                coor_number_text_list = [coor_8_text, coor_7_text, coor_6_text, coor_5_text, coor_4_text, coor_3_text, coor_2_text, coor_1_text]
-                for text in range(0,len(coor_number_text_list)):
-                    SCREEN.blit(coor_number_text_list[text], (initvar.X_GRID_START-initvar.X_GRID_WIDTH/2, initvar.Y_GRID_START+initvar.Y_GRID_HEIGHT/4+(initvar.Y_GRID_HEIGHT*text)))
-                    SCREEN.blit(coor_number_text_list[text], (board.X_GRID_END+initvar.X_GRID_WIDTH/3, initvar.Y_GRID_START+initvar.Y_GRID_HEIGHT/4+(initvar.Y_GRID_HEIGHT*text)))
+                for text in range(0,len(Text_Controller.coor_letter_text_list)):
+                    SCREEN.blit(Text_Controller.coor_letter_text_list[text], (initvar.X_GRID_START+initvar.X_GRID_WIDTH/3+(initvar.X_GRID_WIDTH*text), initvar.Y_GRID_START-(initvar.Y_GRID_HEIGHT*0.75)))
+                    SCREEN.blit(Text_Controller.coor_letter_text_list[text], (initvar.X_GRID_START+initvar.X_GRID_WIDTH/3+(initvar.X_GRID_WIDTH*text), board.Y_GRID_END+(initvar.Y_GRID_HEIGHT*0.25)))
+                for text in range(0,len(Text_Controller.coor_number_text_list)):
+                    SCREEN.blit(Text_Controller.coor_number_text_list[text], (initvar.X_GRID_START-initvar.X_GRID_WIDTH/2, initvar.Y_GRID_START+initvar.Y_GRID_HEIGHT/4+(initvar.Y_GRID_HEIGHT*text)))
+                    SCREEN.blit(Text_Controller.coor_number_text_list[text], (board.X_GRID_END+initvar.X_GRID_WIDTH/3, initvar.Y_GRID_START+initvar.Y_GRID_HEIGHT/4+(initvar.Y_GRID_HEIGHT*text)))
                 if(game_controller.game_mode == game_controller.PLAY_MODE):
                     check_checkmate_text_render = arial_font.render(Text_Controller.check_checkmate_text, 1, (0, 0, 0))
                     if game_controller.WHOSETURN == "white":
