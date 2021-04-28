@@ -2,7 +2,6 @@
 Chess created by Brad Wyatt
 
 Features To-Do (short-term):
-Flip board 
 Undo move
 Play back one move
 Be able to click on a move in the pane to view it
@@ -17,7 +16,6 @@ Next Move
 Beginning of Game
 Latest move
 Game Properties (use Babaschess for model)
-Flip Board
 
 Features To-Do (long-term):
 Customized Turns for black and white
