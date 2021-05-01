@@ -23,7 +23,6 @@ class Grid(pygame.sprite.Sprite):
         Grid.grid_list.append(self)
         Grid.grid_dict[self.coordinate] = self
         self.reset_play_interaction_vars()
-        print("Grid initialized for " + str(self))
     def reset_play_interaction_vars(self):
         # Reset all variables that interact with play pieces
         self.prior_move_color = False
@@ -34,7 +33,6 @@ class Grid(pygame.sprite.Sprite):
         self.no_highlight()
         self.coords_of_attacking_pieces = {'white': [], 'black': []}
         self.coords_of_available_pieces = {'white': [], 'black': []}
-        self.attack_count_reset()
     def attack_count_reset(self):
         self.coords_of_attacking_pieces = {'white': [], 'black': []}
     def attack_count_increment(self, piece_color, attack_coord):
@@ -79,16 +77,17 @@ for coordinate in coordinates_dict_with_pos.keys():
     for i in range(ord("a"), ord("h"), 2):
         for j in range(2, 9, 2):
             if(ord(coordinate[0]) == i and int(coordinate[1]) == j):
-                Grid(GRID_SPRITES, "white", coordinates_dict_with_pos[coordinate], grid_coordinate)
+                Grid(GRID_SPRITES, "white", coordinates_dict_with_pos[coordinate], coordinate)
+                print("position: " + str(coordinates_dict_with_pos[coordinate]))
     for i in range(ord("b"), ord("i"), 2):
         for j in range(1, 8, 2):
             if(ord(coordinate[0]) == i and int(coordinate[1]) == j):
-                Grid(GRID_SPRITES, "white", coordinates_dict_with_pos[coordinate], grid_coordinate)
+                Grid(GRID_SPRITES, "white", coordinates_dict_with_pos[coordinate], coordinate)
     for i in range(ord("a"), ord("h"), 2):
         for j in range(1, 8, 2):
             if(ord(coordinate[0]) == i and int(coordinate[1]) == j):
-                Grid(GRID_SPRITES, "green", coordinates_dict_with_pos[coordinate], grid_coordinate)
+                Grid(GRID_SPRITES, "green", coordinates_dict_with_pos[coordinate], coordinate)
     for i in range(ord("b"), ord("i"), 2):
         for j in range(2, 9, 2):
             if(ord(coordinate[0]) == i and int(coordinate[1]) == j):
-                Grid(GRID_SPRITES, "green", coordinates_dict_with_pos[coordinate], grid_coordinate)
+                Grid(GRID_SPRITES, "green", coordinates_dict_with_pos[coordinate], coordinate)
