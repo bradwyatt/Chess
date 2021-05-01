@@ -2,6 +2,9 @@ import pygame
 import initvar
 import placed_objects
 from load_images_sounds import *
+import logging
+
+log = logging.getLogger(__name__)
 
 START_SPRITES = pygame.sprite.Group()
 
