@@ -378,7 +378,7 @@ class PGN_Writer_and_Loader():
                 log.info("Error! Need king to save!")
         except IOError:
             log.info("Save File Error, please restart game and try again.")
-    def pgn_load(self, game_controller, PLAY_SPRITES, PLAY_EDIT_SWITCH_BUTTON):
+    def pgn_load(self, PLAY_SPRITES, PLAY_EDIT_SWITCH_BUTTON):
         open_file = None
         request_file_name = askopenfilename(defaultextension=".pgn")
         log.info("Loading PGN...")
@@ -387,7 +387,8 @@ class PGN_Writer_and_Loader():
         except FileNotFoundError:
             log.info("File not found")
             return
-        Switch_Modes_Controller.switch_mode(game_controller, Switch_Modes_Controller.PLAY_MODE, PLAY_EDIT_SWITCH_BUTTON)
+        Switch_Modes_Controller.switch_mode(Switch_Modes_Controller.PLAY_MODE, PLAY_EDIT_SWITCH_BUTTON)
+        game_controller = Game_Controller()
         game_controller.spawn_play_objects(PLAY_SPRITES)
         
         loaded_file = open_file.read()
@@ -583,7 +584,7 @@ class PGN_Writer_and_Loader():
                 piece.spaces_available(game_controller)
             
         log.info("PGN Finished Loading")
-        return
+        return game_controller
 
 class Grid_Controller():
     flipped = False
@@ -607,7 +608,7 @@ class Grid_Controller():
             Grid_Controller.flipped = False
         Text_Controller.flip_board()
                 
-    def update_grid(game_controller):
+    def update_grid():
         for grid in board.Grid.grid_list:
             if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
                 def grid_occupied_by_piece():
@@ -646,12 +647,11 @@ class Grid_Controller():
 class Switch_Modes_Controller():
     EDIT_MODE, PLAY_MODE = 0, 1
     GAME_MODE = EDIT_MODE
-    def switch_mode(game_controller, game_mode, PLAY_EDIT_SWITCH_BUTTON):
+    def switch_mode(game_mode, PLAY_EDIT_SWITCH_BUTTON):
         if game_mode == Switch_Modes_Controller.EDIT_MODE:
             log.info("\nEditing Mode Activated\n")
             Switch_Modes_Controller.GAME_MODE = Switch_Modes_Controller.EDIT_MODE
             PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(Switch_Modes_Controller.GAME_MODE)
-            game_controller.reset_board()
             Text_Controller.check_checkmate_text = ""
         elif game_mode == Switch_Modes_Controller.PLAY_MODE:
             log.info("Play Mode Activated\n")
@@ -696,7 +696,7 @@ class Game_Controller():
         placed_to_play(PlacedKing.black_king_list, PlayKing, PLAY_SPRITES, "black")
         
         self.WHOSETURN = "white"
-        Grid_Controller.update_grid(self)
+        Grid_Controller.update_grid()
         self.projected_white_update()
         self.projected_black_update()
         
@@ -1086,7 +1086,7 @@ class Move_Controller():
         elif piece in PlayRook.white_rook_list or PlayRook.black_rook_list:
             piece.allowed_to_castle = False
         # Update all grids to reflect the coordinates of the pieces
-        Grid_Controller.update_grid(game_controller)
+        Grid_Controller.update_grid()
         # Switch turns
         if(game_controller.WHOSETURN == "white"):
             game_controller.switch_turn("black")
@@ -1269,7 +1269,7 @@ def main():
         state = RUNNING
         debug_message = 0
         
-        game_controller = Game_Controller()
+        #game_controller = Game_Controller()
         
         GAME_MODE_SPRITES = pygame.sprite.Group()
         
@@ -1366,10 +1366,10 @@ def main():
                         if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS) and len(MoveNumberRectangle.rectangle_list) > initvar.MOVES_PANE_MAX_MOVES and PanelRectangles.scroll_range[1] < len(MoveNumberRectangle.rectangle_list): # Scroll down
                             update_scroll_range(1)
                         if PGN_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
-                            PGN_WRITER_AND_LOADER.pgn_load(game_controller, PLAY_SPRITES, PLAY_EDIT_SWITCH_BUTTON)
+                            game_controller = PGN_WRITER_AND_LOADER.pgn_load(PLAY_SPRITES, PLAY_EDIT_SWITCH_BUTTON)
                             for grid in board.Grid.grid_list:
                                 grid.no_highlight()
-                            Grid_Controller.update_grid(game_controller)
+                            Grid_Controller.update_grid()
                         if PGN_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
                             PGN_WRITER_AND_LOADER.write_moves(game_controller.df_moves, game_controller.result_abb)
                         if FLIP_BOARD_BUTTON.rect.collidepoint(MOUSEPOS):
@@ -1548,14 +1548,16 @@ def main():
                         #################
                         if PLAY_EDIT_SWITCH_BUTTON.rect.collidepoint(MOUSEPOS) and Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE: 
                             # Makes clicking play again unclickable    
-                            Switch_Modes_Controller.switch_mode(game_controller, Switch_Modes_Controller.PLAY_MODE, PLAY_EDIT_SWITCH_BUTTON)
+                            Switch_Modes_Controller.switch_mode(Switch_Modes_Controller.PLAY_MODE, PLAY_EDIT_SWITCH_BUTTON)
+                            game_controller = Game_Controller()
                             game_controller.spawn_play_objects(PLAY_SPRITES)
 
                         #################
                         # LEFT CLICK (RELEASE) STOP BUTTON
                         #################
                         elif PLAY_EDIT_SWITCH_BUTTON.rect.collidepoint(MOUSEPOS) and Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
-                            Switch_Modes_Controller.switch_mode(game_controller, Switch_Modes_Controller.EDIT_MODE, PLAY_EDIT_SWITCH_BUTTON)
+                            Switch_Modes_Controller.switch_mode(Switch_Modes_Controller.EDIT_MODE, PLAY_EDIT_SWITCH_BUTTON)
+                            del game_controller
                         # Undo move through PREV_MOVE_BUTTON
                         if PREV_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
                             pass
@@ -1616,7 +1618,7 @@ def main():
                 FLIP_BOARD_BUTTON.draw(SCREEN)
                 GAME_MODE_SPRITES.draw(SCREEN)
                 board.GRID_SPRITES.draw(SCREEN)
-                Grid_Controller.update_grid(game_controller)
+                Grid_Controller.update_grid()
                 
                 SCREEN.blit(initvar.MOVE_BG_IMAGE, (initvar.MOVE_BG_IMAGE_HEIGHT,initvar.MOVE_BG_IMAGE_WIDTH))
                 if(Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE): #Only draw placed sprites in editing mode
@@ -1629,15 +1631,15 @@ def main():
                     PLAY_SPRITES.draw(SCREEN)
                     PGN_SAVE_FILE_BUTTON.draw(SCREEN)
                     
-                # When the piece is selected on the right pane, fill the rectangle corresponding to the move
-                for piece_move_rect in PieceMoveRectangle.rectangle_list:
-                    if piece_move_rect.move_number == game_controller.selected_move[0] and piece_move_rect.move_notation == game_controller.selected_move[1]\
-                        and piece_move_rect.move_color == game_controller.selected_move[2]:
-                            piece_move_rect.draw(SCREEN)
-                draw_move_rects_on_moves_pane(move_notation_font, game_controller)
-                # Update objects that aren't in a sprite group
-                SCROLL_UP_BUTTON.draw(SCREEN)
-                SCROLL_DOWN_BUTTON.draw(SCREEN, len(game_controller.df_moves))
+                    # When the piece is selected on the right pane, fill the rectangle corresponding to the move
+                    for piece_move_rect in PieceMoveRectangle.rectangle_list:
+                        if piece_move_rect.move_number == game_controller.selected_move[0] and piece_move_rect.move_notation == game_controller.selected_move[1]\
+                            and piece_move_rect.move_color == game_controller.selected_move[2]:
+                                piece_move_rect.draw(SCREEN)
+                    draw_move_rects_on_moves_pane(move_notation_font, game_controller)
+                    # Update objects that aren't in a sprite group
+                    SCROLL_UP_BUTTON.draw(SCREEN)
+                    SCROLL_DOWN_BUTTON.draw(SCREEN, len(game_controller.df_moves))
                 # Board Coordinates Drawing
                 for text in range(0,len(Text_Controller.coor_letter_text_list)):
                     SCREEN.blit(Text_Controller.coor_letter_text_list[text], (initvar.X_GRID_START+initvar.X_GRID_WIDTH/3+(initvar.X_GRID_WIDTH*text), initvar.Y_GRID_START-(initvar.Y_GRID_HEIGHT*0.75)))
