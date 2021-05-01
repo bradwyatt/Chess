@@ -1277,8 +1277,7 @@ def main():
                                 if list_of_start_objs.get(piece_name).rect.collidepoint(MOUSEPOS):
                                     START.restart_start_positions()
                                     DRAGGING.drag_piece(piece_name)
-                                    START.start_obj_image_placeholder.flip_start_sprite(DRAGGING, list_of_start_objs.get(piece_name).rect.topleft)
-                                
+                                    START.start_obj_image_placeholder.flip_start_sprite(piece_name, list_of_start_objs.get(piece_name).rect.topleft)
                     #################
                     # LEFT CLICK (PRESSED DOWN)
                     #################
@@ -1400,25 +1399,25 @@ def main():
                 ##################
                 # Start piece is dragging according to where the mouse is
                 if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE:
-                    def drag_and_replace_start_obj_image(dragging_obj, start_substitute_image, start_obj_pos, start_obj, mouse_pos):
-                        if dragging_obj:
+                    def drag_and_replace_start_obj_image(drag_piece_name, name_of_piece, start_substitute_image, start_obj_pos, start_obj, mouse_pos):
+                        if drag_piece_name == name_of_piece:
                             start_substitute_image.rect.topleft = start_obj_pos
                             start_obj.rect.topleft = (mouse_pos[0]-(start_obj.image.get_width()/2),
                                                       mouse_pos[1]-(start_obj.image.get_height()/2))
                         else:
                             start_obj.rect.topleft = start_obj_pos
-                    drag_and_replace_start_obj_image(DRAGGING.white_pawn, START.start_obj_image_placeholder, initvar.STARTPOS['white_pawn'], START.white_pawn, MOUSEPOS)
-                    drag_and_replace_start_obj_image(DRAGGING.white_bishop, START.start_obj_image_placeholder, initvar.STARTPOS['white_bishop'], START.white_bishop, MOUSEPOS)
-                    drag_and_replace_start_obj_image(DRAGGING.white_knight, START.start_obj_image_placeholder, initvar.STARTPOS['white_knight'], START.white_knight, MOUSEPOS)
-                    drag_and_replace_start_obj_image(DRAGGING.white_rook, START.start_obj_image_placeholder, initvar.STARTPOS['white_rook'], START.white_rook, MOUSEPOS)
-                    drag_and_replace_start_obj_image(DRAGGING.white_queen, START.start_obj_image_placeholder, initvar.STARTPOS['white_queen'], START.white_queen, MOUSEPOS)
-                    drag_and_replace_start_obj_image(DRAGGING.white_king, START.start_obj_image_placeholder, initvar.STARTPOS['white_king'], START.white_king, MOUSEPOS)
-                    drag_and_replace_start_obj_image(DRAGGING.black_pawn, START.start_obj_image_placeholder, initvar.STARTPOS['black_pawn'], START.black_pawn, MOUSEPOS)
-                    drag_and_replace_start_obj_image(DRAGGING.black_bishop, START.start_obj_image_placeholder, initvar.STARTPOS['black_bishop'], START.black_bishop, MOUSEPOS)
-                    drag_and_replace_start_obj_image(DRAGGING.black_knight, START.start_obj_image_placeholder, initvar.STARTPOS['black_knight'], START.black_knight, MOUSEPOS)
-                    drag_and_replace_start_obj_image(DRAGGING.black_rook, START.start_obj_image_placeholder, initvar.STARTPOS['black_rook'], START.black_rook, MOUSEPOS)
-                    drag_and_replace_start_obj_image(DRAGGING.black_queen, START.start_obj_image_placeholder, initvar.STARTPOS['black_queen'], START.black_queen, MOUSEPOS)
-                    drag_and_replace_start_obj_image(DRAGGING.black_king, START.start_obj_image_placeholder, initvar.STARTPOS['black_king'], START.black_king, MOUSEPOS)                      
+                    drag_and_replace_start_obj_image(DRAGGING.drag_piece_name, "white_pawn", START.start_obj_image_placeholder, initvar.STARTPOS['white_pawn'], START.white_pawn, MOUSEPOS)
+                    drag_and_replace_start_obj_image(DRAGGING.drag_piece_name, "white_bishop", START.start_obj_image_placeholder, initvar.STARTPOS['white_bishop'], START.white_bishop, MOUSEPOS)
+                    drag_and_replace_start_obj_image(DRAGGING.drag_piece_name, "white_knight", START.start_obj_image_placeholder, initvar.STARTPOS['white_knight'], START.white_knight, MOUSEPOS)
+                    drag_and_replace_start_obj_image(DRAGGING.drag_piece_name, "white_rook", START.start_obj_image_placeholder, initvar.STARTPOS['white_rook'], START.white_rook, MOUSEPOS)
+                    drag_and_replace_start_obj_image(DRAGGING.drag_piece_name, "white_queen", START.start_obj_image_placeholder, initvar.STARTPOS['white_queen'], START.white_queen, MOUSEPOS)
+                    drag_and_replace_start_obj_image(DRAGGING.drag_piece_name, "white_king", START.start_obj_image_placeholder, initvar.STARTPOS['white_king'], START.white_king, MOUSEPOS)
+                    drag_and_replace_start_obj_image(DRAGGING.drag_piece_name, "black_pawn", START.start_obj_image_placeholder, initvar.STARTPOS['black_pawn'], START.black_pawn, MOUSEPOS)
+                    drag_and_replace_start_obj_image(DRAGGING.drag_piece_name, "black_bishop", START.start_obj_image_placeholder, initvar.STARTPOS['black_bishop'], START.black_bishop, MOUSEPOS)
+                    drag_and_replace_start_obj_image(DRAGGING.drag_piece_name, "black_knight", START.start_obj_image_placeholder, initvar.STARTPOS['black_knight'], START.black_knight, MOUSEPOS)
+                    drag_and_replace_start_obj_image(DRAGGING.drag_piece_name, "black_rook", START.start_obj_image_placeholder, initvar.STARTPOS['black_rook'], START.black_rook, MOUSEPOS)
+                    drag_and_replace_start_obj_image(DRAGGING.drag_piece_name, "black_queen", START.start_obj_image_placeholder, initvar.STARTPOS['black_queen'], START.black_queen, MOUSEPOS)
+                    drag_and_replace_start_obj_image(DRAGGING.drag_piece_name, "black_king", START.start_obj_image_placeholder, initvar.STARTPOS['black_king'], START.black_king, MOUSEPOS)                      
             
                 ##################
                 # IN-GAME ACTIONS

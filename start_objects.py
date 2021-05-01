@@ -36,46 +36,25 @@ class Start():
 
 class Dragging():
     def __init__(self):
-        self.dragging_all_false()
+        self.drag_piece_name = ""
+        #self.dragging_all_false()
     def dragging_all_false(self):
-        self.white_pawn = False
-        self.white_bishop = False
-        self.white_knight = False
-        self.white_rook = False
-        self.white_queen = False
-        self.white_king = False
-        self.black_pawn = False
-        self.black_bishop = False
-        self.black_knight = False
-        self.black_rook = False
-        self.black_queen = False
-        self.black_king = False
+        #self.white_pawn = False
+        #self.white_bishop = False
+        #self.white_knight = False
+        #self.white_rook = False
+        #self.white_queen = False
+        #self.white_king = False
+        #self.black_pawn = False
+        #self.black_bishop = False
+        #self.black_knight = False
+        #self.black_rook = False
+        #self.black_queen = False
+        #self.black_king = False
+        self.drag_piece_name = ""
     def drag_piece(self, piece):
         self.dragging_all_false()
-        if piece == "white_pawn":
-            self.white_pawn = True
-        elif piece == "white_bishop":
-            self.white_bishop = True
-        elif piece == "white_knight":
-            self.white_knight = True
-        elif piece == "white_rook":
-            self.white_rook = True
-        elif piece == "white_queen":
-            self.white_queen = True
-        elif piece == "white_king":
-            self.white_king = True
-        elif piece == "black_pawn":
-            self.black_pawn = True
-        elif piece == "black_bishop":
-            self.black_bishop = True
-        elif piece == "black_knight":
-            self.black_knight = True
-        elif piece == "black_rook":
-            self.black_rook = True
-        elif piece == "black_queen":
-            self.black_queen = True
-        elif piece == "black_king":
-            self.black_king = True
+        self.drag_piece_name = piece
     def dragging_to_placed_no_dups(self, mouse_coord):
         for piece_list in [placed_objects.PlacedPawn.white_pawn_list, placed_objects.PlacedBishop.white_bishop_list, 
                            placed_objects.PlacedKnight.white_knight_list, placed_objects.PlacedRook.white_rook_list, 
@@ -88,38 +67,38 @@ class Dragging():
                 if piece.coordinate == mouse_coord:
                     return
         # Created Placed objects at the snapped grid location of the piece that's being dragged
-        if self.white_pawn:
+        if self.drag_piece_name == "white_pawn":
             if int(mouse_coord[1]) != 1 and int(mouse_coord[1]) != 8:
                 placed_objects.PlacedPawn(mouse_coord, "white")
             else:
                 log.info("You are not allowed to place a pawn on rank " + mouse_coord[1])
-        elif self.white_bishop:
+        elif self.drag_piece_name == "white_bishop":
             placed_objects.PlacedBishop(mouse_coord, "white")
-        elif self.white_knight:
+        elif self.drag_piece_name == "white_knight":
             placed_objects.PlacedKnight(mouse_coord, "white")
-        elif self.white_rook:
+        elif self.drag_piece_name == "white_rook":
             placed_objects.PlacedRook(mouse_coord, "white")
-        elif self.white_queen:
+        elif self.drag_piece_name == "white_queen":
             placed_objects.PlacedQueen(mouse_coord, "white")
-        elif self.white_king:
+        elif self.drag_piece_name == "white_king":
             if not placed_objects.PlacedKing.white_king_list:
                 placed_objects.PlacedKing(mouse_coord, "white")
             else:
                 log.info("You can only have one white king.")
-        elif self.black_pawn:
+        elif self.drag_piece_name == "black_pawn":
             if int(mouse_coord[1]) != 1 and int(mouse_coord[1]) != 8:
                 placed_objects.PlacedPawn(mouse_coord, "black")
             else:
                 log.info("You are not allowed to place a pawn on rank " + mouse_coord[1])
-        elif self.black_bishop:
+        elif self.drag_piece_name == "black_bishop":
             placed_objects.PlacedBishop(mouse_coord, "black")
-        elif self.black_knight:
+        elif self.drag_piece_name == "black_knight":
             placed_objects.PlacedKnight(mouse_coord, "black")
-        elif self.black_rook:
+        elif self.drag_piece_name == "black_rook":
             placed_objects.PlacedRook(mouse_coord, "black")
-        elif self.black_queen:
+        elif self.drag_piece_name == "black_queen":
             placed_objects.PlacedQueen(mouse_coord, "black")
-        elif self.black_king:
+        elif self.drag_piece_name == "black_king":
             if not placed_objects.PlacedKing.black_king_list:
                 placed_objects.PlacedKing(mouse_coord, "black")
             else:
@@ -133,31 +112,31 @@ class StartObjImagePlaceholder(pygame.sprite.Sprite):
         START_SPRITES.add(self)
     def update(self):
         pass
-    def flip_start_sprite(self, DRAGGING, pos):
+    def flip_start_sprite(self, piece_name, pos):
         self.rect.topleft = pos
-        if DRAGGING.white_pawn:
+        if piece_name == "white_pawn":
             self.image = IMAGES["SPR_WHITE_PAWN"]
-        elif DRAGGING.white_bishop:
+        elif piece_name == "white_bishop":
             self.image = IMAGES["SPR_WHITE_BISHOP"]
-        elif DRAGGING.white_knight:
+        elif piece_name == "white_knight":
             self.image = IMAGES["SPR_WHITE_KNIGHT"]
-        elif DRAGGING.white_rook:
+        elif piece_name == "white_rook":
             self.image = IMAGES["SPR_WHITE_ROOK"]
-        elif DRAGGING.white_queen:
+        elif piece_name == "white_queen":
             self.image = IMAGES["SPR_WHITE_QUEEN"]
-        elif DRAGGING.white_king:
+        elif piece_name == "white_king":
             self.image = IMAGES["SPR_WHITE_KING"]
-        elif DRAGGING.black_pawn:
+        elif piece_name == "black_pawn":
             self.image = IMAGES["SPR_BLACK_PAWN"]
-        elif DRAGGING.black_bishop:
+        elif piece_name == "black_bishop":
             self.image = IMAGES["SPR_BLACK_BISHOP"]
-        elif DRAGGING.black_knight:
+        elif piece_name == "black_knight":
             self.image = IMAGES["SPR_BLACK_KNIGHT"]
-        elif DRAGGING.black_rook:
+        elif piece_name == "black_rook":
             self.image = IMAGES["SPR_BLACK_ROOK"]
-        elif DRAGGING.black_queen:
+        elif piece_name == "black_queen":
             self.image = IMAGES["SPR_BLACK_QUEEN"]
-        elif DRAGGING.black_king:
+        elif piece_name == "black_king":
             self.image = IMAGES["SPR_BLACK_KING"]
         else:
             self.image = IMAGES["SPR_BLANKBOX"]
