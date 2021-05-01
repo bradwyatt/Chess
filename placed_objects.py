@@ -2,10 +2,25 @@ import pygame
 from load_images_sounds import *
 import board
 
+PLACED_SPRITES = pygame.sprite.Group()
+
+def remove_placed_object(mousepos):
+    for placed_item_list in (PlacedPawn.white_pawn_list, PlacedBishop.white_bishop_list,
+                             PlacedKnight.white_knight_list, PlacedRook.white_rook_list,
+                             PlacedQueen.white_queen_list, PlacedKing.white_king_list,
+                             PlacedPawn.black_pawn_list, PlacedBishop.black_bishop_list,
+                             PlacedKnight.black_knight_list, PlacedRook.black_rook_list,
+                             PlacedQueen.black_queen_list, PlacedKing.black_king_list):
+        for placed_item in placed_item_list:
+            if placed_item.rect.collidepoint(mousepos):
+                PLACED_SPRITES.remove(placed_item)
+                placed_item_list.remove(placed_item)
+    return
+
 class PlacedPawn(pygame.sprite.Sprite):
     white_pawn_list = []
     black_pawn_list = []
-    def __init__(self, coord, PLACED_SPRITES, col):
+    def __init__(self, coord, col):
         pygame.sprite.Sprite.__init__(self)
         self.col = col
         if self.col == "white":
@@ -33,7 +48,7 @@ class PlacedPawn(pygame.sprite.Sprite):
 class PlacedBishop(pygame.sprite.Sprite):
     white_bishop_list = []
     black_bishop_list = []
-    def __init__(self, coord, PLACED_SPRITES, col):
+    def __init__(self, coord, col):
         pygame.sprite.Sprite.__init__(self)
         self.col = col
         if self.col == "white":
@@ -61,7 +76,7 @@ class PlacedBishop(pygame.sprite.Sprite):
 class PlacedKnight(pygame.sprite.Sprite):
     white_knight_list = []
     black_knight_list = []
-    def __init__(self, coord, PLACED_SPRITES, col):
+    def __init__(self, coord, col):
         pygame.sprite.Sprite.__init__(self)
         self.col = col
         if self.col == "white":
@@ -89,7 +104,7 @@ class PlacedKnight(pygame.sprite.Sprite):
 class PlacedRook(pygame.sprite.Sprite):
     white_rook_list = []
     black_rook_list = []
-    def __init__(self, coord, PLACED_SPRITES, col):
+    def __init__(self, coord, col):
         pygame.sprite.Sprite.__init__(self)
         self.col = col
         if self.col == "white":
@@ -117,7 +132,7 @@ class PlacedRook(pygame.sprite.Sprite):
 class PlacedQueen(pygame.sprite.Sprite):
     white_queen_list = []
     black_queen_list = []
-    def __init__(self, coord, PLACED_SPRITES, col):
+    def __init__(self, coord, col):
         pygame.sprite.Sprite.__init__(self)
         self.col = col
         if self.col == "white":
@@ -145,7 +160,7 @@ class PlacedQueen(pygame.sprite.Sprite):
 class PlacedKing(pygame.sprite.Sprite):
     white_king_list = []
     black_king_list = []
-    def __init__(self, coord, PLACED_SPRITES, col):
+    def __init__(self, coord, col):
         pygame.sprite.Sprite.__init__(self)
         self.col = col
         if self.col == "white":

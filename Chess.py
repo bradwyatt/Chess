@@ -35,7 +35,7 @@ AI
 """
 import board
 from start_objects import *
-from placed_objects import *
+import placed_objects
 from play_objects import *
 from load_images_sounds import *
 from menu_buttons import *
@@ -88,19 +88,6 @@ log.addHandler(console_handler)
 # Functions
 #############
              
-def remove_placed_object(PLACED_SPRITES, mousepos):
-    for placed_item_list in (PlacedPawn.white_pawn_list, PlacedBishop.white_bishop_list,
-                             PlacedKnight.white_knight_list, PlacedRook.white_rook_list,
-                             PlacedQueen.white_queen_list, PlacedKing.white_king_list,
-                             PlacedPawn.black_pawn_list, PlacedBishop.black_bishop_list,
-                             PlacedKnight.black_knight_list, PlacedRook.black_rook_list,
-                             PlacedQueen.black_queen_list, PlacedKing.black_king_list):
-        for placed_item in placed_item_list:
-            if placed_item.rect.collidepoint(mousepos):
-                PLACED_SPRITES.remove(placed_item)
-                placed_item_list.remove(placed_item)
-    return PLACED_SPRITES
-
 
 def restart_start_objects(START):
     START.white_pawn.rect.topleft = initvar.STARTPOS['white_pawn']
@@ -118,32 +105,32 @@ def restart_start_objects(START):
     return START
 
 def remove_all_placed():
-    for spr_list in [PlacedPawn.white_pawn_list, PlacedBishop.white_bishop_list,
-                     PlacedKnight.white_knight_list, PlacedRook.white_rook_list,
-                     PlacedQueen.white_queen_list, PlacedKing.white_king_list, 
-                     PlacedPawn.black_pawn_list, PlacedBishop.black_bishop_list, 
-                     PlacedKnight.black_knight_list, PlacedRook.black_rook_list,
-                     PlacedQueen.black_queen_list, PlacedKing.black_king_list]:
+    for spr_list in [placed_objects.PlacedPawn.white_pawn_list, placed_objects.PlacedBishop.white_bishop_list,
+                     placed_objects.PlacedKnight.white_knight_list, placed_objects.PlacedRook.white_rook_list,
+                     placed_objects.PlacedQueen.white_queen_list, placed_objects.PlacedKing.white_king_list, 
+                     placed_objects.PlacedPawn.black_pawn_list, placed_objects.PlacedBishop.black_bishop_list, 
+                     placed_objects.PlacedKnight.black_knight_list, placed_objects.PlacedRook.black_rook_list,
+                     placed_objects.PlacedQueen.black_queen_list, placed_objects.PlacedKing.black_king_list]:
         for obj in spr_list:
             obj.kill()
-    PlacedPawn.white_pawn_list = []
-    PlacedBishop.white_bishop_list = []
-    PlacedKnight.white_knight_list = []
-    PlacedRook.white_rook_list = []
-    PlacedQueen.white_queen_list = []
-    PlacedKing.white_king_list = []
-    PlacedPawn.black_pawn_list = []
-    PlacedBishop.black_bishop_list = []
-    PlacedKnight.black_knight_list = []
-    PlacedRook.black_rook_list = []
-    PlacedQueen.black_queen_list = []
-    PlacedKing.black_king_list = []
+    placed_objects.PlacedPawn.white_pawn_list = []
+    placed_objects.PlacedBishop.white_bishop_list = []
+    placed_objects.PlacedKnight.white_knight_list = []
+    placed_objects.PlacedRook.white_rook_list = []
+    placed_objects.PlacedQueen.white_queen_list = []
+    placed_objects.PlacedKing.white_king_list = []
+    placed_objects.PlacedPawn.black_pawn_list = []
+    placed_objects.PlacedBishop.black_bishop_list = []
+    placed_objects.PlacedKnight.black_knight_list = []
+    placed_objects.PlacedRook.black_rook_list = []
+    placed_objects.PlacedQueen.black_queen_list = []
+    placed_objects.PlacedKing.black_king_list = []
 
 def get_color():
     color = askcolor()
     return [color[0][0], color[0][1], color[0][2]]
 
-def pos_load_file(PLACED_SPRITES, colorkey, reset=False):
+def pos_load_file(colorkey, reset=False):
     open_file = None
     if reset == True:
         loaded_dict = {'white_pawn': ['a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'],
@@ -159,7 +146,7 @@ def pos_load_file(PLACED_SPRITES, colorkey, reset=False):
             open_file = open(request_file_name, "r")
         except FileNotFoundError:
             log.info("File not found")
-            return PLACED_SPRITES, colorkey
+            return placed_objects.PLACED_SPRITES, colorkey
         loaded_file = open_file.read()
         loaded_dict = literal_eval(loaded_file)
             
@@ -196,43 +183,43 @@ def pos_load_file(PLACED_SPRITES, colorkey, reset=False):
     log.info("Removed all sprites. Now creating lists for loaded level.")
     
     for white_pawn_pos in loaded_dict['white_pawn']:
-        PlacedPawn(white_pawn_pos, PLACED_SPRITES, "white")
+        placed_objects.PlacedPawn(white_pawn_pos, "white")
     for white_bishop_pos in loaded_dict['white_bishop']:
-        PlacedBishop(white_bishop_pos, PLACED_SPRITES, "white")
+        placed_objects.PlacedBishop(white_bishop_pos, "white")
     for white_knight_pos in loaded_dict['white_knight']:
-        PlacedKnight(white_knight_pos, PLACED_SPRITES, "white")
+        placed_objects.PlacedKnight(white_knight_pos, "white")
     for white_rook_pos in loaded_dict['white_rook']:
-        PlacedRook(white_rook_pos, PLACED_SPRITES, "white")
+        placed_objects.PlacedRook(white_rook_pos, "white")
     for white_queen_pos in loaded_dict['white_queen']:
-        PlacedQueen(white_queen_pos, PLACED_SPRITES, "white")
+        placed_objects.PlacedQueen(white_queen_pos, "white")
     for white_king_pos in loaded_dict['white_king']:
-        PlacedKing(white_king_pos, PLACED_SPRITES, "white")
+        placed_objects.PlacedKing(white_king_pos, "white")
     for black_pawn_pos in loaded_dict['black_pawn']:
-        PlacedPawn(black_pawn_pos, PLACED_SPRITES, "black")
+        placed_objects.PlacedPawn(black_pawn_pos, "black")
     for black_bishop_pos in loaded_dict['black_bishop']:
-        PlacedBishop(black_bishop_pos, PLACED_SPRITES, "black")
+        placed_objects.PlacedBishop(black_bishop_pos, "black")
     for black_knight_pos in loaded_dict['black_knight']:
-        PlacedKnight(black_knight_pos, PLACED_SPRITES, "black")
+        placed_objects.PlacedKnight(black_knight_pos, "black")
     for black_rook_pos in loaded_dict['black_rook']:
-        PlacedRook(black_rook_pos, PLACED_SPRITES, "black")
+        placed_objects.PlacedRook(black_rook_pos, "black")
     for black_queen_pos in loaded_dict['black_queen']:
-        PlacedQueen(black_queen_pos, PLACED_SPRITES, "black")
+        placed_objects.PlacedQueen(black_queen_pos, "black")
     for black_king_pos in loaded_dict['black_king']:
-        PlacedKing(black_king_pos, PLACED_SPRITES, "black")
+        placed_objects.PlacedKing(black_king_pos, "black")
     colorkey = loaded_dict['RGB']
     
     log.info("Positioning Loaded Successfully")
-    return PLACED_SPRITES, colorkey
+    return placed_objects.PLACED_SPRITES, colorkey
 
             
 # Returns the tuples of each objects' positions within all classes
 def get_dict_rect_positions():
-    total_placed_list = {'white_pawn': PlacedPawn.white_pawn_list, 'white_bishop': PlacedBishop.white_bishop_list, 
-                         'white_knight': PlacedKnight.white_knight_list, 'white_rook': PlacedRook.white_rook_list,
-                         'white_queen': PlacedQueen.white_queen_list, 'white_king': PlacedKing.white_king_list,
-                         'black_pawn': PlacedPawn.black_pawn_list, 'black_bishop': PlacedBishop.black_bishop_list,
-                         'black_knight': PlacedKnight.black_knight_list, 'black_rook': PlacedRook.black_rook_list,
-                         'black_queen': PlacedQueen.black_queen_list, 'black_king': PlacedKing.black_king_list}
+    total_placed_list = {'white_pawn': placed_objects.PlacedPawn.white_pawn_list, 'white_bishop': placed_objects.PlacedBishop.white_bishop_list, 
+                         'white_knight': placed_objects.PlacedKnight.white_knight_list, 'white_rook': placed_objects.PlacedRook.white_rook_list,
+                         'white_queen': placed_objects.PlacedQueen.white_queen_list, 'white_king': placed_objects.PlacedKing.white_king_list,
+                         'black_pawn': placed_objects.PlacedPawn.black_pawn_list, 'black_bishop': placed_objects.PlacedBishop.black_bishop_list,
+                         'black_knight': placed_objects.PlacedKnight.black_knight_list, 'black_rook': placed_objects.PlacedRook.black_rook_list,
+                         'black_queen': placed_objects.PlacedQueen.black_queen_list, 'black_king': placed_objects.PlacedKing.black_king_list}
     get_coord_for_all_obj = dict.fromkeys(total_placed_list, list)
     for item_key, item_list in total_placed_list.items():
         item_list_in_name = []
@@ -657,18 +644,18 @@ class Switch_Modes_Controller():
             log.info("Play Mode Activated\n")
             Switch_Modes_Controller.GAME_MODE = Switch_Modes_Controller.PLAY_MODE
             PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(Switch_Modes_Controller.GAME_MODE)
-            Switch_Modes_Controller.placed_to_play(PlacedPawn.white_pawn_list, PlayPawn, PLAY_SPRITES, "white")
-            Switch_Modes_Controller.placed_to_play(PlacedBishop.white_bishop_list, PlayBishop, PLAY_SPRITES, "white")
-            Switch_Modes_Controller.placed_to_play(PlacedKnight.white_knight_list, PlayKnight, PLAY_SPRITES, "white")
-            Switch_Modes_Controller.placed_to_play(PlacedRook.white_rook_list, PlayRook, PLAY_SPRITES, "white")
-            Switch_Modes_Controller.placed_to_play(PlacedQueen.white_queen_list, PlayQueen, PLAY_SPRITES, "white")
-            Switch_Modes_Controller.placed_to_play(PlacedKing.white_king_list, PlayKing, PLAY_SPRITES, "white")
-            Switch_Modes_Controller.placed_to_play(PlacedPawn.black_pawn_list, PlayPawn, PLAY_SPRITES, "black")
-            Switch_Modes_Controller.placed_to_play(PlacedBishop.black_bishop_list, PlayBishop, PLAY_SPRITES, "black")
-            Switch_Modes_Controller.placed_to_play(PlacedKnight.black_knight_list, PlayKnight, PLAY_SPRITES, "black")
-            Switch_Modes_Controller.placed_to_play(PlacedRook.black_rook_list, PlayRook, PLAY_SPRITES, "black")
-            Switch_Modes_Controller.placed_to_play(PlacedQueen.black_queen_list, PlayQueen, PLAY_SPRITES, "black")
-            Switch_Modes_Controller.placed_to_play(PlacedKing.black_king_list, PlayKing, PLAY_SPRITES, "black")
+            Switch_Modes_Controller.placed_to_play(placed_objects.PlacedPawn.white_pawn_list, PlayPawn, PLAY_SPRITES, "white")
+            Switch_Modes_Controller.placed_to_play(placed_objects.PlacedBishop.white_bishop_list, PlayBishop, PLAY_SPRITES, "white")
+            Switch_Modes_Controller.placed_to_play(placed_objects.PlacedKnight.white_knight_list, PlayKnight, PLAY_SPRITES, "white")
+            Switch_Modes_Controller.placed_to_play(placed_objects.PlacedRook.white_rook_list, PlayRook, PLAY_SPRITES, "white")
+            Switch_Modes_Controller.placed_to_play(placed_objects.PlacedQueen.white_queen_list, PlayQueen, PLAY_SPRITES, "white")
+            Switch_Modes_Controller.placed_to_play(placed_objects.PlacedKing.white_king_list, PlayKing, PLAY_SPRITES, "white")
+            Switch_Modes_Controller.placed_to_play(placed_objects.PlacedPawn.black_pawn_list, PlayPawn, PLAY_SPRITES, "black")
+            Switch_Modes_Controller.placed_to_play(placed_objects.PlacedBishop.black_bishop_list, PlayBishop, PLAY_SPRITES, "black")
+            Switch_Modes_Controller.placed_to_play(placed_objects.PlacedKnight.black_knight_list, PlayKnight, PLAY_SPRITES, "black")
+            Switch_Modes_Controller.placed_to_play(placed_objects.PlacedRook.black_rook_list, PlayRook, PLAY_SPRITES, "black")
+            Switch_Modes_Controller.placed_to_play(placed_objects.PlacedQueen.black_queen_list, PlayQueen, PLAY_SPRITES, "black")
+            Switch_Modes_Controller.placed_to_play(placed_objects.PlacedKing.black_king_list, PlayKing, PLAY_SPRITES, "black")
     def placed_to_play(placed_list, class_obj, sprite_group, color):
         # Play pieces spawn where their placed piece correspondents are located
         for placed_obj in placed_list:
@@ -1263,11 +1250,9 @@ def main():
         state = RUNNING
         debug_message = 0
         
-        #game_controller = Game_Controller()
-        
         GAME_MODE_SPRITES = pygame.sprite.Group()
         
-        PLACED_SPRITES = pygame.sprite.Group()
+        #PLACED_SPRITES = pygame.sprite.Group()
         PLAY_SPRITES = pygame.sprite.Group()
         CLOCK = pygame.time.Clock()
         
@@ -1311,7 +1296,7 @@ def main():
 
                         
         # Load the starting positions of chessboard first
-        pos_load_file(PLACED_SPRITES, COLORKEY, reset=True)
+        pos_load_file(COLORKEY, reset=True)
         MOUSE_COORD = ""
         
         def mouse_coordinate(mousepos):
@@ -1384,9 +1369,9 @@ def main():
                             if POS_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
                                 pos_save_file(COLORKEY)
                             if POS_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
-                                PLACED_SPRITES, COLORKEY = pos_load_file(PLACED_SPRITES, COLORKEY)
+                                placed_objects.PLACED_SPRITES, COLORKEY = pos_load_file(COLORKEY)
                             if RESET_BOARD_BUTTON.rect.collidepoint(MOUSEPOS):
-                                PLACED_SPRITES, COLORKEY = pos_load_file(PLACED_SPRITES, COLORKEY, reset=True)
+                                placed_objects.PLACED_SPRITES, COLORKEY = pos_load_file(COLORKEY, reset=True)
                             
                             list_of_start_objs = {"white_pawn": START.white_pawn, 
                                              "white_bishop": START.white_bishop, 
@@ -1418,12 +1403,12 @@ def main():
                           MOUSEPOS[0] > initvar.X_GRID_START and MOUSEPOS[0] < board.X_GRID_END and
                           MOUSEPOS[1] > initvar.Y_GRID_START and MOUSEPOS[1] < board.Y_GRID_END): 
                         def dragging_to_placed_no_dups():
-                            for piece_list in [PlacedPawn.white_pawn_list, PlacedBishop.white_bishop_list, 
-                                               PlacedKnight.white_knight_list, PlacedRook.white_rook_list, 
-                                               PlacedQueen.white_queen_list, PlacedKing.white_king_list,
-                                               PlacedPawn.black_pawn_list, PlacedBishop.black_bishop_list, 
-                                               PlacedKnight.black_knight_list, PlacedRook.black_rook_list, 
-                                               PlacedQueen.black_queen_list, PlacedKing.black_king_list]:
+                            for piece_list in [placed_objects.PlacedPawn.white_pawn_list, placed_objects.PlacedBishop.white_bishop_list, 
+                                               placed_objects.PlacedKnight.white_knight_list, placed_objects.PlacedRook.white_rook_list, 
+                                               placed_objects.PlacedQueen.white_queen_list, placed_objects.PlacedKing.white_king_list,
+                                               placed_objects.PlacedPawn.black_pawn_list, placed_objects.PlacedBishop.black_bishop_list, 
+                                               placed_objects.PlacedKnight.black_knight_list, placed_objects.PlacedRook.black_rook_list, 
+                                               placed_objects.PlacedQueen.black_queen_list, placed_objects.PlacedKing.black_king_list]:
                                 # If there is already a piece on grid then don't create new Placed object
                                 for piece in piece_list:
                                     if piece.coordinate == MOUSE_COORD:
@@ -1431,38 +1416,38 @@ def main():
                             # Created Placed objects at the snapped grid location of the piece that's being dragged
                             if DRAGGING.white_pawn:
                                 if int(MOUSE_COORD[1]) != 1 and int(MOUSE_COORD[1]) != 8:
-                                    PlacedPawn(MOUSE_COORD, PLACED_SPRITES, "white")
+                                    placed_objects.PlacedPawn(MOUSE_COORD, "white")
                                 else:
                                     log.info("You are not allowed to place a pawn on rank " + MOUSE_COORD[1])
                             elif DRAGGING.white_bishop:
-                                PlacedBishop(MOUSE_COORD, PLACED_SPRITES, "white")
+                                placed_objects.PlacedBishop(MOUSE_COORD, "white")
                             elif DRAGGING.white_knight:
-                                PlacedKnight(MOUSE_COORD, PLACED_SPRITES, "white")
+                                placed_objects.PlacedKnight(MOUSE_COORD, "white")
                             elif DRAGGING.white_rook:
-                                PlacedRook(MOUSE_COORD, PLACED_SPRITES, "white")
+                                placed_objects.PlacedRook(MOUSE_COORD, "white")
                             elif DRAGGING.white_queen:
-                                PlacedQueen(MOUSE_COORD, PLACED_SPRITES, "white")
+                                placed_objects.PlacedQueen(MOUSE_COORD, "white")
                             elif DRAGGING.white_king:
-                                if not PlacedKing.white_king_list:
-                                    PlacedKing(MOUSE_COORD, PLACED_SPRITES, "white")
+                                if not placed_objects.PlacedKing.white_king_list:
+                                    placed_objects.PlacedKing(MOUSE_COORD, "white")
                                 else:
                                     log.info("You can only have one white king.")
                             elif DRAGGING.black_pawn:
                                 if int(MOUSE_COORD[1]) != 1 and int(MOUSE_COORD[1]) != 8:
-                                    PlacedPawn(MOUSE_COORD, PLACED_SPRITES, "black")
+                                    placed_objects.PlacedPawn(MOUSE_COORD, "black")
                                 else:
                                     log.info("You are not allowed to place a pawn on rank " + MOUSE_COORD[1])
                             elif DRAGGING.black_bishop:
-                                PlacedBishop(MOUSE_COORD, PLACED_SPRITES, "black")
+                                placed_objects.PlacedBishop(MOUSE_COORD, "black")
                             elif DRAGGING.black_knight:
-                                PlacedKnight(MOUSE_COORD, PLACED_SPRITES, "black")
+                                placed_objects.PlacedKnight(MOUSE_COORD, "black")
                             elif DRAGGING.black_rook:
-                                PlacedRook(MOUSE_COORD, PLACED_SPRITES, "black")
+                                placed_objects.PlacedRook(MOUSE_COORD, "black")
                             elif DRAGGING.black_queen:
-                                PlacedQueen(MOUSE_COORD, PLACED_SPRITES, "black")
+                                placed_objects.PlacedQueen(MOUSE_COORD, "black")
                             elif DRAGGING.black_king:
-                                if not PlacedKing.black_king_list:
-                                    PlacedKing(MOUSE_COORD, PLACED_SPRITES, "black")
+                                if not placed_objects.PlacedKing.black_king_list:
+                                    placed_objects.PlacedKing(MOUSE_COORD, "black")
                                 else:
                                     log.info("You can only have one black king.")
             
@@ -1534,7 +1519,7 @@ def main():
                         if(event.type == MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[2]):   
                             DRAGGING.dragging_all_false()
                             START = restart_start_objects(START)
-                            PLACED_SPRITES = remove_placed_object(PLACED_SPRITES, MOUSEPOS)
+                            placed_objects.remove_placed_object(MOUSEPOS)
                     
                     if event.type == pygame.MOUSEBUTTONUP: #Release Drag
                         #################
@@ -1617,8 +1602,8 @@ def main():
                 SCREEN.blit(initvar.MOVE_BG_IMAGE, (initvar.MOVE_BG_IMAGE_HEIGHT,initvar.MOVE_BG_IMAGE_WIDTH))
                 if(Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE): #Only draw placed sprites in editing mode
                     initvar.START_SPRITES.draw(SCREEN)
-                    PLACED_SPRITES.update()
-                    PLACED_SPRITES.draw(SCREEN)    
+                    placed_objects.PLACED_SPRITES.update()
+                    placed_objects.PLACED_SPRITES.draw(SCREEN)    
                 elif(Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE): #Only draw play sprites in play mode
                     FLIP_BOARD_BUTTON.draw(SCREEN)
                     PLAY_SPRITES.update()
@@ -1656,7 +1641,7 @@ def main():
                     debug_message = 0
                     # USE BREAKPOINT HERE
                     #print(str(MOUSE_COORD))
-                    print("PLAY SPRITES: " + str(PLAY_SPRITES.__dict__))
+                    print("PLACED SPRITES: " + str(placed_objects.PLACED_SPRITES.__dict__))
                     #print(str(game_controller.df_prior_moves))
                     log.info("Use breakpoint here")
                 for event in pygame.event.get():
