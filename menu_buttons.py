@@ -3,6 +3,8 @@ import initvar
 import start_objects
 from load_images_sounds import *
 
+PLAY_PANEL_SPRITES = pygame.sprite.Group()
+
 class ClearButton(pygame.sprite.Sprite):
     def __init__(self, pos):
         pygame.sprite.Sprite.__init__(self)
@@ -110,36 +112,36 @@ class ScrollDownButton(pygame.sprite.Sprite):
             pass
 
 class BeginningMoveButton(pygame.sprite.Sprite):
-    def __init__(self, pos, PLAY_SPRITES):
+    def __init__(self, pos):
         pygame.sprite.Sprite.__init__(self)
         self.image = IMAGES["SPR_BEGINNING_MOVE_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
-        PLAY_SPRITES.add(self)
+        PLAY_PANEL_SPRITES.add(self)
         
 class LastMoveButton(pygame.sprite.Sprite):
-    def __init__(self, pos, PLAY_SPRITES):
+    def __init__(self, pos):
         pygame.sprite.Sprite.__init__(self)
         self.image = IMAGES["SPR_LAST_MOVE_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
-        PLAY_SPRITES.add(self)
+        PLAY_PANEL_SPRITES.add(self)
         
 class NextMoveButton(pygame.sprite.Sprite):
-    def __init__(self, pos, PLAY_SPRITES):
+    def __init__(self, pos):
         pygame.sprite.Sprite.__init__(self)
         self.image = IMAGES["SPR_NEXT_MOVE_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
-        PLAY_SPRITES.add(self)
+        PLAY_PANEL_SPRITES.add(self)
 
 class PrevMoveButton(pygame.sprite.Sprite):
-    def __init__(self, pos, PLAY_SPRITES):
+    def __init__(self, pos):
         pygame.sprite.Sprite.__init__(self)
         self.image = IMAGES["SPR_PREV_MOVE_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
-        PLAY_SPRITES.add(self)
+        PLAY_PANEL_SPRITES.add(self)
         
 class PanelRectangles(pygame.sprite.Sprite):
     scroll_range = [1, initvar.MOVES_PANE_MAX_MOVES]

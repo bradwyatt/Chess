@@ -2,8 +2,10 @@ import pygame
 from load_images_sounds import *
 import board
 
+PLAY_SPRITES = pygame.sprite.Group()
+
 class ChessPiece:
-    def __init__(self, coord, PLAY_SPRITES, image, col):
+    def __init__(self, coord, image, col):
         PLAY_SPRITES.add(self)
         self.image = image
         self.color = col
@@ -32,7 +34,7 @@ class ChessPiece:
 class PlayPawn(ChessPiece, pygame.sprite.Sprite):
     white_pawn_list = []
     black_pawn_list = []
-    def __init__(self, pos, PLAY_SPRITES, col):
+    def __init__(self, coord, col):
         pygame.sprite.Sprite.__init__(self)
         if(col == "white"):
             self.image = IMAGES["SPR_WHITE_PAWN"]
@@ -40,7 +42,7 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
         elif(col == "black"):
             self.image = IMAGES["SPR_BLACK_PAWN"]
             PlayPawn.black_pawn_list.append(self)
-        super().__init__(pos, PLAY_SPRITES, self.image, col)
+        super().__init__(coord, self.image, col)
     def captured(self, x, y):
         self.taken_off_board = True
         self.coordinate = None
@@ -181,7 +183,7 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
 class PlayKnight(ChessPiece, pygame.sprite.Sprite):
     white_knight_list = []
     black_knight_list = []
-    def __init__(self, pos, PLAY_SPRITES, col):
+    def __init__(self, coord, col):
         pygame.sprite.Sprite.__init__(self)
         if(col == "white"):
             self.image = IMAGES["SPR_WHITE_KNIGHT"]
@@ -189,7 +191,7 @@ class PlayKnight(ChessPiece, pygame.sprite.Sprite):
         elif(col == "black"):
             self.image = IMAGES["SPR_BLACK_KNIGHT"]
             PlayKnight.black_knight_list.append(self)
-        super().__init__(pos, PLAY_SPRITES, self.image, col)
+        super().__init__(coord, self.image, col)
     def projected(self, game_controller):
         if(self.taken_off_board != True):
             self.proj_attacking_coordinates = [self.coordinate]
@@ -371,7 +373,7 @@ def bishop_direction_spaces_available(bishop, game_controller, x, y):
 class PlayBishop(ChessPiece, pygame.sprite.Sprite):
     white_bishop_list = []
     black_bishop_list = []
-    def __init__(self, pos, PLAY_SPRITES, col):
+    def __init__(self, coord, col):
         pygame.sprite.Sprite.__init__(self)
         if(col == "white"):
             self.image = IMAGES["SPR_WHITE_BISHOP"]
@@ -379,7 +381,7 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
         elif(col == "black"):
             self.image = IMAGES["SPR_BLACK_BISHOP"]
             PlayBishop.black_bishop_list.append(self)
-        super().__init__(pos, PLAY_SPRITES, self.image, col)
+        super().__init__(coord, self.image, col)
     def projected(self, game_controller):
         if(self.taken_off_board != True):
             bishop_projected("bishop", self, game_controller, -1, -1) #southwest
@@ -531,7 +533,7 @@ def rook_direction_spaces_available(rook, game_controller, x, y):
 class PlayRook(ChessPiece, pygame.sprite.Sprite):
     white_rook_list = []
     black_rook_list = []
-    def __init__(self, pos, PLAY_SPRITES, col):
+    def __init__(self, coord, col):
         pygame.sprite.Sprite.__init__(self)
         if(col == "white"):
             self.image = IMAGES["SPR_WHITE_ROOK"]
@@ -539,7 +541,7 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
         elif(col == "black"):
             self.image = IMAGES["SPR_BLACK_ROOK"]
             PlayRook.black_rook_list.append(self)
-        super().__init__(pos, PLAY_SPRITES, self.image, col)
+        super().__init__(coord, self.image, col)
         self.allowed_to_castle = True
     def captured(self, x, y):
         self.taken_off_board = True
@@ -584,7 +586,7 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
 class PlayQueen(ChessPiece, pygame.sprite.Sprite):
     white_queen_list = []
     black_queen_list = []
-    def __init__(self, pos, PLAY_SPRITES, col):
+    def __init__(self, coord, col):
         pygame.sprite.Sprite.__init__(self)
         if(col == "white"):
             self.image = IMAGES["SPR_WHITE_QUEEN"]
@@ -592,7 +594,7 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
         elif(col == "black"):
             self.image = IMAGES["SPR_BLACK_QUEEN"]
             PlayQueen.black_queen_list.append(self)
-        super().__init__(pos, PLAY_SPRITES, self.image, col)
+        super().__init__(coord, self.image, col)
     def captured(self, x, y):
         self.taken_off_board = True
         self.coordinate = None
@@ -646,7 +648,7 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
 class PlayKing(ChessPiece, pygame.sprite.Sprite):
     white_king_list = []
     black_king_list = []
-    def __init__(self, pos, PLAY_SPRITES, col):
+    def __init__(self, coord, col):
         pygame.sprite.Sprite.__init__(self)
         if(col == "white"):
             self.image = IMAGES["SPR_WHITE_KING"]
@@ -657,7 +659,7 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
         self.left_castle_ability = False
         self.right_castle_ability = False
         self.castled = False
-        super().__init__(pos, PLAY_SPRITES, self.image, col)
+        super().__init__(coord, self.image, col)
     def castle_check(self, game_controller):
         if(self.castled == False and game_controller.color_in_check != self.color):
             if self.color == "white":
