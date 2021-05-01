@@ -8,45 +8,6 @@ log = logging.getLogger(__name__)
 
 START_SPRITES = pygame.sprite.Group()
 
-class StartObjImagePlaceholder(pygame.sprite.Sprite):
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = IMAGES["SPR_BLANKBOX"]
-        self.rect = self.image.get_rect()
-        START_SPRITES.add(self)
-    def update(self):
-        pass
-    def flip_start_sprite(self, piece_name, pos):
-        self.rect.topleft = pos
-        if piece_name == "white_pawn":
-            self.image = IMAGES["SPR_WHITE_PAWN"]
-        elif piece_name == "white_bishop":
-            self.image = IMAGES["SPR_WHITE_BISHOP"]
-        elif piece_name == "white_knight":
-            self.image = IMAGES["SPR_WHITE_KNIGHT"]
-        elif piece_name == "white_rook":
-            self.image = IMAGES["SPR_WHITE_ROOK"]
-        elif piece_name == "white_queen":
-            self.image = IMAGES["SPR_WHITE_QUEEN"]
-        elif piece_name == "white_king":
-            self.image = IMAGES["SPR_WHITE_KING"]
-        elif piece_name == "black_pawn":
-            self.image = IMAGES["SPR_BLACK_PAWN"]
-        elif piece_name == "black_bishop":
-            self.image = IMAGES["SPR_BLACK_BISHOP"]
-        elif piece_name == "black_knight":
-            self.image = IMAGES["SPR_BLACK_KNIGHT"]
-        elif piece_name == "black_rook":
-            self.image = IMAGES["SPR_BLACK_ROOK"]
-        elif piece_name == "black_queen":
-            self.image = IMAGES["SPR_BLACK_QUEEN"]
-        elif piece_name == "black_king":
-            self.image = IMAGES["SPR_BLACK_KING"]
-        else:
-            self.image = IMAGES["SPR_BLANKBOX"]
-
-START_OBJ_IMAGE_PLACEHOLDER = StartObjImagePlaceholder()
-
 class StartPiecesBehind(pygame.sprite.Sprite):
     def __init__(self, image_dir, pos):
         pygame.sprite.Sprite.__init__(self)
@@ -57,7 +18,18 @@ class StartPiecesBehind(pygame.sprite.Sprite):
     def draw(self, screen):
         screen.blit(self.image, (self.rect.topleft))
         
-START_PIECES_BEHIND = StartPiecesBehind(IMAGES["SPR_WHITE_PAWN"], initvar.STARTPOS['white_pawn'])
+StartPiecesBehind(IMAGES["SPR_WHITE_PAWN"], initvar.STARTPOS['white_pawn'])
+StartPiecesBehind(IMAGES["SPR_WHITE_BISHOP"], initvar.STARTPOS['white_bishop'])
+StartPiecesBehind(IMAGES["SPR_WHITE_KNIGHT"], initvar.STARTPOS['white_knight'])
+StartPiecesBehind(IMAGES["SPR_WHITE_ROOK"], initvar.STARTPOS['white_rook'])
+StartPiecesBehind(IMAGES["SPR_WHITE_QUEEN"], initvar.STARTPOS['white_queen'])
+StartPiecesBehind(IMAGES["SPR_WHITE_KING"], initvar.STARTPOS['white_king'])
+StartPiecesBehind(IMAGES["SPR_BLACK_PAWN"], initvar.STARTPOS['black_pawn'])
+StartPiecesBehind(IMAGES["SPR_BLACK_BISHOP"], initvar.STARTPOS['black_bishop'])
+StartPiecesBehind(IMAGES["SPR_BLACK_KNIGHT"], initvar.STARTPOS['black_knight'])
+StartPiecesBehind(IMAGES["SPR_BLACK_ROOK"], initvar.STARTPOS['black_rook'])
+StartPiecesBehind(IMAGES["SPR_BLACK_QUEEN"], initvar.STARTPOS['black_queen'])
+StartPiecesBehind(IMAGES["SPR_BLACK_KING"], initvar.STARTPOS['black_king'])
 
 class StartPawn(pygame.sprite.Sprite):
     def __init__(self, col, pos):
@@ -175,17 +147,13 @@ class Dragging():
     drag_piece_name = ""
     def dragging_all_false():
         Dragging.drag_piece_name = ""
-    def drag_piece(piece):
-        Dragging.dragging_all_false()
-        Dragging.drag_piece_name = piece
-    def start_drag_and_flip_start_sprite(piece_name):
+    def start_drag(piece_name):
         Start.restart_start_positions()
-        Dragging.drag_piece(piece_name)
-        START_OBJ_IMAGE_PLACEHOLDER.flip_start_sprite(piece_name, Start.start_dict.get(piece_name).rect.topleft)
-    def update_position(mousepos):
+        Dragging.dragging_all_false()
+        Dragging.drag_piece_name = piece_name
+    def update_drag_piece_and_all_start_pieces_positions(mousepos):
         def drag_and_replace_start_obj_image(name_of_piece, mouse_pos):
             if Dragging.drag_piece_name == name_of_piece:
-                START_OBJ_IMAGE_PLACEHOLDER.rect.topleft = initvar.STARTPOS[name_of_piece]
                 Start.start_dict[name_of_piece].rect.topleft = (mousepos[0]-(Start.start_dict[name_of_piece].image.get_width()/2),
                                           mousepos[1]-(Start.start_dict[name_of_piece].image.get_height()/2))
             else:

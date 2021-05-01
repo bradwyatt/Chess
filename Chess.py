@@ -474,6 +474,13 @@ class PGN_Writer_and_Loader():
         log.info("PGN Finished Loading")
         return game_controller
 
+class Edit_Mode_Controller():
+    def right_click_destroy(MOUSEPOS):
+        start_objects.Dragging.dragging_all_false()
+        start_objects.Start.restart_start_positions()
+        placed_objects.remove_placed_object(MOUSEPOS)
+
+
 class Grid_Controller():
     flipped = False
     def flip_grids():
@@ -1259,7 +1266,7 @@ def main():
                             # If start object is clicked on, then enable drag, blank box changes images to the original piece so it looks better
                             for piece_name in start_objects.Start.start_dict.keys():
                                 if start_objects.Start.start_dict.get(piece_name).rect.collidepoint(MOUSEPOS):
-                                    start_objects.Dragging.start_drag_and_flip_start_sprite(piece_name)
+                                    start_objects.Dragging.start_drag(piece_name)
                     #################
                     # LEFT CLICK (PRESSED DOWN)
                     #################
@@ -1335,9 +1342,7 @@ def main():
                     if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE:
                         # Right click on obj, destroy
                         if(event.type == MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[2]):   
-                            start_objects.Dragging.dragging_all_false()
-                            start_objects.Start.restart_start_positions()
-                            placed_objects.remove_placed_object(MOUSEPOS)
+                            Edit_Mode_Controller.right_click_destroy(MOUSEPOS)
                     
                     if event.type == pygame.MOUSEBUTTONUP: #Release Drag
                         #################
@@ -1382,7 +1387,8 @@ def main():
                 ##################
                 # Start piece is dragging according to where the mouse is
                 if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE:
-                    start_objects.Dragging.update_position(MOUSEPOS)
+                    # Constant loop
+                    start_objects.Dragging.update_drag_piece_and_all_start_pieces_positions(MOUSEPOS)
             
                 ##################
                 # IN-GAME ACTIONS
@@ -1401,8 +1407,7 @@ def main():
                 if(Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE): #Only draw placed sprites in editing mode
                     start_objects.START_SPRITES.draw(SCREEN)
                     placed_objects.PLACED_SPRITES.update()
-                    placed_objects.PLACED_SPRITES.draw(SCREEN)   
-                    start_objects.START_PIECES_BEHIND.draw(SCREEN)
+                    placed_objects.PLACED_SPRITES.draw(SCREEN)
                 elif(Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE): #Only draw play sprites in play mode
                     FLIP_BOARD_BUTTON.draw(SCREEN)
                     PLAY_SPRITES.update()
