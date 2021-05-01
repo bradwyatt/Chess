@@ -1401,7 +1401,8 @@ def main():
                 if(Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE): #Only draw placed sprites in editing mode
                     start_objects.START_SPRITES.draw(SCREEN)
                     placed_objects.PLACED_SPRITES.update()
-                    placed_objects.PLACED_SPRITES.draw(SCREEN)    
+                    placed_objects.PLACED_SPRITES.draw(SCREEN)   
+                    start_objects.START_PIECES_BEHIND.draw(SCREEN)
                 elif(Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE): #Only draw play sprites in play mode
                     FLIP_BOARD_BUTTON.draw(SCREEN)
                     PLAY_SPRITES.update()

@@ -47,6 +47,18 @@ class StartObjImagePlaceholder(pygame.sprite.Sprite):
 
 START_OBJ_IMAGE_PLACEHOLDER = StartObjImagePlaceholder()
 
+class StartPiecesBehind(pygame.sprite.Sprite):
+    def __init__(self, image_dir, pos):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = image_dir
+        self.rect = self.image.get_rect()
+        self.rect.topleft = pos
+        START_SPRITES.add(self)
+    def draw(self, screen):
+        screen.blit(self.image, (self.rect.topleft))
+        
+START_PIECES_BEHIND = StartPiecesBehind(IMAGES["SPR_WHITE_PAWN"], initvar.STARTPOS['white_pawn'])
+
 class StartPawn(pygame.sprite.Sprite):
     def __init__(self, col, pos):
         pygame.sprite.Sprite.__init__(self)
