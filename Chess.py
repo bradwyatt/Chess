@@ -88,11 +88,9 @@ log.addHandler(console_handler)
 # Functions
 #############
 
-def get_color():
-    color = askcolor()
-    return [color[0][0], color[0][1], color[0][2]]
 
-def pos_load_file(colorkey, reset=False):
+
+def pos_load_file(reset=False):
     open_file = None
     if reset == True:
         loaded_dict = {'white_pawn': ['a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'],
@@ -101,14 +99,14 @@ def pos_load_file(colorkey, reset=False):
                        'black_pawn': ['a7', 'b7', 'c7', 'd7', 'e7', 'f7', 'g7', 'h7'],
                        'black_bishop': ['c8', 'f8'], 'black_knight': ['b8', 'g8'],
                        'black_rook': ['a8', 'h8'], 'black_queen': ['d8'], 'black_king': ['e8'],
-                       'RGB': colorkey}
+                       'RGB': Preferences.colorkey}
     else:
         request_file_name = askopenfilename(defaultextension=".lvl")
         try:
             open_file = open(request_file_name, "r")
         except FileNotFoundError:
             log.info("File not found")
-            return placed_objects.PLACED_SPRITES, colorkey
+            return
         loaded_file = open_file.read()
         loaded_dict = literal_eval(loaded_file)
             
@@ -168,10 +166,10 @@ def pos_load_file(colorkey, reset=False):
         placed_objects.PlacedQueen(black_queen_pos, "black")
     for black_king_pos in loaded_dict['black_king']:
         placed_objects.PlacedKing(black_king_pos, "black")
-    colorkey = loaded_dict['RGB']
+    Preferences.colorkey = loaded_dict['RGB']
     
     log.info("Positioning Loaded Successfully")
-    return placed_objects.PLACED_SPRITES, colorkey
+    return
 
             
 # Returns the tuples of each objects' positions within all classes
@@ -190,7 +188,7 @@ def get_dict_rect_positions():
         get_coord_for_all_obj[item_key] = item_list_in_name
     return get_coord_for_all_obj
 
-def pos_save_file(colorkey):
+def pos_save_file():
     try:
         # default extension is optional, here will add .txt if missing
         save_file_prompt = asksaveasfilename(defaultextension=".lvl")
@@ -198,7 +196,7 @@ def pos_save_file(colorkey):
         if save_file_name is not None:
             # Write the file to disk
             obj_locations = copy.deepcopy(get_dict_rect_positions())
-            obj_locations['RGB'] = colorkey
+            obj_locations['RGB'] = Preferences.colorkey
             save_file_name.write(str(obj_locations))
             save_file_name.close()
             log.info("File Saved Successfully.")
@@ -263,7 +261,13 @@ class Dragging():
             self.black_queen = True
         elif piece == "black_king":
             self.black_king = True
-    
+
+class Preferences():
+    colorkey = initvar.COLORKEY_RGB
+    def get_color():
+        color = askcolor()
+        return [color[0][0], color[0][1], color[0][2]]
+
 class PGN_Writer_and_Loader():
     def __init__(self):
         self.Event = ""
@@ -1186,15 +1190,12 @@ def main():
         #Global variables
         MENUON = 1
         
-        COLORKEY = initvar.COLORKEY_RGB
-        
         RUNNING, DEBUG = 0, 1
         state = RUNNING
         debug_message = 0
         
         GAME_MODE_SPRITES = pygame.sprite.Group()
         
-        #PLACED_SPRITES = pygame.sprite.Group()
         PLAY_SPRITES = pygame.sprite.Group()
         CLOCK = pygame.time.Clock()
         
@@ -1238,7 +1239,7 @@ def main():
 
                         
         # Load the starting positions of chessboard first
-        pos_load_file(COLORKEY, reset=True)
+        pos_load_file(reset=True)
         MOUSE_COORD = ""
         
         def mouse_coordinate(mousepos):
@@ -1255,7 +1256,7 @@ def main():
             MOUSE_COORD = mouse_coordinate(MOUSEPOS)
             if state == RUNNING and MENUON == 1: # Initiate room
                 #Start Objects
-                START.start_positions()
+                START.restart_start_positions()
                 
                 for event in pygame.event.get():
                     if event.type == QUIT:
@@ -1296,13 +1297,13 @@ def main():
                         if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE:
                             #BUTTONS
                             if COLOR_BUTTON.rect.collidepoint(MOUSEPOS):
-                                COLORKEY = get_color()
+                                Preferences.colorkey = Preferences.get_color()
                             if POS_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
-                                pos_save_file(COLORKEY)
+                                pos_save_file()
                             if POS_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
-                                placed_objects.PLACED_SPRITES, COLORKEY = pos_load_file(COLORKEY)
+                                pos_load_file()
                             if RESET_BOARD_BUTTON.rect.collidepoint(MOUSEPOS):
-                                placed_objects.PLACED_SPRITES, COLORKEY = pos_load_file(COLORKEY, reset=True)
+                                pos_load_file(reset=True)
                             
                             list_of_start_objs = {"white_pawn": START.white_pawn, 
                                              "white_bishop": START.white_bishop, 
@@ -1321,7 +1322,7 @@ def main():
                             # If start object is clicked on, then enable drag, blank box changes images to the original piece so it looks better
                             for piece_name in list_of_start_objs.keys():
                                 if list_of_start_objs.get(piece_name).rect.collidepoint(MOUSEPOS):
-                                    START = start_objects.restart_start_objects(START)
+                                    START.restart_start_positions()
                                     DRAGGING.drag_piece(piece_name)
                                     START.start_obj_image_placeholder.flip_start_sprite(DRAGGING, list_of_start_objs.get(piece_name).rect.topleft)
                                 
@@ -1449,7 +1450,7 @@ def main():
                         # Right click on obj, destroy
                         if(event.type == MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[2]):   
                             DRAGGING.dragging_all_false()
-                            START = start_objects.restart_start_objects(START)
+                            START.restart_start_positions()
                             placed_objects.remove_placed_object(MOUSEPOS)
                     
                     if event.type == pygame.MOUSEBUTTONUP: #Release Drag
@@ -1475,7 +1476,7 @@ def main():
                             MENUON = 2
                         if CLEAR_BUTTON.rect.collidepoint(MOUSEPOS):
                             if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE: #Editing mode
-                                START = restart_start_objects(START)
+                                START.restart_start_positions()
                                 # REMOVE ALL SPRITES
                                 placed_objects.remove_all_placed()
                     
@@ -1521,7 +1522,7 @@ def main():
                 #FOR DEBUGGING PURPOSES, PUT TEST CODE BELOW
                 
                 #Update all sprites
-                SCREEN.fill(COLORKEY)
+                SCREEN.fill(Preferences.colorkey)
                 
                 FLIP_BOARD_BUTTON.draw(SCREEN)
                 GAME_MODE_SPRITES.draw(SCREEN)
