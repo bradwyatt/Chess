@@ -387,7 +387,7 @@ class PGN_Writer_and_Loader():
         except FileNotFoundError:
             log.info("File not found")
             return
-        game_controller.switch_mode(game_controller.PLAY_MODE, PLAY_EDIT_SWITCH_BUTTON)
+        Switch_Modes_Controller.switch_mode(game_controller, Switch_Modes_Controller.PLAY_MODE, PLAY_EDIT_SWITCH_BUTTON)
         game_controller.spawn_play_objects(PLAY_SPRITES)
         
         loaded_file = open_file.read()
@@ -609,7 +609,7 @@ class Grid_Controller():
                 
     def update_grid(game_controller):
         for grid in board.Grid.grid_list:
-            if game_controller.game_mode == game_controller.PLAY_MODE:
+            if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
                 def grid_occupied_by_piece():
                     for piece_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                                        PlayKnight.white_knight_list, PlayRook.white_rook_list, 
@@ -643,10 +643,23 @@ class Grid_Controller():
                         grid.occupied_piece_color = ""
                 grid_occupied_by_piece()
 
+class Switch_Modes_Controller():
+    EDIT_MODE, PLAY_MODE = 0, 1
+    GAME_MODE = EDIT_MODE
+    def switch_mode(game_controller, game_mode, PLAY_EDIT_SWITCH_BUTTON):
+        if game_mode == Switch_Modes_Controller.EDIT_MODE:
+            log.info("\nEditing Mode Activated\n")
+            Switch_Modes_Controller.GAME_MODE = Switch_Modes_Controller.EDIT_MODE
+            PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(Switch_Modes_Controller.GAME_MODE)
+            game_controller.reset_board()
+            Text_Controller.check_checkmate_text = ""
+        elif game_mode == Switch_Modes_Controller.PLAY_MODE:
+            log.info("Play Mode Activated\n")
+            Switch_Modes_Controller.GAME_MODE = Switch_Modes_Controller.PLAY_MODE
+            PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(Switch_Modes_Controller.GAME_MODE)
+
 class Game_Controller():
     def __init__(self):
-        self.EDIT_MODE, self.PLAY_MODE = 0, 1
-        self.game_mode = self.EDIT_MODE
         self.reset_initial_vars()
     def reset_initial_vars(self):
         self.WHOSETURN = "white"
@@ -662,17 +675,7 @@ class Game_Controller():
         self.df_prior_moves.index = np.arange(1, len(self.df_prior_moves)+1)
         self.result_abb = "*"
         self.selected_move = [0, "", ""]
-    def switch_mode(self, game_mode, PLAY_EDIT_SWITCH_BUTTON):
-        if game_mode == self.EDIT_MODE:
-            log.info("\nEditing Mode Activated\n")
-            self.game_mode = self.EDIT_MODE
-            PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(self.game_mode)
-            self.reset_board()
-            Text_Controller.check_checkmate_text = ""
-        elif game_mode == self.PLAY_MODE:
-            log.info("Play Mode Activated\n")
-            self.game_mode = self.PLAY_MODE
-            PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(self.game_mode)
+
     def spawn_play_objects(self, PLAY_SPRITES):
         def placed_to_play(placed_list, class_obj, sprite_group, color):
             # Play pieces spawn where their placed piece correspondents are located
@@ -709,7 +712,6 @@ class Game_Controller():
             grid.no_highlight()
             
     def reset_board(self):
-        self.game_mode = self.EDIT_MODE
         self.reset_initial_vars()
         Text_Controller.reset()
         # Kill all Objects within their Class lists/dicts
@@ -922,6 +924,13 @@ class Move_Controller():
         elif special_abb == "=Q":
             recorded_move = prefix + captured_abb + piece.coordinate[0] + piece.coordinate[1] + special_abb + check_abb
         return recorded_move
+    def undo_move():
+        if self.WHOSETURN == "white":
+            if self.move_counter > 1:
+                pass
+                #game_controller.df_prior_moves.loc[game_controller.move_counter-1,]
+        elif self.WHOSETURN == "black":
+            pass
     def make_move(grid, piece, game_controller, PLAY_SPRITES):
         # Default captured_abb for function to be empty string
         captured_abb = ""
@@ -1365,6 +1374,8 @@ def main():
                             PGN_WRITER_AND_LOADER.write_moves(game_controller.df_moves, game_controller.result_abb)
                         if FLIP_BOARD_BUTTON.rect.collidepoint(MOUSEPOS):
                             Grid_Controller.flip_grids()
+                        if PREV_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
+                            Move_Controller.undo_move()
                         # When clicking on a move on the right pane, it is your selected move
                         for piece_move_rect in PieceMoveRectangle.rectangle_list:
                             if piece_move_rect.rect.collidepoint(MOUSEPOS) and piece_move_rect.text_is_visible:
@@ -1372,7 +1383,7 @@ def main():
                                 game_controller.selected_move[1] = piece_move_rect.move_notation
                                 game_controller.selected_move[2] = piece_move_rect.move_color
                         # Editing mode only
-                        if game_controller.game_mode == game_controller.EDIT_MODE:
+                        if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE:
                             #BUTTONS
                             if COLOR_BUTTON.rect.collidepoint(MOUSEPOS):
                                 COLORKEY = get_color()
@@ -1524,7 +1535,7 @@ def main():
                         if event.button == 5: # Scroll down
                             if len(MoveNumberRectangle.rectangle_list) > initvar.MOVES_PANE_MAX_MOVES and PanelRectangles.scroll_range[1] < len(MoveNumberRectangle.rectangle_list):
                                 update_scroll_range(1)
-                    if game_controller.game_mode == game_controller.EDIT_MODE:
+                    if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE:
                         # Right click on obj, destroy
                         if(event.type == MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[2]):   
                             DRAGGING.dragging_all_false()
@@ -1535,23 +1546,23 @@ def main():
                         #################
                         # PLAY BUTTON
                         #################
-                        if PLAY_EDIT_SWITCH_BUTTON.rect.collidepoint(MOUSEPOS) and game_controller.game_mode == game_controller.EDIT_MODE: 
+                        if PLAY_EDIT_SWITCH_BUTTON.rect.collidepoint(MOUSEPOS) and Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE: 
                             # Makes clicking play again unclickable    
-                            game_controller.switch_mode(game_controller.PLAY_MODE, PLAY_EDIT_SWITCH_BUTTON)
+                            Switch_Modes_Controller.switch_mode(game_controller, Switch_Modes_Controller.PLAY_MODE, PLAY_EDIT_SWITCH_BUTTON)
                             game_controller.spawn_play_objects(PLAY_SPRITES)
 
                         #################
                         # LEFT CLICK (RELEASE) STOP BUTTON
                         #################
-                        elif PLAY_EDIT_SWITCH_BUTTON.rect.collidepoint(MOUSEPOS) and game_controller.game_mode == game_controller.PLAY_MODE:
-                            game_controller.switch_mode(game_controller.EDIT_MODE, PLAY_EDIT_SWITCH_BUTTON)
+                        elif PLAY_EDIT_SWITCH_BUTTON.rect.collidepoint(MOUSEPOS) and Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
+                            Switch_Modes_Controller.switch_mode(game_controller, Switch_Modes_Controller.EDIT_MODE, PLAY_EDIT_SWITCH_BUTTON)
                         # Undo move through PREV_MOVE_BUTTON
                         if PREV_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
                             pass
                         if INFO_BUTTON.rect.collidepoint(MOUSEPOS):
                             MENUON = 2
                         if CLEAR_BUTTON.rect.collidepoint(MOUSEPOS):
-                            if game_controller.game_mode == game_controller.EDIT_MODE: #Editing mode
+                            if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE: #Editing mode
                                 START = restart_start_objects(START)
                                 # REMOVE ALL SPRITES
                                 remove_all_placed()
@@ -1571,7 +1582,7 @@ def main():
                 # ALL EDIT ACTIONS
                 ##################
                 # Start piece is dragging according to where the mouse is
-                if game_controller.game_mode == game_controller.EDIT_MODE:
+                if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE:
                     def drag_and_replace_start_obj_image(dragging_obj, start_substitute_image, start_obj_pos, start_obj, mouse_pos):
                         if dragging_obj:
                             start_substitute_image.rect.topleft = start_obj_pos
@@ -1595,7 +1606,7 @@ def main():
                 ##################
                 # IN-GAME ACTIONS
                 ##################
-                if game_controller.game_mode == game_controller.PLAY_MODE:
+                if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
                     pass
                 #FOR DEBUGGING PURPOSES, PUT TEST CODE BELOW
                 
@@ -1608,11 +1619,11 @@ def main():
                 Grid_Controller.update_grid(game_controller)
                 
                 SCREEN.blit(initvar.MOVE_BG_IMAGE, (initvar.MOVE_BG_IMAGE_HEIGHT,initvar.MOVE_BG_IMAGE_WIDTH))
-                if(game_controller.game_mode == game_controller.EDIT_MODE): #Only draw placed sprites in editing mode
+                if(Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE): #Only draw placed sprites in editing mode
                     initvar.START_SPRITES.draw(SCREEN)
                     PLACED_SPRITES.update()
                     PLACED_SPRITES.draw(SCREEN)    
-                elif(game_controller.game_mode == game_controller.PLAY_MODE): #Only draw play sprites in play mode
+                elif(Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE): #Only draw play sprites in play mode
                     FLIP_BOARD_BUTTON.draw(SCREEN)
                     PLAY_SPRITES.update()
                     PLAY_SPRITES.draw(SCREEN)
@@ -1634,7 +1645,7 @@ def main():
                 for text in range(0,len(Text_Controller.coor_number_text_list)):
                     SCREEN.blit(Text_Controller.coor_number_text_list[text], (initvar.X_GRID_START-initvar.X_GRID_WIDTH/2, initvar.Y_GRID_START+initvar.Y_GRID_HEIGHT/4+(initvar.Y_GRID_HEIGHT*text)))
                     SCREEN.blit(Text_Controller.coor_number_text_list[text], (board.X_GRID_END+initvar.X_GRID_WIDTH/3, initvar.Y_GRID_START+initvar.Y_GRID_HEIGHT/4+(initvar.Y_GRID_HEIGHT*text)))
-                if(game_controller.game_mode == game_controller.PLAY_MODE):
+                if(Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE):
                     check_checkmate_text_render = arial_font.render(Text_Controller.check_checkmate_text, 1, (0, 0, 0))
                     if game_controller.WHOSETURN == "white":
                         whose_turn_text = arial_font.render("White's move", 1, (0, 0, 0))
@@ -1649,7 +1660,7 @@ def main():
                     debug_message = 0
                     # USE BREAKPOINT HERE
                     #print(str(MOUSE_COORD))
-                    #print(str(game_controller.df_prior_moves))
+                    print(str(game_controller.df_prior_moves))
                     log.info("Use breakpoint here")
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
