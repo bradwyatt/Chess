@@ -7,7 +7,6 @@ GRID_SPRITES = pygame.sprite.Group()
 class Grid(pygame.sprite.Sprite):
     grid_list = []
     grid_dict = {}
-    
     def __init__(self, GRID_SPRITES, color, pos, coordinate):
         pygame.sprite.Sprite.__init__(self)
         self.color = color
@@ -78,7 +77,6 @@ for coordinate in coordinates_dict_with_pos.keys():
         for j in range(2, 9, 2):
             if(ord(coordinate[0]) == i and int(coordinate[1]) == j):
                 Grid(GRID_SPRITES, "white", coordinates_dict_with_pos[coordinate], coordinate)
-                print("position: " + str(coordinates_dict_with_pos[coordinate]))
     for i in range(ord("b"), ord("i"), 2):
         for j in range(1, 8, 2):
             if(ord(coordinate[0]) == i and int(coordinate[1]) == j):
