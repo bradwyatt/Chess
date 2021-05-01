@@ -1,5 +1,6 @@
 import pygame
 import initvar
+import placed_objects
 from load_images_sounds import *
 
 START_SPRITES = pygame.sprite.Group()
@@ -32,6 +33,97 @@ class Start():
         self.black_rook.rect.topleft = initvar.STARTPOS['black_rook']
         self.black_queen.rect.topleft = initvar.STARTPOS['black_queen']
         self.black_king.rect.topleft = initvar.STARTPOS['black_king']
+
+class Dragging():
+    def __init__(self):
+        self.dragging_all_false()
+    def dragging_all_false(self):
+        self.white_pawn = False
+        self.white_bishop = False
+        self.white_knight = False
+        self.white_rook = False
+        self.white_queen = False
+        self.white_king = False
+        self.black_pawn = False
+        self.black_bishop = False
+        self.black_knight = False
+        self.black_rook = False
+        self.black_queen = False
+        self.black_king = False
+    def drag_piece(self, piece):
+        self.dragging_all_false()
+        if piece == "white_pawn":
+            self.white_pawn = True
+        elif piece == "white_bishop":
+            self.white_bishop = True
+        elif piece == "white_knight":
+            self.white_knight = True
+        elif piece == "white_rook":
+            self.white_rook = True
+        elif piece == "white_queen":
+            self.white_queen = True
+        elif piece == "white_king":
+            self.white_king = True
+        elif piece == "black_pawn":
+            self.black_pawn = True
+        elif piece == "black_bishop":
+            self.black_bishop = True
+        elif piece == "black_knight":
+            self.black_knight = True
+        elif piece == "black_rook":
+            self.black_rook = True
+        elif piece == "black_queen":
+            self.black_queen = True
+        elif piece == "black_king":
+            self.black_king = True
+    def dragging_to_placed_no_dups(self, mouse_coord):
+        for piece_list in [placed_objects.PlacedPawn.white_pawn_list, placed_objects.PlacedBishop.white_bishop_list, 
+                           placed_objects.PlacedKnight.white_knight_list, placed_objects.PlacedRook.white_rook_list, 
+                           placed_objects.PlacedQueen.white_queen_list, placed_objects.PlacedKing.white_king_list,
+                           placed_objects.PlacedPawn.black_pawn_list, placed_objects.PlacedBishop.black_bishop_list, 
+                           placed_objects.PlacedKnight.black_knight_list, placed_objects.PlacedRook.black_rook_list, 
+                           placed_objects.PlacedQueen.black_queen_list, placed_objects.PlacedKing.black_king_list]:
+            # If there is already a piece on grid then don't create new Placed object
+            for piece in piece_list:
+                if piece.coordinate == mouse_coord:
+                    return
+        # Created Placed objects at the snapped grid location of the piece that's being dragged
+        if self.white_pawn:
+            if int(mouse_coord[1]) != 1 and int(mouse_coord[1]) != 8:
+                placed_objects.PlacedPawn(mouse_coord, "white")
+            else:
+                log.info("You are not allowed to place a pawn on rank " + mouse_coord[1])
+        elif self.white_bishop:
+            placed_objects.PlacedBishop(mouse_coord, "white")
+        elif self.white_knight:
+            placed_objects.PlacedKnight(mouse_coord, "white")
+        elif self.white_rook:
+            placed_objects.PlacedRook(mouse_coord, "white")
+        elif self.white_queen:
+            placed_objects.PlacedQueen(mouse_coord, "white")
+        elif self.white_king:
+            if not placed_objects.PlacedKing.white_king_list:
+                placed_objects.PlacedKing(mouse_coord, "white")
+            else:
+                log.info("You can only have one white king.")
+        elif self.black_pawn:
+            if int(mouse_coord[1]) != 1 and int(mouse_coord[1]) != 8:
+                placed_objects.PlacedPawn(mouse_coord, "black")
+            else:
+                log.info("You are not allowed to place a pawn on rank " + mouse_coord[1])
+        elif self.black_bishop:
+            placed_objects.PlacedBishop(mouse_coord, "black")
+        elif self.black_knight:
+            placed_objects.PlacedKnight(mouse_coord, "black")
+        elif self.black_rook:
+            placed_objects.PlacedRook(mouse_coord, "black")
+        elif self.black_queen:
+            placed_objects.PlacedQueen(mouse_coord, "black")
+        elif self.black_king:
+            if not placed_objects.PlacedKing.black_king_list:
+                placed_objects.PlacedKing(mouse_coord, "black")
+            else:
+                log.info("You can only have one black king.")
 
 class StartObjImagePlaceholder(pygame.sprite.Sprite):
     def __init__(self):

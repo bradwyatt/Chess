@@ -88,8 +88,6 @@ log.addHandler(console_handler)
 # Functions
 #############
 
-
-
 def pos_load_file(reset=False):
     open_file = None
     if reset == True:
@@ -218,49 +216,6 @@ class PlayEditSwitchButton(pygame.sprite.Sprite):
         elif game_mode == 1:
             self.image = IMAGES["SPR_STOP_BUTTON"]
         return self.image
-    
-class Dragging():
-    def __init__(self):
-        self.dragging_all_false()
-    def dragging_all_false(self):
-        self.white_pawn = False
-        self.white_bishop = False
-        self.white_knight = False
-        self.white_rook = False
-        self.white_queen = False
-        self.white_king = False
-        self.black_pawn = False
-        self.black_bishop = False
-        self.black_knight = False
-        self.black_rook = False
-        self.black_queen = False
-        self.black_king = False
-    def drag_piece(self, piece):
-        self.dragging_all_false()
-        if piece == "white_pawn":
-            self.white_pawn = True
-        elif piece == "white_bishop":
-            self.white_bishop = True
-        elif piece == "white_knight":
-            self.white_knight = True
-        elif piece == "white_rook":
-            self.white_rook = True
-        elif piece == "white_queen":
-            self.white_queen = True
-        elif piece == "white_king":
-            self.white_king = True
-        elif piece == "black_pawn":
-            self.black_pawn = True
-        elif piece == "black_bishop":
-            self.black_bishop = True
-        elif piece == "black_knight":
-            self.black_knight = True
-        elif piece == "black_rook":
-            self.black_rook = True
-        elif piece == "black_queen":
-            self.black_queen = True
-        elif piece == "black_king":
-            self.black_king = True
 
 class Preferences():
     colorkey = initvar.COLORKEY_RGB
@@ -1203,10 +1158,8 @@ def main():
         arial_font = pygame.font.SysFont('Arial', 24)
         move_notation_font = pygame.font.SysFont('Arial', 16)
     
-        #Start (Menu) Objects
         START = start_objects.Start()
-        #DRAGGING Variables
-        DRAGGING = Dragging()
+        DRAGGING = start_objects.Dragging()
         
         PGN_WRITER_AND_LOADER = PGN_Writer_and_Loader()
         
@@ -1334,56 +1287,7 @@ def main():
                     elif (event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and
                           MOUSEPOS[0] > initvar.X_GRID_START and MOUSEPOS[0] < board.X_GRID_END and
                           MOUSEPOS[1] > initvar.Y_GRID_START and MOUSEPOS[1] < board.Y_GRID_END): 
-                        def dragging_to_placed_no_dups():
-                            for piece_list in [placed_objects.PlacedPawn.white_pawn_list, placed_objects.PlacedBishop.white_bishop_list, 
-                                               placed_objects.PlacedKnight.white_knight_list, placed_objects.PlacedRook.white_rook_list, 
-                                               placed_objects.PlacedQueen.white_queen_list, placed_objects.PlacedKing.white_king_list,
-                                               placed_objects.PlacedPawn.black_pawn_list, placed_objects.PlacedBishop.black_bishop_list, 
-                                               placed_objects.PlacedKnight.black_knight_list, placed_objects.PlacedRook.black_rook_list, 
-                                               placed_objects.PlacedQueen.black_queen_list, placed_objects.PlacedKing.black_king_list]:
-                                # If there is already a piece on grid then don't create new Placed object
-                                for piece in piece_list:
-                                    if piece.coordinate == MOUSE_COORD:
-                                        return
-                            # Created Placed objects at the snapped grid location of the piece that's being dragged
-                            if DRAGGING.white_pawn:
-                                if int(MOUSE_COORD[1]) != 1 and int(MOUSE_COORD[1]) != 8:
-                                    placed_objects.PlacedPawn(MOUSE_COORD, "white")
-                                else:
-                                    log.info("You are not allowed to place a pawn on rank " + MOUSE_COORD[1])
-                            elif DRAGGING.white_bishop:
-                                placed_objects.PlacedBishop(MOUSE_COORD, "white")
-                            elif DRAGGING.white_knight:
-                                placed_objects.PlacedKnight(MOUSE_COORD, "white")
-                            elif DRAGGING.white_rook:
-                                placed_objects.PlacedRook(MOUSE_COORD, "white")
-                            elif DRAGGING.white_queen:
-                                placed_objects.PlacedQueen(MOUSE_COORD, "white")
-                            elif DRAGGING.white_king:
-                                if not placed_objects.PlacedKing.white_king_list:
-                                    placed_objects.PlacedKing(MOUSE_COORD, "white")
-                                else:
-                                    log.info("You can only have one white king.")
-                            elif DRAGGING.black_pawn:
-                                if int(MOUSE_COORD[1]) != 1 and int(MOUSE_COORD[1]) != 8:
-                                    placed_objects.PlacedPawn(MOUSE_COORD, "black")
-                                else:
-                                    log.info("You are not allowed to place a pawn on rank " + MOUSE_COORD[1])
-                            elif DRAGGING.black_bishop:
-                                placed_objects.PlacedBishop(MOUSE_COORD, "black")
-                            elif DRAGGING.black_knight:
-                                placed_objects.PlacedKnight(MOUSE_COORD, "black")
-                            elif DRAGGING.black_rook:
-                                placed_objects.PlacedRook(MOUSE_COORD, "black")
-                            elif DRAGGING.black_queen:
-                                placed_objects.PlacedQueen(MOUSE_COORD, "black")
-                            elif DRAGGING.black_king:
-                                if not placed_objects.PlacedKing.black_king_list:
-                                    placed_objects.PlacedKing(MOUSE_COORD, "black")
-                                else:
-                                    log.info("You can only have one black king.")
-            
-                        dragging_to_placed_no_dups()
+                        DRAGGING.dragging_to_placed_no_dups(MOUSE_COORD)
                         if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
                             # Moves piece
                             def update_pieces_and_board():
