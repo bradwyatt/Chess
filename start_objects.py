@@ -8,62 +8,6 @@ log = logging.getLogger(__name__)
 
 START_SPRITES = pygame.sprite.Group()
 
-class Dragging():
-    drag_piece_name = ""
-    def dragging_all_false():
-        Dragging.drag_piece_name = ""
-    def drag_piece(piece):
-        Dragging.dragging_all_false()
-        Dragging.drag_piece_name = piece
-    def dragging_to_placed_no_dups(mouse_coord):
-        for piece_list in [placed_objects.PlacedPawn.white_pawn_list, placed_objects.PlacedBishop.white_bishop_list, 
-                           placed_objects.PlacedKnight.white_knight_list, placed_objects.PlacedRook.white_rook_list, 
-                           placed_objects.PlacedQueen.white_queen_list, placed_objects.PlacedKing.white_king_list,
-                           placed_objects.PlacedPawn.black_pawn_list, placed_objects.PlacedBishop.black_bishop_list, 
-                           placed_objects.PlacedKnight.black_knight_list, placed_objects.PlacedRook.black_rook_list, 
-                           placed_objects.PlacedQueen.black_queen_list, placed_objects.PlacedKing.black_king_list]:
-            # If there is already a piece on grid then don't create new Placed object
-            for piece in piece_list:
-                if piece.coordinate == mouse_coord:
-                    return
-        # Created Placed objects at the snapped grid location of the piece that's being dragged
-        if Dragging.drag_piece_name == "white_pawn":
-            if int(mouse_coord[1]) != 1 and int(mouse_coord[1]) != 8:
-                placed_objects.PlacedPawn(mouse_coord, "white")
-            else:
-                log.info("You are not allowed to place a pawn on rank " + mouse_coord[1])
-        elif Dragging.drag_piece_name == "white_bishop":
-            placed_objects.PlacedBishop(mouse_coord, "white")
-        elif Dragging.drag_piece_name == "white_knight":
-            placed_objects.PlacedKnight(mouse_coord, "white")
-        elif Dragging.drag_piece_name == "white_rook":
-            placed_objects.PlacedRook(mouse_coord, "white")
-        elif Dragging.drag_piece_name == "white_queen":
-            placed_objects.PlacedQueen(mouse_coord, "white")
-        elif Dragging.drag_piece_name == "white_king":
-            if not placed_objects.PlacedKing.white_king_list:
-                placed_objects.PlacedKing(mouse_coord, "white")
-            else:
-                log.info("You can only have one white king.")
-        elif Dragging.drag_piece_name == "black_pawn":
-            if int(mouse_coord[1]) != 1 and int(mouse_coord[1]) != 8:
-                placed_objects.PlacedPawn(mouse_coord, "black")
-            else:
-                log.info("You are not allowed to place a pawn on rank " + mouse_coord[1])
-        elif Dragging.drag_piece_name == "black_bishop":
-            placed_objects.PlacedBishop(mouse_coord, "black")
-        elif Dragging.drag_piece_name == "black_knight":
-            placed_objects.PlacedKnight(mouse_coord, "black")
-        elif Dragging.drag_piece_name == "black_rook":
-            placed_objects.PlacedRook(mouse_coord, "black")
-        elif Dragging.drag_piece_name == "black_queen":
-            placed_objects.PlacedQueen(mouse_coord, "black")
-        elif Dragging.drag_piece_name == "black_king":
-            if not placed_objects.PlacedKing.black_king_list:
-                placed_objects.PlacedKing(mouse_coord, "black")
-            else:
-                log.info("You can only have one black king.")
-
 class StartObjImagePlaceholder(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
@@ -100,6 +44,8 @@ class StartObjImagePlaceholder(pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_KING"]
         else:
             self.image = IMAGES["SPR_BLANKBOX"]
+
+START_OBJ_IMAGE_PLACEHOLDER = StartObjImagePlaceholder()
 
 class StartPawn(pygame.sprite.Sprite):
     def __init__(self, col, pos):
@@ -213,3 +159,83 @@ class Start():
         Start.start_dict['black_rook'].rect.topleft = initvar.STARTPOS['black_rook']
         Start.start_dict['black_queen'].rect.topleft = initvar.STARTPOS['black_queen']
         Start.start_dict['black_king'].rect.topleft = initvar.STARTPOS['black_king']
+        
+class Dragging():
+    drag_piece_name = ""
+    def dragging_all_false():
+        Dragging.drag_piece_name = ""
+    def drag_piece(piece):
+        Dragging.dragging_all_false()
+        Dragging.drag_piece_name = piece
+    def start_drag_and_flip_start_sprite(piece_name):
+        Start.restart_start_positions()
+        Dragging.drag_piece(piece_name)
+        Start.start_dict['start_obj_image_placeholder'].flip_start_sprite(piece_name, Start.start_dict.get(piece_name).rect.topleft)
+    def update_position(mousepos):
+        def drag_and_replace_start_obj_image(name_of_piece, mouse_pos):
+            if Dragging.drag_piece_name == name_of_piece:
+                Start.start_dict['start_obj_image_placeholder'].rect.topleft = initvar.STARTPOS[name_of_piece]
+                Start.start_dict[name_of_piece].rect.topleft = (mousepos[0]-(Start.start_dict[name_of_piece].image.get_width()/2),
+                                          mousepos[1]-(Start.start_dict[name_of_piece].image.get_height()/2))
+            else:
+                Start.start_dict[name_of_piece].rect.topleft = initvar.STARTPOS[name_of_piece]
+        drag_and_replace_start_obj_image("white_pawn", mousepos)
+        drag_and_replace_start_obj_image("white_bishop", mousepos)
+        drag_and_replace_start_obj_image("white_knight", mousepos)
+        drag_and_replace_start_obj_image("white_rook", mousepos)
+        drag_and_replace_start_obj_image("white_queen", mousepos)
+        drag_and_replace_start_obj_image("white_king", mousepos)
+        drag_and_replace_start_obj_image("black_pawn", mousepos)
+        drag_and_replace_start_obj_image("black_bishop", mousepos)
+        drag_and_replace_start_obj_image("black_knight", mousepos)
+        drag_and_replace_start_obj_image("black_rook", mousepos)
+        drag_and_replace_start_obj_image("black_queen", mousepos)
+        drag_and_replace_start_obj_image("black_king", mousepos)   
+    def dragging_to_placed_no_dups(mouse_coord):
+        for piece_list in [placed_objects.PlacedPawn.white_pawn_list, placed_objects.PlacedBishop.white_bishop_list, 
+                           placed_objects.PlacedKnight.white_knight_list, placed_objects.PlacedRook.white_rook_list, 
+                           placed_objects.PlacedQueen.white_queen_list, placed_objects.PlacedKing.white_king_list,
+                           placed_objects.PlacedPawn.black_pawn_list, placed_objects.PlacedBishop.black_bishop_list, 
+                           placed_objects.PlacedKnight.black_knight_list, placed_objects.PlacedRook.black_rook_list, 
+                           placed_objects.PlacedQueen.black_queen_list, placed_objects.PlacedKing.black_king_list]:
+            # If there is already a piece on grid then don't create new Placed object
+            for piece in piece_list:
+                if piece.coordinate == mouse_coord:
+                    return
+        # Created Placed objects at the snapped grid location of the piece that's being dragged
+        if Dragging.drag_piece_name == "white_pawn":
+            if int(mouse_coord[1]) != 1 and int(mouse_coord[1]) != 8:
+                placed_objects.PlacedPawn(mouse_coord, "white")
+            else:
+                log.info("You are not allowed to place a pawn on rank " + mouse_coord[1])
+        elif Dragging.drag_piece_name == "white_bishop":
+            placed_objects.PlacedBishop(mouse_coord, "white")
+        elif Dragging.drag_piece_name == "white_knight":
+            placed_objects.PlacedKnight(mouse_coord, "white")
+        elif Dragging.drag_piece_name == "white_rook":
+            placed_objects.PlacedRook(mouse_coord, "white")
+        elif Dragging.drag_piece_name == "white_queen":
+            placed_objects.PlacedQueen(mouse_coord, "white")
+        elif Dragging.drag_piece_name == "white_king":
+            if not placed_objects.PlacedKing.white_king_list:
+                placed_objects.PlacedKing(mouse_coord, "white")
+            else:
+                log.info("You can only have one white king.")
+        elif Dragging.drag_piece_name == "black_pawn":
+            if int(mouse_coord[1]) != 1 and int(mouse_coord[1]) != 8:
+                placed_objects.PlacedPawn(mouse_coord, "black")
+            else:
+                log.info("You are not allowed to place a pawn on rank " + mouse_coord[1])
+        elif Dragging.drag_piece_name == "black_bishop":
+            placed_objects.PlacedBishop(mouse_coord, "black")
+        elif Dragging.drag_piece_name == "black_knight":
+            placed_objects.PlacedKnight(mouse_coord, "black")
+        elif Dragging.drag_piece_name == "black_rook":
+            placed_objects.PlacedRook(mouse_coord, "black")
+        elif Dragging.drag_piece_name == "black_queen":
+            placed_objects.PlacedQueen(mouse_coord, "black")
+        elif Dragging.drag_piece_name == "black_king":
+            if not placed_objects.PlacedKing.black_king_list:
+                placed_objects.PlacedKing(mouse_coord, "black")
+            else:
+                log.info("You can only have one black king.")

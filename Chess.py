@@ -1258,10 +1258,9 @@ def main():
                             # Goes through each of the types of pieces
                             # If start object is clicked on, then enable drag, blank box changes images to the original piece so it looks better
                             for piece_name in start_objects.Start.start_dict.keys():
-                                if start_objects.Start.start_dict.get(piece_name).rect.collidepoint(MOUSEPOS) and piece_name != 'start_obj_image_placeholder':
-                                    start_objects.Start.restart_start_positions()
-                                    start_objects.Dragging.drag_piece(piece_name)
-                                    start_objects.Start.start_dict['start_obj_image_placeholder'].flip_start_sprite(piece_name, start_objects.Start.start_dict.get(piece_name).rect.topleft)
+                                if start_objects.Start.start_dict.get(piece_name).rect.collidepoint(MOUSEPOS) \
+                                    and piece_name != 'start_obj_image_placeholder':
+                                    start_objects.Dragging.start_drag_and_flip_start_sprite(piece_name)
                     #################
                     # LEFT CLICK (PRESSED DOWN)
                     #################
@@ -1383,25 +1382,7 @@ def main():
                 ##################
                 # Start piece is dragging according to where the mouse is
                 if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE:
-                    def drag_and_replace_start_obj_image(name_of_piece, mouse_pos):
-                        if start_objects.Dragging.drag_piece_name == name_of_piece:
-                            start_objects.Start.start_dict['start_obj_image_placeholder'].rect.topleft = initvar.STARTPOS[name_of_piece]
-                            start_objects.Start.start_dict[name_of_piece].rect.topleft = (mouse_pos[0]-(start_objects.Start.start_dict[name_of_piece].image.get_width()/2),
-                                                      mouse_pos[1]-(start_objects.Start.start_dict[name_of_piece].image.get_height()/2))
-                        else:
-                            start_objects.Start.start_dict[name_of_piece].rect.topleft = initvar.STARTPOS[name_of_piece]
-                    drag_and_replace_start_obj_image("white_pawn", MOUSEPOS)
-                    drag_and_replace_start_obj_image("white_bishop", MOUSEPOS)
-                    drag_and_replace_start_obj_image("white_knight", MOUSEPOS)
-                    drag_and_replace_start_obj_image("white_rook", MOUSEPOS)
-                    drag_and_replace_start_obj_image("white_queen", MOUSEPOS)
-                    drag_and_replace_start_obj_image("white_king", MOUSEPOS)
-                    drag_and_replace_start_obj_image("black_pawn", MOUSEPOS)
-                    drag_and_replace_start_obj_image("black_bishop", MOUSEPOS)
-                    drag_and_replace_start_obj_image("black_knight", MOUSEPOS)
-                    drag_and_replace_start_obj_image("black_rook", MOUSEPOS)
-                    drag_and_replace_start_obj_image("black_queen", MOUSEPOS)
-                    drag_and_replace_start_obj_image("black_king", MOUSEPOS)                      
+                    start_objects.Dragging.update_position(MOUSEPOS)
             
                 ##################
                 # IN-GAME ACTIONS
