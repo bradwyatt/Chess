@@ -22,6 +22,7 @@ class PlacedPawn(pygame.sprite.Sprite):
             if grid.coordinate == self.coordinate:
                 self.rect.topleft = grid.rect.topleft
     def update(self):
+        print("What is the board Grid grid_dict look like? " + str(board.Grid.grid_dict))
         self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
     def destroy(self):
         if self.col == "white":

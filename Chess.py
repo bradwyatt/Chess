@@ -659,10 +659,8 @@ class Switch_Modes_Controller():
             PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(Switch_Modes_Controller.GAME_MODE)
 
 class Game_Controller():
-    def __init__(self):
-        self.reset_initial_vars()
-    def reset_initial_vars(self):
-        self.WHOSETURN = "white"
+    def __init__(self, whoseturn="white"):
+        self.WHOSETURN = whoseturn
         self.color_in_check = ""
         self.check_attacking_coordinates = []
         self.attacker_piece = ""
@@ -695,7 +693,6 @@ class Game_Controller():
         placed_to_play(PlacedQueen.black_queen_list, PlayQueen, PLAY_SPRITES, "black")
         placed_to_play(PlacedKing.black_king_list, PlayKing, PLAY_SPRITES, "black")
         
-        self.WHOSETURN = "white"
         Grid_Controller.update_grid()
         self.projected_white_update()
         self.projected_black_update()
@@ -711,8 +708,7 @@ class Game_Controller():
         for grid in board.Grid.grid_list:
             grid.no_highlight()
             
-    def reset_board(self):
-        self.reset_initial_vars()
+    def __del__(self):
         Text_Controller.reset()
         # Kill all Objects within their Class lists/dicts
         for spr_list in [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
@@ -737,7 +733,7 @@ class Game_Controller():
         PlayQueen.black_queen_list = []
         PlayKing.black_king_list = []
         for grid in board.Grid.grid_list:
-            grid.reset_board()
+            grid.reset_play_interaction_vars()
         # Reset Moves Panel
         MoveNumberRectangle.rectangle_list = []
         PieceMoveRectangle.rectangle_list = []
@@ -1662,7 +1658,7 @@ def main():
                     debug_message = 0
                     # USE BREAKPOINT HERE
                     #print(str(MOUSE_COORD))
-                    print(str(game_controller.df_prior_moves))
+                    #print(str(game_controller.df_prior_moves))
                     log.info("Use breakpoint here")
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
