@@ -1157,9 +1157,6 @@ def main():
         #Fonts
         arial_font = pygame.font.SysFont('Arial', 24)
         move_notation_font = pygame.font.SysFont('Arial', 16)
-    
-        START = start_objects.Start()
-        DRAGGING = start_objects.Dragging()
         
         PGN_WRITER_AND_LOADER = PGN_Writer_and_Loader()
         
@@ -1209,7 +1206,6 @@ def main():
             MOUSE_COORD = mouse_coordinate(MOUSEPOS)
             if state == RUNNING and MENUON == 1: # Initiate room
                 #Start Objects
-                START.restart_start_positions()
                 
                 for event in pygame.event.get():
                     if event.type == QUIT:
@@ -1258,26 +1254,26 @@ def main():
                             if RESET_BOARD_BUTTON.rect.collidepoint(MOUSEPOS):
                                 pos_load_file(reset=True)
                             
-                            list_of_start_objs = {"white_pawn": START.white_pawn, 
-                                             "white_bishop": START.white_bishop, 
-                                             "white_knight": START.white_knight,
-                                             "white_rook": START.white_rook, 
-                                             "white_queen": START.white_queen, 
-                                             "white_king": START.white_king,
-                                             "black_pawn": START.black_pawn, 
-                                             "black_bishop": START.black_bishop, 
-                                             "black_knight": START.black_knight,
-                                             "black_rook": START.black_rook, 
-                                             "black_queen": START.black_queen, 
-                                             "black_king": START.black_king}
+                            list_of_start_objs = {"white_pawn": start_objects.Start.start_dict['white_pawn'], 
+                                             "white_bishop": start_objects.Start.start_dict['white_bishop'], 
+                                             "white_knight": start_objects.Start.start_dict['white_knight'],
+                                             "white_rook": start_objects.Start.start_dict['white_rook'], 
+                                             "white_queen": start_objects.Start.start_dict['white_queen'], 
+                                             "white_king": start_objects.Start.start_dict['white_king'],
+                                             "black_pawn": start_objects.Start.start_dict['black_pawn'], 
+                                             "black_bishop": start_objects.Start.start_dict['black_bishop'], 
+                                             "black_knight": start_objects.Start.start_dict['black_knight'],
+                                             "black_rook": start_objects.Start.start_dict['black_rook'], 
+                                             "black_queen": start_objects.Start.start_dict['black_queen'], 
+                                             "black_king": start_objects.Start.start_dict['black_king']}
                             # DRAG OBJECTS
                             # Goes through each of the types of pieces
                             # If start object is clicked on, then enable drag, blank box changes images to the original piece so it looks better
                             for piece_name in list_of_start_objs.keys():
                                 if list_of_start_objs.get(piece_name).rect.collidepoint(MOUSEPOS):
-                                    START.restart_start_positions()
-                                    DRAGGING.drag_piece(piece_name)
-                                    START.start_obj_image_placeholder.flip_start_sprite(piece_name, list_of_start_objs.get(piece_name).rect.topleft)
+                                    start_objects.Start.restart_start_positions()
+                                    start_objects.Dragging.drag_piece(piece_name)
+                                    start_objects.Start.start_dict['start_obj_image_placeholder'].flip_start_sprite(piece_name, list_of_start_objs.get(piece_name).rect.topleft)
                     #################
                     # LEFT CLICK (PRESSED DOWN)
                     #################
@@ -1286,7 +1282,7 @@ def main():
                     elif (event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and
                           MOUSEPOS[0] > initvar.X_GRID_START and MOUSEPOS[0] < board.X_GRID_END and
                           MOUSEPOS[1] > initvar.Y_GRID_START and MOUSEPOS[1] < board.Y_GRID_END): 
-                        DRAGGING.dragging_to_placed_no_dups(MOUSE_COORD)
+                        start_objects.Dragging.dragging_to_placed_no_dups(MOUSE_COORD)
                         if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
                             # Moves piece
                             def update_pieces_and_board():
@@ -1352,8 +1348,8 @@ def main():
                     if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE:
                         # Right click on obj, destroy
                         if(event.type == MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[2]):   
-                            DRAGGING.dragging_all_false()
-                            START.restart_start_positions()
+                            start_objects.Dragging.dragging_all_false()
+                            start_objects.Start.restart_start_positions()
                             placed_objects.remove_placed_object(MOUSEPOS)
                     
                     if event.type == pygame.MOUSEBUTTONUP: #Release Drag
@@ -1399,25 +1395,25 @@ def main():
                 ##################
                 # Start piece is dragging according to where the mouse is
                 if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE:
-                    def drag_and_replace_start_obj_image(drag_piece_name, name_of_piece, start_substitute_image, start_obj_pos, start_obj, mouse_pos):
-                        if drag_piece_name == name_of_piece:
-                            start_substitute_image.rect.topleft = start_obj_pos
-                            start_obj.rect.topleft = (mouse_pos[0]-(start_obj.image.get_width()/2),
-                                                      mouse_pos[1]-(start_obj.image.get_height()/2))
+                    def drag_and_replace_start_obj_image(name_of_piece, mouse_pos):
+                        if start_objects.Dragging.drag_piece_name == name_of_piece:
+                            start_objects.Start.start_dict['start_obj_image_placeholder'].rect.topleft = initvar.STARTPOS[name_of_piece]
+                            start_objects.Start.start_dict[name_of_piece].rect.topleft = (mouse_pos[0]-(start_objects.Start.start_dict[name_of_piece].image.get_width()/2),
+                                                      mouse_pos[1]-(start_objects.Start.start_dict[name_of_piece].image.get_height()/2))
                         else:
-                            start_obj.rect.topleft = start_obj_pos
-                    drag_and_replace_start_obj_image(DRAGGING.drag_piece_name, "white_pawn", START.start_obj_image_placeholder, initvar.STARTPOS['white_pawn'], START.white_pawn, MOUSEPOS)
-                    drag_and_replace_start_obj_image(DRAGGING.drag_piece_name, "white_bishop", START.start_obj_image_placeholder, initvar.STARTPOS['white_bishop'], START.white_bishop, MOUSEPOS)
-                    drag_and_replace_start_obj_image(DRAGGING.drag_piece_name, "white_knight", START.start_obj_image_placeholder, initvar.STARTPOS['white_knight'], START.white_knight, MOUSEPOS)
-                    drag_and_replace_start_obj_image(DRAGGING.drag_piece_name, "white_rook", START.start_obj_image_placeholder, initvar.STARTPOS['white_rook'], START.white_rook, MOUSEPOS)
-                    drag_and_replace_start_obj_image(DRAGGING.drag_piece_name, "white_queen", START.start_obj_image_placeholder, initvar.STARTPOS['white_queen'], START.white_queen, MOUSEPOS)
-                    drag_and_replace_start_obj_image(DRAGGING.drag_piece_name, "white_king", START.start_obj_image_placeholder, initvar.STARTPOS['white_king'], START.white_king, MOUSEPOS)
-                    drag_and_replace_start_obj_image(DRAGGING.drag_piece_name, "black_pawn", START.start_obj_image_placeholder, initvar.STARTPOS['black_pawn'], START.black_pawn, MOUSEPOS)
-                    drag_and_replace_start_obj_image(DRAGGING.drag_piece_name, "black_bishop", START.start_obj_image_placeholder, initvar.STARTPOS['black_bishop'], START.black_bishop, MOUSEPOS)
-                    drag_and_replace_start_obj_image(DRAGGING.drag_piece_name, "black_knight", START.start_obj_image_placeholder, initvar.STARTPOS['black_knight'], START.black_knight, MOUSEPOS)
-                    drag_and_replace_start_obj_image(DRAGGING.drag_piece_name, "black_rook", START.start_obj_image_placeholder, initvar.STARTPOS['black_rook'], START.black_rook, MOUSEPOS)
-                    drag_and_replace_start_obj_image(DRAGGING.drag_piece_name, "black_queen", START.start_obj_image_placeholder, initvar.STARTPOS['black_queen'], START.black_queen, MOUSEPOS)
-                    drag_and_replace_start_obj_image(DRAGGING.drag_piece_name, "black_king", START.start_obj_image_placeholder, initvar.STARTPOS['black_king'], START.black_king, MOUSEPOS)                      
+                            start_objects.Start.start_dict[name_of_piece].rect.topleft = initvar.STARTPOS[name_of_piece]
+                    drag_and_replace_start_obj_image("white_pawn", MOUSEPOS)
+                    drag_and_replace_start_obj_image("white_bishop", MOUSEPOS)
+                    drag_and_replace_start_obj_image("white_knight", MOUSEPOS)
+                    drag_and_replace_start_obj_image("white_rook", MOUSEPOS)
+                    drag_and_replace_start_obj_image("white_queen", MOUSEPOS)
+                    drag_and_replace_start_obj_image("white_king", MOUSEPOS)
+                    drag_and_replace_start_obj_image("black_pawn", MOUSEPOS)
+                    drag_and_replace_start_obj_image("black_bishop", MOUSEPOS)
+                    drag_and_replace_start_obj_image("black_knight", MOUSEPOS)
+                    drag_and_replace_start_obj_image("black_rook", MOUSEPOS)
+                    drag_and_replace_start_obj_image("black_queen", MOUSEPOS)
+                    drag_and_replace_start_obj_image("black_king", MOUSEPOS)                      
             
                 ##################
                 # IN-GAME ACTIONS

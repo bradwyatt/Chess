@@ -8,57 +8,14 @@ log = logging.getLogger(__name__)
 
 START_SPRITES = pygame.sprite.Group()
 
-class Start():
-    def __init__(self):
-        self.start_obj_image_placeholder = StartObjImagePlaceholder()
-        self.white_pawn = StartPawn("white", initvar.STARTPOS['white_pawn'])
-        self.white_bishop = StartBishop("white", initvar.STARTPOS['white_bishop'])
-        self.white_knight = StartKnight("white", initvar.STARTPOS['white_knight'])        
-        self.white_rook = StartRook("white", initvar.STARTPOS['white_rook'])      
-        self.white_queen = StartQueen("white", initvar.STARTPOS['white_queen'])      
-        self.white_king = StartKing("white", initvar.STARTPOS['white_king'])      
-        self.black_pawn = StartPawn("black", initvar.STARTPOS['black_pawn'])
-        self.black_bishop = StartBishop("black", initvar.STARTPOS['black_bishop'])
-        self.black_knight = StartKnight("black", initvar.STARTPOS['black_knight'])      
-        self.black_rook = StartRook("black", initvar.STARTPOS['black_rook'])      
-        self.black_queen = StartQueen("black", initvar.STARTPOS['black_queen'])      
-        self.black_king = StartKing("black", initvar.STARTPOS['black_king'])
-    def restart_start_positions(self):
-        self.white_pawn.rect.topleft = initvar.STARTPOS['white_pawn']
-        self.white_bishop.rect.topleft = initvar.STARTPOS['white_bishop']
-        self.white_knight.rect.topleft = initvar.STARTPOS['white_knight']
-        self.white_rook.rect.topleft = initvar.STARTPOS['white_rook']
-        self.white_queen.rect.topleft = initvar.STARTPOS['white_queen']
-        self.white_king.rect.topleft = initvar.STARTPOS['white_king']
-        self.black_pawn.rect.topleft = initvar.STARTPOS['black_pawn']
-        self.black_bishop.rect.topleft = initvar.STARTPOS['black_bishop']
-        self.black_knight.rect.topleft = initvar.STARTPOS['black_knight']
-        self.black_rook.rect.topleft = initvar.STARTPOS['black_rook']
-        self.black_queen.rect.topleft = initvar.STARTPOS['black_queen']
-        self.black_king.rect.topleft = initvar.STARTPOS['black_king']
-
 class Dragging():
-    def __init__(self):
-        self.drag_piece_name = ""
-        #self.dragging_all_false()
-    def dragging_all_false(self):
-        #self.white_pawn = False
-        #self.white_bishop = False
-        #self.white_knight = False
-        #self.white_rook = False
-        #self.white_queen = False
-        #self.white_king = False
-        #self.black_pawn = False
-        #self.black_bishop = False
-        #self.black_knight = False
-        #self.black_rook = False
-        #self.black_queen = False
-        #self.black_king = False
-        self.drag_piece_name = ""
-    def drag_piece(self, piece):
-        self.dragging_all_false()
-        self.drag_piece_name = piece
-    def dragging_to_placed_no_dups(self, mouse_coord):
+    drag_piece_name = ""
+    def dragging_all_false():
+        Dragging.drag_piece_name = ""
+    def drag_piece(piece):
+        Dragging.dragging_all_false()
+        Dragging.drag_piece_name = piece
+    def dragging_to_placed_no_dups(mouse_coord):
         for piece_list in [placed_objects.PlacedPawn.white_pawn_list, placed_objects.PlacedBishop.white_bishop_list, 
                            placed_objects.PlacedKnight.white_knight_list, placed_objects.PlacedRook.white_rook_list, 
                            placed_objects.PlacedQueen.white_queen_list, placed_objects.PlacedKing.white_king_list,
@@ -70,38 +27,38 @@ class Dragging():
                 if piece.coordinate == mouse_coord:
                     return
         # Created Placed objects at the snapped grid location of the piece that's being dragged
-        if self.drag_piece_name == "white_pawn":
+        if Dragging.drag_piece_name == "white_pawn":
             if int(mouse_coord[1]) != 1 and int(mouse_coord[1]) != 8:
                 placed_objects.PlacedPawn(mouse_coord, "white")
             else:
                 log.info("You are not allowed to place a pawn on rank " + mouse_coord[1])
-        elif self.drag_piece_name == "white_bishop":
+        elif Dragging.drag_piece_name == "white_bishop":
             placed_objects.PlacedBishop(mouse_coord, "white")
-        elif self.drag_piece_name == "white_knight":
+        elif Dragging.drag_piece_name == "white_knight":
             placed_objects.PlacedKnight(mouse_coord, "white")
-        elif self.drag_piece_name == "white_rook":
+        elif Dragging.drag_piece_name == "white_rook":
             placed_objects.PlacedRook(mouse_coord, "white")
-        elif self.drag_piece_name == "white_queen":
+        elif Dragging.drag_piece_name == "white_queen":
             placed_objects.PlacedQueen(mouse_coord, "white")
-        elif self.drag_piece_name == "white_king":
+        elif Dragging.drag_piece_name == "white_king":
             if not placed_objects.PlacedKing.white_king_list:
                 placed_objects.PlacedKing(mouse_coord, "white")
             else:
                 log.info("You can only have one white king.")
-        elif self.drag_piece_name == "black_pawn":
+        elif Dragging.drag_piece_name == "black_pawn":
             if int(mouse_coord[1]) != 1 and int(mouse_coord[1]) != 8:
                 placed_objects.PlacedPawn(mouse_coord, "black")
             else:
                 log.info("You are not allowed to place a pawn on rank " + mouse_coord[1])
-        elif self.drag_piece_name == "black_bishop":
+        elif Dragging.drag_piece_name == "black_bishop":
             placed_objects.PlacedBishop(mouse_coord, "black")
-        elif self.drag_piece_name == "black_knight":
+        elif Dragging.drag_piece_name == "black_knight":
             placed_objects.PlacedKnight(mouse_coord, "black")
-        elif self.drag_piece_name == "black_rook":
+        elif Dragging.drag_piece_name == "black_rook":
             placed_objects.PlacedRook(mouse_coord, "black")
-        elif self.drag_piece_name == "black_queen":
+        elif Dragging.drag_piece_name == "black_queen":
             placed_objects.PlacedQueen(mouse_coord, "black")
-        elif self.drag_piece_name == "black_king":
+        elif Dragging.drag_piece_name == "black_king":
             if not placed_objects.PlacedKing.black_king_list:
                 placed_objects.PlacedKing(mouse_coord, "black")
             else:
@@ -227,3 +184,32 @@ class StartKing(pygame.sprite.Sprite):
         START_SPRITES.add(self)
     def update(self):
         pass
+    
+class Start():
+    start_dict = {}
+    start_dict['start_obj_image_placeholder'] = StartObjImagePlaceholder()
+    start_dict['white_pawn'] = StartPawn("white", initvar.STARTPOS['white_pawn'])
+    start_dict['white_bishop'] = StartBishop("white", initvar.STARTPOS['white_bishop'])
+    start_dict['white_knight'] = StartKnight("white", initvar.STARTPOS['white_knight'])        
+    start_dict['white_rook'] = StartRook("white", initvar.STARTPOS['white_rook'])      
+    start_dict['white_queen'] = StartQueen("white", initvar.STARTPOS['white_queen'])      
+    start_dict['white_king'] = StartKing("white", initvar.STARTPOS['white_king'])      
+    start_dict['black_pawn'] = StartPawn("black", initvar.STARTPOS['black_pawn'])
+    start_dict['black_bishop'] = StartBishop("black", initvar.STARTPOS['black_bishop'])
+    start_dict['black_knight'] = StartKnight("black", initvar.STARTPOS['black_knight'])      
+    start_dict['black_rook'] = StartRook("black", initvar.STARTPOS['black_rook'])      
+    start_dict['black_queen'] = StartQueen("black", initvar.STARTPOS['black_queen'])      
+    start_dict['black_king'] = StartKing("black", initvar.STARTPOS['black_king'])
+    def restart_start_positions():
+        Start.start_dict['white_pawn'].rect.topleft = initvar.STARTPOS['white_pawn']
+        Start.start_dict['white_bishop'].rect.topleft = initvar.STARTPOS['white_bishop']
+        Start.start_dict['white_knight'].rect.topleft = initvar.STARTPOS['white_knight']
+        Start.start_dict['white_rook'].rect.topleft = initvar.STARTPOS['white_rook']
+        Start.start_dict['white_queen'].rect.topleft = initvar.STARTPOS['white_queen']
+        Start.start_dict['white_king'].rect.topleft = initvar.STARTPOS['white_king']
+        Start.start_dict['black_pawn'].rect.topleft = initvar.STARTPOS['black_pawn']
+        Start.start_dict['black_bishop'].rect.topleft = initvar.STARTPOS['black_bishop']
+        Start.start_dict['black_knight'].rect.topleft = initvar.STARTPOS['black_knight']
+        Start.start_dict['black_rook'].rect.topleft = initvar.STARTPOS['black_rook']
+        Start.start_dict['black_queen'].rect.topleft = initvar.STARTPOS['black_queen']
+        Start.start_dict['black_king'].rect.topleft = initvar.STARTPOS['black_king']
