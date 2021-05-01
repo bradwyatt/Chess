@@ -17,6 +17,28 @@ def remove_placed_object(mousepos):
                 placed_item_list.remove(placed_item)
     return
 
+def remove_all_placed():
+    for spr_list in [PlacedPawn.white_pawn_list, PlacedBishop.white_bishop_list,
+                     PlacedKnight.white_knight_list, PlacedRook.white_rook_list,
+                     PlacedQueen.white_queen_list, PlacedKing.white_king_list, 
+                     PlacedPawn.black_pawn_list, PlacedBishop.black_bishop_list, 
+                     PlacedKnight.black_knight_list, PlacedRook.black_rook_list,
+                     PlacedQueen.black_queen_list, PlacedKing.black_king_list]:
+        for obj in spr_list:
+            obj.kill()
+    PlacedPawn.white_pawn_list = []
+    PlacedBishop.white_bishop_list = []
+    PlacedKnight.white_knight_list = []
+    PlacedRook.white_rook_list = []
+    PlacedQueen.white_queen_list = []
+    PlacedKing.white_king_list = []
+    PlacedPawn.black_pawn_list = []
+    PlacedBishop.black_bishop_list = []
+    PlacedKnight.black_knight_list = []
+    PlacedRook.black_rook_list = []
+    PlacedQueen.black_queen_list = []
+    PlacedKing.black_king_list = []
+
 class PlacedPawn(pygame.sprite.Sprite):
     white_pawn_list = []
     black_pawn_list = []

@@ -104,28 +104,6 @@ def restart_start_objects(START):
     START.black_king.rect.topleft = initvar.STARTPOS['black_king']
     return START
 
-def remove_all_placed():
-    for spr_list in [placed_objects.PlacedPawn.white_pawn_list, placed_objects.PlacedBishop.white_bishop_list,
-                     placed_objects.PlacedKnight.white_knight_list, placed_objects.PlacedRook.white_rook_list,
-                     placed_objects.PlacedQueen.white_queen_list, placed_objects.PlacedKing.white_king_list, 
-                     placed_objects.PlacedPawn.black_pawn_list, placed_objects.PlacedBishop.black_bishop_list, 
-                     placed_objects.PlacedKnight.black_knight_list, placed_objects.PlacedRook.black_rook_list,
-                     placed_objects.PlacedQueen.black_queen_list, placed_objects.PlacedKing.black_king_list]:
-        for obj in spr_list:
-            obj.kill()
-    placed_objects.PlacedPawn.white_pawn_list = []
-    placed_objects.PlacedBishop.white_bishop_list = []
-    placed_objects.PlacedKnight.white_knight_list = []
-    placed_objects.PlacedRook.white_rook_list = []
-    placed_objects.PlacedQueen.white_queen_list = []
-    placed_objects.PlacedKing.white_king_list = []
-    placed_objects.PlacedPawn.black_pawn_list = []
-    placed_objects.PlacedBishop.black_bishop_list = []
-    placed_objects.PlacedKnight.black_knight_list = []
-    placed_objects.PlacedRook.black_rook_list = []
-    placed_objects.PlacedQueen.black_queen_list = []
-    placed_objects.PlacedKing.black_king_list = []
-
 def get_color():
     color = askcolor()
     return [color[0][0], color[0][1], color[0][2]]
@@ -178,7 +156,7 @@ def pos_load_file(colorkey, reset=False):
         open_file.close()
     
     # Removes all placed lists
-    remove_all_placed()
+    placed_objects.remove_all_placed()
     
     log.info("Removed all sprites. Now creating lists for loaded level.")
     
@@ -1546,7 +1524,7 @@ def main():
                             if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE: #Editing mode
                                 START = restart_start_objects(START)
                                 # REMOVE ALL SPRITES
-                                remove_all_placed()
+                                placed_objects.remove_all_placed()
                     
                     # MIDDLE MOUSE DEBUGGER
                     if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[1]:
