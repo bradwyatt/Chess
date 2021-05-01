@@ -1,11 +1,6 @@
 import pygame
 
 #################
-# NOT RECOMMENDED TO CHANGE BELOW
-#################
-START_SPRITES = pygame.sprite.Group()
-
-#################
 # USER CAN SET BELOW PARAMETERS
 #################
 SCREEN_WIDTH, SCREEN_HEIGHT = 936, 650

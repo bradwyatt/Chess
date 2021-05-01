@@ -1,5 +1,6 @@
 import pygame
 import initvar
+import start_objects
 from load_images_sounds import *
 
 class ClearButton(pygame.sprite.Sprite):
@@ -8,7 +9,7 @@ class ClearButton(pygame.sprite.Sprite):
         self.image = IMAGES["SPR_CLEAR_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
-        initvar.START_SPRITES.add(self)
+        start_objects.START_SPRITES.add(self)
     
 class InfoButton(pygame.sprite.Sprite):
     def __init__(self, pos):
@@ -16,7 +17,7 @@ class InfoButton(pygame.sprite.Sprite):
         self.image = IMAGES["SPR_INFO_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
-        initvar.START_SPRITES.add(self)
+        start_objects.START_SPRITES.add(self)
     
 class ResetBoardButton(pygame.sprite.Sprite):
     def __init__(self, pos):
@@ -24,7 +25,7 @@ class ResetBoardButton(pygame.sprite.Sprite):
         self.image = IMAGES["SPR_RESET_BOARD_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
-        initvar.START_SPRITES.add(self)
+        start_objects.START_SPRITES.add(self)
     
 class ColorButton(pygame.sprite.Sprite):
     def __init__(self, pos):
@@ -32,7 +33,7 @@ class ColorButton(pygame.sprite.Sprite):
         self.image = IMAGES["SPR_COLOR_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
-        initvar.START_SPRITES.add(self)
+        start_objects.START_SPRITES.add(self)
         
 class PosSaveFileButton(pygame.sprite.Sprite):
     def __init__(self, pos):
@@ -40,7 +41,7 @@ class PosSaveFileButton(pygame.sprite.Sprite):
         self.image = IMAGES["SPR_POS_SAVE_FILE_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
-        initvar.START_SPRITES.add(self)
+        start_objects.START_SPRITES.add(self)
     
 class PosLoadFileButton(pygame.sprite.Sprite):
     def __init__(self, pos):
@@ -48,7 +49,7 @@ class PosLoadFileButton(pygame.sprite.Sprite):
         self.image = IMAGES["SPR_POS_LOAD_FILE_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
-        initvar.START_SPRITES.add(self)
+        start_objects.START_SPRITES.add(self)
         
 class PGNSaveFileButton(pygame.sprite.Sprite):
     def __init__(self, pos):
@@ -65,7 +66,7 @@ class PGNLoadFileButton(pygame.sprite.Sprite):
         self.image = IMAGES["SPR_PGN_LOAD_FILE_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
-        initvar.START_SPRITES.add(self)
+        start_objects.START_SPRITES.add(self)
 
 class FlipBoardButton(pygame.sprite.Sprite):
     def __init__(self, pos):
@@ -82,7 +83,7 @@ class GamePropertiesButton(pygame.sprite.Sprite):
         self.image = IMAGES["SPR_GAME_PROPERTIES_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
-        initvar.START_SPRITES.add(self)
+        start_objects.START_SPRITES.add(self)
         
 class ScrollUpButton(pygame.sprite.Sprite):
     def __init__(self, pos):

@@ -34,7 +34,7 @@ Perhaps using a direction arrow (like babaschess) to determine which piece could
 AI
 """
 import board
-from start_objects import *
+import start_objects
 import placed_objects
 from play_objects import *
 from load_images_sounds import *
@@ -87,22 +87,6 @@ log.addHandler(console_handler)
 #############
 # Functions
 #############
-             
-
-def restart_start_objects(START):
-    START.white_pawn.rect.topleft = initvar.STARTPOS['white_pawn']
-    START.white_bishop.rect.topleft = initvar.STARTPOS['white_bishop']
-    START.white_knight.rect.topleft = initvar.STARTPOS['white_knight']
-    START.white_rook.rect.topleft = initvar.STARTPOS['white_rook']
-    START.white_queen.rect.topleft = initvar.STARTPOS['white_queen']
-    START.white_king.rect.topleft = initvar.STARTPOS['white_king']
-    START.black_pawn.rect.topleft = initvar.STARTPOS['black_pawn']
-    START.black_bishop.rect.topleft = initvar.STARTPOS['black_bishop']
-    START.black_knight.rect.topleft = initvar.STARTPOS['black_knight']
-    START.black_rook.rect.topleft = initvar.STARTPOS['black_rook']
-    START.black_queen.rect.topleft = initvar.STARTPOS['black_queen']
-    START.black_king.rect.topleft = initvar.STARTPOS['black_king']
-    return START
 
 def get_color():
     color = askcolor()
@@ -223,10 +207,6 @@ def pos_save_file(colorkey):
     except IOError:
         log.info("Save File Error, please restart game and try again.")
 
-def quit():
-    log.info('Thanks for playing')
-    sys.exit()
-
 class PlayEditSwitchButton(pygame.sprite.Sprite):
     def __init__(self, pos, GAME_MODE_SPRITES):
         pygame.sprite.Sprite.__init__(self)
@@ -283,22 +263,6 @@ class Dragging():
             self.black_queen = True
         elif piece == "black_king":
             self.black_king = True
-        
-class Start():
-    def __init__(self):
-        self.start_obj_image_placeholder = StartObjImagePlaceholder()
-        self.white_pawn = StartPawn("white")
-        self.white_bishop = StartBishop("white")
-        self.white_knight = StartKnight("white")        
-        self.white_rook = StartRook("white")      
-        self.white_queen = StartQueen("white")      
-        self.white_king = StartKing("white")      
-        self.black_pawn = StartPawn("black")
-        self.black_bishop = StartBishop("black")
-        self.black_knight = StartKnight("black")      
-        self.black_rook = StartRook("black")      
-        self.black_queen = StartQueen("black")      
-        self.black_king = StartKing("black")
     
 class PGN_Writer_and_Loader():
     def __init__(self):
@@ -1239,7 +1203,7 @@ def main():
         move_notation_font = pygame.font.SysFont('Arial', 16)
     
         #Start (Menu) Objects
-        START = Start()
+        START = start_objects.Start()
         #DRAGGING Variables
         DRAGGING = Dragging()
         
@@ -1291,18 +1255,7 @@ def main():
             MOUSE_COORD = mouse_coordinate(MOUSEPOS)
             if state == RUNNING and MENUON == 1: # Initiate room
                 #Start Objects
-                START.white_pawn.rect.topleft = initvar.STARTPOS['white_pawn']
-                START.white_bishop.rect.topleft = initvar.STARTPOS['white_bishop']
-                START.white_knight.rect.topleft = initvar.STARTPOS['white_knight']
-                START.white_rook.rect.topleft = initvar.STARTPOS['white_rook']
-                START.white_queen.rect.topleft = initvar.STARTPOS['white_queen']
-                START.white_king.rect.topleft = initvar.STARTPOS['white_king']
-                START.black_pawn.rect.topleft = initvar.STARTPOS['black_pawn']
-                START.black_bishop.rect.topleft = initvar.STARTPOS['black_bishop']
-                START.black_knight.rect.topleft = initvar.STARTPOS['black_knight']
-                START.black_rook.rect.topleft = initvar.STARTPOS['black_rook']
-                START.black_queen.rect.topleft = initvar.STARTPOS['black_queen']
-                START.black_king.rect.topleft = initvar.STARTPOS['black_king']
+                START.start_positions()
                 
                 for event in pygame.event.get():
                     if event.type == QUIT:
@@ -1368,7 +1321,7 @@ def main():
                             # If start object is clicked on, then enable drag, blank box changes images to the original piece so it looks better
                             for piece_name in list_of_start_objs.keys():
                                 if list_of_start_objs.get(piece_name).rect.collidepoint(MOUSEPOS):
-                                    START = restart_start_objects(START)
+                                    START = start_objects.restart_start_objects(START)
                                     DRAGGING.drag_piece(piece_name)
                                     START.start_obj_image_placeholder.flip_start_sprite(DRAGGING, list_of_start_objs.get(piece_name).rect.topleft)
                                 
@@ -1496,7 +1449,7 @@ def main():
                         # Right click on obj, destroy
                         if(event.type == MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[2]):   
                             DRAGGING.dragging_all_false()
-                            START = restart_start_objects(START)
+                            START = start_objects.restart_start_objects(START)
                             placed_objects.remove_placed_object(MOUSEPOS)
                     
                     if event.type == pygame.MOUSEBUTTONUP: #Release Drag
@@ -1565,8 +1518,6 @@ def main():
                 ##################
                 # IN-GAME ACTIONS
                 ##################
-                if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
-                    pass
                 #FOR DEBUGGING PURPOSES, PUT TEST CODE BELOW
                 
                 #Update all sprites
@@ -1579,7 +1530,7 @@ def main():
                 
                 SCREEN.blit(initvar.MOVE_BG_IMAGE, (initvar.MOVE_BG_IMAGE_HEIGHT,initvar.MOVE_BG_IMAGE_WIDTH))
                 if(Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE): #Only draw placed sprites in editing mode
-                    initvar.START_SPRITES.draw(SCREEN)
+                    start_objects.START_SPRITES.draw(SCREEN)
                     placed_objects.PLACED_SPRITES.update()
                     placed_objects.PLACED_SPRITES.draw(SCREEN)    
                 elif(Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE): #Only draw play sprites in play mode
