@@ -111,7 +111,7 @@ def pos_load_file(reset=False):
             return
         loaded_file = open_file.read()
         loaded_dict = literal_eval(loaded_file)
-
+            
     for play_white_pawn in play_objects.PlayPawn.white_pawn_list:
         play_white_pawn.destroy()
     for play_white_bishop in play_objects.PlayBishop.white_bishop_list:
@@ -206,20 +206,6 @@ def pos_save_file():
             log.info("Error! Need king to save!")
     except IOError:
         log.info("Save File Error, please restart game and try again.")
-
-class PieceLists():
-    all_white_pieces = [play_objects.PlayPawn.white_pawn_list, play_objects.PlayBishop.white_bishop_list, 
-                        play_objects.PlayKnight.white_knight_list, play_objects.PlayRook.white_rook_list, 
-                        play_objects.PlayQueen.white_queen_list, play_objects.PlayKing.white_king_list]
-    all_black_pieces = [play_objects.PlayPawn.black_pawn_list, play_objects.PlayBishop.black_bishop_list,
-                        play_objects.PlayKnight.black_knight_list, play_objects.PlayRook.black_rook_list,
-                        play_objects.PlayQueen.black_queen_list, play_objects.PlayKing.black_king_list]
-    all_pieces = [play_objects.PlayPawn.white_pawn_list, play_objects.PlayBishop.white_bishop_list, 
-                        play_objects.PlayKnight.white_knight_list, play_objects.PlayRook.white_rook_list, 
-                        play_objects.PlayQueen.white_queen_list, play_objects.PlayKing.white_king_list,
-                        play_objects.PlayPawn.black_pawn_list, play_objects.PlayBishop.black_bishop_list,
-                        play_objects.PlayKnight.black_knight_list, play_objects.PlayRook.black_rook_list,
-                        play_objects.PlayQueen.black_queen_list, play_objects.PlayKing.black_king_list]
 
 class PlayEditSwitchButton(pygame.sprite.Sprite):
     def __init__(self, pos, GAME_MODE_SPRITES):
@@ -461,7 +447,12 @@ class PGN_Writer_and_Loader():
                 draw_move_rects_on_moves_pane(pygame.font.SysFont('Arial', 16), game_controller)
                 
         def prior_move_off(current_coord):
-            for play_obj_list in PieceLists.all_pieces:
+            for play_obj_list in (play_objects.PlayPawn.white_pawn_list, play_objects.PlayBishop.white_bishop_list,
+                                     play_objects.PlayKnight.white_knight_list, play_objects.PlayRook.white_rook_list,
+                                     play_objects.PlayQueen.white_queen_list, play_objects.PlayKing.white_king_list,
+                                     play_objects.PlayPawn.black_pawn_list, play_objects.PlayBishop.black_bishop_list,
+                                     play_objects.PlayKnight.black_knight_list, play_objects.PlayRook.black_rook_list,
+                                     play_objects.PlayQueen.black_queen_list, play_objects.PlayKing.black_king_list):
                 for play_obj in play_obj_list:
                     if play_obj.coordinate == grid_coordinate:
                         play_obj.prior_move_color = True
@@ -475,7 +466,12 @@ class PGN_Writer_and_Loader():
         prior_move_off(grid_coordinate)
         
         # This goes through all pieces available moves
-        for piece_list in PieceLists.all_pieces:
+        for piece_list in [play_objects.PlayPawn.white_pawn_list, play_objects.PlayBishop.white_bishop_list, 
+                           play_objects.PlayKnight.white_knight_list, play_objects.PlayRook.white_rook_list, 
+                           play_objects.PlayQueen.white_queen_list, play_objects.PlayKing.white_king_list,
+                           play_objects.PlayPawn.black_pawn_list, play_objects.PlayBishop.black_bishop_list,
+                           play_objects.PlayKnight.black_knight_list, play_objects.PlayRook.black_rook_list,
+                           play_objects.PlayQueen.black_queen_list, play_objects.PlayKing.black_king_list]:
             for piece in piece_list:
                 piece.spaces_available(game_controller)
             
@@ -515,7 +511,12 @@ class Grid_Controller():
         for grid in board.Grid.grid_list:
             if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
                 def grid_occupied_by_piece():
-                    for piece_list in PieceLists.all_pieces:
+                    for piece_list in [play_objects.PlayPawn.white_pawn_list, play_objects.PlayBishop.white_bishop_list, 
+                                       play_objects.PlayKnight.white_knight_list, play_objects.PlayRook.white_rook_list, 
+                                       play_objects.PlayQueen.white_queen_list, play_objects.PlayKing.white_king_list,
+                                       play_objects.PlayPawn.black_pawn_list, play_objects.PlayBishop.black_bishop_list,
+                                       play_objects.PlayKnight.black_knight_list, play_objects.PlayRook.black_rook_list,
+                                       play_objects.PlayQueen.black_queen_list, play_objects.PlayKing.black_king_list]:
                         for piece in piece_list:
                             if grid.rect.topleft == piece.rect.topleft:
                                 grid.occupied = True
@@ -593,7 +594,12 @@ class Game_Controller():
         self.projected_white_update()
         self.projected_black_update()
         
-        for piece_list in PieceLists.all_pieces:
+        for piece_list in [play_objects.PlayPawn.white_pawn_list, play_objects.PlayBishop.white_bishop_list, 
+                           play_objects.PlayKnight.white_knight_list, play_objects.PlayRook.white_rook_list, 
+                           play_objects.PlayQueen.white_queen_list, play_objects.PlayKing.white_king_list,
+                           play_objects.PlayPawn.black_pawn_list, play_objects.PlayBishop.black_bishop_list,
+                           play_objects.PlayKnight.black_knight_list, play_objects.PlayRook.black_rook_list,
+                           play_objects.PlayQueen.black_queen_list, play_objects.PlayKing.black_king_list]:
             for piece in piece_list:
                 piece.spaces_available(self)
         for grid in board.Grid.grid_list:
@@ -603,14 +609,12 @@ class Game_Controller():
         Text_Controller.reset()
         # Kill all Objects within their Class lists/dicts
         for spr_list in [play_objects.PlayPawn.white_pawn_list, play_objects.PlayBishop.white_bishop_list, 
-                        play_objects.PlayKnight.white_knight_list, play_objects.PlayRook.white_rook_list, 
-                        play_objects.PlayQueen.white_queen_list, play_objects.PlayKing.white_king_list,
-                        play_objects.PlayPawn.black_pawn_list, play_objects.PlayBishop.black_bishop_list,
-                        play_objects.PlayKnight.black_knight_list, play_objects.PlayRook.black_rook_list,
-                        play_objects.PlayQueen.black_queen_list, play_objects.PlayKing.black_king_list]:
-            for obj in spr_list:
-                obj.destroy()
-        for spr_list in [MoveNumberRectangle.rectangle_list, PieceMoveRectangle.rectangle_list]:
+                 play_objects.PlayKnight.white_knight_list, play_objects.PlayRook.white_rook_list,
+                 play_objects.PlayQueen.white_queen_list, play_objects.PlayKing.white_king_list, 
+                 play_objects.PlayPawn.black_pawn_list, play_objects.PlayBishop.black_bishop_list, 
+                 play_objects.PlayKnight.black_knight_list, play_objects.PlayRook.black_rook_list,
+                 play_objects.PlayQueen.black_queen_list, play_objects.PlayKing.black_king_list,
+                 MoveNumberRectangle.rectangle_list, PieceMoveRectangle.rectangle_list]:
             for obj in spr_list:
                 obj.kill()
         play_objects.PlayPawn.white_pawn_list = []
@@ -644,7 +648,12 @@ class Game_Controller():
             grid.coords_of_attacking_pieces['black'] = []
             grid.coords_of_available_pieces['white'] = []
             grid.coords_of_available_pieces['black'] = []
-        for piece_list in PieceLists.all_pieces:
+        for piece_list in [play_objects.PlayPawn.white_pawn_list, play_objects.PlayBishop.white_bishop_list, 
+                           play_objects.PlayKnight.white_knight_list, play_objects.PlayRook.white_rook_list, 
+                           play_objects.PlayQueen.white_queen_list, play_objects.PlayKing.white_king_list,
+                           play_objects.PlayPawn.black_pawn_list, play_objects.PlayBishop.black_bishop_list,
+                           play_objects.PlayKnight.black_knight_list, play_objects.PlayRook.black_rook_list,
+                           play_objects.PlayQueen.black_queen_list, play_objects.PlayKing.black_king_list]:
             for piece in piece_list:
                 piece.pinned = False
                 piece.disable = False
@@ -689,18 +698,27 @@ class Game_Controller():
                                 piece.disable = True
     def projected_white_update(self):
         # Project pieces attacking movements starting now
-        for piece_list in PieceLists.all_white_pieces:
+        for piece_list in [play_objects.PlayPawn.white_pawn_list, play_objects.PlayBishop.white_bishop_list, 
+                           play_objects.PlayKnight.white_knight_list, play_objects.PlayRook.white_rook_list,
+                           play_objects.PlayQueen.white_queen_list, play_objects.PlayKing.white_king_list]:
             for piece in piece_list:
                 piece.projected(self)
     def projected_black_update(self):
         # Project pieces attacking movements starting now
-        for piece_list in PieceLists.all_black_pieces:
+        for piece_list in [play_objects.PlayPawn.black_pawn_list, play_objects.PlayBishop.black_bishop_list, 
+                           play_objects.PlayKnight.black_knight_list, play_objects.PlayRook.black_rook_list,
+                           play_objects.PlayQueen.black_queen_list, play_objects.PlayKing.black_king_list]:
             for piece in piece_list:
                 piece.projected(self)
     def pinned_piece(self, pinned_piece_coordinate, pin_attacking_coordinates, color):
         # Iterates through all pieces to find the one that matches
         # the coordinate with the pin
-        for piece_list in PieceLists.all_pieces:
+        for piece_list in [play_objects.PlayPawn.white_pawn_list, play_objects.PlayBishop.white_bishop_list, 
+                           play_objects.PlayKnight.white_knight_list, play_objects.PlayRook.white_rook_list, 
+                           play_objects.PlayQueen.white_queen_list, play_objects.PlayKing.white_king_list,
+                           play_objects.PlayPawn.black_pawn_list, play_objects.PlayBishop.black_bishop_list,
+                           play_objects.PlayKnight.black_knight_list, play_objects.PlayRook.black_rook_list,
+                           play_objects.PlayQueen.black_queen_list, play_objects.PlayKing.black_king_list]:
             for piece in piece_list:
                 if board.Grid.grid_dict[pinned_piece_coordinate].coordinate == piece.coordinate \
                     and piece.color == color:
@@ -822,7 +840,12 @@ class Move_Controller():
         # are the same as any of the pieces
         if((piece.color == "white" and grid.occupied_piece_color == "black") or
             (piece.color == "black" and grid.occupied_piece_color == "white")):
-            for piece_captured_list in PieceLists.all_pieces:
+            for piece_captured_list in [play_objects.PlayPawn.white_pawn_list, play_objects.PlayBishop.white_bishop_list, 
+                                        play_objects.PlayKnight.white_knight_list, play_objects.PlayRook.white_rook_list, 
+                                        play_objects.PlayQueen.white_queen_list, play_objects.PlayKing.white_king_list,
+                                        play_objects.PlayPawn.black_pawn_list, play_objects.PlayBishop.black_bishop_list, 
+                                        play_objects.PlayKnight.black_knight_list, play_objects.PlayRook.black_rook_list, 
+                                        play_objects.PlayQueen.black_queen_list, play_objects.PlayKing.black_king_list]:
                 for piece_captured in piece_captured_list:
                     # Moving captured piece off the board
                     if piece_captured.coordinate == grid.coordinate:
@@ -970,7 +993,9 @@ class Move_Controller():
         check_abb = ""
         if game_controller.color_in_check == "black":
             Text_Controller.check_checkmate_text = "Black King checked"
-            for piece_list in PieceLists.all_black_pieces:
+            for piece_list in [play_objects.PlayPawn.black_pawn_list, play_objects.PlayBishop.black_bishop_list, 
+                               play_objects.PlayKnight.black_knight_list, play_objects.PlayRook.black_rook_list, 
+                               play_objects.PlayQueen.black_queen_list, play_objects.PlayKing.black_king_list]:
                 for sub_piece in piece_list:
                     sub_piece.spaces_available(game_controller)
             def checkmate_check(game_controller):
@@ -983,7 +1008,9 @@ class Move_Controller():
             check_abb, game_controller.result_abb = checkmate_check(game_controller)
         elif game_controller.color_in_check == "white":
             Text_Controller.check_checkmate_text = "White King checked"
-            for piece_list in PieceLists.all_white_pieces:
+            for piece_list in [play_objects.PlayPawn.white_pawn_list, play_objects.PlayBishop.white_bishop_list, 
+                               play_objects.PlayKnight.white_knight_list, play_objects.PlayRook.white_rook_list, 
+                               play_objects.PlayQueen.white_queen_list, play_objects.PlayKing.white_king_list]:
                 for sub_piece in piece_list:
                     sub_piece.spaces_available(game_controller)
             def checkmate_check(game_controller):
@@ -995,7 +1022,9 @@ class Move_Controller():
                 return "#", "0-1"
             check_abb, game_controller.result_abb = checkmate_check(game_controller)
         elif game_controller.color_in_check == "" and game_controller.WHOSETURN == "white":
-            for piece_list in PieceLists.all_white_pieces:
+            for piece_list in [play_objects.PlayPawn.white_pawn_list, play_objects.PlayBishop.white_bishop_list, 
+                               play_objects.PlayKnight.white_knight_list, play_objects.PlayRook.white_rook_list, 
+                               play_objects.PlayQueen.white_queen_list, play_objects.PlayKing.white_king_list]:
                 for sub_piece in piece_list:
                     sub_piece.spaces_available(game_controller)
             def stalemate_check(game_controller):
@@ -1008,7 +1037,9 @@ class Move_Controller():
                 return "1/2-1/2"
             game_controller.result_abb = stalemate_check(game_controller)
         elif game_controller.color_in_check == "" and game_controller.WHOSETURN == "black":
-            for piece_list in PieceLists.all_black_pieces:
+            for piece_list in [play_objects.PlayPawn.black_pawn_list, play_objects.PlayBishop.black_bishop_list, 
+                               play_objects.PlayKnight.black_knight_list, play_objects.PlayRook.black_rook_list, 
+                               play_objects.PlayQueen.black_queen_list, play_objects.PlayKing.black_king_list]:
                 for sub_piece in piece_list:
                     sub_piece.spaces_available(game_controller)
             def stalemate_check(game_controller):
@@ -1252,7 +1283,12 @@ def main():
                             # Moves piece
                             def update_pieces_and_board():
                                 for grid in board.Grid.grid_list:
-                                    for piece_list in PieceLists.all_pieces:
+                                    for piece_list in [play_objects.PlayPawn.white_pawn_list, play_objects.PlayBishop.white_bishop_list, 
+                                                       play_objects.PlayKnight.white_knight_list, play_objects.PlayRook.white_rook_list, 
+                                                       play_objects.PlayQueen.white_queen_list, play_objects.PlayKing.white_king_list,
+                                                       play_objects.PlayPawn.black_pawn_list, play_objects.PlayBishop.black_bishop_list, 
+                                                       play_objects.PlayKnight.black_knight_list, play_objects.PlayRook.black_rook_list, 
+                                                       play_objects.PlayQueen.black_queen_list, play_objects.PlayKing.black_king_list]:
                                         for piece in piece_list:
                                             # Reset the prior move color variable from all pieces
                                             piece.prior_move_color = False
@@ -1267,7 +1303,9 @@ def main():
                             clicked_piece = None
                             # Selecting and unselecting white pieces
                             if game_controller.WHOSETURN == "white":
-                                for piece_list in PieceLists.all_white_pieces:
+                                for piece_list in [play_objects.PlayPawn.white_pawn_list, play_objects.PlayBishop.white_bishop_list, 
+                                                   play_objects.PlayKnight.white_knight_list, play_objects.PlayRook.white_rook_list, 
+                                                   play_objects.PlayQueen.white_queen_list, play_objects.PlayKing.white_king_list]:
                                     for piece in piece_list:
                                         # Selects piece
                                         if (piece.rect.collidepoint(MOUSEPOS) and piece.select == False):
@@ -1279,7 +1317,9 @@ def main():
                                                 grid.no_highlight()
                             # Selecting and unselecting black pieces
                             elif game_controller.WHOSETURN == "black":
-                                for piece_list in PieceLists.all_black_pieces:
+                                for piece_list in [play_objects.PlayPawn.black_pawn_list, play_objects.PlayBishop.black_bishop_list, 
+                                                   play_objects.PlayKnight.black_knight_list, play_objects.PlayRook.black_rook_list, 
+                                                   play_objects.PlayQueen.black_queen_list, play_objects.PlayKing.black_king_list]:
                                     for piece in piece_list:
                                         if (piece.rect.collidepoint(MOUSEPOS) and piece.select == False):
                                             clicked_piece = piece
@@ -1329,7 +1369,7 @@ def main():
                             MENUON = 2
                         if CLEAR_BUTTON.rect.collidepoint(MOUSEPOS):
                             if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE: #Editing mode
-                                start_objects.Start.restart_start_positions()
+                                START.restart_start_positions()
                                 # REMOVE ALL SPRITES
                                 placed_objects.remove_all_placed()
                     
@@ -1407,7 +1447,7 @@ def main():
                     debug_message = 0
                     # USE BREAKPOINT HERE
                     #print(str(MOUSE_COORD))
-                    print("PLAY SPRITES: " + str(play_objects.PLAY_SPRITES.__dict__))
+                    print("PLACED SPRITES: " + str(placed_objects.PLACED_SPRITES.__dict__))
                     #print(str(game_controller.df_prior_moves))
                     log.info("Use breakpoint here")
                 for event in pygame.event.get():
