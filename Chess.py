@@ -1258,8 +1258,7 @@ def main():
                             # Goes through each of the types of pieces
                             # If start object is clicked on, then enable drag, blank box changes images to the original piece so it looks better
                             for piece_name in start_objects.Start.start_dict.keys():
-                                if start_objects.Start.start_dict.get(piece_name).rect.collidepoint(MOUSEPOS) \
-                                    and piece_name != 'start_obj_image_placeholder':
+                                if start_objects.Start.start_dict.get(piece_name).rect.collidepoint(MOUSEPOS):
                                     start_objects.Dragging.start_drag_and_flip_start_sprite(piece_name)
                     #################
                     # LEFT CLICK (PRESSED DOWN)
@@ -1269,6 +1268,7 @@ def main():
                     elif (event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and
                           MOUSEPOS[0] > initvar.X_GRID_START and MOUSEPOS[0] < board.X_GRID_END and
                           MOUSEPOS[1] > initvar.Y_GRID_START and MOUSEPOS[1] < board.Y_GRID_END): 
+                        # Drag piece to board (initialize placed piece)
                         start_objects.Dragging.dragging_to_placed_no_dups(MOUSE_COORD)
                         if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
                             # Moves piece

@@ -133,7 +133,6 @@ class StartKing(pygame.sprite.Sprite):
     
 class Start():
     start_dict = {}
-    start_dict['start_obj_image_placeholder'] = StartObjImagePlaceholder()
     start_dict['white_pawn'] = StartPawn("white", initvar.STARTPOS['white_pawn'])
     start_dict['white_bishop'] = StartBishop("white", initvar.STARTPOS['white_bishop'])
     start_dict['white_knight'] = StartKnight("white", initvar.STARTPOS['white_knight'])        
@@ -170,11 +169,11 @@ class Dragging():
     def start_drag_and_flip_start_sprite(piece_name):
         Start.restart_start_positions()
         Dragging.drag_piece(piece_name)
-        Start.start_dict['start_obj_image_placeholder'].flip_start_sprite(piece_name, Start.start_dict.get(piece_name).rect.topleft)
+        START_OBJ_IMAGE_PLACEHOLDER.flip_start_sprite(piece_name, Start.start_dict.get(piece_name).rect.topleft)
     def update_position(mousepos):
         def drag_and_replace_start_obj_image(name_of_piece, mouse_pos):
             if Dragging.drag_piece_name == name_of_piece:
-                Start.start_dict['start_obj_image_placeholder'].rect.topleft = initvar.STARTPOS[name_of_piece]
+                START_OBJ_IMAGE_PLACEHOLDER.rect.topleft = initvar.STARTPOS[name_of_piece]
                 Start.start_dict[name_of_piece].rect.topleft = (mousepos[0]-(Start.start_dict[name_of_piece].image.get_width()/2),
                                           mousepos[1]-(Start.start_dict[name_of_piece].image.get_height()/2))
             else:
