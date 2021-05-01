@@ -1253,27 +1253,15 @@ def main():
                                 pos_load_file()
                             if RESET_BOARD_BUTTON.rect.collidepoint(MOUSEPOS):
                                 pos_load_file(reset=True)
-                            
-                            list_of_start_objs = {"white_pawn": start_objects.Start.start_dict['white_pawn'], 
-                                             "white_bishop": start_objects.Start.start_dict['white_bishop'], 
-                                             "white_knight": start_objects.Start.start_dict['white_knight'],
-                                             "white_rook": start_objects.Start.start_dict['white_rook'], 
-                                             "white_queen": start_objects.Start.start_dict['white_queen'], 
-                                             "white_king": start_objects.Start.start_dict['white_king'],
-                                             "black_pawn": start_objects.Start.start_dict['black_pawn'], 
-                                             "black_bishop": start_objects.Start.start_dict['black_bishop'], 
-                                             "black_knight": start_objects.Start.start_dict['black_knight'],
-                                             "black_rook": start_objects.Start.start_dict['black_rook'], 
-                                             "black_queen": start_objects.Start.start_dict['black_queen'], 
-                                             "black_king": start_objects.Start.start_dict['black_king']}
+
                             # DRAG OBJECTS
                             # Goes through each of the types of pieces
                             # If start object is clicked on, then enable drag, blank box changes images to the original piece so it looks better
-                            for piece_name in list_of_start_objs.keys():
-                                if list_of_start_objs.get(piece_name).rect.collidepoint(MOUSEPOS):
+                            for piece_name in start_objects.Start.start_dict.keys():
+                                if start_objects.Start.start_dict.get(piece_name).rect.collidepoint(MOUSEPOS) and piece_name != 'start_obj_image_placeholder':
                                     start_objects.Start.restart_start_positions()
                                     start_objects.Dragging.drag_piece(piece_name)
-                                    start_objects.Start.start_dict['start_obj_image_placeholder'].flip_start_sprite(piece_name, list_of_start_objs.get(piece_name).rect.topleft)
+                                    start_objects.Start.start_dict['start_obj_image_placeholder'].flip_start_sprite(piece_name, start_objects.Start.start_dict.get(piece_name).rect.topleft)
                     #################
                     # LEFT CLICK (PRESSED DOWN)
                     #################
