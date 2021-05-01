@@ -179,6 +179,12 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                         if self.pinned == False:
                             grid.highlight(self.color, self.coordinate)
             pawn_movement()
+    def destroy(self):
+        if self.color == "white":
+            PlayPawn.white_pawn_list.remove(self)
+        elif self.color == "black":
+            PlayPawn.black_pawn_list.remove(self)
+        self.kill()
  
 class PlayKnight(ChessPiece, pygame.sprite.Sprite):
     white_knight_list = []
@@ -260,6 +266,12 @@ class PlayKnight(ChessPiece, pygame.sprite.Sprite):
                 else:
                     self.image = IMAGES["SPR_BLACK_KNIGHT"]
             self.select = False
+    def destroy(self):
+        if self.color == "white":
+            PlayKnight.white_knight_list.remove(self)
+        elif self.color == "black":
+            PlayKnight.black_knight_list.remove(self)
+        self.kill()
 
 def bishop_projected(piece_name, piece, game_controller, x, y):
     pieces_in_way = 0 #Pieces between the bishop and the enemy King
@@ -423,6 +435,12 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
                 else:
                     self.image = IMAGES["SPR_BLACK_BISHOP"]
             self.select = False
+    def destroy(self):
+        if self.color == "white":
+            PlayBishop.white_bishop_list.remove(self)
+        elif self.color == "black":
+            PlayBishop.black_bishop_list.remove(self)
+        self.kill()
 
 def rook_projected(piece_name, piece, game_controller, x, y):
     pieces_in_way = 0 #Pieces between the rook and the enemy King
@@ -582,6 +600,12 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
             else:
                 self.image = IMAGES["SPR_BLACK_ROOK"]
         self.select = False
+    def destroy(self):
+        if self.color == "white":
+            PlayRook.white_rook_list.remove(self)
+        elif self.color == "black":
+            PlayRook.black_rook_list.remove(self)
+        self.kill()
 
 class PlayQueen(ChessPiece, pygame.sprite.Sprite):
     white_queen_list = []
@@ -644,6 +668,12 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
                 else:
                     self.image = IMAGES["SPR_BLACK_QUEEN"]
             self.select = False
+    def destroy(self):
+        if self.color == "white":
+            PlayQueen.white_queen_list.remove(self)
+        elif self.color == "black":
+            PlayQueen.black_queen_list.remove(self)
+        self.kill()
 
 class PlayKing(ChessPiece, pygame.sprite.Sprite):
     white_king_list = []
@@ -781,3 +811,9 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
             else:
                 self.image = IMAGES["SPR_BLACK_KING"]
         self.select = 0
+    def destroy(self):
+        if self.color == "white":
+            PlayKing.white_king_list.remove(self)
+        elif self.color == "black":
+            PlayKing.black_king_list.remove(self)
+        self.kill()
