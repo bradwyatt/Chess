@@ -542,6 +542,7 @@ class Switch_Modes_Controller():
             Switch_Modes_Controller.placed_to_play(placed_objects.PlacedRook.black_rook_list, play_objects.PlayRook, "black")
             Switch_Modes_Controller.placed_to_play(placed_objects.PlacedQueen.black_queen_list, play_objects.PlayQueen, "black")
             Switch_Modes_Controller.placed_to_play(placed_objects.PlacedKing.black_king_list, play_objects.PlayKing, "black")
+            Move_Tracker.restart()
     def placed_to_play(placed_list, class_obj, color):
         # Play pieces spawn where their placed piece correspondents are located
         for placed_obj in placed_list:
@@ -553,6 +554,12 @@ class Move_Tracker():
     df_prior_moves = pd.DataFrame(columns=["white_move", "black_move"])
     df_prior_moves.index = np.arange(1, len(df_prior_moves)+1)
     move_counter = 1
+    def restart():
+        Move_Tracker.df_moves = pd.DataFrame(columns=["white_move", "black_move"])
+        Move_Tracker.df_moves.index = np.arange(1, len(Move_Tracker.df_moves)+1)
+        Move_Tracker.df_prior_moves = pd.DataFrame(columns=["white_move", "black_move"])
+        Move_Tracker.df_prior_moves.index = np.arange(1, len(Move_Tracker.df_prior_moves)+1)
+        Move_Tracker.move_counter = 1
 
 class Game_Controller():
     def __init__(self, flipped, whoseturn="white"):
@@ -857,7 +864,6 @@ class Move_Controller():
                 board.Grid.grid_dict[piece_to_undo.coordinate].occupied = True
                 piece_to_undo.prior_move_color = False
                 piece_to_undo.no_highlight()
-                Move_Tracker.move_counter = Move_Tracker.move_counter-1
                 del piece_to_undo.coordinate_history[Move_Tracker.move_counter]
                 PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter]['black_move'].text_is_visible = False
                 PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter]['black_move'].kill()
@@ -874,7 +880,6 @@ class Move_Controller():
                 piece_to_undo.prior_move_color = False
                 piece_to_undo.no_highlight()
                 del piece_to_undo.coordinate_history[Move_Tracker.move_counter]
-                #print("BEFORE: " + str(MoveNumberRectangle.rectangle_dict))
                 PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter]['white_move'].text_is_visible = False
                 PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter]['white_move'].kill()
                 del PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter]
@@ -883,6 +888,8 @@ class Move_Controller():
                 game_controller.selected_move = [Move_Tracker.move_counter-1, "black_move"]
                 Move_Tracker.df_moves = Move_Tracker.df_moves.iloc[:-1]
                 Move_Tracker.df_prior_moves = Move_Tracker.df_prior_moves.iloc[:-1]
+                Move_Tracker.move_counter = Move_Tracker.move_counter-1
+                print("WHAT IS MOVE TRACKER ON NOW? " + str(Move_Tracker.move_counter))
                 game_controller.switch_turn("black")
                 print("White takes back move, now white's turn. " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
             print("game_controller df: \n" + str(Move_Tracker.df_moves))
