@@ -542,7 +542,7 @@ class Switch_Modes_Controller():
             Switch_Modes_Controller.placed_to_play(placed_objects.PlacedRook.black_rook_list, play_objects.PlayRook, "black")
             Switch_Modes_Controller.placed_to_play(placed_objects.PlacedQueen.black_queen_list, play_objects.PlayQueen, "black")
             Switch_Modes_Controller.placed_to_play(placed_objects.PlacedKing.black_king_list, play_objects.PlayKing, "black")
-            #Move_Tracker.restart()
+            Move_Tracker.restart()
     def placed_to_play(placed_list, class_obj, color):
         # Play pieces spawn where their placed piece correspondents are located
         for placed_obj in placed_list:
@@ -556,14 +556,12 @@ class Move_Tracker():
     move_counter = lambda : len(Move_Tracker.df_moves)
     selected_move = [0, ""]
     def restart():
-        pass
-    """
         Move_Tracker.df_moves = pd.DataFrame(columns=["white_move", "black_move"])
         Move_Tracker.df_moves.index = np.arange(1, len(Move_Tracker.df_moves)+1)
         Move_Tracker.df_prior_moves = pd.DataFrame(columns=["white_move", "black_move"])
         Move_Tracker.df_prior_moves.index = np.arange(1, len(Move_Tracker.df_prior_moves)+1)
+        Move_Tracker.move_counter = lambda : len(Move_Tracker.df_moves)
         Move_Tracker.selected_move = [0, ""]
-    """
     def undo_move(whoseturn):
         if whoseturn == "white":
             for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces:
@@ -1145,7 +1143,7 @@ class Move_Controller():
                 piece_in_funcs = piece
             move_text = str(Move_Tracker.move_counter()) + ". " + \
                   Move_Controller.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb) + " "
-            Move_Tracker.df_moves.loc[Move_Tracker.move_counter()] = [Move_Controller.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb), '']
+            Move_Tracker.df_moves.loc[Move_Tracker.move_counter(), "white_move"] = Move_Controller.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
             piece.coordinate_history[Move_Tracker.move_counter()]['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
             prior_moves_dict['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
             Move_Tracker.selected_move = [Move_Tracker.move_counter(), "white_move"]
