@@ -802,6 +802,39 @@ class Move_Controller():
         elif special_abb == "=Q":
             recorded_move = prefix + captured_abb + piece.coordinate[0] + piece.coordinate[1] + special_abb + check_abb
         return recorded_move
+    def select_piece_unselect_all_others(mousepos, game_controller):
+        clicked_piece = None
+        # Selecting and unselecting white pieces
+        if game_controller.WHOSETURN == "white":
+            for piece_list in [play_objects.PlayPawn.white_pawn_list, play_objects.PlayBishop.white_bishop_list, 
+                               play_objects.PlayKnight.white_knight_list, play_objects.PlayRook.white_rook_list, 
+                               play_objects.PlayQueen.white_queen_list, play_objects.PlayKing.white_king_list]:
+                for piece in piece_list:
+                    # Selects piece
+                    if (piece.rect.collidepoint(mousepos) and piece.select == False):
+                        clicked_piece = piece
+                    else:
+                        # Unselects piece
+                        piece.no_highlight()
+                        for grid in board.Grid.grid_list:
+                            grid.no_highlight()
+        # Selecting and unselecting black pieces
+        elif game_controller.WHOSETURN == "black":
+            for piece_list in [play_objects.PlayPawn.black_pawn_list, play_objects.PlayBishop.black_bishop_list, 
+                               play_objects.PlayKnight.black_knight_list, play_objects.PlayRook.black_rook_list, 
+                               play_objects.PlayQueen.black_queen_list, play_objects.PlayKing.black_king_list]:
+                for piece in piece_list:
+                    if (piece.rect.collidepoint(mousepos) and piece.select == False):
+                        clicked_piece = piece
+                    else:
+                        piece.no_highlight()
+                        for grid in board.Grid.grid_list:
+                            grid.no_highlight()
+        # Just do this last, since we know only one piece will be selected
+        if clicked_piece is not None:
+            clicked_piece.highlight()
+            clicked_piece.spaces_available(game_controller)
+            clicked_piece = None
     def undo_move(game_controller):
         if game_controller.WHOSETURN == "white":
             if game_controller.move_counter > 1:
@@ -1258,7 +1291,7 @@ def main():
                     # LEFT CLICK (PRESSED DOWN)
                     #################
                     
-                    # Placed object placed on location of mouse release
+                    # Mouse click on the board
                     elif (event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and
                           MOUSEPOS[0] > initvar.X_GRID_START and MOUSEPOS[0] < board.X_GRID_END and
                           MOUSEPOS[1] > initvar.Y_GRID_START and MOUSEPOS[1] < board.Y_GRID_END): 
@@ -1277,6 +1310,7 @@ def main():
                                         for piece in piece_list:
                                             # Reset the prior move color variable from all pieces
                                             piece.prior_move_color = False
+                                            # If piece is allowed to move to another grid coordinate and piece is also selected
                                             if (grid.rect.collidepoint(MOUSEPOS) \
                                                 and ((piece.coordinate in grid.coords_of_available_pieces['white'] and piece.color == "white") \
                                                      or (piece.coordinate in grid.coords_of_available_pieces['black'] and piece.color == "black")) \
@@ -1284,39 +1318,8 @@ def main():
                                                 prior_moves_dict, captured_abb, special_abb, promoted_queen = Move_Controller.make_move(grid, piece, game_controller)
                                                 Move_Controller.game_status_check(game_controller, grid, piece, prior_moves_dict, captured_abb, special_abb, promoted_queen)
                             update_pieces_and_board()
-        
-                            clicked_piece = None
-                            # Selecting and unselecting white pieces
-                            if game_controller.WHOSETURN == "white":
-                                for piece_list in [play_objects.PlayPawn.white_pawn_list, play_objects.PlayBishop.white_bishop_list, 
-                                                   play_objects.PlayKnight.white_knight_list, play_objects.PlayRook.white_rook_list, 
-                                                   play_objects.PlayQueen.white_queen_list, play_objects.PlayKing.white_king_list]:
-                                    for piece in piece_list:
-                                        # Selects piece
-                                        if (piece.rect.collidepoint(MOUSEPOS) and piece.select == False):
-                                            clicked_piece = piece
-                                        else:
-                                            # Unselects piece
-                                            piece.no_highlight()
-                                            for grid in board.Grid.grid_list:
-                                                grid.no_highlight()
-                            # Selecting and unselecting black pieces
-                            elif game_controller.WHOSETURN == "black":
-                                for piece_list in [play_objects.PlayPawn.black_pawn_list, play_objects.PlayBishop.black_bishop_list, 
-                                                   play_objects.PlayKnight.black_knight_list, play_objects.PlayRook.black_rook_list, 
-                                                   play_objects.PlayQueen.black_queen_list, play_objects.PlayKing.black_king_list]:
-                                    for piece in piece_list:
-                                        if (piece.rect.collidepoint(MOUSEPOS) and piece.select == False):
-                                            clicked_piece = piece
-                                        else:
-                                            piece.no_highlight()
-                                            for grid in board.Grid.grid_list:
-                                                grid.no_highlight()
-                            # Just do this last, since we know only one piece will be selected
-                            if clicked_piece is not None:
-                                clicked_piece.highlight()
-                                clicked_piece.spaces_available(game_controller)
-                                clicked_piece = None
+                            # Selects piece
+                            Move_Controller.select_piece_unselect_all_others(MOUSEPOS, game_controller)
     
                     if event.type == pygame.MOUSEBUTTONDOWN and (event.button == 4 or event.button == 5):
                         #scroll wheel
