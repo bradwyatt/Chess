@@ -1154,21 +1154,20 @@ def draw_move_rects_on_moves_pane(my_font, game_controller):
         # Creating move notation rectangles if they haven't been created before for the respective move
         # If the last move is not in the dictionary, then add it
         if len(game_controller.df_moves) not in PieceMoveRectangle.rectangle_dict:
-            PieceMoveRectangle.rectangle_dict[len(game_controller.df_moves)] = []
+            PieceMoveRectangle.rectangle_dict[len(game_controller.df_moves)] = {}
             MoveNumberRectangle.rectangle_dict[len(game_controller.df_moves)] = []
         # We want the PieceMoveRectangle.rectangle_dict to correspond to the df_moves dataframe
-        if game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'] != '' and len(PieceMoveRectangle.rectangle_dict[len(game_controller.df_moves)]) == 0:
+        if game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'] != '' and 'white_move' not in PieceMoveRectangle.rectangle_dict[len(game_controller.df_moves)]:
             # Create new move number rectangle since white made a move
             MoveNumberRectangle(len(game_controller.df_moves), initvar.MOVES_PANE_MOVE_NUMBER_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(game_controller.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)
-            print("CREATE NEW !!!! with len df moves of " + str(len(game_controller.df_moves)))
             # Create rectangle which will eventually be used to blit text on it
             # Parameters: Total number of moves in the game, the move itself, the color of the piece that moved, and position & size of rectangle
-            PieceMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'], 'white', initvar.MOVES_PANE_WHITE_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(game_controller.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)
+            PieceMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'], 'white_move', initvar.MOVES_PANE_WHITE_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(game_controller.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)
             # Scroll down automatically when a move is made
             scroll_to_latest_move(len(game_controller.df_moves))
-        if game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'] != '' and len(PieceMoveRectangle.rectangle_dict[len(game_controller.df_moves)]) == 1:
+        if game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'] != '' and 'black_move' not in PieceMoveRectangle.rectangle_dict[len(game_controller.df_moves)]:
             # Only create PieceMoveRectangle when black moved last, don't create a new MoveNumberRectangle
-            PieceMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'], 'black', initvar.MOVES_PANE_BLACK_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(game_controller.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)        
+            PieceMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'], 'black_move', initvar.MOVES_PANE_BLACK_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(game_controller.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)        
             scroll_to_latest_move(len(game_controller.df_moves))
         draw_text_on_rects_in_moves_pane(SCREEN, my_font)
 
