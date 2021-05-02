@@ -824,28 +824,28 @@ class Move_Controller():
                     for white_piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
                         for white_piece in white_piece_list:
                             if white_piece.taken_off_board == True:
-                                print("THE TAKEN WHITE PIECE " + str(white_piece.__dict__))
+                                #print("THE TAKEN WHITE PIECE " + str(white_piece.__dict__))
                                 if white_piece.captured_move_number_and_coordinate['move_number'] == game_controller.move_counter-1 \
                                     and white_piece.captured_move_number_and_coordinate['coordinate'] == eval(game_controller.df_prior_moves.loc[game_controller.move_counter-1, "black_move"])['after']:
-                                        print("White piece that is off the baord " + str(white_piece))
+                                        print("White piece that is off the board " + str(white_piece))
                 elif piece_to_undo.color == "white":
                     for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
                         for black_piece in black_piece_list:
                             if black_piece.taken_off_board == True:
-                                print("THE TAKEN BLACK PIECE " + str(black_piece.__dict__))
+                                #print("THE TAKEN BLACK PIECE " + str(black_piece.__dict__))
                                 if black_piece.captured_move_number_and_coordinate['move_number'] == game_controller.move_counter \
                                     and black_piece.captured_move_number_and_coordinate['coordinate'] == eval(game_controller.df_prior_moves.loc[game_controller.move_counter, "white_move"])['after']:
-                                        print("Black piece that is off the baord " + str(black_piece))
+                                        print("Black piece that is off the board " + str(black_piece))
             if game_controller.WHOSETURN == "white":
                 piece_to_undo.coordinate = piece_to_undo.coordinate_history[game_controller.move_counter-1]['before']
                 piece_to_undo.rect.topleft = board.Grid.grid_dict[piece_to_undo.coordinate].rect.topleft
                 board.Grid.grid_dict[piece_to_undo.coordinate].occupied = True
                 piece_to_undo.prior_move_color = False
                 piece_to_undo.no_highlight()
-                del piece_to_undo.coordinate_history[game_controller.move_counter-1]
                 game_controller.move_counter = game_controller.move_counter-1
-                game_controller.df_moves = game_controller.df_moves.iloc[:-1]
-                game_controller.df_prior_moves = game_controller.df_moves.iloc[:-1]
+                del piece_to_undo.coordinate_history[game_controller.move_counter]
+                game_controller.df_moves.loc[game_controller.move_counter, "black_move"] = ''
+                game_controller.df_prior_moves.loc[game_controller.move_counter, "black_move"] = ''
                 game_controller.WHOSETURN = "black"
                 #game_controller.switch_turn("black")
                 print("Black takes back move, now black's turn. " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
@@ -856,12 +856,12 @@ class Move_Controller():
                 piece_to_undo.prior_move_color = False
                 piece_to_undo.no_highlight()
                 del piece_to_undo.coordinate_history[game_controller.move_counter]
-                game_controller.df_moves.loc[game_controller.move_counter, "black_move"] = ''
-                game_controller.df_prior_moves.loc[game_controller.move_counter, "black_move"] = ''
+                game_controller.df_moves = game_controller.df_moves.iloc[:-1]
+                game_controller.df_prior_moves = game_controller.df_prior_moves.iloc[:-1]
                 game_controller.WHOSETURN = "white"
                 #game_controller.switch_turn("black")
                 print("White takes back move, now white's turn. " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
-                                        
+            print("game_controller df: \n" + str(game_controller.df_moves))
     def make_move(grid, piece, game_controller):
         # Default captured_abb for function to be empty string
         captured_abb = ""
@@ -1430,7 +1430,7 @@ def main():
                     debug_message = 0
                     # USE BREAKPOINT HERE
                     #print(str(MOUSE_COORD))
-                    testdf = game_controller.df_prior_moves
+                    print(str(game_controller.df_moves))
                     log.info("Use breakpoint here")
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
