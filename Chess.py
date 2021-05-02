@@ -562,17 +562,18 @@ class Move_Tracker():
         Move_Tracker.df_prior_moves.index = np.arange(1, len(Move_Tracker.df_prior_moves)+1)
         Move_Tracker.move_counter = lambda : len(Move_Tracker.df_moves)
         Move_Tracker.selected_move = [0, ""]
-    def undo_move(whoseturn):
-        if whoseturn == "white":
-            for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces:
+    def undo_move(undo_color):
+        if undo_color == "black":
+            for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
                 for black_piece in black_piece_list:
                     if Move_Tracker.move_counter() in black_piece.coordinate_history:
                         del black_piece.coordinate_history[Move_Tracker.move_counter()]
-            Move_Tracker.df_moves.loc[Move_Tracker.move_counter, "black_move"] = ''
-            Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "black_move"] = ''
             Move_Tracker.selected_move = [Move_Tracker.move_counter(), "white_move"]
-        elif whoseturn == "black":
-            for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces:
+            Move_Tracker.df_moves.loc[Move_Tracker.move_counter(), "black_move"] = ''
+            Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "black_move"] = ''
+            
+        elif undo_color == "white":
+            for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
                 for black_piece in black_piece_list:
                     if Move_Tracker.move_counter() in black_piece.coordinate_history:
                         del black_piece.coordinate_history[Move_Tracker.move_counter()]
@@ -842,14 +843,14 @@ class Move_Controller():
             clicked_piece = None
     def undo_move(game_controller):
         piece_to_undo = None
-        if len(Move_Tracker.df_prior_moves) >= 1:
+        if len(Move_Tracker.df_moves) >= 1:
             # Finding the latest piece to undo
             if game_controller.WHOSETURN == "white":
-                piece_coordinate_move_notation = eval(Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter()-1, "black_move"])['move_notation']
+                piece_coordinate_move_notation = eval(Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "black_move"])['move_notation']
                 for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
                     for black_piece in black_piece_list:
                         for piece_history in black_piece.coordinate_history.keys():
-                            if Move_Tracker.move_counter()-1 == piece_history:
+                            if Move_Tracker.move_counter() == piece_history:
                                 piece_to_undo = black_piece
             elif game_controller.WHOSETURN == "black":
                 piece_coordinate_move_notation = eval(Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "white_move"])['move_notation']
@@ -866,8 +867,8 @@ class Move_Controller():
                         for white_piece in white_piece_list:
                             if white_piece.taken_off_board == True:
                                 #print("THE TAKEN WHITE PIECE " + str(white_piece.__dict__))
-                                if white_piece.captured_move_number_and_coordinate['move_number'] == Move_Tracker.move_counter()-1 \
-                                    and white_piece.captured_move_number_and_coordinate['coordinate'] == eval(Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter()-1, "black_move"])['after']:
+                                if white_piece.captured_move_number_and_coordinate['move_number'] == Move_Tracker.move_counter() \
+                                    and white_piece.captured_move_number_and_coordinate['coordinate'] == eval(Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "black_move"])['after']:
                                         print("White piece that is off the board " + str(white_piece))
                 elif piece_to_undo.color == "white":
                     for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
@@ -878,7 +879,7 @@ class Move_Controller():
                                     and black_piece.captured_move_number_and_coordinate['coordinate'] == eval(Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "white_move"])['after']:
                                         print("Black piece that is off the board " + str(black_piece))
             if game_controller.WHOSETURN == "white":
-                piece_to_undo.coordinate = piece_to_undo.coordinate_history[Move_Tracker.move_counter()-1]['before']
+                piece_to_undo.coordinate = piece_to_undo.coordinate_history[Move_Tracker.move_counter()]['before']
                 print("piece to undo coordinate " + str(piece_to_undo.coordinate))
                 piece_to_undo.rect.topleft = board.Grid.grid_dict[piece_to_undo.coordinate].rect.topleft
                 piece_to_undo.prior_move_color = False
@@ -888,7 +889,7 @@ class Move_Controller():
                 PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['black_move'].kill()
                 del PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['black_move']
                 print("PieceMoveRectangle rectangle_dict " + str(PieceMoveRectangle.rectangle_dict))
-                Move_Tracker.undo_move("white")
+                Move_Tracker.undo_move("black")
                 print("WHAT IS MOVE TRACKER ON NOW? " + str(Move_Tracker.move_counter()))
                 game_controller.switch_turn("black")
                 print("Black takes back move, now black's turn. " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
@@ -905,7 +906,7 @@ class Move_Controller():
                 print("PieceMoveRectangle rectangle_dict " + str(PieceMoveRectangle.rectangle_dict))
                 MoveNumberRectangle.rectangle_dict[Move_Tracker.move_counter()].text = ""
                 MoveNumberRectangle.rectangle_dict[Move_Tracker.move_counter()].kill()
-                Move_Tracker.undo_move("black")
+                Move_Tracker.undo_move("white")
                 print("WHAT IS MOVE TRACKER ON NOW? " + str(Move_Tracker.move_counter()))
                 game_controller.switch_turn("white")
                 print("White takes back move, now white's turn. " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
