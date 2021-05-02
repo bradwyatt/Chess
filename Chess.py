@@ -855,12 +855,7 @@ class Move_Controller():
         # are the same as any of the pieces
         if((piece.color == "white" and grid.occupied_piece_color == "black") or
             (piece.color == "black" and grid.occupied_piece_color == "white")):
-            for piece_captured_list in [play_objects.PlayPawn.white_pawn_list, play_objects.PlayBishop.white_bishop_list, 
-                                        play_objects.PlayKnight.white_knight_list, play_objects.PlayRook.white_rook_list, 
-                                        play_objects.PlayQueen.white_queen_list, play_objects.PlayKing.white_king_list,
-                                        play_objects.PlayPawn.black_pawn_list, play_objects.PlayBishop.black_bishop_list, 
-                                        play_objects.PlayKnight.black_knight_list, play_objects.PlayRook.black_rook_list, 
-                                        play_objects.PlayQueen.black_queen_list, play_objects.PlayKing.black_king_list]:
+            for piece_captured_list in play_objects.Piece_Lists_Shortcut.all_pieces():
                 for piece_captured in piece_captured_list:
                     # Moving captured piece off the board
                     if piece_captured.coordinate == grid.coordinate:

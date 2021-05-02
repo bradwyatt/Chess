@@ -12,6 +12,14 @@ class Piece_Lists_Shortcut():
                 PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
                 PlayKnight.black_knight_list, PlayRook.black_rook_list, 
                 PlayQueen.black_queen_list, PlayKing.black_king_list]
+    def white_pieces():
+        return [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
+                PlayKnight.white_knight_list, PlayRook.white_rook_list, 
+                PlayQueen.white_queen_list, PlayKing.white_king_list]
+    def black_pieces():
+        return [PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
+                PlayKnight.black_knight_list, PlayRook.black_rook_list, 
+                PlayQueen.black_queen_list, PlayKing.black_king_list]
 
 class ChessPiece:
     def __init__(self, coord, image, col):
