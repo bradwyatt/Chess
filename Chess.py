@@ -542,14 +542,11 @@ class Switch_Modes_Controller():
             Switch_Modes_Controller.placed_to_play(placed_objects.PlacedRook.black_rook_list, play_objects.PlayRook, "black")
             Switch_Modes_Controller.placed_to_play(placed_objects.PlacedQueen.black_queen_list, play_objects.PlayQueen, "black")
             Switch_Modes_Controller.placed_to_play(placed_objects.PlacedKing.black_king_list, play_objects.PlayKing, "black")
-            Move_Tracker.restart()
+            #Move_Tracker.restart()
     def placed_to_play(placed_list, class_obj, color):
         # Play pieces spawn where their placed piece correspondents are located
         for placed_obj in placed_list:
             class_obj(placed_obj.coordinate, color)
-
-def get_df_moves_list():
-    return len(df_moves)
 
 class Move_Tracker():
     df_moves = pd.DataFrame(columns=["white_move", "black_move"])
@@ -559,11 +556,14 @@ class Move_Tracker():
     move_counter = lambda : len(Move_Tracker.df_moves)
     selected_move = [0, ""]
     def restart():
+        pass
+    """
         Move_Tracker.df_moves = pd.DataFrame(columns=["white_move", "black_move"])
         Move_Tracker.df_moves.index = np.arange(1, len(Move_Tracker.df_moves)+1)
         Move_Tracker.df_prior_moves = pd.DataFrame(columns=["white_move", "black_move"])
         Move_Tracker.df_prior_moves.index = np.arange(1, len(Move_Tracker.df_prior_moves)+1)
         Move_Tracker.selected_move = [0, ""]
+    """
     def undo_move(whoseturn):
         if whoseturn == "white":
             for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces:
@@ -923,6 +923,9 @@ class Move_Controller():
         game_controller.result_abb = "*"
         promoted_queen = None
         prior_moves_dict = {}
+        # Update df_moves dictionary with a new record for the new move (when white's turn)
+        if piece.color == "white":
+            Move_Tracker.df_moves.loc[Move_Tracker.move_counter()+1] = ["", ""]
         # Taking a piece by checking if available grid is opposite color of piece
         # And iterating through all pieces to check if coordinates of that grid
         # are the same as any of the pieces
@@ -1125,18 +1128,20 @@ class Move_Controller():
             if special_abb == "=Q":
                 # When the piece became promoted to a Queen
                 move_text = Move_Controller.move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb) + " "
-                Move_Tracker.df_moves.loc[Move_Tracker.move_counter()-1, "black_move"] = Move_Controller.move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
-                piece.coordinate_history[Move_Tracker.move_counter()-1]['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
+                Move_Tracker.df_moves.loc[Move_Tracker.move_counter(), "black_move"] = Move_Controller.move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
+                piece.coordinate_history[Move_Tracker.move_counter()]['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
                 prior_moves_dict['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
-                Move_Tracker.selected_move = [Move_Tracker.move_counter()-1, "black_move"]
+                Move_Tracker.selected_move = [Move_Tracker.move_counter(), "black_move"]
             else:
                 move_text = Move_Controller.move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb) + " "
-                Move_Tracker.df_moves.loc[Move_Tracker.move_counter()-1, "black_move"] = Move_Controller.move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
-                piece.coordinate_history[Move_Tracker.move_counter()-1]['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
+                Move_Tracker.df_moves.loc[Move_Tracker.move_counter(), "black_move"] = Move_Controller.move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
+                piece.coordinate_history[Move_Tracker.move_counter()]['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
                 prior_moves_dict['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
-                Move_Tracker.selected_move = [Move_Tracker.move_counter()-1, "black_move"]
-            Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter()-1, "black_move"] = str(prior_moves_dict)
+                Move_Tracker.selected_move = [Move_Tracker.move_counter(), "black_move"]
+            Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "black_move"] = str(prior_moves_dict)
         elif(game_controller.WHOSETURN == "black"):
+            # Create new record to make room for new white move
+            # move_counter will update to new length of dataframe
             if special_abb == "=Q":
                 move_text = str(Move_Tracker.move_counter()) + ". " + \
                       Move_Controller.move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb) + " "
