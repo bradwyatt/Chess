@@ -52,9 +52,6 @@ from tkinter.colorchooser import askcolor
 from tkinter.filedialog import *
 from ast import *
 import pygame
-from pygame.constants import RLEACCEL
-from pygame.locals import (KEYDOWN, MOUSEBUTTONDOWN, MOUSEBUTTONUP, K_LEFT,
-                           K_RIGHT, QUIT, K_ESCAPE)
 import datetime
 import logging
 import logging.handlers
@@ -258,7 +255,7 @@ class PGN_Writer_and_Loader():
             log.info("File not found")
             return
         Switch_Modes_Controller.switch_mode(Switch_Modes_Controller.PLAY_MODE, PLAY_EDIT_SWITCH_BUTTON)
-        game_controller = Game_Controller()
+        game_controller = Game_Controller(Grid_Controller.flipped)
         game_controller.spawn_play_objects()
         
         loaded_file = open_file.read()
@@ -474,6 +471,7 @@ class Grid_Controller():
                 grid.rect.topleft = grid.initial_rect_top_left
             Grid_Controller.flipped = False
         Text_Controller.flip_board()
+
                 
     def update_grid():
         for grid in board.Grid.grid_list:
@@ -537,13 +535,14 @@ class Switch_Modes_Controller():
             class_obj(placed_obj.coordinate, color)
 
 class Game_Controller():
-    def __init__(self, whoseturn="white"):
+    def __init__(self, flipped, whoseturn="white"):
         self.WHOSETURN = whoseturn
         self.color_in_check = ""
         self.check_attacking_coordinates = []
         self.attacker_piece = ""
         self.black_captured_x = initvar.BLACKANDWHITE_CAPTURED_X
         self.white_captured_x = initvar.BLACKANDWHITE_CAPTURED_X
+        self.captured_pieces_flip(flipped)
         self.move_counter = 1
         self.df_moves = pd.DataFrame(columns=["white_move", "black_move"])
         self.df_moves.index = np.arange(1, len(self.df_moves)+1) # Index at 1 rather than 0 because chess starts that way
@@ -551,7 +550,20 @@ class Game_Controller():
         self.df_prior_moves.index = np.arange(1, len(self.df_prior_moves)+1)
         self.result_abb = "*"
         self.selected_move = [0, "", ""]
-
+    def captured_pieces_flip(self, flipped):
+        if flipped == False:
+            self.white_captured_y = initvar.WHITE_CAPTURED_Y
+            self.black_captured_y = initvar.BLACK_CAPTURED_Y
+        else:
+            self.white_captured_y = initvar.BLACK_CAPTURED_Y
+            self.black_captured_y = initvar.WHITE_CAPTURED_Y
+        for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
+            for piece in piece_list:
+                if piece.taken_off_board == True:
+                    if piece.color == "white":
+                        piece.rect.topleft = piece.rect.topleft[0], self.white_captured_y
+                    elif piece.color == "black":
+                        piece.rect.topleft = piece.rect.topleft[0], self.black_captured_y
     def spawn_play_objects(self):
         Grid_Controller.update_grid()
         self.projected_white_update()
@@ -815,10 +827,10 @@ class Move_Controller():
                     # Moving captured piece off the board
                     if piece_captured.coordinate == grid.coordinate:
                         if piece_captured.color == "black":
-                            piece_captured.captured(game_controller.black_captured_x, initvar.BLACK_CAPTURED_Y)
+                            piece_captured.captured(game_controller.black_captured_x, game_controller.black_captured_y)
                             game_controller.black_captured_x += initvar.BLACKANDWHITE_INCREMENTAL_X
                         elif piece_captured.color == "white":
-                            piece_captured.captured(game_controller.white_captured_x, initvar.WHITE_CAPTURED_Y)
+                            piece_captured.captured(game_controller.white_captured_x, game_controller.white_captured_y)
                             game_controller.white_captured_x += initvar.BLACKANDWHITE_INCREMENTAL_X
                         # Captured_abb used for move notation
                         captured_abb = "x"
@@ -1190,6 +1202,8 @@ def main():
                             PGN_WRITER_AND_LOADER.write_moves(game_controller.df_moves, game_controller.result_abb)
                         if FLIP_BOARD_BUTTON.rect.collidepoint(MOUSEPOS):
                             Grid_Controller.flip_grids()
+                            if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
+                                game_controller.captured_pieces_flip(Grid_Controller.flipped)
                         if PREV_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
                             Move_Controller.undo_move()
                         # When clicking on a move on the right pane, it is your selected move
@@ -1265,7 +1279,7 @@ def main():
                         if PLAY_EDIT_SWITCH_BUTTON.rect.collidepoint(MOUSEPOS) and Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE: 
                             # Makes clicking play again unclickable    
                             Switch_Modes_Controller.switch_mode(Switch_Modes_Controller.PLAY_MODE, PLAY_EDIT_SWITCH_BUTTON)
-                            game_controller = Game_Controller()
+                            game_controller = Game_Controller(Grid_Controller.flipped)
                             game_controller.spawn_play_objects()
 
                         #################
@@ -1327,6 +1341,7 @@ def main():
                     play_objects.PLAY_SPRITES.update()
                     play_objects.PLAY_SPRITES.draw(SCREEN)
                     PGN_SAVE_FILE_BUTTON.draw(SCREEN)
+                    PLAY_PANEL_SPRITES.draw(SCREEN)
                     
                     # When the piece is selected on the right pane, fill the rectangle corresponding to the move
                     for piece_move_rect in PieceMoveRectangle.rectangle_list:
