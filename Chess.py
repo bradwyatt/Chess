@@ -515,6 +515,20 @@ class Grid_Controller():
                 else:
                     piece.prior_move_color = False
                 piece.no_highlight()
+    def update_prior_move_color(whoseturn):
+        if whoseturn == "white":
+            for piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
+                for piece in piece_list:
+                    for move_num in piece.coordinate_history:
+                        if move_num == Move_Tracker.move_counter():
+                            Grid_Controller.prior_move_color(piece.coordinate, piece)
+        elif whoseturn == "black":
+            for piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
+                for piece in piece_list:
+                    for move_num in piece.coordinate_history:
+                        if move_num == Move_Tracker.move_counter():
+                            Grid_Controller.prior_move_color(piece.coordinate, piece)
+                            print("PIECE COORDINATE " + str(piece.coordinate))
         
 
 class Switch_Modes_Controller():
@@ -889,6 +903,7 @@ class Move_Controller():
                 del PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['black_move']
                 Move_Tracker.undo_move_in_dfs("black")
                 game_controller.switch_turn("black")
+                Grid_Controller.update_prior_move_color("black")
                 print("Black takes back move, now black's turn. " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
             elif game_controller.WHOSETURN == "black":
                 piece_to_undo.coordinate = piece_to_undo.coordinate_history[Move_Tracker.move_counter()]['before']
@@ -903,6 +918,7 @@ class Move_Controller():
                 MoveNumberRectangle.rectangle_dict[Move_Tracker.move_counter()].kill()
                 Move_Tracker.undo_move_in_dfs("white")
                 game_controller.switch_turn("white")
+                Grid_Controller.update_prior_move_color("white")
                 print("White takes back move, now white's turn. " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
             print("game_controller df: \n" + str(Move_Tracker.df_moves))
     def make_move(grid, piece, game_controller):
