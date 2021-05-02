@@ -844,10 +844,13 @@ class Move_Controller():
                 piece_to_undo.no_highlight()
                 game_controller.move_counter = game_controller.move_counter-1
                 del piece_to_undo.coordinate_history[game_controller.move_counter]
+                PieceMoveRectangle.rectangle_dict[game_controller.move_counter]['black_move'].text_is_visible = False
+                PieceMoveRectangle.rectangle_dict[game_controller.move_counter]['black_move'].kill()
+                del PieceMoveRectangle.rectangle_dict[game_controller.move_counter]['black_move']
                 game_controller.df_moves.loc[game_controller.move_counter, "black_move"] = ''
                 game_controller.df_prior_moves.loc[game_controller.move_counter, "black_move"] = ''
-                game_controller.WHOSETURN = "black"
-                #game_controller.switch_turn("black")
+                #game_controller.WHOSETURN = "black"
+                game_controller.switch_turn("black")
                 print("Black takes back move, now black's turn. " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
             elif game_controller.WHOSETURN == "black":
                 piece_to_undo.coordinate = piece_to_undo.coordinate_history[game_controller.move_counter]['before']
@@ -857,17 +860,15 @@ class Move_Controller():
                 piece_to_undo.no_highlight()
                 del piece_to_undo.coordinate_history[game_controller.move_counter]
                 #print("BEFORE: " + str(MoveNumberRectangle.rectangle_dict))
-                for chosen_rect in PieceMoveRectangle.rectangle_dict[game_controller.move_counter]:
-                    chosen_rect.text_is_visible = False
-                    chosen_rect.kill()
+                PieceMoveRectangle.rectangle_dict[game_controller.move_counter]['white_move'].text_is_visible = False
+                PieceMoveRectangle.rectangle_dict[game_controller.move_counter]['white_move'].kill()
                 del PieceMoveRectangle.rectangle_dict[game_controller.move_counter]
                 MoveNumberRectangle.rectangle_dict[game_controller.move_counter].text = ""
                 MoveNumberRectangle.rectangle_dict[game_controller.move_counter].kill()
                 game_controller.df_moves = game_controller.df_moves.iloc[:-1]
                 game_controller.df_prior_moves = game_controller.df_prior_moves.iloc[:-1]
-                game_controller.WHOSETURN = "white"
-                print("\n Rectangle dict: " + str(PieceMoveRectangle.rectangle_dict))
-                #game_controller.switch_turn("black")
+                #game_controller.WHOSETURN = "white"
+                game_controller.switch_turn("black")
                 print("White takes back move, now white's turn. " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
             print("game_controller df: \n" + str(game_controller.df_moves))
     def make_move(grid, piece, game_controller):
