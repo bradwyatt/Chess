@@ -1126,18 +1126,15 @@ class Move_Controller():
             # Record the move in the prior_moves_history then add that to prior_move_history dataframe
             # Automatically make the move the selected move (thus highlighting in right panel)
             if special_abb == "=Q":
-                # When the piece became promoted to a Queen
-                move_text = Move_Controller.move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb) + " "
-                Move_Tracker.df_moves.loc[Move_Tracker.move_counter(), "black_move"] = Move_Controller.move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
-                piece.coordinate_history[Move_Tracker.move_counter()]['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
-                prior_moves_dict['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
-                Move_Tracker.selected_move = [Move_Tracker.move_counter(), "black_move"]
+                piece_in_funcs = promoted_queen
             else:
-                move_text = Move_Controller.move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb) + " "
-                Move_Tracker.df_moves.loc[Move_Tracker.move_counter(), "black_move"] = Move_Controller.move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
-                piece.coordinate_history[Move_Tracker.move_counter()]['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
-                prior_moves_dict['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
-                Move_Tracker.selected_move = [Move_Tracker.move_counter(), "black_move"]
+                piece_in_funcs = piece
+                # When the piece became promoted to a Queen
+            move_text = Move_Controller.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb) + " "
+            Move_Tracker.df_moves.loc[Move_Tracker.move_counter(), "black_move"] = Move_Controller.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
+            piece.coordinate_history[Move_Tracker.move_counter()]['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
+            prior_moves_dict['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
+            Move_Tracker.selected_move = [Move_Tracker.move_counter(), "black_move"]
             Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "black_move"] = str(prior_moves_dict)
         elif(game_controller.WHOSETURN == "black"):
             # Create new record to make room for new white move
