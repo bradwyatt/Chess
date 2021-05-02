@@ -248,7 +248,7 @@ class PGN_Writer_and_Loader():
     def pgn_load(self, PLAY_EDIT_SWITCH_BUTTON):
         open_file = None
         request_file_name = askopenfilename(defaultextension=".pgn")
-        log.info("Loading PGN...")
+        log.info("Loading " + os.path.basename(request_file_name))
         try:
             open_file = open(request_file_name, "r")
         except FileNotFoundError:
@@ -800,12 +800,11 @@ class Move_Controller():
             clicked_piece.spaces_available(game_controller)
             clicked_piece = None
     def undo_move(game_controller):
-        if game_controller.WHOSETURN == "white":
-            if game_controller.move_counter > 1:
-                pass
-                #game_controller.df_prior_moves.loc[game_controller.move_counter-1,]
-        elif game_controller.WHOSETURN == "black":
-            pass
+        if len(game_controller.df_prior_moves) >= 1:
+            if game_controller.WHOSETURN == "white":
+                previous_piece_coordinate = game_controller.df_prior_moves.loc[game_controller.move_counter, "black_move"]['after']
+            elif game_controller.WHOSETURN == "black":
+                previous_piece_coordinate = game_controller.df_prior_moves.loc[game_controller.move_counter, "white_move"]['after']
     def make_move(grid, piece, game_controller):
         # Default captured_abb for function to be empty string
         captured_abb = ""
@@ -834,9 +833,6 @@ class Move_Controller():
                             game_controller.white_captured_x += initvar.BLACKANDWHITE_INCREMENTAL_X
                         # Captured_abb used for move notation
                         captured_abb = "x"
-                        print("Capturer piece color " + str(piece.color) + " with blackcapturex " + str(game_controller.black_captured_x) \
-                              + " with blackcapturey " + str(game_controller.black_captured_y) + " with whitecapturex " + \
-                                  str(game_controller.white_captured_x) + " with whitecapturey " + str(game_controller.white_captured_y))
         # En Passant Capture
         if grid.en_passant_skipover == True:
             if piece in play_objects.PlayPawn.white_pawn_list:
@@ -1377,10 +1373,7 @@ def main():
                     debug_message = 0
                     # USE BREAKPOINT HERE
                     #print(str(MOUSE_COORD))
-                    print("PLAY OBJECTS PAWN REF LIST " + str(play_objects.ref_list))
-                    print("\nPLAY PAWN " + str(play_objects.ref_list))
-                    #print("PLACED SPRITES: " + str(placed_objects.PLACED_SPRITES.__dict__))
-                    #print(str(game_controller.df_prior_moves))
+                    testdf = game_controller.df_prior_moves
                     log.info("Use breakpoint here")
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
