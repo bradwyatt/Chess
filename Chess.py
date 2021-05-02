@@ -554,12 +554,24 @@ class Move_Tracker():
     df_prior_moves = pd.DataFrame(columns=["white_move", "black_move"])
     df_prior_moves.index = np.arange(1, len(df_prior_moves)+1)
     move_counter = 1
+    selected_move = [0, ""]
     def restart():
         Move_Tracker.df_moves = pd.DataFrame(columns=["white_move", "black_move"])
         Move_Tracker.df_moves.index = np.arange(1, len(Move_Tracker.df_moves)+1)
         Move_Tracker.df_prior_moves = pd.DataFrame(columns=["white_move", "black_move"])
         Move_Tracker.df_prior_moves.index = np.arange(1, len(Move_Tracker.df_prior_moves)+1)
         Move_Tracker.move_counter = 1
+        Move_Tracker.selected_move = [0, ""]
+    def undo_move(whoseturn):
+        if whoseturn == "white":
+            Move_Tracker.df_moves.loc[Move_Tracker.move_counter, "black_move"] = ''
+            Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter, "black_move"] = ''
+            Move_Tracker.selected_move = [Move_Tracker.move_counter, "white_move"]
+        elif whoseturn == "black":
+            Move_Tracker.selected_move = [Move_Tracker.move_counter-1, "black_move"]
+            Move_Tracker.df_moves = Move_Tracker.df_moves.iloc[:-1]
+            Move_Tracker.df_prior_moves = Move_Tracker.df_prior_moves.iloc[:-1]
+            Move_Tracker.move_counter = Move_Tracker.move_counter-1
 
 class Game_Controller():
     def __init__(self, flipped, whoseturn="white"):
@@ -571,7 +583,6 @@ class Game_Controller():
         self.white_captured_x = initvar.BLACKANDWHITE_CAPTURED_X
         self.captured_pieces_flip(flipped)
         self.result_abb = "*"
-        self.selected_move = [0, ""]
     def captured_pieces_flip(self, flipped):
         if flipped == False:
             self.white_captured_y = initvar.WHITE_CAPTURED_Y
@@ -860,37 +871,35 @@ class Move_Controller():
                                         print("Black piece that is off the board " + str(black_piece))
             if game_controller.WHOSETURN == "white":
                 piece_to_undo.coordinate = piece_to_undo.coordinate_history[Move_Tracker.move_counter-1]['before']
+                print("piece to undo coordinate " + str(piece_to_undo.coordinate))
                 piece_to_undo.rect.topleft = board.Grid.grid_dict[piece_to_undo.coordinate].rect.topleft
-                board.Grid.grid_dict[piece_to_undo.coordinate].occupied = True
                 piece_to_undo.prior_move_color = False
                 piece_to_undo.no_highlight()
                 del piece_to_undo.coordinate_history[Move_Tracker.move_counter]
                 PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter]['black_move'].text_is_visible = False
                 PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter]['black_move'].kill()
                 del PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter]['black_move']
-                Move_Tracker.df_moves.loc[Move_Tracker.move_counter, "black_move"] = ''
-                Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter, "black_move"] = ''
-                game_controller.selected_move = [Move_Tracker.move_counter, "white_move"]
+                print("PieceMoveRectangle rectangle_dict " + str(PieceMoveRectangle.rectangle_dict))
+                Move_Tracker.undo_move("white")
+                print("WHAT IS MOVE TRACKER ON NOW? " + str(Move_Tracker.move_counter))
                 game_controller.switch_turn("black")
                 print("Black takes back move, now black's turn. " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
             elif game_controller.WHOSETURN == "black":
                 piece_to_undo.coordinate = piece_to_undo.coordinate_history[Move_Tracker.move_counter]['before']
+                print("piece to undo coordinate " + str(piece_to_undo.coordinate))
                 piece_to_undo.rect.topleft = board.Grid.grid_dict[piece_to_undo.coordinate].rect.topleft
-                board.Grid.grid_dict[piece_to_undo.coordinate].occupied = True
                 piece_to_undo.prior_move_color = False
                 piece_to_undo.no_highlight()
                 del piece_to_undo.coordinate_history[Move_Tracker.move_counter]
                 PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter]['white_move'].text_is_visible = False
                 PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter]['white_move'].kill()
                 del PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter]
+                print("PieceMoveRectangle rectangle_dict " + str(PieceMoveRectangle.rectangle_dict))
                 MoveNumberRectangle.rectangle_dict[Move_Tracker.move_counter].text = ""
                 MoveNumberRectangle.rectangle_dict[Move_Tracker.move_counter].kill()
-                game_controller.selected_move = [Move_Tracker.move_counter-1, "black_move"]
-                Move_Tracker.df_moves = Move_Tracker.df_moves.iloc[:-1]
-                Move_Tracker.df_prior_moves = Move_Tracker.df_prior_moves.iloc[:-1]
-                Move_Tracker.move_counter = Move_Tracker.move_counter-1
+                Move_Tracker.undo_move("black")
                 print("WHAT IS MOVE TRACKER ON NOW? " + str(Move_Tracker.move_counter))
-                game_controller.switch_turn("black")
+                game_controller.switch_turn("white")
                 print("White takes back move, now white's turn. " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
             print("game_controller df: \n" + str(Move_Tracker.df_moves))
     def make_move(grid, piece, game_controller):
@@ -1110,13 +1119,13 @@ class Move_Controller():
                 Move_Tracker.df_moves.loc[Move_Tracker.move_counter-1, "black_move"] = Move_Controller.move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
                 piece.coordinate_history[Move_Tracker.move_counter-1]['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
                 prior_moves_dict['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
-                game_controller.selected_move = [Move_Tracker.move_counter-1, "black_move"]
+                Move_Tracker.selected_move = [Move_Tracker.move_counter-1, "black_move"]
             else:
                 move_text = Move_Controller.move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb) + " "
                 Move_Tracker.df_moves.loc[Move_Tracker.move_counter-1, "black_move"] = Move_Controller.move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
                 piece.coordinate_history[Move_Tracker.move_counter-1]['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
                 prior_moves_dict['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
-                game_controller.selected_move = [Move_Tracker.move_counter-1, "black_move"]
+                Move_Tracker.selected_move = [Move_Tracker.move_counter-1, "black_move"]
             Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter-1, "black_move"] = str(prior_moves_dict)
         elif(game_controller.WHOSETURN == "black"):
             if special_abb == "=Q":
@@ -1125,14 +1134,14 @@ class Move_Controller():
                 Move_Tracker.df_moves.loc[Move_Tracker.move_counter] = [Move_Controller.move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb), '']
                 piece.coordinate_history[Move_Tracker.move_counter]['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
                 prior_moves_dict['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
-                game_controller.selected_move = [Move_Tracker.move_counter, "white_move"]
+                Move_Tracker.selected_move = [Move_Tracker.move_counter, "white_move"]
             else:
                 move_text = str(Move_Tracker.move_counter) + ". " + \
                       Move_Controller.move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb) + " "
                 Move_Tracker.df_moves.loc[Move_Tracker.move_counter] = [Move_Controller.move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb), '']
                 piece.coordinate_history[Move_Tracker.move_counter]['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
                 prior_moves_dict['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
-                game_controller.selected_move = [Move_Tracker.move_counter, "white_move"]
+                Move_Tracker.selected_move = [Move_Tracker.move_counter, "white_move"]
             Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter, "white_move"] = str(prior_moves_dict)
         log.info(move_text)
         if game_controller.result_abb != "*":
@@ -1294,8 +1303,8 @@ def main():
                         # When clicking on a move on the right pane, it is your selected move
                         for piece_move_rect in PieceMoveRectangle.rectangle_list:
                             if piece_move_rect.rect.collidepoint(MOUSEPOS) and piece_move_rect.text_is_visible:
-                                game_controller.selected_move[0] = piece_move_rect.move_number
-                                game_controller.selected_move[1] = piece_move_rect.move_color
+                                Move_Tracker.selected_move[0] = piece_move_rect.move_number
+                                Move_Tracker.selected_move[1] = piece_move_rect.move_color
                         # Editing mode only
                         if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE:
                             #BUTTONS
@@ -1429,7 +1438,7 @@ def main():
                     
                     # When the piece is selected on the right pane, fill the rectangle corresponding to the move
                     for piece_move_rect in PieceMoveRectangle.rectangle_list:
-                        if piece_move_rect.move_number == game_controller.selected_move[0] and piece_move_rect.move_color == game_controller.selected_move[1]:
+                        if piece_move_rect.move_number == Move_Tracker.selected_move[0] and piece_move_rect.move_color == Move_Tracker.selected_move[1]:
                             piece_move_rect.draw(SCREEN)
                     draw_move_rects_on_moves_pane(move_notation_font, game_controller)
                     # Update objects that aren't in a sprite group
@@ -1456,7 +1465,7 @@ def main():
                     log.info("Entering debug mode")
                     debug_message = 0
                     # USE BREAKPOINT HERE
-                    print(str(game_controller.selected_move))
+                    print(str(Move_Tracker.selected_move))
                     #print(str(Move_Tracker.df_moves))
                     log.info("Use breakpoint here")
                 for event in pygame.event.get():
