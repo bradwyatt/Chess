@@ -113,12 +113,7 @@ def pos_load_file(reset=False):
         loaded_file = open_file.read()
         loaded_dict = literal_eval(loaded_file)
     
-    for obj_list in [play_objects.PlayPawn.white_pawn_list, play_objects.PlayBishop.white_bishop_list,
-                play_objects.PlayKnight.white_knight_list, play_objects.PlayRook.white_rook_list,
-                play_objects.PlayQueen.white_queen_list, play_objects.PlayKing.white_king_list,
-                play_objects.PlayPawn.black_pawn_list, play_objects.PlayBishop.black_bishop_list,
-                play_objects.PlayKnight.black_knight_list, play_objects.PlayRook.black_rook_list,
-                play_objects.PlayQueen.black_queen_list, play_objects.PlayKing.black_king_list]:
+    for obj_list in play_objects.Piece_Lists_Shortcut.all_pieces():
         for obj in obj_list:
             obj.destroy()
     if open_file:
@@ -564,12 +559,7 @@ class Game_Controller():
         self.projected_white_update()
         self.projected_black_update()
         
-        for piece_list in [play_objects.PlayPawn.white_pawn_list, play_objects.PlayBishop.white_bishop_list, 
-                           play_objects.PlayKnight.white_knight_list, play_objects.PlayRook.white_rook_list, 
-                           play_objects.PlayQueen.white_queen_list, play_objects.PlayKing.white_king_list,
-                           play_objects.PlayPawn.black_pawn_list, play_objects.PlayBishop.black_bishop_list,
-                           play_objects.PlayKnight.black_knight_list, play_objects.PlayRook.black_rook_list,
-                           play_objects.PlayQueen.black_queen_list, play_objects.PlayKing.black_king_list]:
+        for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
             for piece in piece_list:
                 piece.spaces_available(self)
         for grid in board.Grid.grid_list:
@@ -615,12 +605,7 @@ class Game_Controller():
             grid.coords_of_attacking_pieces['black'] = []
             grid.coords_of_available_pieces['white'] = []
             grid.coords_of_available_pieces['black'] = []
-        for piece_list in [play_objects.PlayPawn.white_pawn_list, play_objects.PlayBishop.white_bishop_list, 
-                           play_objects.PlayKnight.white_knight_list, play_objects.PlayRook.white_rook_list, 
-                           play_objects.PlayQueen.white_queen_list, play_objects.PlayKing.white_king_list,
-                           play_objects.PlayPawn.black_pawn_list, play_objects.PlayBishop.black_bishop_list,
-                           play_objects.PlayKnight.black_knight_list, play_objects.PlayRook.black_rook_list,
-                           play_objects.PlayQueen.black_queen_list, play_objects.PlayKing.black_king_list]:
+        for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
             for piece in piece_list:
                 piece.pinned = False
                 piece.disable = False
