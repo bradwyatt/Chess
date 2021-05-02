@@ -969,8 +969,12 @@ class Move_Controller():
                 if len(subgrid.coords_of_available_pieces[whoseturn]) > 0:
                     # If able to detect that a grid can be available, that means it's NOT checkmate
                     return "+", "*"
-            Text_Controller.check_checkmate_text = "White wins"
-            return "#", "1-0"
+            if whoseturn == 'black':
+                Text_Controller.check_checkmate_text = "White wins"
+                return "#", "1-0"
+            elif whoseturn == 'white':
+                Text_Controller.check_checkmate_text = "Black wins"
+                return "#", "0-1"
         if game_controller.color_in_check == "black":
             Text_Controller.check_checkmate_text = "Black King checked"
             for piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
