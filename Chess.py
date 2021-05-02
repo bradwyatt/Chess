@@ -800,11 +800,24 @@ class Move_Controller():
             clicked_piece.spaces_available(game_controller)
             clicked_piece = None
     def undo_move(game_controller):
+        piece_to_undo = None
         if len(game_controller.df_prior_moves) >= 1:
             if game_controller.WHOSETURN == "white":
-                previous_piece_coordinate = game_controller.df_prior_moves.loc[game_controller.move_counter, "black_move"]['after']
+                #piece_coordinate_before = game_controller.df_prior_moves.loc[game_controller.move_counter-1, "black_move"]['before']
+                for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
+                    for black_piece in black_piece_list:
+                        for piece_history in black_piece.coordinate_history.keys():
+                            if game_controller.move_counter-1 == piece_history:
+                                piece_to_undo = black_piece
             elif game_controller.WHOSETURN == "black":
-                previous_piece_coordinate = game_controller.df_prior_moves.loc[game_controller.move_counter, "white_move"]['after']
+                #piece_coordinate_before = game_controller.df_prior_moves.loc[game_controller.move_counter, "white_move"]['before']
+                for white_piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
+                    for white_piece in white_piece_list:
+                        for piece_history in white_piece.coordinate_history.keys():
+                            if game_controller.move_counter == piece_history:
+                                piece_to_undo = white_piece
+        print(str(piece_to_undo.__dict__))
+
     def make_move(grid, piece, game_controller):
         # Default captured_abb for function to be empty string
         captured_abb = ""
@@ -1204,7 +1217,7 @@ def main():
                             if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
                                 game_controller.captured_pieces_flip(Grid_Controller.flipped)
                         if PREV_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
-                            Move_Controller.undo_move()
+                            Move_Controller.undo_move(game_controller)
                         # When clicking on a move on the right pane, it is your selected move
                         for piece_move_rect in PieceMoveRectangle.rectangle_list:
                             if piece_move_rect.rect.collidepoint(MOUSEPOS) and piece_move_rect.text_is_visible:
