@@ -534,6 +534,13 @@ class Switch_Modes_Controller():
         for placed_obj in placed_list:
             class_obj(placed_obj.coordinate, color)
 
+class Move_Tracker():
+    df_moves = pd.DataFrame(columns=["white_move", "black_move"])
+    df_moves.index = np.arange(1, len(df_moves)+1)
+    df_prior_moves = pd.DataFrame(columns=["white_move", "black_move"])
+    df_prior_moves.index = np.arange(1, len(df_prior_moves)+1)
+    move_counter = 1
+
 class Game_Controller():
     def __init__(self, flipped, whoseturn="white"):
         self.WHOSETURN = whoseturn
@@ -543,11 +550,6 @@ class Game_Controller():
         self.black_captured_x = initvar.BLACKANDWHITE_CAPTURED_X
         self.white_captured_x = initvar.BLACKANDWHITE_CAPTURED_X
         self.captured_pieces_flip(flipped)
-        self.move_counter = 1
-        self.df_moves = pd.DataFrame(columns=["white_move", "black_move"])
-        self.df_moves.index = np.arange(1, len(self.df_moves)+1) # Index at 1 rather than 0 because chess starts that way
-        self.df_prior_moves = pd.DataFrame(columns=["white_move", "black_move"])
-        self.df_prior_moves.index = np.arange(1, len(self.df_prior_moves)+1)
         self.result_abb = "*"
         self.selected_move = [0, ""]
     def captured_pieces_flip(self, flipped):
@@ -801,21 +803,21 @@ class Move_Controller():
             clicked_piece = None
     def undo_move(game_controller):
         piece_to_undo = None
-        if len(game_controller.df_prior_moves) >= 1:
+        if len(Move_Tracker.df_prior_moves) >= 1:
             # Finding the latest piece to undo
             if game_controller.WHOSETURN == "white":
-                piece_coordinate_move_notation = eval(game_controller.df_prior_moves.loc[game_controller.move_counter-1, "black_move"])['move_notation']
+                piece_coordinate_move_notation = eval(Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter-1, "black_move"])['move_notation']
                 for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
                     for black_piece in black_piece_list:
                         for piece_history in black_piece.coordinate_history.keys():
-                            if game_controller.move_counter-1 == piece_history:
+                            if Move_Tracker.move_counter-1 == piece_history:
                                 piece_to_undo = black_piece
             elif game_controller.WHOSETURN == "black":
-                piece_coordinate_move_notation = eval(game_controller.df_prior_moves.loc[game_controller.move_counter, "white_move"])['move_notation']
+                piece_coordinate_move_notation = eval(Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter, "white_move"])['move_notation']
                 for white_piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
                     for white_piece in white_piece_list:
                         for piece_history in white_piece.coordinate_history.keys():
-                            if game_controller.move_counter == piece_history:
+                            if Move_Tracker.move_counter == piece_history:
                                 piece_to_undo = white_piece
             if 'x' in piece_coordinate_move_notation:
                 # Detect pieces that have been taken
@@ -825,52 +827,52 @@ class Move_Controller():
                         for white_piece in white_piece_list:
                             if white_piece.taken_off_board == True:
                                 #print("THE TAKEN WHITE PIECE " + str(white_piece.__dict__))
-                                if white_piece.captured_move_number_and_coordinate['move_number'] == game_controller.move_counter-1 \
-                                    and white_piece.captured_move_number_and_coordinate['coordinate'] == eval(game_controller.df_prior_moves.loc[game_controller.move_counter-1, "black_move"])['after']:
+                                if white_piece.captured_move_number_and_coordinate['move_number'] == Move_Tracker.move_counter-1 \
+                                    and white_piece.captured_move_number_and_coordinate['coordinate'] == eval(Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter-1, "black_move"])['after']:
                                         print("White piece that is off the board " + str(white_piece))
                 elif piece_to_undo.color == "white":
                     for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
                         for black_piece in black_piece_list:
                             if black_piece.taken_off_board == True:
                                 #print("THE TAKEN BLACK PIECE " + str(black_piece.__dict__))
-                                if black_piece.captured_move_number_and_coordinate['move_number'] == game_controller.move_counter \
-                                    and black_piece.captured_move_number_and_coordinate['coordinate'] == eval(game_controller.df_prior_moves.loc[game_controller.move_counter, "white_move"])['after']:
+                                if black_piece.captured_move_number_and_coordinate['move_number'] == Move_Tracker.move_counter \
+                                    and black_piece.captured_move_number_and_coordinate['coordinate'] == eval(Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter, "white_move"])['after']:
                                         print("Black piece that is off the board " + str(black_piece))
             if game_controller.WHOSETURN == "white":
-                piece_to_undo.coordinate = piece_to_undo.coordinate_history[game_controller.move_counter-1]['before']
+                piece_to_undo.coordinate = piece_to_undo.coordinate_history[Move_Tracker.move_counter-1]['before']
                 piece_to_undo.rect.topleft = board.Grid.grid_dict[piece_to_undo.coordinate].rect.topleft
                 board.Grid.grid_dict[piece_to_undo.coordinate].occupied = True
                 piece_to_undo.prior_move_color = False
                 piece_to_undo.no_highlight()
-                game_controller.move_counter = game_controller.move_counter-1
-                del piece_to_undo.coordinate_history[game_controller.move_counter]
-                PieceMoveRectangle.rectangle_dict[game_controller.move_counter]['black_move'].text_is_visible = False
-                PieceMoveRectangle.rectangle_dict[game_controller.move_counter]['black_move'].kill()
-                del PieceMoveRectangle.rectangle_dict[game_controller.move_counter]['black_move']
-                game_controller.df_moves.loc[game_controller.move_counter, "black_move"] = ''
-                game_controller.df_prior_moves.loc[game_controller.move_counter, "black_move"] = ''
-                game_controller.selected_move = [game_controller.move_counter, "white_move"]
+                Move_Tracker.move_counter = Move_Tracker.move_counter-1
+                del piece_to_undo.coordinate_history[Move_Tracker.move_counter]
+                PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter]['black_move'].text_is_visible = False
+                PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter]['black_move'].kill()
+                del PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter]['black_move']
+                Move_Tracker.df_moves.loc[Move_Tracker.move_counter, "black_move"] = ''
+                Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter, "black_move"] = ''
+                game_controller.selected_move = [Move_Tracker.move_counter, "white_move"]
                 game_controller.switch_turn("black")
                 print("Black takes back move, now black's turn. " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
             elif game_controller.WHOSETURN == "black":
-                piece_to_undo.coordinate = piece_to_undo.coordinate_history[game_controller.move_counter]['before']
+                piece_to_undo.coordinate = piece_to_undo.coordinate_history[Move_Tracker.move_counter]['before']
                 piece_to_undo.rect.topleft = board.Grid.grid_dict[piece_to_undo.coordinate].rect.topleft
                 board.Grid.grid_dict[piece_to_undo.coordinate].occupied = True
                 piece_to_undo.prior_move_color = False
                 piece_to_undo.no_highlight()
-                del piece_to_undo.coordinate_history[game_controller.move_counter]
+                del piece_to_undo.coordinate_history[Move_Tracker.move_counter]
                 #print("BEFORE: " + str(MoveNumberRectangle.rectangle_dict))
-                PieceMoveRectangle.rectangle_dict[game_controller.move_counter]['white_move'].text_is_visible = False
-                PieceMoveRectangle.rectangle_dict[game_controller.move_counter]['white_move'].kill()
-                del PieceMoveRectangle.rectangle_dict[game_controller.move_counter]
-                MoveNumberRectangle.rectangle_dict[game_controller.move_counter].text = ""
-                MoveNumberRectangle.rectangle_dict[game_controller.move_counter].kill()
-                game_controller.selected_move = [game_controller.move_counter-1, "black_move"]
-                game_controller.df_moves = game_controller.df_moves.iloc[:-1]
-                game_controller.df_prior_moves = game_controller.df_prior_moves.iloc[:-1]
+                PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter]['white_move'].text_is_visible = False
+                PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter]['white_move'].kill()
+                del PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter]
+                MoveNumberRectangle.rectangle_dict[Move_Tracker.move_counter].text = ""
+                MoveNumberRectangle.rectangle_dict[Move_Tracker.move_counter].kill()
+                game_controller.selected_move = [Move_Tracker.move_counter-1, "black_move"]
+                Move_Tracker.df_moves = Move_Tracker.df_moves.iloc[:-1]
+                Move_Tracker.df_prior_moves = Move_Tracker.df_prior_moves.iloc[:-1]
                 game_controller.switch_turn("black")
                 print("White takes back move, now white's turn. " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
-            print("game_controller df: \n" + str(game_controller.df_moves))
+            print("game_controller df: \n" + str(Move_Tracker.df_moves))
     def make_move(grid, piece, game_controller):
         # Default captured_abb for function to be empty string
         captured_abb = ""
@@ -892,10 +894,10 @@ class Move_Controller():
                     # Moving captured piece off the board
                     if piece_captured.coordinate == grid.coordinate:
                         if piece_captured.color == "black":
-                            piece_captured.captured(game_controller.black_captured_x, game_controller.black_captured_y, game_controller.move_counter)
+                            piece_captured.captured(game_controller.black_captured_x, game_controller.black_captured_y, Move_Tracker.move_counter)
                             game_controller.black_captured_x += initvar.BLACKANDWHITE_INCREMENTAL_X
                         elif piece_captured.color == "white":
-                            piece_captured.captured(game_controller.white_captured_x, game_controller.white_captured_y, game_controller.move_counter)
+                            piece_captured.captured(game_controller.white_captured_x, game_controller.white_captured_y, Move_Tracker.move_counter)
                             game_controller.white_captured_x += initvar.BLACKANDWHITE_INCREMENTAL_X
                         # Captured_abb used for move notation
                         captured_abb = "x"
@@ -907,7 +909,7 @@ class Move_Controller():
                     if black_pawn.taken_off_board == False:
                         if black_pawn.coordinate[0] == grid.coordinate[0] and \
                             int(black_pawn.coordinate[1]) == 5:
-                                black_pawn.captured(game_controller.black_captured_x, game_controller.black_captured_y, game_controller.move_counter)
+                                black_pawn.captured(game_controller.black_captured_x, game_controller.black_captured_y, Move_Tracker.move_counter)
                                 game_controller.black_captured_x += initvar.BLACKANDWHITE_INCREMENTAL_X
                                 captured_abb = "x"
             elif piece in play_objects.PlayPawn.black_pawn_list:
@@ -916,7 +918,7 @@ class Move_Controller():
                     if white_pawn.taken_off_board == False:
                         if white_pawn.coordinate[0] == grid.coordinate[0] and \
                             int(white_pawn.coordinate[1]) == 4:
-                                white_pawn.captured(game_controller.white_captured_x, game_controller.white_captured_y, game_controller.move_counter)
+                                white_pawn.captured(game_controller.white_captured_x, game_controller.white_captured_y, Move_Tracker.move_counter)
                                 game_controller.white_captured_x += initvar.BLACKANDWHITE_INCREMENTAL_X
                                 captured_abb = "x"
                             
@@ -929,7 +931,7 @@ class Move_Controller():
             if old_grid.coordinate == piece.coordinate:
                 old_grid.occupied = False
                 piece.previous_coordinate = old_grid.coordinate
-                piece.coordinate_history[game_controller.move_counter] = {'before':piece.previous_coordinate}
+                piece.coordinate_history[Move_Tracker.move_counter] = {'before':piece.previous_coordinate}
                 prior_moves_dict['before'] = piece.previous_coordinate
                 old_grid.prior_move_color = True
             else:
@@ -939,7 +941,7 @@ class Move_Controller():
         # Moving piece, removing piece and grid highlights, changing Turn
         piece.rect.topleft = grid.rect.topleft
         piece.coordinate = grid.coordinate
-        piece.coordinate_history[game_controller.move_counter]['after'] = piece.coordinate
+        piece.coordinate_history[Move_Tracker.move_counter]['after'] = piece.coordinate
         prior_moves_dict['after'] = piece.coordinate
         grid.occupied = True
         piece.prior_move_color = True
@@ -1027,7 +1029,7 @@ class Move_Controller():
             game_controller.switch_turn("black")
         elif(game_controller.WHOSETURN == "black"):
             game_controller.switch_turn("white")
-            game_controller.move_counter += 1
+            Move_Tracker.move_counter += 1
             
         return prior_moves_dict, captured_abb, special_abb, promoted_queen
     
@@ -1087,33 +1089,33 @@ class Move_Controller():
             if special_abb == "=Q":
                 # When the piece became promoted to a Queen
                 move_text = Move_Controller.move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb) + " "
-                game_controller.df_moves.loc[game_controller.move_counter-1, "black_move"] = Move_Controller.move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
-                piece.coordinate_history[game_controller.move_counter-1]['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
+                Move_Tracker.df_moves.loc[Move_Tracker.move_counter-1, "black_move"] = Move_Controller.move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
+                piece.coordinate_history[Move_Tracker.move_counter-1]['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
                 prior_moves_dict['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
-                game_controller.selected_move = [game_controller.move_counter-1, "black_move"]
+                game_controller.selected_move = [Move_Tracker.move_counter-1, "black_move"]
             else:
                 move_text = Move_Controller.move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb) + " "
-                game_controller.df_moves.loc[game_controller.move_counter-1, "black_move"] = Move_Controller.move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
-                piece.coordinate_history[game_controller.move_counter-1]['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
+                Move_Tracker.df_moves.loc[Move_Tracker.move_counter-1, "black_move"] = Move_Controller.move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
+                piece.coordinate_history[Move_Tracker.move_counter-1]['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
                 prior_moves_dict['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
-                game_controller.selected_move = [game_controller.move_counter-1, "black_move"]
-            game_controller.df_prior_moves.loc[game_controller.move_counter-1, "black_move"] = str(prior_moves_dict)
+                game_controller.selected_move = [Move_Tracker.move_counter-1, "black_move"]
+            Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter-1, "black_move"] = str(prior_moves_dict)
         elif(game_controller.WHOSETURN == "black"):
             if special_abb == "=Q":
-                move_text = str(game_controller.move_counter) + ". " + \
+                move_text = str(Move_Tracker.move_counter) + ". " + \
                       Move_Controller.move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb) + " "
-                game_controller.df_moves.loc[game_controller.move_counter] = [Move_Controller.move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb), '']
-                piece.coordinate_history[game_controller.move_counter]['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
+                Move_Tracker.df_moves.loc[Move_Tracker.move_counter] = [Move_Controller.move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb), '']
+                piece.coordinate_history[Move_Tracker.move_counter]['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
                 prior_moves_dict['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, promoted_queen, captured_abb, special_abb, check_abb)
-                game_controller.selected_move = [game_controller.move_counter, "white_move"]
+                game_controller.selected_move = [Move_Tracker.move_counter, "white_move"]
             else:
-                move_text = str(game_controller.move_counter) + ". " + \
+                move_text = str(Move_Tracker.move_counter) + ". " + \
                       Move_Controller.move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb) + " "
-                game_controller.df_moves.loc[game_controller.move_counter] = [Move_Controller.move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb), '']
-                piece.coordinate_history[game_controller.move_counter]['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
+                Move_Tracker.df_moves.loc[Move_Tracker.move_counter] = [Move_Controller.move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb), '']
+                piece.coordinate_history[Move_Tracker.move_counter]['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
                 prior_moves_dict['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, piece, captured_abb, special_abb, check_abb)
-                game_controller.selected_move = [game_controller.move_counter, "white_move"]
-            game_controller.df_prior_moves.loc[game_controller.move_counter, "white_move"] = str(prior_moves_dict)
+                game_controller.selected_move = [Move_Tracker.move_counter, "white_move"]
+            Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter, "white_move"] = str(prior_moves_dict)
         log.info(move_text)
         if game_controller.result_abb != "*":
             log.info(game_controller.result_abb)
@@ -1151,25 +1153,25 @@ def update_scroll_range(unit_change):
         piece_move_rect.update_Y()
 
 def draw_move_rects_on_moves_pane(my_font, game_controller):
-    if len(game_controller.df_moves) >= 1:
+    if len(Move_Tracker.df_moves) >= 1:
         # Creating move notation rectangles if they haven't been created before for the respective move
         # If the last move is not in the dictionary, then add it
-        if len(game_controller.df_moves) not in PieceMoveRectangle.rectangle_dict:
-            PieceMoveRectangle.rectangle_dict[len(game_controller.df_moves)] = {}
-            MoveNumberRectangle.rectangle_dict[len(game_controller.df_moves)] = []
+        if len(Move_Tracker.df_moves) not in PieceMoveRectangle.rectangle_dict:
+            PieceMoveRectangle.rectangle_dict[len(Move_Tracker.df_moves)] = {}
+            MoveNumberRectangle.rectangle_dict[len(Move_Tracker.df_moves)] = []
         # We want the PieceMoveRectangle.rectangle_dict to correspond to the df_moves dataframe
-        if game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'] != '' and 'white_move' not in PieceMoveRectangle.rectangle_dict[len(game_controller.df_moves)]:
+        if Move_Tracker.df_moves.loc[len(Move_Tracker.df_moves), 'white_move'] != '' and 'white_move' not in PieceMoveRectangle.rectangle_dict[len(Move_Tracker.df_moves)]:
             # Create new move number rectangle since white made a move
-            MoveNumberRectangle(len(game_controller.df_moves), initvar.MOVES_PANE_MOVE_NUMBER_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(game_controller.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)
+            MoveNumberRectangle(len(Move_Tracker.df_moves), initvar.MOVES_PANE_MOVE_NUMBER_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(Move_Tracker.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)
             # Create rectangle which will eventually be used to blit text on it
             # Parameters: Total number of moves in the game, the move itself, the color of the piece that moved, and position & size of rectangle
-            PieceMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'], 'white_move', initvar.MOVES_PANE_WHITE_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(game_controller.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)
+            PieceMoveRectangle(len(Move_Tracker.df_moves), Move_Tracker.df_moves.loc[len(Move_Tracker.df_moves), 'white_move'], 'white_move', initvar.MOVES_PANE_WHITE_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(Move_Tracker.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)
             # Scroll down automatically when a move is made
-            scroll_to_latest_move(len(game_controller.df_moves))
-        if game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'] != '' and 'black_move' not in PieceMoveRectangle.rectangle_dict[len(game_controller.df_moves)]:
+            scroll_to_latest_move(len(Move_Tracker.df_moves))
+        if Move_Tracker.df_moves.loc[len(Move_Tracker.df_moves), 'black_move'] != '' and 'black_move' not in PieceMoveRectangle.rectangle_dict[len(Move_Tracker.df_moves)]:
             # Only create PieceMoveRectangle when black moved last, don't create a new MoveNumberRectangle
-            PieceMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'black_move'], 'black_move', initvar.MOVES_PANE_BLACK_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(game_controller.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)        
-            scroll_to_latest_move(len(game_controller.df_moves))
+            PieceMoveRectangle(len(Move_Tracker.df_moves), Move_Tracker.df_moves.loc[len(Move_Tracker.df_moves), 'black_move'], 'black_move', initvar.MOVES_PANE_BLACK_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(Move_Tracker.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)        
+            scroll_to_latest_move(len(Move_Tracker.df_moves))
         draw_text_on_rects_in_moves_pane(SCREEN, my_font)
 
 def main():
@@ -1264,7 +1266,7 @@ def main():
                                 grid.no_highlight()
                             Grid_Controller.update_grid()
                         if PGN_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
-                            PGN_WRITER_AND_LOADER.write_moves(game_controller.df_moves, game_controller.result_abb)
+                            PGN_WRITER_AND_LOADER.write_moves(Move_Tracker.df_moves, game_controller.result_abb)
                         if FLIP_BOARD_BUTTON.rect.collidepoint(MOUSEPOS):
                             Grid_Controller.flip_grids()
                             if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
@@ -1414,7 +1416,7 @@ def main():
                     draw_move_rects_on_moves_pane(move_notation_font, game_controller)
                     # Update objects that aren't in a sprite group
                     SCROLL_UP_BUTTON.draw(SCREEN)
-                    SCROLL_DOWN_BUTTON.draw(SCREEN, len(game_controller.df_moves))
+                    SCROLL_DOWN_BUTTON.draw(SCREEN, len(Move_Tracker.df_moves))
                 # Board Coordinates Drawing
                 for text in range(0,len(Text_Controller.coor_letter_text_list)):
                     SCREEN.blit(Text_Controller.coor_letter_text_list[text], (initvar.X_GRID_START+initvar.X_GRID_WIDTH/3+(initvar.X_GRID_WIDTH*text), initvar.Y_GRID_START-(initvar.Y_GRID_HEIGHT*0.75)))
@@ -1437,7 +1439,7 @@ def main():
                     debug_message = 0
                     # USE BREAKPOINT HERE
                     print(str(game_controller.selected_move))
-                    #print(str(game_controller.df_moves))
+                    #print(str(Move_Tracker.df_moves))
                     log.info("Use breakpoint here")
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
