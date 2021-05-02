@@ -593,13 +593,10 @@ class Game_Controller():
     def __del__(self):
         Text_Controller.reset()
         # Kill all Objects within their Class lists/dicts
-        for spr_list in [play_objects.PlayPawn.white_pawn_list, play_objects.PlayBishop.white_bishop_list, 
-                 play_objects.PlayKnight.white_knight_list, play_objects.PlayRook.white_rook_list,
-                 play_objects.PlayQueen.white_queen_list, play_objects.PlayKing.white_king_list, 
-                 play_objects.PlayPawn.black_pawn_list, play_objects.PlayBishop.black_bishop_list, 
-                 play_objects.PlayKnight.black_knight_list, play_objects.PlayRook.black_rook_list,
-                 play_objects.PlayQueen.black_queen_list, play_objects.PlayKing.black_king_list,
-                 MoveNumberRectangle.rectangle_list, PieceMoveRectangle.rectangle_list]:
+        for spr_list in play_objects.Reference_Piece_List.all_pieces():
+            for obj in spr_list:
+                obj.kill()
+        for spr_list in [MoveNumberRectangle.rectangle_list, PieceMoveRectangle.rectangle_list]:
             for obj in spr_list:
                 obj.kill()
         play_objects.PlayPawn.white_pawn_list = []
@@ -1435,7 +1432,9 @@ def main():
                     debug_message = 0
                     # USE BREAKPOINT HERE
                     #print(str(MOUSE_COORD))
-                    print("PLACED SPRITES: " + str(placed_objects.PLACED_SPRITES.__dict__))
+                    print("PLAY OBJECTS PAWN REF LIST " + str(play_objects.ref_list))
+                    print("\nPLAY PAWN " + str(play_objects.ref_list))
+                    #print("PLACED SPRITES: " + str(placed_objects.PLACED_SPRITES.__dict__))
                     #print(str(game_controller.df_prior_moves))
                     log.info("Use breakpoint here")
                 for event in pygame.event.get():
