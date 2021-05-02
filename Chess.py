@@ -19,6 +19,7 @@ Game Properties (use Babaschess for model)
 
 Clean Code Ideas:
 Whenever there is a list of white pieces, black pieces, white pieces without king, black pieces without king, or all pieces, use a different reference to shorten it
+--> Might not do this because it's dangerous to mess with references
 Edit_Mode_Controller to handle all the clicking event functions
 
 Features To-Do (long-term):
@@ -111,31 +112,15 @@ def pos_load_file(reset=False):
             return
         loaded_file = open_file.read()
         loaded_dict = literal_eval(loaded_file)
-            
-    for play_white_pawn in play_objects.PlayPawn.white_pawn_list:
-        play_white_pawn.destroy()
-    for play_white_bishop in play_objects.PlayBishop.white_bishop_list:
-        play_white_bishop.destroy()
-    for play_white_knight in play_objects.PlayKnight.white_knight_list:
-        play_white_knight.destroy()
-    for play_white_rook in play_objects.PlayRook.white_rook_list:
-        play_white_rook.destroy()
-    for play_white_queen in play_objects.PlayQueen.white_queen_list:
-        play_white_queen.destroy()
-    for play_white_king in play_objects.PlayKing.white_king_list:
-        play_white_king.destroy()
-    for play_black_pawn in play_objects.PlayPawn.black_pawn_list:
-        play_black_pawn.destroy()
-    for play_black_bishop in play_objects.PlayBishop.black_bishop_list:
-        play_black_bishop.destroy()
-    for play_black_knight in play_objects.PlayKnight.black_knight_list:
-        play_black_knight.destroy()
-    for play_black_rook in play_objects.PlayRook.black_rook_list:
-        play_black_rook.destroy()
-    for play_black_queen in play_objects.PlayQueen.black_queen_list:
-        play_black_queen.destroy()
-    for play_black_king in play_objects.PlayKing.black_king_list:
-        play_black_king.destroy()
+    
+    for obj_list in [play_objects.PlayPawn.white_pawn_list, play_objects.PlayBishop.white_bishop_list,
+                play_objects.PlayKnight.white_knight_list, play_objects.PlayRook.white_rook_list,
+                play_objects.PlayQueen.white_queen_list, play_objects.PlayKing.white_king_list,
+                play_objects.PlayPawn.black_pawn_list, play_objects.PlayBishop.black_bishop_list,
+                play_objects.PlayKnight.black_knight_list, play_objects.PlayRook.black_rook_list,
+                play_objects.PlayQueen.black_queen_list, play_objects.PlayKing.black_king_list]:
+        for obj in obj_list:
+            obj.destroy()
     if open_file:
         open_file.close()
     
@@ -406,20 +391,20 @@ class PGN_Writer_and_Loader():
                 
                 if move == "O-O":
                     if game_controller.WHOSETURN == "white":
-                        type_of_piece_list = PlayKing.white_king_list
+                        type_of_piece_list = play_objects.PlayKing.white_king_list
                         grid_coordinate = 'g1'
                     elif game_controller.WHOSETURN == "black":
-                        type_of_piece_list = PlayKing.black_king_list
+                        type_of_piece_list = play_objects.PlayKing.black_king_list
                         grid_coordinate = 'g8'
                     piece = type_of_piece_list[0]
                     prior_moves_dict, captured_abb, special_abb, promoted_queen = Move_Controller.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller)
                     Move_Controller.game_status_check(game_controller, board.Grid.grid_dict[grid_coordinate], piece, prior_moves_dict, captured_abb, special_abb, promoted_queen)
                 elif move == "O-O-O":
                     if game_controller.WHOSETURN == "white":
-                        type_of_piece_list = PlayKing.white_king_list
+                        type_of_piece_list = play_objects.PlayKing.white_king_list
                         grid_coordinate = 'c1'
                     elif game_controller.WHOSETURN == "black":
-                        type_of_piece_list = PlayKing.black_king_list
+                        type_of_piece_list = play_objects.PlayKing.black_king_list
                         grid_coordinate = 'c8'
                     piece = determine_piece(type_of_piece_list, move, grid_coordinate, game_controller)
                     prior_moves_dict, captured_abb, special_abb, promoted_queen = Move_Controller.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller)
@@ -817,12 +802,12 @@ class Move_Controller():
         elif special_abb == "=Q":
             recorded_move = prefix + captured_abb + piece.coordinate[0] + piece.coordinate[1] + special_abb + check_abb
         return recorded_move
-    def undo_move():
-        if self.WHOSETURN == "white":
-            if self.move_counter > 1:
+    def undo_move(game_controller):
+        if game_controller.WHOSETURN == "white":
+            if game_controller.move_counter > 1:
                 pass
                 #game_controller.df_prior_moves.loc[game_controller.move_counter-1,]
-        elif self.WHOSETURN == "black":
+        elif game_controller.WHOSETURN == "black":
             pass
     def make_move(grid, piece, game_controller):
         # Default captured_abb for function to be empty string
@@ -1369,7 +1354,7 @@ def main():
                             MENUON = 2
                         if CLEAR_BUTTON.rect.collidepoint(MOUSEPOS):
                             if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE: #Editing mode
-                                START.restart_start_positions()
+                                start_objects.Start.restart_start_positions()
                                 # REMOVE ALL SPRITES
                                 placed_objects.remove_all_placed()
                     
