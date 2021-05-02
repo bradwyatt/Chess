@@ -4,6 +4,15 @@ import board
 
 PLAY_SPRITES = pygame.sprite.Group()
 
+class Piece_Lists_Shortcut():
+    def all_pieces():
+        return [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
+                PlayKnight.white_knight_list, PlayRook.white_rook_list, 
+                PlayQueen.white_queen_list, PlayKing.white_king_list,
+                PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
+                PlayKnight.black_knight_list, PlayRook.black_rook_list, 
+                PlayQueen.black_queen_list, PlayKing.black_king_list]
+
 class ChessPiece:
     def __init__(self, coord, image, col):
         PLAY_SPRITES.add(self)
@@ -783,25 +792,4 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
             else:
                 self.image = IMAGES["SPR_BLACK_KING"]
         self.select = 0
-"""
-white_pawn_list_reference = PlayPawn.white_pawn_list
-white_bishop_list_reference = PlayBishop.white_pawn_list
-white_knight_list_reference = PlayKnight.white_pawn_list
-white_rook_list_reference = PlayRook.white_pawn_list
-white_queen_list_reference = PlayQueen.white_pawn_list
-white_king_list_reference = PlayKing.white_pawn_list
-black_pawn_list_reference = PlayPawn.black_pawn_list
-black_bishop_list_reference = PlayBishop.black_bishop_list
-black_knight_list_reference = PlayKnight.black_knight_list
-black_rook_list_reference = PlayRook.black_rook_list
-black_queen_list_reference = PlayQueen.black_queen_list
-black_king_list_reference = PlayKing.black_king_list
-"""
-class Reference_Piece_List():
-    def all_pieces():
-        return [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
-                PlayKnight.white_knight_list, PlayRook.white_rook_list, 
-                PlayQueen.white_queen_list, PlayKing.white_king_list,
-                PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
-                PlayKnight.black_knight_list, PlayRook.black_rook_list, 
-                PlayQueen.black_queen_list, PlayKing.black_king_list]
+

@@ -593,7 +593,7 @@ class Game_Controller():
     def __del__(self):
         Text_Controller.reset()
         # Kill all Objects within their Class lists/dicts
-        for spr_list in play_objects.Reference_Piece_List.all_pieces():
+        for spr_list in play_objects.Piece_Lists_Shortcut.all_pieces():
             for obj in spr_list:
                 obj.kill()
         for spr_list in [MoveNumberRectangle.rectangle_list, PieceMoveRectangle.rectangle_list]:
