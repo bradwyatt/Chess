@@ -74,6 +74,7 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
     def highlight(self):
         if self.taken_off_board != True:
             if(self.color == "white"):
+                print("coordinate is " + str(self.coordinate))
                 self.image = IMAGES["SPR_WHITE_PAWN_HIGHLIGHTED"]
             elif(self.color == "black"):
                 self.image = IMAGES["SPR_BLACK_PAWN_HIGHLIGHTED"]

@@ -471,38 +471,51 @@ class Grid_Controller():
                 grid.rect.topleft = grid.initial_rect_top_left
             Grid_Controller.flipped = False
         Text_Controller.flip_board()
-
-                
+    def grid_occupied_by_piece(grid):
+        for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
+            for piece in piece_list:
+                if grid.rect.topleft == piece.rect.topleft:
+                    grid.occupied = True
+                    if piece.color == "white":
+                        grid.occupied_piece_color = "white"
+                    elif piece.color == "black":
+                        grid.occupied_piece_color = "black"
+                    if(piece in play_objects.PlayPawn.white_pawn_list or piece in play_objects.PlayPawn.black_pawn_list):
+                        grid.occupied_piece = "pawn"
+                    elif(piece in play_objects.PlayBishop.white_bishop_list or piece in play_objects.PlayBishop.black_bishop_list):
+                        grid.occupied_piece = "bishop"
+                    elif(piece in play_objects.PlayKnight.white_knight_list or piece in play_objects.PlayKnight.black_knight_list):
+                        grid.occupied_piece = "knight"
+                    elif(piece in play_objects.PlayRook.white_rook_list or piece in play_objects.PlayRook.black_rook_list):
+                        grid.occupied_piece = "rook"
+                    elif(piece in play_objects.PlayQueen.white_queen_list or piece in play_objects.PlayQueen.black_queen_list):
+                        grid.occupied_piece = "queen"
+                    elif(piece in play_objects.PlayKing.white_king_list or piece in play_objects.PlayKing.black_king_list):
+                        grid.occupied_piece = "king"
+                    return
+        else:
+            grid.occupied = False
+            grid.occupied_piece = ""
+            grid.occupied_piece_color = ""
     def update_grid():
         for grid in board.Grid.grid_list:
             if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
-                def grid_occupied_by_piece():
-                    for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
-                        for piece in piece_list:
-                            if grid.rect.topleft == piece.rect.topleft:
-                                grid.occupied = True
-                                if piece.color == "white":
-                                    grid.occupied_piece_color = "white"
-                                elif piece.color == "black":
-                                    grid.occupied_piece_color = "black"
-                                if(piece in play_objects.PlayPawn.white_pawn_list or piece in play_objects.PlayPawn.black_pawn_list):
-                                    grid.occupied_piece = "pawn"
-                                elif(piece in play_objects.PlayBishop.white_bishop_list or piece in play_objects.PlayBishop.black_bishop_list):
-                                    grid.occupied_piece = "bishop"
-                                elif(piece in play_objects.PlayKnight.white_knight_list or piece in play_objects.PlayKnight.black_knight_list):
-                                    grid.occupied_piece = "knight"
-                                elif(piece in play_objects.PlayRook.white_rook_list or piece in play_objects.PlayRook.black_rook_list):
-                                    grid.occupied_piece = "rook"
-                                elif(piece in play_objects.PlayQueen.white_queen_list or piece in play_objects.PlayQueen.black_queen_list):
-                                    grid.occupied_piece = "queen"
-                                elif(piece in play_objects.PlayKing.white_king_list or piece in play_objects.PlayKing.black_king_list):
-                                    grid.occupied_piece = "king"
-                                return
-                    else:
-                        grid.occupied = False
-                        grid.occupied_piece = ""
-                        grid.occupied_piece_color = ""
-                grid_occupied_by_piece()
+                Grid_Controller.grid_occupied_by_piece(grid)
+    def prior_move_color(grid_coordinate, prior_move_piece):
+        for grid in board.Grid.grid_list:
+            if grid.coordinate == grid_coordinate:
+                grid.prior_move_color = True
+            else:
+                grid.prior_move_color = False
+            grid.no_highlight()
+        for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
+            for piece in piece_list:
+                if piece == prior_move_piece:
+                    piece.prior_move_color = True
+                else:
+                    piece.prior_move_color = False
+                piece.no_highlight()
+        
 
 class Switch_Modes_Controller():
     EDIT_MODE, PLAY_MODE = 0, 1
@@ -925,7 +938,8 @@ class Move_Controller():
         # Reset en passant skipover for all squares
         for sub_grid in board.Grid.grid_list:
             sub_grid.en_passant_skipover = False
-            
+        
+        chosen_prior_grid = None
         # Grid is no longer occupied by a piece
         for old_grid in board.Grid.grid_list:
             if old_grid.coordinate == piece.coordinate:
@@ -933,10 +947,7 @@ class Move_Controller():
                 piece.previous_coordinate = old_grid.coordinate
                 piece.coordinate_history[Move_Tracker.move_counter] = {'before':piece.previous_coordinate}
                 prior_moves_dict['before'] = piece.previous_coordinate
-                old_grid.prior_move_color = True
-            else:
-                old_grid.prior_move_color = False
-                old_grid.no_highlight()
+                chosen_prior_grid = old_grid
                 
         # Moving piece, removing piece and grid highlights, changing Turn
         piece.rect.topleft = grid.rect.topleft
@@ -944,9 +955,9 @@ class Move_Controller():
         piece.coordinate_history[Move_Tracker.move_counter]['after'] = piece.coordinate
         prior_moves_dict['after'] = piece.coordinate
         grid.occupied = True
-        piece.prior_move_color = True
-        piece.no_highlight()
         
+        Grid_Controller.prior_move_color(chosen_prior_grid.coordinate, piece)
+
         #########
         # RULES AFTER MOVE
         #########
