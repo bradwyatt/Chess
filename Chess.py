@@ -803,21 +803,38 @@ class Move_Controller():
         piece_to_undo = None
         if len(game_controller.df_prior_moves) >= 1:
             if game_controller.WHOSETURN == "white":
-                #piece_coordinate_before = game_controller.df_prior_moves.loc[game_controller.move_counter-1, "black_move"]['before']
+                piece_coordinate_move_notation = eval(game_controller.df_prior_moves.loc[game_controller.move_counter-1, "black_move"])['move_notation']
                 for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
                     for black_piece in black_piece_list:
                         for piece_history in black_piece.coordinate_history.keys():
                             if game_controller.move_counter-1 == piece_history:
                                 piece_to_undo = black_piece
             elif game_controller.WHOSETURN == "black":
-                #piece_coordinate_before = game_controller.df_prior_moves.loc[game_controller.move_counter, "white_move"]['before']
+                piece_coordinate_move_notation = eval(game_controller.df_prior_moves.loc[game_controller.move_counter, "white_move"])['move_notation']
                 for white_piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
                     for white_piece in white_piece_list:
                         for piece_history in white_piece.coordinate_history.keys():
                             if game_controller.move_counter == piece_history:
                                 piece_to_undo = white_piece
-        print(str(piece_to_undo.__dict__))
-
+            if 'x' in piece_coordinate_move_notation:
+                #print("Latest move is " + str(piece_coordinate_move_notation) + "\n")
+                if piece_to_undo.color == "black":
+                    for white_piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
+                        for white_piece in white_piece_list:
+                            if white_piece.taken_off_board == True:
+                                print("THE TAKEN WHITE PIECE " + str(white_piece.__dict__))
+                                if white_piece.captured_move_number_and_coordinate['move_number'] == game_controller.move_counter-1 \
+                                    and white_piece.captured_move_number_and_coordinate['coordinate'] == eval(game_controller.df_prior_moves.loc[game_controller.move_counter-1, "black_move"])['after']:
+                                        print("White piece that is off the baord " + str(white_piece))
+                elif piece_to_undo.color == "white":
+                    for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
+                        for black_piece in black_piece_list:
+                            if black_piece.taken_off_board == True:
+                                print("THE TAKEN BLACK PIECE " + str(black_piece.__dict__))
+                                if black_piece.captured_move_number_and_coordinate['move_number'] == game_controller.move_counter \
+                                    and black_piece.captured_move_number_and_coordinate['coordinate'] == eval(game_controller.df_prior_moves.loc[game_controller.move_counter, "white_move"])['after']:
+                                        print("Black piece that is off the baord " + str(black_piece))
+                                        
     def make_move(grid, piece, game_controller):
         # Default captured_abb for function to be empty string
         captured_abb = ""
@@ -839,10 +856,10 @@ class Move_Controller():
                     # Moving captured piece off the board
                     if piece_captured.coordinate == grid.coordinate:
                         if piece_captured.color == "black":
-                            piece_captured.captured(game_controller.black_captured_x, game_controller.black_captured_y)
+                            piece_captured.captured(game_controller.black_captured_x, game_controller.black_captured_y, game_controller.move_counter)
                             game_controller.black_captured_x += initvar.BLACKANDWHITE_INCREMENTAL_X
                         elif piece_captured.color == "white":
-                            piece_captured.captured(game_controller.white_captured_x, game_controller.white_captured_y)
+                            piece_captured.captured(game_controller.white_captured_x, game_controller.white_captured_y, game_controller.move_counter)
                             game_controller.white_captured_x += initvar.BLACKANDWHITE_INCREMENTAL_X
                         # Captured_abb used for move notation
                         captured_abb = "x"
@@ -854,7 +871,7 @@ class Move_Controller():
                     if black_pawn.taken_off_board == False:
                         if black_pawn.coordinate[0] == grid.coordinate[0] and \
                             int(black_pawn.coordinate[1]) == 5:
-                                black_pawn.captured(game_controller.black_captured_x, game_controller.black_captured_y)
+                                black_pawn.captured(game_controller.black_captured_x, game_controller.black_captured_y, game_controller.move_counter)
                                 game_controller.black_captured_x += initvar.BLACKANDWHITE_INCREMENTAL_X
                                 captured_abb = "x"
             elif piece in play_objects.PlayPawn.black_pawn_list:
@@ -863,7 +880,7 @@ class Move_Controller():
                     if white_pawn.taken_off_board == False:
                         if white_pawn.coordinate[0] == grid.coordinate[0] and \
                             int(white_pawn.coordinate[1]) == 4:
-                                white_pawn.captured(game_controller.white_captured_x, game_controller.white_captured_y)
+                                white_pawn.captured(game_controller.white_captured_x, game_controller.white_captured_y, game_controller.move_counter)
                                 game_controller.white_captured_x += initvar.BLACKANDWHITE_INCREMENTAL_X
                                 captured_abb = "x"
                             
