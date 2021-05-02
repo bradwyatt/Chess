@@ -802,6 +802,7 @@ class Move_Controller():
     def undo_move(game_controller):
         piece_to_undo = None
         if len(game_controller.df_prior_moves) >= 1:
+            # Finding the latest piece to undo
             if game_controller.WHOSETURN == "white":
                 piece_coordinate_move_notation = eval(game_controller.df_prior_moves.loc[game_controller.move_counter-1, "black_move"])['move_notation']
                 for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
@@ -817,6 +818,7 @@ class Move_Controller():
                             if game_controller.move_counter == piece_history:
                                 piece_to_undo = white_piece
             if 'x' in piece_coordinate_move_notation:
+                # Detect pieces that have been taken
                 #print("Latest move is " + str(piece_coordinate_move_notation) + "\n")
                 if piece_to_undo.color == "black":
                     for white_piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
@@ -834,6 +836,24 @@ class Move_Controller():
                                 if black_piece.captured_move_number_and_coordinate['move_number'] == game_controller.move_counter \
                                     and black_piece.captured_move_number_and_coordinate['coordinate'] == eval(game_controller.df_prior_moves.loc[game_controller.move_counter, "white_move"])['after']:
                                         print("Black piece that is off the baord " + str(black_piece))
+            if game_controller.WHOSETURN == "white":
+                piece_to_undo.coordinate = piece_to_undo.coordinate_history[game_controller.move_counter-1]['before']
+                piece_to_undo.rect.topleft = board.Grid.grid_dict[piece_to_undo.coordinate].rect.topleft
+                board.Grid.grid_dict[piece_to_undo.coordinate].occupied = True
+                piece_to_undo.prior_move_color = True
+                piece_to_undo.no_highlight()
+                del piece_to_undo.coordinate_history[game_controller.move_counter]
+                game_controller.WHOSETURN = "black"
+                print("Undo white move, now black's turn")
+            elif game_controller.WHOSETURN == "black":
+                piece_to_undo.coordinate = piece_to_undo.coordinate_history[game_controller.move_counter]['before']
+                piece_to_undo.rect.topleft = board.Grid.grid_dict[piece_to_undo.coordinate].rect.topleft
+                board.Grid.grid_dict[piece_to_undo.coordinate].occupied = True
+                piece_to_undo.prior_move_color = True
+                piece_to_undo.no_highlight()
+                del piece_to_undo.coordinate_history[game_controller.move_counter]
+                game_controller.WHOSETURN = "white"
+                print("Undo black move, now white's turn")
                                         
     def make_move(grid, piece, game_controller):
         # Default captured_abb for function to be empty string
