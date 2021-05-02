@@ -432,12 +432,7 @@ class PGN_Writer_and_Loader():
                 draw_move_rects_on_moves_pane(pygame.font.SysFont('Arial', 16), game_controller)
                 
         def prior_move_off(current_coord):
-            for play_obj_list in (play_objects.PlayPawn.white_pawn_list, play_objects.PlayBishop.white_bishop_list,
-                                     play_objects.PlayKnight.white_knight_list, play_objects.PlayRook.white_rook_list,
-                                     play_objects.PlayQueen.white_queen_list, play_objects.PlayKing.white_king_list,
-                                     play_objects.PlayPawn.black_pawn_list, play_objects.PlayBishop.black_bishop_list,
-                                     play_objects.PlayKnight.black_knight_list, play_objects.PlayRook.black_rook_list,
-                                     play_objects.PlayQueen.black_queen_list, play_objects.PlayKing.black_king_list):
+            for play_obj_list in play_objects.Piece_Lists_Shortcut.all_pieces():
                 for play_obj in play_obj_list:
                     if play_obj.coordinate == grid_coordinate:
                         play_obj.prior_move_color = True
@@ -451,12 +446,7 @@ class PGN_Writer_and_Loader():
         prior_move_off(grid_coordinate)
         
         # This goes through all pieces available moves
-        for piece_list in [play_objects.PlayPawn.white_pawn_list, play_objects.PlayBishop.white_bishop_list, 
-                           play_objects.PlayKnight.white_knight_list, play_objects.PlayRook.white_rook_list, 
-                           play_objects.PlayQueen.white_queen_list, play_objects.PlayKing.white_king_list,
-                           play_objects.PlayPawn.black_pawn_list, play_objects.PlayBishop.black_bishop_list,
-                           play_objects.PlayKnight.black_knight_list, play_objects.PlayRook.black_rook_list,
-                           play_objects.PlayQueen.black_queen_list, play_objects.PlayKing.black_king_list]:
+        for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
             for piece in piece_list:
                 piece.spaces_available(game_controller)
             
@@ -496,12 +486,7 @@ class Grid_Controller():
         for grid in board.Grid.grid_list:
             if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
                 def grid_occupied_by_piece():
-                    for piece_list in [play_objects.PlayPawn.white_pawn_list, play_objects.PlayBishop.white_bishop_list, 
-                                       play_objects.PlayKnight.white_knight_list, play_objects.PlayRook.white_rook_list, 
-                                       play_objects.PlayQueen.white_queen_list, play_objects.PlayKing.white_king_list,
-                                       play_objects.PlayPawn.black_pawn_list, play_objects.PlayBishop.black_bishop_list,
-                                       play_objects.PlayKnight.black_knight_list, play_objects.PlayRook.black_rook_list,
-                                       play_objects.PlayQueen.black_queen_list, play_objects.PlayKing.black_king_list]:
+                    for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
                         for piece in piece_list:
                             if grid.rect.topleft == piece.rect.topleft:
                                 grid.occupied = True
