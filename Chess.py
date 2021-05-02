@@ -956,58 +956,44 @@ class Move_Controller():
     
     def game_status_check(game_controller, grid, piece, prior_moves_dict, captured_abb, special_abb, promoted_queen=None):
         check_abb = ""
+        def stalemate_check(game_controller, whoseturn):
+            for subgrid in board.Grid.grid_list:
+                if len(subgrid.coords_of_available_pieces[whoseturn]) > 0:
+                    # No check, no checkmate, no stalemate
+                    Text_Controller.check_checkmate_text = ""
+                    return "*"
+            Text_Controller.check_checkmate_text = "Stalemate"
+            return "1/2-1/2"
+        def checkmate_check(game_controller, whoseturn):
+            for subgrid in board.Grid.grid_list:
+                if len(subgrid.coords_of_available_pieces[whoseturn]) > 0:
+                    # If able to detect that a grid can be available, that means it's NOT checkmate
+                    return "+", "*"
+            Text_Controller.check_checkmate_text = "White wins"
+            return "#", "1-0"
         if game_controller.color_in_check == "black":
             Text_Controller.check_checkmate_text = "Black King checked"
             for piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
                 for sub_piece in piece_list:
                     sub_piece.spaces_available(game_controller)
-            def checkmate_check(game_controller):
-                for subgrid in board.Grid.grid_list:
-                    if len(subgrid.coords_of_available_pieces['black']) > 0:
-                        # If able to detect that a grid can be available, that means it's NOT checkmate
-                        return "+", "*"
-                Text_Controller.check_checkmate_text = "White wins"
-                return "#", "1-0"
-            check_abb, game_controller.result_abb = checkmate_check(game_controller)
+            check_abb, game_controller.result_abb = checkmate_check(game_controller, 'black')
         elif game_controller.color_in_check == "white":
             Text_Controller.check_checkmate_text = "White King checked"
             for piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
                 for sub_piece in piece_list:
                     sub_piece.spaces_available(game_controller)
-            def checkmate_check(game_controller):
-                for subgrid in board.Grid.grid_list:
-                    if len(subgrid.coords_of_available_pieces['white']) > 0:
-                        # If able to detect that a grid can be available, that means it's NOT checkmate
-                        return "+", "*"
-                Text_Controller.check_checkmate_text = "Black wins"
-                return "#", "0-1"
-            check_abb, game_controller.result_abb = checkmate_check(game_controller)
+            check_abb, game_controller.result_abb = checkmate_check(game_controller, 'white')
         elif game_controller.color_in_check == "" and game_controller.WHOSETURN == "white":
             for piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
                 for sub_piece in piece_list:
                     sub_piece.spaces_available(game_controller)
-            def stalemate_check(game_controller):
-                for subgrid in board.Grid.grid_list:
-                    if len(subgrid.coords_of_available_pieces['white']) > 0:
-                        # No check, no checkmate, no stalemate
-                        Text_Controller.check_checkmate_text = ""
-                        return "*"
-                Text_Controller.check_checkmate_text = "Stalemate"
-                return "1/2-1/2"
-            game_controller.result_abb = stalemate_check(game_controller)
+
+            game_controller.result_abb = stalemate_check(game_controller, 'white')
         elif game_controller.color_in_check == "" and game_controller.WHOSETURN == "black":
             for piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
                 for sub_piece in piece_list:
                     sub_piece.spaces_available(game_controller)
-            def stalemate_check(game_controller):
-                for subgrid in board.Grid.grid_list:
-                    if len(subgrid.coords_of_available_pieces['black']) > 0:
-                        # No check, no checkmate, no stalemate
-                        Text_Controller.check_checkmate_text = ""
-                        return "*"
-                Text_Controller.check_checkmate_text = "Stalemate"
-                return "1/2-1/2"
-            game_controller.result_abb = stalemate_check(game_controller)
+            game_controller.result_abb = stalemate_check(game_controller, 'black')
         else:
             # No checks
             Text_Controller.check_checkmate_text = ""
