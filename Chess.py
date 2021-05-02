@@ -18,8 +18,6 @@ Latest move
 Game Properties (use Babaschess for model)
 
 Clean Code Ideas:
-Whenever there is a list of white pieces, black pieces, white pieces without king, black pieces without king, or all pieces, use a different reference to shorten it
---> Might not do this because it's dangerous to mess with references
 Edit_Mode_Controller to handle all the clicking event functions
 
 Features To-Do (long-term):
