@@ -256,7 +256,7 @@ class PGN_Writer_and_Loader():
             return
         Switch_Modes_Controller.switch_mode(Switch_Modes_Controller.PLAY_MODE, PLAY_EDIT_SWITCH_BUTTON)
         game_controller = Game_Controller(Grid_Controller.flipped)
-        game_controller.spawn_play_objects()
+        game_controller.refresh_objects()
         
         loaded_file = open_file.read()
         all_components_split = loaded_file.split("\n")
@@ -564,7 +564,7 @@ class Game_Controller():
                         piece.rect.topleft = piece.rect.topleft[0], self.white_captured_y
                     elif piece.color == "black":
                         piece.rect.topleft = piece.rect.topleft[0], self.black_captured_y
-    def spawn_play_objects(self):
+    def refresh_objects(self):
         Grid_Controller.update_grid()
         self.projected_white_update()
         self.projected_black_update()
@@ -834,6 +834,9 @@ class Move_Controller():
                             game_controller.white_captured_x += initvar.BLACKANDWHITE_INCREMENTAL_X
                         # Captured_abb used for move notation
                         captured_abb = "x"
+                        print("Capturer piece color " + str(piece.color) + " with blackcapturex " + str(game_controller.black_captured_x) \
+                              + " with blackcapturey " + str(game_controller.black_captured_y) + " with whitecapturex " + \
+                                  str(game_controller.white_captured_x) + " with whitecapturey " + str(game_controller.white_captured_y))
         # En Passant Capture
         if grid.en_passant_skipover == True:
             if piece in play_objects.PlayPawn.white_pawn_list:
@@ -842,7 +845,7 @@ class Move_Controller():
                     if black_pawn.taken_off_board == False:
                         if black_pawn.coordinate[0] == grid.coordinate[0] and \
                             int(black_pawn.coordinate[1]) == 5:
-                                black_pawn.captured(game_controller.black_captured_x, initvar.BLACK_CAPTURED_Y)
+                                black_pawn.captured(game_controller.black_captured_x, game_controller.black_captured_y)
                                 game_controller.black_captured_x += initvar.BLACKANDWHITE_INCREMENTAL_X
                                 captured_abb = "x"
             elif piece in play_objects.PlayPawn.black_pawn_list:
@@ -851,7 +854,7 @@ class Move_Controller():
                     if white_pawn.taken_off_board == False:
                         if white_pawn.coordinate[0] == grid.coordinate[0] and \
                             int(white_pawn.coordinate[1]) == 4:
-                                white_pawn.captured(game_controller.white_captured_x, initvar.WHITE_CAPTURED_Y)
+                                white_pawn.captured(game_controller.white_captured_x, game_controller.white_captured_y)
                                 game_controller.white_captured_x += initvar.BLACKANDWHITE_INCREMENTAL_X
                                 captured_abb = "x"
                             
@@ -891,7 +894,7 @@ class Move_Controller():
                 promoted_queen = play_objects.PlayQueen(piece.coordinate, "white")
                 promoted_queen.previous_coordinate = piece.previous_coordinate
                 # Take white pawn off the board
-                piece.captured(game_controller.white_captured_x, initvar.WHITE_CAPTURED_Y)
+                piece.captured(game_controller.white_captured_x, game_controller.white_captured_y)
                 game_controller.white_captured_x += initvar.BLACKANDWHITE_INCREMENTAL_X
             # Detects that pawn was just moved
             elif int(piece.coordinate[1]) == 4 and piece.previous_coordinate[0] == piece.coordinate[0] and \
@@ -909,7 +912,7 @@ class Move_Controller():
                 promoted_queen = play_objects.PlayQueen(piece.coordinate, "black")
                 promoted_queen.previous_coordinate = piece.previous_coordinate
                 # Take black pawn off the board
-                piece.captured(game_controller.black_captured_x, initvar.BLACK_CAPTURED_Y)
+                piece.captured(game_controller.black_captured_x, game_controller.black_captured_y)
                 game_controller.black_captured_x += initvar.BLACKANDWHITE_INCREMENTAL_X
             # Detects that pawn was just moved
             elif int(piece.coordinate[1]) == 5 and piece.previous_coordinate[0] == piece.coordinate[0] and \
@@ -1280,7 +1283,7 @@ def main():
                             # Makes clicking play again unclickable    
                             Switch_Modes_Controller.switch_mode(Switch_Modes_Controller.PLAY_MODE, PLAY_EDIT_SWITCH_BUTTON)
                             game_controller = Game_Controller(Grid_Controller.flipped)
-                            game_controller.spawn_play_objects()
+                            game_controller.refresh_objects()
 
                         #################
                         # LEFT CLICK (RELEASE) STOP BUTTON
