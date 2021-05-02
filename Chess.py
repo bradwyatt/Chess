@@ -856,9 +856,17 @@ class Move_Controller():
                 piece_to_undo.prior_move_color = False
                 piece_to_undo.no_highlight()
                 del piece_to_undo.coordinate_history[game_controller.move_counter]
+                #print("BEFORE: " + str(MoveNumberRectangle.rectangle_dict))
+                for chosen_rect in PieceMoveRectangle.rectangle_dict[game_controller.move_counter]:
+                    chosen_rect.text_is_visible = False
+                    chosen_rect.kill()
+                del PieceMoveRectangle.rectangle_dict[game_controller.move_counter]
+                MoveNumberRectangle.rectangle_dict[game_controller.move_counter].text = ""
+                MoveNumberRectangle.rectangle_dict[game_controller.move_counter].kill()
                 game_controller.df_moves = game_controller.df_moves.iloc[:-1]
                 game_controller.df_prior_moves = game_controller.df_prior_moves.iloc[:-1]
                 game_controller.WHOSETURN = "white"
+                print("\n Rectangle dict: " + str(PieceMoveRectangle.rectangle_dict))
                 #game_controller.switch_turn("black")
                 print("White takes back move, now white's turn. " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
             print("game_controller df: \n" + str(game_controller.df_moves))
@@ -1152,6 +1160,7 @@ def draw_move_rects_on_moves_pane(my_font, game_controller):
         if game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'] != '' and len(PieceMoveRectangle.rectangle_dict[len(game_controller.df_moves)]) == 0:
             # Create new move number rectangle since white made a move
             MoveNumberRectangle(len(game_controller.df_moves), initvar.MOVES_PANE_MOVE_NUMBER_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(game_controller.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)
+            print("CREATE NEW !!!! with len df moves of " + str(len(game_controller.df_moves)))
             # Create rectangle which will eventually be used to blit text on it
             # Parameters: Total number of moves in the game, the move itself, the color of the piece that moved, and position & size of rectangle
             PieceMoveRectangle(len(game_controller.df_moves), game_controller.df_moves.loc[len(game_controller.df_moves), 'white_move'], 'white', initvar.MOVES_PANE_WHITE_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(game_controller.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)
