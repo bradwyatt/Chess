@@ -890,7 +890,8 @@ class Move_Controller():
                                 #print("THE TAKEN WHITE PIECE " + str(white_piece.__dict__))
                                 if white_piece.captured_move_number_and_coordinate['move_number'] == Move_Tracker.move_counter() \
                                     and white_piece.captured_move_number_and_coordinate['coordinate'] == eval(Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "black_move"])['after']:
-                                        print("White piece that is off the board " + str(white_piece))
+                                    white_piece.coordinate = piece_to_undo.coordinate_history[Move_Tracker.move_counter()]['before']
+                                    white_piece.rect.topleft = board.Grid.grid_dict[white_piece.coordinate].rect.topleft
                 elif piece_to_undo.color == "white":
                     for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
                         for black_piece in black_piece_list:
@@ -902,8 +903,6 @@ class Move_Controller():
             if game_controller.WHOSETURN == "white":
                 piece_to_undo.coordinate = piece_to_undo.coordinate_history[Move_Tracker.move_counter()]['before']
                 piece_to_undo.rect.topleft = board.Grid.grid_dict[piece_to_undo.coordinate].rect.topleft
-                piece_to_undo.prior_move_color = False
-                piece_to_undo.no_highlight()
                 del piece_to_undo.coordinate_history[Move_Tracker.move_counter()]
                 PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['black_move'].text_is_visible = False
                 PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['black_move'].kill()
@@ -915,8 +914,6 @@ class Move_Controller():
             elif game_controller.WHOSETURN == "black":
                 piece_to_undo.coordinate = piece_to_undo.coordinate_history[Move_Tracker.move_counter()]['before']
                 piece_to_undo.rect.topleft = board.Grid.grid_dict[piece_to_undo.coordinate].rect.topleft
-                piece_to_undo.prior_move_color = False
-                piece_to_undo.no_highlight()
                 del piece_to_undo.coordinate_history[Move_Tracker.move_counter()]
                 PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['white_move'].text_is_visible = False
                 PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['white_move'].kill()
