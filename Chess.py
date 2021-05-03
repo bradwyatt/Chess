@@ -516,19 +516,26 @@ class Grid_Controller():
                     piece.prior_move_color = False
                 piece.no_highlight()
     def update_prior_move_color(whoseturn):
+        if Move_Tracker.move_counter() == 0:
+            for grid in board.Grid.grid_list:
+                grid.prior_move_color = False
+                grid.no_highlight()
+            for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
+                for piece in piece_list:
+                    piece.prior_move_color = False
+                    piece.no_highlight()
         if whoseturn == "white":
             for piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
                 for piece in piece_list:
                     for move_num in piece.coordinate_history:
                         if move_num == Move_Tracker.move_counter():
-                            Grid_Controller.prior_move_color(piece.coordinate, piece)
+                            Grid_Controller.prior_move_color(piece.coordinate_history[move_num]['before'], piece)
         elif whoseturn == "black":
             for piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
                 for piece in piece_list:
                     for move_num in piece.coordinate_history:
                         if move_num == Move_Tracker.move_counter():
-                            Grid_Controller.prior_move_color(piece.coordinate, piece)
-                            print("PIECE COORDINATE " + str(piece.coordinate))
+                            Grid_Controller.prior_move_color(piece.coordinate_history[move_num]['before'], piece)
         
 
 class Switch_Modes_Controller():
@@ -857,7 +864,7 @@ class Move_Controller():
             clicked_piece = None
     def undo_move(game_controller):
         piece_to_undo = None
-        if len(Move_Tracker.df_moves) >= 1:
+        if Move_Tracker.move_counter() >= 1:
             # Finding the latest piece to undo
             if game_controller.WHOSETURN == "white":
                 piece_coordinate_move_notation = eval(Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "black_move"])['move_notation']
