@@ -1109,7 +1109,8 @@ class Move_Controller():
                         rook.coordinate_history[Move_Tracker.move_counter()]['before'] = 'h8'
                         rook.coordinate_history[Move_Tracker.move_counter()]['after'] = 'f8'
                         rook.coordinate_history[Move_Tracker.move_counter()]['move_notation'] = 'O-O'
-        elif piece in play_objects.PlayRook.white_rook_list or play_objects.PlayRook.black_rook_list:
+        elif piece in play_objects.PlayRook.white_rook_list or piece in play_objects.PlayRook.black_rook_list:
+            print("ZZZZZ")
             piece.allowed_to_castle = False
         # Update all grids to reflect the coordinates of the pieces
         Grid_Controller.update_grid()
