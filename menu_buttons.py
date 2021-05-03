@@ -189,7 +189,11 @@ class PieceMoveRectangle(PanelRectangles, pygame.sprite.Sprite):
         self.move_notation = move_notation
         self.move_color = move_color
         PieceMoveRectangle.rectangle_list.append(self)
-        PieceMoveRectangle.rectangle_dict[move_number].append(self)
+        if move_color == 'white_move':
+            PieceMoveRectangle.rectangle_dict[move_number]['white_move'] = self
+        else:
+            PieceMoveRectangle.rectangle_dict[move_number]['black_move'] = self
+        #PieceMoveRectangle.rectangle_dict[move_number].append(self)
     def draw(self, screen):
         if self.text_is_visible == True:
             # Makes sure that all other rectangles overlapping this one that have invisible text are NOT selected

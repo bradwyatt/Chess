@@ -34,6 +34,7 @@ class ChessPiece:
         self.disable = False
         self.taken_off_board = False
         self.coordinate = coord
+        self.captured_move_number_and_coordinate = None
         self.rect = self.image.get_rect()
         for grid in board.Grid.grid_list:
             if grid.coordinate == self.coordinate:
@@ -60,8 +61,9 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_PAWN"]
             PlayPawn.black_pawn_list.append(self)
         super().__init__(coord, self.image, col)
-    def captured(self, x, y):
+    def captured(self, x, y, move_number):
         self.taken_off_board = True
+        self.captured_move_number_and_coordinate = {'move_number':move_number, 'coordinate':self.coordinate}
         self.coordinate = None
         self.rect.topleft = x, y
         self.prior_move_color = False
@@ -229,8 +231,9 @@ class PlayKnight(ChessPiece, pygame.sprite.Sprite):
             knight_proj_direction(-2, 1)
             knight_proj_direction(2, -1)
             knight_proj_direction(2, 1)
-    def captured(self, x, y):
+    def captured(self, x, y, move_number):
         self.taken_off_board = True
+        self.captured_move_number_and_coordinate = {'move_number':move_number, 'coordinate':self.coordinate}
         self.coordinate = None
         self.rect.topleft = x, y
         self.prior_move_color = False
@@ -407,8 +410,9 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
             bishop_projected("bishop", self, game_controller, -1, 1) #northwest
             bishop_projected("bishop", self, game_controller, 1, -1) #southeast
             bishop_projected("bishop", self, game_controller, 1, 1) #northeast
-    def captured(self, x, y):
+    def captured(self, x, y, move_number):
         self.taken_off_board = True
+        self.captured_move_number_and_coordinate = {'move_number':move_number, 'coordinate':self.coordinate}
         self.coordinate = None
         self.rect.topleft = x, y
         self.prior_move_color = False
@@ -562,8 +566,9 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
             PlayRook.black_rook_list.append(self)
         super().__init__(coord, self.image, col)
         self.allowed_to_castle = True
-    def captured(self, x, y):
+    def captured(self, x, y, move_number):
         self.taken_off_board = True
+        self.captured_move_number_and_coordinate = {'move_number':move_number, 'coordinate':self.coordinate}
         self.coordinate = None
         self.rect.topleft = x, y
         self.prior_move_color = False
@@ -614,8 +619,9 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_QUEEN"]
             PlayQueen.black_queen_list.append(self)
         super().__init__(coord, self.image, col)
-    def captured(self, x, y):
+    def captured(self, x, y, move_number):
         self.taken_off_board = True
+        self.captured_move_number_and_coordinate = {'move_number':move_number, 'coordinate':self.coordinate}
         self.coordinate = None
         self.rect.topleft = x, y
         self.prior_move_color = False
@@ -783,6 +789,7 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
                 if(ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and int(grid.coordinate[1]) == int(self.coordinate[1]) and \
                     self.right_castle_ability == 1 and (int(self.coordinate[1]) == 1 or int(self.coordinate[1])==8) and \
                     self.castled == False):
+                        print("TESTING123")
                         grid.highlight(self.color, self.coordinate)
                 if(ord(grid.coordinate[0]) == ord(self.coordinate[0])-2 and int(grid.coordinate[1]) == int(self.coordinate[1]) and \
                     self.left_castle_ability == 1 and (int(self.coordinate[1]) == 1 or int(self.coordinate[1])==8) and \
