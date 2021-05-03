@@ -890,7 +890,8 @@ class Move_Controller():
                                 #print("THE TAKEN WHITE PIECE " + str(white_piece.__dict__))
                                 if white_piece.captured_move_number_and_coordinate['move_number'] == Move_Tracker.move_counter() \
                                     and white_piece.captured_move_number_and_coordinate['coordinate'] == eval(Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "black_move"])['after']:
-                                    white_piece.coordinate = piece_to_undo.coordinate_history[Move_Tracker.move_counter()]['before']
+                                    white_piece.taken_off_board = False
+                                    white_piece.coordinate = white_piece.captured_move_number_and_coordinate['coordinate']
                                     white_piece.rect.topleft = board.Grid.grid_dict[white_piece.coordinate].rect.topleft
                 elif piece_to_undo.color == "white":
                     for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
@@ -899,7 +900,9 @@ class Move_Controller():
                                 #print("THE TAKEN BLACK PIECE " + str(black_piece.__dict__))
                                 if black_piece.captured_move_number_and_coordinate['move_number'] == Move_Tracker.move_counter() \
                                     and black_piece.captured_move_number_and_coordinate['coordinate'] == eval(Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "white_move"])['after']:
-                                        print("Black piece that is off the board " + str(black_piece))
+                                    black_piece.taken_off_board = False
+                                    black_piece.coordinate = black_piece.captured_move_number_and_coordinate['coordinate']
+                                    black_piece.rect.topleft = board.Grid.grid_dict[black_piece.coordinate].rect.topleft
             if game_controller.WHOSETURN == "white":
                 piece_to_undo.coordinate = piece_to_undo.coordinate_history[Move_Tracker.move_counter()]['before']
                 piece_to_undo.rect.topleft = board.Grid.grid_dict[piece_to_undo.coordinate].rect.topleft
