@@ -882,7 +882,6 @@ class Move_Controller():
                                 piece_to_undo = white_piece
             if 'x' in piece_coordinate_move_notation:
                 # Detect pieces that have been taken
-                #print("Latest move is " + str(piece_coordinate_move_notation) + "\n")
                 if piece_to_undo.color == "black":
                     for white_piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
                         for white_piece in white_piece_list:
@@ -897,7 +896,6 @@ class Move_Controller():
                     for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
                         for black_piece in black_piece_list:
                             if black_piece.taken_off_board == True:
-                                #print("THE TAKEN BLACK PIECE " + str(black_piece.__dict__))
                                 if black_piece.captured_move_number_and_coordinate['move_number'] == Move_Tracker.move_counter() \
                                     and black_piece.captured_move_number_and_coordinate['coordinate'] == eval(Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "white_move"])['after']:
                                     black_piece.taken_off_board = False
@@ -1056,12 +1054,18 @@ class Move_Controller():
                         board.Grid.grid_dict['d1'].occupied = True
                         rook.allowed_to_castle = False
                         special_abb = "O-O-O"
+                        rook.coordinate_history[Move_Tracker.move_counter()] = {'before': 'a1'}
+                        rook.coordinate_history[Move_Tracker.move_counter()] = {'after': 'd1'}
+                        rook.coordinate_history[Move_Tracker.move_counter()] = {'move_notation': 'O-O-O'}
                     elif rook.coordinate == 'h1' and piece.coordinate == 'g1':
                         rook.rect.topleft = board.Grid.grid_dict['f1'].rect.topleft
                         rook.coordinate = board.Grid.grid_dict['f1'].coordinate
                         board.Grid.grid_dict['f1'].occupied = True
                         rook.allowed_to_castle = False
                         special_abb = "O-O"
+                        rook.coordinate_history[Move_Tracker.move_counter()] = {'before': 'h1'}
+                        rook.coordinate_history[Move_Tracker.move_counter()] = {'after': 'f1'}
+                        rook.coordinate_history[Move_Tracker.move_counter()] = {'move_notation': 'O-O'}
         elif piece in play_objects.PlayKing.black_king_list:
             piece.castled = True
             for rook in play_objects.PlayRook.black_rook_list:
@@ -1071,11 +1075,17 @@ class Move_Controller():
                         rook.coordinate = board.Grid.grid_dict['d8'].coordinate
                         board.Grid.grid_dict['d8'].occupied = True
                         special_abb = "O-O-O"
+                        rook.coordinate_history[Move_Tracker.move_counter()] = {'before': 'a8'}
+                        rook.coordinate_history[Move_Tracker.move_counter()] = {'after': 'd8'}
+                        rook.coordinate_history[Move_Tracker.move_counter()] = {'move_notation': 'O-O-O'}
                     elif rook.coordinate == 'h8' and piece.coordinate == 'g8':
                         rook.rect.topleft = board.Grid.grid_dict['f8'].rect.topleft
                         rook.coordinate = board.Grid.grid_dict['f8'].coordinate
                         board.Grid.grid_dict['f8'].occupied = True
                         special_abb = "O-O"
+                        rook.coordinate_history[Move_Tracker.move_counter()] = {'before': 'h8'}
+                        rook.coordinate_history[Move_Tracker.move_counter()] = {'after': 'f8'}
+                        rook.coordinate_history[Move_Tracker.move_counter()] = {'move_notation': 'O-O'}
         elif piece in play_objects.PlayRook.white_rook_list or play_objects.PlayRook.black_rook_list:
             piece.allowed_to_castle = False
         # Update all grids to reflect the coordinates of the pieces
