@@ -887,21 +887,26 @@ class Move_Controller():
                     for white_piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
                         for white_piece in white_piece_list:
                             if white_piece.taken_off_board == True:
-                                #print("THE TAKEN WHITE PIECE " + str(white_piece.__dict__))
-                                if white_piece.captured_move_number_and_coordinate['move_number'] == Move_Tracker.move_counter() \
-                                    and white_piece.captured_move_number_and_coordinate['coordinate'] == eval(Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "black_move"])['after']:
+                                print("THE TAKEN WHITE PIECE " + str(white_piece.__dict__))
+                                print("TEST: " + str(white_piece.captured_move_number_and_coordinate['coordinate']))
+                                print("ZZZ: " + str(eval(Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "black_move"])['after']))
+                                if white_piece.captured_move_number_and_coordinate['move_number'] == Move_Tracker.move_counter():
                                     white_piece.taken_off_board = False
                                     white_piece.coordinate = white_piece.captured_move_number_and_coordinate['coordinate']
                                     white_piece.rect.topleft = board.Grid.grid_dict[white_piece.coordinate].rect.topleft
+                                    game_controller.white_captured_x -= initvar.BLACKANDWHITE_INCREMENTAL_X
                 elif pieces_to_undo[0].color == "white":
                     for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
                         for black_piece in black_piece_list:
                             if black_piece.taken_off_board == True:
-                                if black_piece.captured_move_number_and_coordinate['move_number'] == Move_Tracker.move_counter() \
-                                    and black_piece.captured_move_number_and_coordinate['coordinate'] == eval(Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "white_move"])['after']:
+                                print("THE TAKEN BLACK PIECE " + str(black_piece.__dict__))
+                                print("TEST: " + str(black_piece.captured_move_number_and_coordinate['coordinate']))
+                                print("ZZZ: " + str(eval(Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "white_move"])['after']))
+                                if black_piece.captured_move_number_and_coordinate['move_number'] == Move_Tracker.move_counter():
                                     black_piece.taken_off_board = False
                                     black_piece.coordinate = black_piece.captured_move_number_and_coordinate['coordinate']
                                     black_piece.rect.topleft = board.Grid.grid_dict[black_piece.coordinate].rect.topleft
+                                    game_controller.black_captured_x -= initvar.BLACKANDWHITE_INCREMENTAL_X
             if game_controller.WHOSETURN == "white":
                 for piece_to_undo in pieces_to_undo:
                     piece_to_undo.coordinate = piece_to_undo.coordinate_history[Move_Tracker.move_counter()]['before']
@@ -923,7 +928,7 @@ class Move_Controller():
                 print("Black takes back move, now black's turn. " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
             elif game_controller.WHOSETURN == "black":
                 for piece_to_undo in pieces_to_undo:
-                    print("PIECES TO UNDO " + str(piece_to_undo) + " LIST " + str(piece_to_undo.coordinate_history))
+                    #print("PIECES TO UNDO " + str(piece_to_undo) + " LIST " + str(piece_to_undo.coordinate_history))
                     piece_to_undo.coordinate = piece_to_undo.coordinate_history[Move_Tracker.move_counter()]['before']
                     piece_to_undo.rect.topleft = board.Grid.grid_dict[piece_to_undo.coordinate].rect.topleft
                     del piece_to_undo.coordinate_history[Move_Tracker.move_counter()]
@@ -983,7 +988,7 @@ class Move_Controller():
                     if black_pawn.taken_off_board == False:
                         if black_pawn.coordinate[0] == grid.coordinate[0] and \
                             int(black_pawn.coordinate[1]) == 5:
-                                black_pawn.captured(game_controller.black_captured_x, game_controller.black_captured_y, Move_Tracker.move_counter())
+                                black_pawn.captured(game_controller.black_captured_x, game_controller.black_captured_y, Move_Tracker.move_counter(), black_pawn.coordinate)
                                 game_controller.black_captured_x += initvar.BLACKANDWHITE_INCREMENTAL_X
                                 captured_abb = "x"
             elif piece in play_objects.PlayPawn.black_pawn_list:
@@ -992,7 +997,7 @@ class Move_Controller():
                     if white_pawn.taken_off_board == False:
                         if white_pawn.coordinate[0] == grid.coordinate[0] and \
                             int(white_pawn.coordinate[1]) == 4:
-                                white_pawn.captured(game_controller.white_captured_x, game_controller.white_captured_y, Move_Tracker.move_counter())
+                                white_pawn.captured(game_controller.white_captured_x, game_controller.white_captured_y, Move_Tracker.move_counter(), white_pawn.coordinate)
                                 game_controller.white_captured_x += initvar.BLACKANDWHITE_INCREMENTAL_X
                                 captured_abb = "x"
                             
@@ -1086,7 +1091,6 @@ class Move_Controller():
                         rook.coordinate_history[Move_Tracker.move_counter()]['before'] = 'h1'
                         rook.coordinate_history[Move_Tracker.move_counter()]['after'] = 'f1'
                         rook.coordinate_history[Move_Tracker.move_counter()]['move_notation'] = 'O-O'
-                        print("Let's see if it works " + str(rook.coordinate_history))
         elif piece in play_objects.PlayKing.black_king_list:
             piece.castled = True
             for rook in play_objects.PlayRook.black_rook_list:
@@ -1110,8 +1114,15 @@ class Move_Controller():
                         rook.coordinate_history[Move_Tracker.move_counter()]['after'] = 'f8'
                         rook.coordinate_history[Move_Tracker.move_counter()]['move_notation'] = 'O-O'
         elif piece in play_objects.PlayRook.white_rook_list or piece in play_objects.PlayRook.black_rook_list:
-            print("ZZZZZ")
             piece.allowed_to_castle = False
+            if piece.previous_coordinate == 'h1':
+                play_objects.PlayKing.white_king_list[0].king_side_castle_ability = False
+            if piece.previous_coordinate == 'a1':
+                play_objects.PlayKing.white_king_list[0].queen_side_castle_ability = False
+            if piece.previous_coordinate == 'h8':
+                play_objects.PlayKing.black_king_list[0].king_side_castle_ability = False
+            if piece.previous_coordinate == 'a8':
+                play_objects.PlayKing.black_king_list[0].queen_side_castle_ability = False
         # Update all grids to reflect the coordinates of the pieces
         Grid_Controller.update_grid()
         # Switch turns
@@ -1451,14 +1462,22 @@ def main():
                     
                     # MIDDLE MOUSE DEBUGGER
                     if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[1]:
-                        for grid in board.Grid.grid_list:
-                            if grid.rect.collidepoint(MOUSEPOS):
-                                log.info("Coordinate: " + str(grid.coordinate) \
-                                       + ", White Pieces Attacking: " + str(grid.coords_of_attacking_pieces['white']) \
-                                       + ", Black Pieces Attacking: " + str(grid.coords_of_attacking_pieces['black']) \
-                                           + ", grid variable: " + str(grid.highlighted) \
-                                               + ", White Pieces Available: " + str(grid.coords_of_available_pieces['white']) \
-                                                   + ", Black Pieces Available: " + str(grid.coords_of_available_pieces['black']))
+                        def test_piece():
+                            for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
+                                for piece in piece_list:
+                                    if piece.rect.collidepoint(MOUSEPOS):
+                                        print("piece dict: " + str(piece.__dict__))
+                        def test_grid_str():
+                            for grid in board.Grid.grid_list:
+                                if grid.rect.collidepoint(MOUSEPOS):
+                                    log.info("Coordinate: " + str(grid.coordinate) \
+                                           + ", White Pieces Attacking: " + str(grid.coords_of_attacking_pieces['white']) \
+                                           + ", Black Pieces Attacking: " + str(grid.coords_of_attacking_pieces['black']) \
+                                               + ", grid variable: " + str(grid.highlighted) \
+                                                   + ", White Pieces Available: " + str(grid.coords_of_available_pieces['white']) \
+                                                       + ", Black Pieces Available: " + str(grid.coords_of_available_pieces['black']))
+                        #test_grid_str()
+                        test_piece()
                                 
                 ##################
                 # ALL EDIT ACTIONS

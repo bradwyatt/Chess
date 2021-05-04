@@ -61,9 +61,12 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_PAWN"]
             PlayPawn.black_pawn_list.append(self)
         super().__init__(coord, self.image, col)
-    def captured(self, x, y, move_number):
+    def captured(self, x, y, move_number, en_passant_coordinate=None):
         self.taken_off_board = True
-        self.captured_move_number_and_coordinate = {'move_number':move_number, 'coordinate':self.coordinate}
+        if en_passant_coordinate:
+            self.captured_move_number_and_coordinate = {'move_number':move_number, 'coordinate':self.coordinate, 'en_passant_coordinate':en_passant_coordinate}
+        else:
+            self.captured_move_number_and_coordinate = {'move_number':move_number, 'coordinate':self.coordinate}
         self.coordinate = None
         self.rect.topleft = x, y
         self.prior_move_color = False
@@ -681,8 +684,8 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
         elif(col == "black"):
             self.image = IMAGES["SPR_BLACK_KING"]
             PlayKing.black_king_list.append(self)
-        self.left_castle_ability = False
-        self.right_castle_ability = False
+        self.queen_side_castle_ability = False
+        self.king_side_castle_ability = False
         self.castled = False
         super().__init__(coord, self.image, col)
     def castle_check(self, game_controller):
@@ -694,15 +697,15 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
                             if(board.Grid.grid_dict['b1'].occupied == 0 and board.Grid.grid_dict['c1'].occupied == 0 and board.Grid.grid_dict['d1'].occupied == 0 \
                                and len(board.Grid.grid_dict['b1'].coords_of_attacking_pieces['black']) == 0 and len(board.Grid.grid_dict['c1'].coords_of_attacking_pieces['black']) == 0 \
                                and len(board.Grid.grid_dict['d1'].coords_of_attacking_pieces['black']) == 0):
-                                self.left_castle_ability = True
+                                self.queen_side_castle_ability = True
                             else:
-                                self.left_castle_ability = False
+                                self.queen_side_castle_ability = False
                         if(white_rook.coordinate == 'h1'):
                             if(board.Grid.grid_dict['f1'].occupied == 0 and board.Grid.grid_dict['g1'].occupied == 0 \
                                and len(board.Grid.grid_dict['f1'].coords_of_attacking_pieces['black']) == 0 and len(board.Grid.grid_dict['g1'].coords_of_attacking_pieces['black']) == 0):
-                                self.right_castle_ability = True
+                                self.king_side_castle_ability = True
                             else:
-                                self.right_castle_ability = False
+                                self.king_side_castle_ability = False
             elif self.color == "black":
                 for black_rook in PlayRook.black_rook_list:
                     if black_rook.allowed_to_castle == True:
@@ -710,15 +713,15 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
                             if(board.Grid.grid_dict['b8'].occupied == 0 and board.Grid.grid_dict['c8'].occupied == 0 and board.Grid.grid_dict['d8'].occupied == 0 \
                                and len(board.Grid.grid_dict['b8'].coords_of_attacking_pieces['white']) == 0 and len(board.Grid.grid_dict['c8'].coords_of_attacking_pieces['white']) == 0 \
                                and len(board.Grid.grid_dict['d8'].coords_of_attacking_pieces['white']) == 0):
-                                self.left_castle_ability = True
+                                self.queen_side_castle_ability = True
                             else:
-                                self.left_castle_ability = False
+                                self.queen_side_castle_ability = False
                         if(black_rook.coordinate == 'h8'):
                             if(board.Grid.grid_dict['f8'].occupied == 0 and board.Grid.grid_dict['g8'].occupied == 0 \
                                and len(board.Grid.grid_dict['f8'].coords_of_attacking_pieces['white']) == 0 and len(board.Grid.grid_dict['g8'].coords_of_attacking_pieces['white']) == 0):
-                                self.right_castle_ability = True
+                                self.king_side_castle_ability = True
                             else:
-                                self.right_castle_ability = False
+                                self.king_side_castle_ability = False
     def highlight(self):
         if(self.color == "white"):
             self.image = IMAGES["SPR_WHITE_KING_HIGHLIGHTED"]
@@ -746,11 +749,11 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
                     grid.attack_count_increment(self.color, self.coordinate)
                 if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and int(grid.coordinate[1]) == int(self.coordinate[1]) and \
                     (grid.occupied == 0 or grid.occupied_piece_color != self.color) and
-                    self.right_castle_ability == 1 and (int(self.coordinate[1]) == 1 or int(self.coordinate[1])==8)):
+                    self.king_side_castle_ability == 1 and (int(self.coordinate[1]) == 1 or int(self.coordinate[1])==8)):
                         grid.attack_count_increment(self.color, self.coordinate)
                 if (ord(grid.coordinate[0]) == ord(self.coordinate[0])-2 and int(grid.coordinate[1]) == int(self.coordinate[1]) and \
                     (grid.occupied == 0 or grid.occupied_piece_color != self.color) and
-                    self.left_castle_ability == 1 and (int(self.coordinate[1]) == 1 or int(self.coordinate[1])==8)):
+                    self.queen_side_castle_ability == 1 and (int(self.coordinate[1]) == 1 or int(self.coordinate[1])==8)):
                         grid.attack_count_increment(self.color, self.coordinate)
     def spaces_available(self, game_controller):
         if((self.color == "white" and self.coordinate == 'e1') or (self.color == "black" and self.coordinate == 'e8')):
@@ -787,12 +790,11 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
                     grid.highlight(self.color, self.coordinate)
                 # Castle
                 if(ord(grid.coordinate[0]) == ord(self.coordinate[0])+2 and int(grid.coordinate[1]) == int(self.coordinate[1]) and \
-                    self.right_castle_ability == 1 and (int(self.coordinate[1]) == 1 or int(self.coordinate[1])==8) and \
+                    self.king_side_castle_ability == 1 and (int(self.coordinate[1]) == 1 or int(self.coordinate[1])==8) and \
                     self.castled == False):
-                        print("TESTING123")
                         grid.highlight(self.color, self.coordinate)
                 if(ord(grid.coordinate[0]) == ord(self.coordinate[0])-2 and int(grid.coordinate[1]) == int(self.coordinate[1]) and \
-                    self.left_castle_ability == 1 and (int(self.coordinate[1]) == 1 or int(self.coordinate[1])==8) and \
+                    self.queen_side_castle_ability == 1 and (int(self.coordinate[1]) == 1 or int(self.coordinate[1])==8) and \
                     self.castled == False):
                         grid.highlight(self.color, self.coordinate)
     def no_highlight(self):
