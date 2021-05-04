@@ -1086,7 +1086,6 @@ class Move_Controller():
                         rook.coordinate_history[Move_Tracker.move_counter()]['before'] = 'h1'
                         rook.coordinate_history[Move_Tracker.move_counter()]['after'] = 'f1'
                         rook.coordinate_history[Move_Tracker.move_counter()]['move_notation'] = 'O-O'
-                        print("Let's see if it works " + str(rook.coordinate_history))
         elif piece in play_objects.PlayKing.black_king_list:
             piece.castled = True
             for rook in play_objects.PlayRook.black_rook_list:
@@ -1110,8 +1109,15 @@ class Move_Controller():
                         rook.coordinate_history[Move_Tracker.move_counter()]['after'] = 'f8'
                         rook.coordinate_history[Move_Tracker.move_counter()]['move_notation'] = 'O-O'
         elif piece in play_objects.PlayRook.white_rook_list or piece in play_objects.PlayRook.black_rook_list:
-            print("ZZZZZ")
             piece.allowed_to_castle = False
+            if piece.previous_coordinate == 'h1':
+                play_objects.PlayKing.white_king_list[0].king_side_castle_ability = False
+            if piece.previous_coordinate == 'a1':
+                play_objects.PlayKing.white_king_list[0].queen_side_castle_ability = False
+            if piece.previous_coordinate == 'h8':
+                play_objects.PlayKing.black_king_list[0].king_side_castle_ability = False
+            if piece.previous_coordinate == 'a8':
+                play_objects.PlayKing.black_king_list[0].queen_side_castle_ability = False
         # Update all grids to reflect the coordinates of the pieces
         Grid_Controller.update_grid()
         # Switch turns
@@ -1451,14 +1457,22 @@ def main():
                     
                     # MIDDLE MOUSE DEBUGGER
                     if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[1]:
-                        for grid in board.Grid.grid_list:
-                            if grid.rect.collidepoint(MOUSEPOS):
-                                log.info("Coordinate: " + str(grid.coordinate) \
-                                       + ", White Pieces Attacking: " + str(grid.coords_of_attacking_pieces['white']) \
-                                       + ", Black Pieces Attacking: " + str(grid.coords_of_attacking_pieces['black']) \
-                                           + ", grid variable: " + str(grid.highlighted) \
-                                               + ", White Pieces Available: " + str(grid.coords_of_available_pieces['white']) \
-                                                   + ", Black Pieces Available: " + str(grid.coords_of_available_pieces['black']))
+                        def test_piece():
+                            for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
+                                for piece in piece_list:
+                                    if piece.rect.collidepoint(MOUSEPOS):
+                                        print("piece dict: " + str(piece.__dict__))
+                        def test_grid_str():
+                            for grid in board.Grid.grid_list:
+                                if grid.rect.collidepoint(MOUSEPOS):
+                                    log.info("Coordinate: " + str(grid.coordinate) \
+                                           + ", White Pieces Attacking: " + str(grid.coords_of_attacking_pieces['white']) \
+                                           + ", Black Pieces Attacking: " + str(grid.coords_of_attacking_pieces['black']) \
+                                               + ", grid variable: " + str(grid.highlighted) \
+                                                   + ", White Pieces Available: " + str(grid.coords_of_available_pieces['white']) \
+                                                       + ", Black Pieces Available: " + str(grid.coords_of_available_pieces['black']))
+                        #test_grid_str()
+                        test_piece()
                                 
                 ##################
                 # ALL EDIT ACTIONS
