@@ -887,21 +887,26 @@ class Move_Controller():
                     for white_piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
                         for white_piece in white_piece_list:
                             if white_piece.taken_off_board == True:
-                                #print("THE TAKEN WHITE PIECE " + str(white_piece.__dict__))
-                                if white_piece.captured_move_number_and_coordinate['move_number'] == Move_Tracker.move_counter() \
-                                    and white_piece.captured_move_number_and_coordinate['coordinate'] == eval(Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "black_move"])['after']:
+                                print("THE TAKEN WHITE PIECE " + str(white_piece.__dict__))
+                                print("TEST: " + str(white_piece.captured_move_number_and_coordinate['coordinate']))
+                                print("ZZZ: " + str(eval(Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "black_move"])['after']))
+                                if white_piece.captured_move_number_and_coordinate['move_number'] == Move_Tracker.move_counter():
                                     white_piece.taken_off_board = False
                                     white_piece.coordinate = white_piece.captured_move_number_and_coordinate['coordinate']
                                     white_piece.rect.topleft = board.Grid.grid_dict[white_piece.coordinate].rect.topleft
+                                    game_controller.white_captured_x -= initvar.BLACKANDWHITE_INCREMENTAL_X
                 elif pieces_to_undo[0].color == "white":
                     for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
                         for black_piece in black_piece_list:
                             if black_piece.taken_off_board == True:
-                                if black_piece.captured_move_number_and_coordinate['move_number'] == Move_Tracker.move_counter() \
-                                    and black_piece.captured_move_number_and_coordinate['coordinate'] == eval(Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "white_move"])['after']:
+                                print("THE TAKEN BLACK PIECE " + str(black_piece.__dict__))
+                                print("TEST: " + str(black_piece.captured_move_number_and_coordinate['coordinate']))
+                                print("ZZZ: " + str(eval(Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "white_move"])['after']))
+                                if black_piece.captured_move_number_and_coordinate['move_number'] == Move_Tracker.move_counter():
                                     black_piece.taken_off_board = False
                                     black_piece.coordinate = black_piece.captured_move_number_and_coordinate['coordinate']
                                     black_piece.rect.topleft = board.Grid.grid_dict[black_piece.coordinate].rect.topleft
+                                    game_controller.black_captured_x -= initvar.BLACKANDWHITE_INCREMENTAL_X
             if game_controller.WHOSETURN == "white":
                 for piece_to_undo in pieces_to_undo:
                     piece_to_undo.coordinate = piece_to_undo.coordinate_history[Move_Tracker.move_counter()]['before']
@@ -923,7 +928,7 @@ class Move_Controller():
                 print("Black takes back move, now black's turn. " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
             elif game_controller.WHOSETURN == "black":
                 for piece_to_undo in pieces_to_undo:
-                    print("PIECES TO UNDO " + str(piece_to_undo) + " LIST " + str(piece_to_undo.coordinate_history))
+                    #print("PIECES TO UNDO " + str(piece_to_undo) + " LIST " + str(piece_to_undo.coordinate_history))
                     piece_to_undo.coordinate = piece_to_undo.coordinate_history[Move_Tracker.move_counter()]['before']
                     piece_to_undo.rect.topleft = board.Grid.grid_dict[piece_to_undo.coordinate].rect.topleft
                     del piece_to_undo.coordinate_history[Move_Tracker.move_counter()]
@@ -983,7 +988,7 @@ class Move_Controller():
                     if black_pawn.taken_off_board == False:
                         if black_pawn.coordinate[0] == grid.coordinate[0] and \
                             int(black_pawn.coordinate[1]) == 5:
-                                black_pawn.captured(game_controller.black_captured_x, game_controller.black_captured_y, Move_Tracker.move_counter())
+                                black_pawn.captured(game_controller.black_captured_x, game_controller.black_captured_y, Move_Tracker.move_counter(), black_pawn.coordinate)
                                 game_controller.black_captured_x += initvar.BLACKANDWHITE_INCREMENTAL_X
                                 captured_abb = "x"
             elif piece in play_objects.PlayPawn.black_pawn_list:
@@ -992,7 +997,7 @@ class Move_Controller():
                     if white_pawn.taken_off_board == False:
                         if white_pawn.coordinate[0] == grid.coordinate[0] and \
                             int(white_pawn.coordinate[1]) == 4:
-                                white_pawn.captured(game_controller.white_captured_x, game_controller.white_captured_y, Move_Tracker.move_counter())
+                                white_pawn.captured(game_controller.white_captured_x, game_controller.white_captured_y, Move_Tracker.move_counter(), white_pawn.coordinate)
                                 game_controller.white_captured_x += initvar.BLACKANDWHITE_INCREMENTAL_X
                                 captured_abb = "x"
                             
