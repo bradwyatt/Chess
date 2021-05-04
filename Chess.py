@@ -921,8 +921,9 @@ class Move_Controller():
                         if black_rook in pieces_to_undo:
                             black_rook.allowed_to_castle = True
                 if "=Q" in piece_coordinate_move_notation:
-                    queen = Grid_Controller.piece_on_grid(eval(Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "black_move"])['after'])
-                    print("QUEEN !! " +str(queen))
+                    for q in play_objects.PlayQueen.black_queen_list:
+                        if q.coordinate == eval(Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "black_move"])['after']:
+                            queen = q
                     queen.kill()
                     play_objects.PlayQueen.black_queen_list.remove(queen)
                 if pieces_to_undo[0] in play_objects.PlayPawn.black_pawn_list:
@@ -948,7 +949,9 @@ class Move_Controller():
                         if white_rook in pieces_to_undo:
                             white_rook.allowed_to_castle = True
                 if "=Q" in piece_coordinate_move_notation:
-                    queen = Grid_Controller.piece_on_grid(eval(Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "white_move"])['after'])
+                    for q in play_objects.PlayQueen.white_queen_list:
+                        if q.coordinate == eval(Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "white_move"])['after']:
+                            queen = q
                     queen.kill()
                     play_objects.PlayQueen.white_queen_list.remove(queen)
                 if pieces_to_undo[0] in play_objects.PlayPawn.white_pawn_list:
