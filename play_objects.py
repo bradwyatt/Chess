@@ -61,10 +61,10 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_PAWN"]
             PlayPawn.black_pawn_list.append(self)
         super().__init__(coord, self.image, col)
-    def captured(self, x, y, move_number, ep_grid_after_coord=None, ep_grid_taken_coord=None):
+    def captured(self, x, y, move_number, ep_grid_after_coord=None):
         self.taken_off_board = True
-        if ep_grid_after_coord and ep_grid_taken_coord:
-            self.captured_move_number_and_coordinate = {'move_number':move_number, 'coordinate':self.coordinate, 'ep_grid_after_coord':ep_grid_after_coord, 'ep_grid_taken_coord':ep_grid_taken_coord}
+        if ep_grid_after_coord:
+            self.captured_move_number_and_coordinate = {'move_number':move_number, 'coordinate':self.coordinate, 'ep_grid_after_coord':ep_grid_after_coord}
         else:
             self.captured_move_number_and_coordinate = {'move_number':move_number, 'coordinate':self.coordinate}
         self.coordinate = None
