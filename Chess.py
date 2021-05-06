@@ -901,6 +901,8 @@ class Move_Controller():
                                     white_piece.coordinate = white_piece.captured_move_number_and_coordinate['coordinate']
                                     white_piece.rect.topleft = board.Grid.grid_dict[white_piece.coordinate].rect.topleft
                                     game_controller.white_captured_x -= initvar.BLACKANDWHITE_INCREMENTAL_X
+                                    if 'ep_grid_after_coord' and 'ep_grid_taken_coord' in white_piece.captured_move_number_and_coordinate:
+                                        board.Grid.grid_dict[white_piece.captured_move_number_and_coordinate['ep_grid_after_coord']].en_passant_skipover = True
                                     white_piece.captured_move_number_and_coordinate = None
                 elif pieces_to_undo[0].color == "white":
                     for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
@@ -911,6 +913,8 @@ class Move_Controller():
                                     black_piece.coordinate = black_piece.captured_move_number_and_coordinate['coordinate']
                                     black_piece.rect.topleft = board.Grid.grid_dict[black_piece.coordinate].rect.topleft
                                     game_controller.black_captured_x -= initvar.BLACKANDWHITE_INCREMENTAL_X
+                                    if 'ep_grid_after_coord' and 'ep_grid_taken_coord' in black_piece.captured_move_number_and_coordinate:
+                                        board.Grid.grid_dict[black_piece.captured_move_number_and_coordinate['ep_grid_after_coord']].en_passant_skipover = True
                                     black_piece.captured_move_number_and_coordinate = None
             if game_controller.WHOSETURN == "white":
                 for piece_to_undo in pieces_to_undo:
@@ -1011,7 +1015,7 @@ class Move_Controller():
                     if black_pawn.taken_off_board == False:
                         if black_pawn.coordinate[0] == grid.coordinate[0] and \
                             int(black_pawn.coordinate[1]) == 5:
-                                black_pawn.captured(game_controller.black_captured_x, game_controller.black_captured_y, Move_Tracker.move_counter(), black_pawn.coordinate)
+                                black_pawn.captured(game_controller.black_captured_x, game_controller.black_captured_y, Move_Tracker.move_counter(), grid.coordinate, black_pawn.coordinate)
                                 game_controller.black_captured_x += initvar.BLACKANDWHITE_INCREMENTAL_X
                                 captured_abb = "x"
             elif piece in play_objects.PlayPawn.black_pawn_list:
@@ -1020,7 +1024,7 @@ class Move_Controller():
                     if white_pawn.taken_off_board == False:
                         if white_pawn.coordinate[0] == grid.coordinate[0] and \
                             int(white_pawn.coordinate[1]) == 4:
-                                white_pawn.captured(game_controller.white_captured_x, game_controller.white_captured_y, Move_Tracker.move_counter(), white_pawn.coordinate)
+                                white_pawn.captured(game_controller.white_captured_x, game_controller.white_captured_y, Move_Tracker.move_counter(), grid.coordinate, white_pawn.coordinate)
                                 game_controller.white_captured_x += initvar.BLACKANDWHITE_INCREMENTAL_X
                                 captured_abb = "x"
                             
