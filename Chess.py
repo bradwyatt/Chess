@@ -50,6 +50,7 @@ import copy
 import tkinter as tk
 from tkinter.colorchooser import askcolor
 from tkinter.filedialog import *
+from tkinter import ttk  
 from ast import *
 import pygame
 import datetime
@@ -201,6 +202,25 @@ class Preferences():
     def get_color():
         color = askcolor()
         return [color[0][0], color[0][1], color[0][2]]
+    def popupmsg(msg):
+        master = tk.Tk()
+        tk.Label(master, text="First Name").grid(row=0)
+        tk.Label(master, text="Last Name").grid(row=1)
+        
+        e1 = tk.Entry(master)
+        e2 = tk.Entry(master)
+        
+        e1.grid(row=0, column=1)
+        e2.grid(row=1, column=1)
+        
+        tk.Button(master, 
+          text='Quit', 
+          command=master.quit).grid(row=3, 
+                                    column=0, 
+                                    sticky=tk.W, 
+                                    pady=4)
+        
+        master.mainloop()
 
 class PGN_Writer_and_Loader():
     def __init__(self):
@@ -584,21 +604,21 @@ class Move_Tracker():
     df_prior_moves = pd.DataFrame(columns=["white_move", "black_move"])
     df_prior_moves.index = np.arange(1, len(df_prior_moves)+1)
     move_counter = lambda : len(Move_Tracker.df_moves)
-    selected_move = [0, ""]
+    selected_move = (0, "")
     def restart():
         Move_Tracker.df_moves = pd.DataFrame(columns=["white_move", "black_move"])
         Move_Tracker.df_moves.index = np.arange(1, len(Move_Tracker.df_moves)+1)
         Move_Tracker.df_prior_moves = pd.DataFrame(columns=["white_move", "black_move"])
         Move_Tracker.df_prior_moves.index = np.arange(1, len(Move_Tracker.df_prior_moves)+1)
         Move_Tracker.move_counter = lambda : len(Move_Tracker.df_moves)
-        Move_Tracker.selected_move = [0, ""]
+        Move_Tracker.selected_move = (0, "")
     def undo_move_in_dfs(undo_color):
         if undo_color == "black":
             for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
                 for black_piece in black_piece_list:
                     if Move_Tracker.move_counter() in black_piece.coordinate_history:
                         del black_piece.coordinate_history[Move_Tracker.move_counter()]
-            Move_Tracker.selected_move = [Move_Tracker.move_counter(), "white_move"]
+            Move_Tracker.selected_move = (Move_Tracker.move_counter(), "white_move")
             Move_Tracker.df_moves.loc[Move_Tracker.move_counter(), "black_move"] = ''
             Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "black_move"] = ''
             
@@ -607,7 +627,7 @@ class Move_Tracker():
                 for black_piece in black_piece_list:
                     if Move_Tracker.move_counter() in black_piece.coordinate_history:
                         del black_piece.coordinate_history[Move_Tracker.move_counter()]
-            Move_Tracker.selected_move = [Move_Tracker.move_counter()-1, "black_move"]
+            Move_Tracker.selected_move = (Move_Tracker.move_counter()-1, "black_move")
             Move_Tracker.df_moves = Move_Tracker.df_moves.iloc[:-1]
             Move_Tracker.df_prior_moves = Move_Tracker.df_prior_moves.iloc[:-1]
 
@@ -1227,7 +1247,7 @@ class Move_Controller():
             Move_Tracker.df_moves.loc[Move_Tracker.move_counter(), "black_move"] = Move_Controller.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
             piece.coordinate_history[Move_Tracker.move_counter()]['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
             prior_moves_dict['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
-            Move_Tracker.selected_move = [Move_Tracker.move_counter(), "black_move"]
+            Move_Tracker.selected_move = (Move_Tracker.move_counter(), "black_move")
             Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "black_move"] = str(prior_moves_dict)
         elif(game_controller.WHOSETURN == "black"):
             # Create new record to make room for new white move
@@ -1241,7 +1261,7 @@ class Move_Controller():
             Move_Tracker.df_moves.loc[Move_Tracker.move_counter(), "white_move"] = Move_Controller.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
             piece.coordinate_history[Move_Tracker.move_counter()]['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
             prior_moves_dict['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
-            Move_Tracker.selected_move = [Move_Tracker.move_counter(), "white_move"]
+            Move_Tracker.selected_move = (Move_Tracker.move_counter(), "white_move")
             Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "white_move"] = str(prior_moves_dict)
         log.info(move_text)
         if game_controller.result_abb != "*":
@@ -1403,8 +1423,7 @@ def main():
                         # When clicking on a move on the right pane, it is your selected move
                         for piece_move_rect in PieceMoveRectangle.rectangle_list:
                             if piece_move_rect.rect.collidepoint(MOUSEPOS) and piece_move_rect.text_is_visible:
-                                Move_Tracker.selected_move[0] = piece_move_rect.move_number
-                                Move_Tracker.selected_move[1] = piece_move_rect.move_color
+                                Move_Tracker.selected_move = (piece_move_rect.move_number, piece_move_rect.move_color)
                         # Editing mode only
                         if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE:
                             #BUTTONS
@@ -1416,6 +1435,9 @@ def main():
                                 pos_load_file()
                             if RESET_BOARD_BUTTON.rect.collidepoint(MOUSEPOS):
                                 pos_load_file(reset=True)
+                            if GAME_PROPERTIES_BUTTON.rect.collidepoint(MOUSEPOS):
+                                print("game properties")
+                                Preferences.popupmsg("PROPERTIES")
 
                             # DRAG OBJECTS
                             # Goes through each of the types of pieces
