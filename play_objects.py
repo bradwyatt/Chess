@@ -259,7 +259,7 @@ class PlayKnight(ChessPiece, pygame.sprite.Sprite):
                     if ord(grid.coordinate[0]) == ord(self.coordinate[0])+x and int(grid.coordinate[1]) == int(self.coordinate[1])+y \
                         and (grid.occupied == 0 or grid.occupied_piece_color != self.color):
                             if game_controller.color_in_check == self.color:
-                                if grid.coordinate in game_controller.check_attacking_coordinates:
+                                if grid.coordinate in game_controller.check_attacking_coordinates[:-1]:
                                     grid.highlight(self.color, self.coordinate)
                                 else:
                                     return
