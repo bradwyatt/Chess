@@ -144,7 +144,7 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                                 if self.pinned == True:
                                     self.disable = True
                                     return
-                                elif grid.coordinate in game_controller.check_attacking_coordinates:
+                                elif grid.coordinate in game_controller.check_attacking_coordinates[:-1]:
                                     grid.highlight(self.color, self.coordinate)
                             elif self.pinned == False:
                                 grid.highlight(self.color, self.coordinate)
@@ -160,7 +160,7 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                                     if self.pinned == True:
                                         self.disable = True
                                         return
-                                    elif grid.coordinate in game_controller.check_attacking_coordinates:
+                                    elif grid.coordinate in game_controller.check_attacking_coordinates[:-1]:
                                         grid.highlight(self.color, self.coordinate)
                                 elif self.pinned == False:
                                     grid.highlight(self.color, self.coordinate)
@@ -378,7 +378,7 @@ def bishop_direction_spaces_available(bishop, game_controller, x, y):
                         elif grid.coordinate == game_controller.check_attacking_coordinates[0] \
                             and (game_controller.attacker_piece == "pawn" or game_controller.attacker_piece == "knight"):
                             grid.highlight(bishop.color, bishop.coordinate)
-                    # If pinned and grid is within the attacking coordinates restraint
+                    # If pinned, there's a piece on the grid, and grid is within the attacking coordinates restraint
                     elif(bishop.pinned == True and grid.occupied_piece != 'king'):
                         if grid.coordinate in bishop.pin_attacking_coordinates:
                             # If not in check from another piece

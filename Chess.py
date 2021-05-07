@@ -943,7 +943,7 @@ class Move_Controller():
                 game_controller.switch_turn("black")
                 Grid_Controller.update_prior_move_color("black")
                 Move_Controller.game_status_check(game_controller)
-                print("Black takes back move, now black's turn. " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
+                log.info("Back to (" + str(len(Move_Tracker.df_moves)) + ".) " + "Black undo turn " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
             elif game_controller.WHOSETURN == "black":
                 for piece_to_undo in pieces_to_undo:
                     #print("PIECES TO UNDO " + str(piece_to_undo) + " LIST " + str(piece_to_undo.coordinate_history))
@@ -974,8 +974,8 @@ class Move_Controller():
                 game_controller.switch_turn("white")
                 Grid_Controller.update_prior_move_color("white")
                 Move_Controller.game_status_check(game_controller)
-                print("White takes back move, now white's turn. " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
-            print("game_controller df: \n" + str(Move_Tracker.df_moves))
+                log.info("Back to (" + str(len(Move_Tracker.df_moves)) + ".) " + "White undo turn " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
+            #print("game_controller df: \n" + str(Move_Tracker.df_moves))
     def make_move(grid, piece, game_controller):
         # Default captured_abb for function to be empty string
         captured_abb = ""
