@@ -203,7 +203,10 @@ class Preferences():
         color = askcolor()
         return [color[0][0], color[0][1], color[0][2]]
     def popupmsg(msg):
+        pass
+    def popupmsg_test(msg):
         master = tk.Tk()
+        #root.withdraw()
         tk.Label(master, text="First Name").grid(row=0)
         tk.Label(master, text="Last Name").grid(row=1)
         
@@ -212,15 +215,36 @@ class Preferences():
         
         e1.grid(row=0, column=1)
         e2.grid(row=1, column=1)
+        global not_clicked
+        not_clicked = True
+        def test123():
+            global not_clicked
+            if not_clicked == False:
+                print("Clicked")
+                return "yay"
+            else:
+                print("Not clicked action")
+                not_clicked = False
+                return "bleh"
         
         tk.Button(master, 
           text='Quit', 
-          command=master.quit).grid(row=3, 
+          command=lambda: test123()).grid(row=3, 
                                     column=0, 
                                     sticky=tk.W, 
                                     pady=4)
+        print("meow")
+        if test123() == "yay":
+            print("E1: " + str(e1.__dict__))
+            print("E1: " + str(e1.tk__dict__))
+            master.withdraw()
+            return "zzzzz", "meow"
+        else:
+            print("ABC 123")
+            master.mainloop()
+        print("TEST123")
+        return
         
-        master.mainloop()
 
 class PGN_Writer_and_Loader():
     def __init__(self):
@@ -1437,7 +1461,8 @@ def main():
                                 pos_load_file(reset=True)
                             if GAME_PROPERTIES_BUTTON.rect.collidepoint(MOUSEPOS):
                                 print("game properties")
-                                Preferences.popupmsg("PROPERTIES")
+                                e1, e2 = Preferences.popupmsg("PROPERTIES")
+                                print("FINALLY EXITED")
 
                             # DRAG OBJECTS
                             # Goes through each of the types of pieces
@@ -1591,6 +1616,7 @@ def main():
                     SCREEN.blit(whose_turn_text, (board.X_GRID_END+initvar.X_GRID_WIDTH, initvar.SCREEN_HEIGHT/2))
                     SCREEN.blit(check_checkmate_text_render, (board.X_GRID_END+initvar.X_GRID_WIDTH, 200))
                 pygame.display.update()
+                print("MEOW 1123 " + today.strftime("%Y-%m-%d %H%M%S"))
             elif state == DEBUG:
                 if debug_message == 1:
                     log.info("Entering debug mode")
