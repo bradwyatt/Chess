@@ -48,11 +48,11 @@ class PausedPawn(pygame.sprite.Sprite):
         if self.col == "white":
             self.image = IMAGES["SPR_WHITE_PAWN"]
             PAUSED_SPRITES.add(self)
-            PlacedPawn.white_pawn_list.append(self)
+            PausedPawn.white_pawn_list.append(self)
         elif self.col == "black":
             self.image = IMAGES["SPR_BLACK_PAWN"]
             PAUSED_SPRITES.add(self)
-            PlacedPawn.black_pawn_list.append(self)
+            PausedPawn.black_pawn_list.append(self)
         self.coordinate = coord
         self.rect = self.image.get_rect()
         for grid in board.Grid.grid_list:
@@ -62,9 +62,9 @@ class PausedPawn(pygame.sprite.Sprite):
         self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
     def destroy(self):
         if self.col == "white":
-            PlacedPawn.white_pawn_list.remove(self)
+            PausedPawn.white_pawn_list.remove(self)
         elif self.col == "black":
-            PlacedPawn.black_pawn_list.remove(self)
+            PausedPawn.black_pawn_list.remove(self)
         self.kill()
 
 class PausedBishop(pygame.sprite.Sprite):
@@ -76,11 +76,11 @@ class PausedBishop(pygame.sprite.Sprite):
         if self.col == "white":
             self.image = IMAGES["SPR_WHITE_BISHOP"]
             PAUSED_SPRITES.add(self)
-            PlacedBishop.white_bishop_list.append(self)
+            PausedBishop.white_bishop_list.append(self)
         elif self.col == "black":
             self.image = IMAGES["SPR_BLACK_BISHOP"]
             PAUSED_SPRITES.add(self)
-            PlacedBishop.black_bishop_list.append(self)
+            PausedBishop.black_bishop_list.append(self)
         self.coordinate = coord
         self.rect = self.image.get_rect()
         for grid in board.Grid.grid_list:
@@ -90,9 +90,9 @@ class PausedBishop(pygame.sprite.Sprite):
         self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
     def destroy(self):
         if self.col == "white":
-            PlacedBishop.white_bishop_list.remove(self)
+            PausedBishop.white_bishop_list.remove(self)
         elif self.col == "black":
-            PlacedBishop.black_bishop_list.remove(self)
+            PausedBishop.black_bishop_list.remove(self)
         self.kill()
 
 class PausedKnight(pygame.sprite.Sprite):
@@ -104,11 +104,11 @@ class PausedKnight(pygame.sprite.Sprite):
         if self.col == "white":
             self.image = IMAGES["SPR_WHITE_KNIGHT"]
             PAUSED_SPRITES.add(self)
-            PlacedKnight.white_knight_list.append(self)
+            PausedKnight.white_knight_list.append(self)
         elif self.col == "black":
             self.image = IMAGES["SPR_BLACK_KNIGHT"]
             PAUSED_SPRITES.add(self)
-            PlacedKnight.black_knight_list.append(self)
+            PausedKnight.black_knight_list.append(self)
         self.coordinate = coord
         self.rect = self.image.get_rect()
         for grid in board.Grid.grid_list:
@@ -118,9 +118,9 @@ class PausedKnight(pygame.sprite.Sprite):
         self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
     def destroy(self):
         if self.col == "white":
-            PlacedKnight.white_knight_list.remove(self)
+            PausedKnight.white_knight_list.remove(self)
         elif self.col == "black":
-            PlacedKnight.black_knight_list.remove(self)
+            PausedKnight.black_knight_list.remove(self)
         self.kill()
         
 class PausedRook(pygame.sprite.Sprite):
@@ -132,11 +132,11 @@ class PausedRook(pygame.sprite.Sprite):
         if self.col == "white":
             self.image = IMAGES["SPR_WHITE_ROOK"]
             PAUSED_SPRITES.add(self)
-            PlacedRook.white_rook_list.append(self)
+            PausedRook.white_rook_list.append(self)
         elif self.col == "black":
             self.image = IMAGES["SPR_BLACK_ROOK"]
             PAUSED_SPRITES.add(self)
-            PlacedRook.black_rook_list.append(self)
+            PausedRook.black_rook_list.append(self)
         self.coordinate = coord
         self.rect = self.image.get_rect()
         for grid in board.Grid.grid_list:
@@ -146,9 +146,9 @@ class PausedRook(pygame.sprite.Sprite):
         self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
     def destroy(self):
         if self.col == "white":
-            PlacedRook.white_rook_list.remove(self)
+            PausedRook.white_rook_list.remove(self)
         elif self.col == "black":
-            PlacedRook.black_rook_list.remove(self)
+            PausedRook.black_rook_list.remove(self)
         self.kill()
         
 class PausedQueen(pygame.sprite.Sprite):
@@ -160,11 +160,11 @@ class PausedQueen(pygame.sprite.Sprite):
         if self.col == "white":
             self.image = IMAGES["SPR_WHITE_QUEEN"]
             PAUSED_SPRITES.add(self)
-            PlacedQueen.white_queen_list.append(self)
+            PausedQueen.white_queen_list.append(self)
         elif self.col == "black":
             self.image = IMAGES["SPR_BLACK_QUEEN"]
             PAUSED_SPRITES.add(self)
-            PlacedQueen.black_queen_list.append(self)
+            PausedQueen.black_queen_list.append(self)
         self.coordinate = coord
         self.rect = self.image.get_rect()
         for grid in board.Grid.grid_list:
@@ -174,9 +174,9 @@ class PausedQueen(pygame.sprite.Sprite):
         self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
     def destroy(self):
         if self.col == "white":
-            PlacedQueen.white_queen_list.remove(self)
+            PausedQueen.white_queen_list.remove(self)
         elif self.col == "black":
-            PlacedQueen.black_queen_list.remove(self)
+            PausedQueen.black_queen_list.remove(self)
         self.kill()
         
 class PausedKing(pygame.sprite.Sprite):
@@ -188,11 +188,11 @@ class PausedKing(pygame.sprite.Sprite):
         if self.col == "white":
             self.image = IMAGES["SPR_WHITE_KING"]
             PAUSED_SPRITES.add(self)
-            PlacedKing.white_king_list.append(self)
+            PausedKing.white_king_list.append(self)
         elif self.col == "black":
             self.image = IMAGES["SPR_BLACK_KING"]
             PAUSED_SPRITES.add(self)
-            PlacedKing.black_king_list.append(self)
+            PausedKing.black_king_list.append(self)
         self.coordinate = coord
         self.rect = self.image.get_rect()
         for grid in board.Grid.grid_list:
@@ -202,7 +202,7 @@ class PausedKing(pygame.sprite.Sprite):
         self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
     def destroy(self):
         if self.col == "white":
-            PlacedKing.white_king_list.remove(self)
+            PausedKing.white_king_list.remove(self)
         elif self.col == "black":
-            PlacedKing.black_king_list.remove(self)
+            PausedKing.black_king_list.remove(self)
         self.kill()

@@ -37,6 +37,7 @@ import board
 import start_objects
 import placed_objects
 import play_objects
+import paused_objects
 from load_images_sounds import *
 from menu_buttons import *
 import random
@@ -621,27 +622,26 @@ class Switch_Modes_Controller():
     def play_to_paused(play_list, class_obj, color):
         # Play pieces spawn where their placed piece correspondents are located
         for play_obj in play_list:
-            class_obj(color, play_obj.rect.topleft)
+            if play_obj.coordinate is not None:
+                class_obj(color, play_obj.coordinate)
     def pause_game(paused):
         #%% Working on currently
         Switch_Modes_Controller.PAUSED = paused
         if Switch_Modes_Controller.PAUSED == True:
             log.info("Paused")
             print(str(Switch_Modes_Controller.list_of_moves_backwards(Move_Tracker.df_prior_moves)))
-            """
-            Switch_Modes_Controller.play_to_paused(play_objects.PlayPawn.white_pawn_list, play_objects.PlayPawn, "white")
-            Switch_Modes_Controller.play_to_paused(play_objects.PlayBishop.white_bishop_list, play_objects.PlayBishop, "white")
-            Switch_Modes_Controller.play_to_paused(play_objects.PlayKnight.white_knight_list, play_objects.PlayKnight, "white")
-            Switch_Modes_Controller.play_to_paused(play_objects.PlayRook.white_rook_list, play_objects.PlayRook, "white")
-            Switch_Modes_Controller.play_to_paused(play_objects.PlayQueen.white_queen_list, play_objects.PlayQueen, "white")
-            Switch_Modes_Controller.play_to_paused(play_objects.PlayKing.white_king_list, play_objects.PlayKing, "white")
-            Switch_Modes_Controller.play_to_paused(play_objects.PlayPawn.black_pawn_list, play_objects.PlayPawn, "black")
-            Switch_Modes_Controller.play_to_paused(play_objects.PlayBishop.black_bishop_list, play_objects.PlayBishop, "black")
-            Switch_Modes_Controller.play_to_paused(play_objects.PlayKnight.black_knight_list, play_objects.PlayKnight, "black")
-            Switch_Modes_Controller.play_to_paused(play_objects.PlayRook.black_rook_list, play_objects.PlayRook, "black")
-            Switch_Modes_Controller.play_to_paused(play_objects.PlayQueen.black_queen_list, play_objects.PlayQueen, "black")
-            Switch_Modes_Controller.play_to_paused(play_objects.PlayKing.black_king_list, play_objects.PlayKing, "black")
-            """
+            Switch_Modes_Controller.play_to_paused(play_objects.PlayPawn.white_pawn_list, paused_objects.PausedPawn, "white")
+            Switch_Modes_Controller.play_to_paused(play_objects.PlayBishop.white_bishop_list, paused_objects.PausedBishop, "white")
+            Switch_Modes_Controller.play_to_paused(play_objects.PlayKnight.white_knight_list, paused_objects.PausedKnight, "white")
+            Switch_Modes_Controller.play_to_paused(play_objects.PlayRook.white_rook_list, paused_objects.PausedRook, "white")
+            Switch_Modes_Controller.play_to_paused(play_objects.PlayQueen.white_queen_list, paused_objects.PausedQueen, "white")
+            Switch_Modes_Controller.play_to_paused(play_objects.PlayKing.white_king_list, paused_objects.PausedKing, "white")
+            Switch_Modes_Controller.play_to_paused(play_objects.PlayPawn.black_pawn_list, paused_objects.PausedPawn, "black")
+            Switch_Modes_Controller.play_to_paused(play_objects.PlayBishop.black_bishop_list, paused_objects.PausedBishop, "black")
+            Switch_Modes_Controller.play_to_paused(play_objects.PlayKnight.black_knight_list, paused_objects.PausedKnight, "black")
+            Switch_Modes_Controller.play_to_paused(play_objects.PlayRook.black_rook_list, paused_objects.PausedRook, "black")
+            Switch_Modes_Controller.play_to_paused(play_objects.PlayQueen.black_queen_list, paused_objects.PausedQueen, "black")
+            Switch_Modes_Controller.play_to_paused(play_objects.PlayKing.black_king_list, paused_objects.PausedKing, "black")
         else:
             log.info("Resume")
     def list_of_moves_backwards(df_prior_moves):
@@ -1642,6 +1642,9 @@ def main():
                     if Switch_Modes_Controller.PAUSED == False:
                         play_objects.PLAY_SPRITES.update()
                         play_objects.PLAY_SPRITES.draw(SCREEN)
+                    else:
+                        paused_objects.PAUSED_SPRITES.update()
+                        paused_objects.PAUSED_SPRITES.draw(SCREEN)
                     PGN_SAVE_FILE_BUTTON.draw(SCREEN)
                     PLAY_PANEL_SPRITES.draw(SCREEN)
                     
