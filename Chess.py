@@ -2,12 +2,10 @@
 Chess created by Brad Wyatt
 
 Features To-Do (short-term):
-Undo move
-Play back one move
+Play back moves
 Be able to click on a move in the pane to view it
 --> One idea I had before was pause mode (mode between edit and play)
 --> I think the right thing to do would take the df_prior_moves to get the move. The tricky part is differentiating this from Undo move (through a conditional variable checking within each class for example). And coloring prior_move_color appropriately.
-Game Properties
 Menu objects are still invisible yet clickable
 
 Buttons to Implement:
@@ -15,7 +13,6 @@ Previous Move
 Next Move
 Beginning of Game
 Latest move
-Game Properties (use Babaschess for model)
 
 Clean Code Ideas:
 Edit_Mode_Controller to handle all the clicking event functions
@@ -117,10 +114,10 @@ def pos_load_file(reset=False):
     if open_file:
         open_file.close()
     
+    log.info("Removing sprites and loading piece positions...")
+    
     # Removes all placed lists
     placed_objects.remove_all_placed()
-    
-    log.info("Removed all sprites. Now creating lists for loaded level.")
     
     for white_pawn_pos in loaded_dict['white_pawn']:
         placed_objects.PlacedPawn(white_pawn_pos, "white")
@@ -183,7 +180,7 @@ def pos_save_file():
         else:
             log.info("Error! Need king to save!")
     except IOError:
-        log.info("Save File Error, please restart game and try again.")
+        log.info("Save File Error (IOError)")
 
 class PlayEditSwitchButton(pygame.sprite.Sprite):
     def __init__(self, pos, GAME_MODE_SPRITES):
@@ -210,8 +207,8 @@ class Preferences():
     Result = ""
     WhiteElo = ""
     BlackElo = ""
-    ECO = "0"
-    TimeControl = ""
+    ECO = ""
+    TimeControl = "0"
     def get_color():
         color = askcolor()
         return [color[0][0], color[0][1], color[0][2]]
@@ -283,7 +280,7 @@ class PGN_Writer_and_Loader():
             else:
                 log.info("Error! Need king to save!")
         except IOError:
-            log.info("Save File Error, please restart game and try again.")
+            log.info("Save File Error (IOError)")
     def pgn_load(PLAY_EDIT_SWITCH_BUTTON):
         open_file = None
         request_file_name = askopenfilename(defaultextension=".pgn")
@@ -1435,6 +1432,7 @@ def main():
                                 grid.no_highlight()
                             Grid_Controller.update_grid()
                         if PGN_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
+                            Preferences.game_properties_popup()
                             PGN_Writer_and_Loader.write_moves(Move_Tracker.df_moves, game_controller.result_abb)
                         if FLIP_BOARD_BUTTON.rect.collidepoint(MOUSEPOS):
                             Grid_Controller.flip_grids()
