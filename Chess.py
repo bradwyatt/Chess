@@ -563,6 +563,8 @@ class Grid_Controller():
                         piece.prior_move_color = False
                     piece.no_highlight()
         else:
+            #%% Prior move color func
+            #print("PIECE: " + str(prior_move_piece) + " with coordinate " + str(prior_move_piece.coordinate))
             # Updating prior move sprites for pause objects
             for piece_list in paused_objects.Piece_Lists_Shortcut.all_pieces():
                 for piece in piece_list:
@@ -571,11 +573,18 @@ class Grid_Controller():
                     else:
                         piece.prior_move_color = False
                     piece.prior_move_update()
+            #print("Does piece have red color? " + str(prior_move_piece.prior_move_color))
     def piece_on_grid(grid_coordinate):
-        for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
-            for piece in piece_list:
-                if grid_coordinate == piece.coordinate:
-                    return piece
+        if Switch_Modes_Controller.PAUSED == False:
+            for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
+                for piece in piece_list:
+                    if grid_coordinate == piece.coordinate:
+                        return piece
+        else:
+            for piece_list in paused_objects.Piece_Lists_Shortcut.all_pieces():
+                for piece in piece_list:
+                    if grid_coordinate == piece.coordinate:
+                        return piece
     def update_prior_move_color(whoseturn):
         if Move_Tracker.move_counter() == 0:
             for grid in board.Grid.grid_list:
@@ -609,7 +618,7 @@ class Switch_Modes_Controller():
             Switch_Modes_Controller.GAME_MODE = Switch_Modes_Controller.EDIT_MODE
             PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(Switch_Modes_Controller.GAME_MODE)
             Text_Controller.check_checkmate_text = ""
-            Switch_Modes_Controller.pause_game(False)
+            Switch_Modes_Controller.pause_game(False, game_controller)
         elif game_mode == Switch_Modes_Controller.PLAY_MODE:
             log.info("Play Mode Activated\n")
             Switch_Modes_Controller.GAME_MODE = Switch_Modes_Controller.PLAY_MODE
@@ -638,7 +647,6 @@ class Switch_Modes_Controller():
                 class_obj(color, play_obj.coordinate_history, play_obj.coordinate)
     def rewind_moves():
         list_of_moves_backwards = Switch_Modes_Controller.list_of_moves_backwards(Move_Tracker.df_prior_moves)[:-1]
-        print("LIST OF MOVES BACKWARDS " + str(list_of_moves_backwards))
         # list_of_moves_backwards list is ordered in descending order to the selected move
         for move_dict in list_of_moves_backwards:
             for paused_obj_list in paused_objects.Piece_Lists_Shortcut.all_pieces():
@@ -653,12 +661,11 @@ class Switch_Modes_Controller():
         old_grid_coordinate_after = ast.literal_eval(list(prior_move_grid_and_piece_highlight_dict.values())[0])['after']
         old_piece = Grid_Controller.piece_on_grid(old_grid_coordinate_after)
         Grid_Controller.prior_move_color(old_grid_coordinate_before, old_piece)
-    def pause_game(paused):
+    def pause_game(paused, game_controller):
         #%% Working on currently
         Switch_Modes_Controller.PAUSED = paused
         if Switch_Modes_Controller.PAUSED == True:
             paused_objects.remove_all_paused()
-            #print(str(Switch_Modes_Controller.list_of_moves_backwards(Move_Tracker.df_prior_moves)))
             Switch_Modes_Controller.play_to_paused(play_objects.PlayPawn.white_pawn_list, paused_objects.PausedPawn, "white")
             Switch_Modes_Controller.play_to_paused(play_objects.PlayBishop.white_bishop_list, paused_objects.PausedBishop, "white")
             Switch_Modes_Controller.play_to_paused(play_objects.PlayKnight.white_knight_list, paused_objects.PausedKnight, "white")
@@ -674,11 +681,11 @@ class Switch_Modes_Controller():
             Switch_Modes_Controller.rewind_moves()
         else:
             paused_objects.remove_all_paused()
+            Grid_Controller.update_prior_move_color(game_controller.WHOSETURN)
     def list_of_moves_backwards(df_prior_moves):
         moves_backwards_list = []
         limit_moves = Move_Tracker.selected_move[0]
         limit_color = Move_Tracker.selected_move[1]
-        #Move_Tracker.selected_move = (0, "")
         for move_num in range(Move_Tracker.move_counter(), limit_moves-1, -1):
             moves_backwards_dict = {}
             if limit_color == 'black_move' and move_num == limit_moves:
@@ -994,6 +1001,7 @@ class Move_Controller():
             clicked_piece.spaces_available(game_controller)
             clicked_piece = None
     def undo_move(game_controller):
+        Switch_Modes_Controller.pause_game(False, game_controller)
         pieces_to_undo = []
         # Using pieces_to_undo as a list for castling
         if Move_Tracker.move_counter() >= 1:
@@ -1368,7 +1376,7 @@ class Move_Controller():
             prior_moves_dict['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
             Move_Tracker.selected_move = (Move_Tracker.move_counter(), "white_move")
             Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "white_move"] = str(prior_moves_dict)
-        Switch_Modes_Controller.pause_game(False)
+        Switch_Modes_Controller.pause_game(False, game_controller)
         log.info(move_text)
         if game_controller.result_abb != "*":
             log.info(game_controller.result_abb)
@@ -1532,11 +1540,11 @@ def main():
                                 if Move_Tracker.selected_move[0] == len(Move_Tracker.df_moves):
                                     if Move_Tracker.df_moves.loc[len(Move_Tracker.df_moves), "black_move"] != "" \
                                         and piece_move_rect.move_color == "white_move":
-                                            Switch_Modes_Controller.pause_game(True)
+                                            Switch_Modes_Controller.pause_game(True, game_controller)
                                     else:
-                                        Switch_Modes_Controller.pause_game(False)
+                                        Switch_Modes_Controller.pause_game(False, game_controller)
                                 else:
-                                    Switch_Modes_Controller.pause_game(True)
+                                    Switch_Modes_Controller.pause_game(True, game_controller)
                         # Editing mode only
                         if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE:
                             #BUTTONS
