@@ -633,12 +633,14 @@ class Switch_Modes_Controller():
                 for paused_obj in paused_obj_list:
                     for piece_history in paused_obj.coordinate_history:
                         if piece_history in dict(move_dict):
-                            paused_obj.coordinate = ast.literal_eval(move_dict[piece_history])['before']
+                            if paused_obj.coordinate_history[piece_history] == ast.literal_eval(move_dict[piece_history]):
+                                paused_obj.coordinate = ast.literal_eval(move_dict[piece_history])['before']
     def pause_game(paused):
         #%% Working on currently
         Switch_Modes_Controller.PAUSED = paused
         if Switch_Modes_Controller.PAUSED == True:
             log.info("Paused")
+            paused_objects.remove_all_paused()
             #print(str(Switch_Modes_Controller.list_of_moves_backwards(Move_Tracker.df_prior_moves)))
             Switch_Modes_Controller.play_to_paused(play_objects.PlayPawn.white_pawn_list, paused_objects.PausedPawn, "white")
             Switch_Modes_Controller.play_to_paused(play_objects.PlayBishop.white_bishop_list, paused_objects.PausedBishop, "white")
