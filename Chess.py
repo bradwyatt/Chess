@@ -623,9 +623,12 @@ class Switch_Modes_Controller():
         for play_obj in play_list:
             class_obj(color, play_obj.rect.topleft)
     def pause_game(paused):
+        #%% Working on currently
         Switch_Modes_Controller.PAUSED = paused
         if Switch_Modes_Controller.PAUSED == True:
             log.info("Paused")
+            print(str(Switch_Modes_Controller.list_of_moves_backwards(Move_Tracker.df_prior_moves)))
+            """
             Switch_Modes_Controller.play_to_paused(play_objects.PlayPawn.white_pawn_list, play_objects.PlayPawn, "white")
             Switch_Modes_Controller.play_to_paused(play_objects.PlayBishop.white_bishop_list, play_objects.PlayBishop, "white")
             Switch_Modes_Controller.play_to_paused(play_objects.PlayKnight.white_knight_list, play_objects.PlayKnight, "white")
@@ -638,8 +641,27 @@ class Switch_Modes_Controller():
             Switch_Modes_Controller.play_to_paused(play_objects.PlayRook.black_rook_list, play_objects.PlayRook, "black")
             Switch_Modes_Controller.play_to_paused(play_objects.PlayQueen.black_queen_list, play_objects.PlayQueen, "black")
             Switch_Modes_Controller.play_to_paused(play_objects.PlayKing.black_king_list, play_objects.PlayKing, "black")
+            """
         else:
             log.info("Resume")
+    def list_of_moves_backwards(df_prior_moves):
+        moves_backwards_list = []
+        limit_moves = Move_Tracker.selected_move[0]
+        limit_color = Move_Tracker.selected_move[1]
+        #Move_Tracker.selected_move = (0, "")
+        for move_num in range(Move_Tracker.move_counter(), limit_moves-1, -1):
+            if limit_color == 'black_move' and move_num == limit_moves:
+                # Selected move is black, so ignore the white move on that same move number and break 
+                moves_backwards_list.append(df_prior_moves.loc[move_num, 'black_move'])
+                break
+            elif df_prior_moves.loc[move_num, 'black_move'] == '':
+                # Current move has no black move yet, so ignore adding that to list
+                pass
+            else:
+                moves_backwards_list.append(df_prior_moves.loc[move_num, 'black_move'])
+            moves_backwards_list.append(df_prior_moves.loc[move_num, 'white_move'])
+        return moves_backwards_list
+        
 
 class Move_Tracker():
     df_moves = pd.DataFrame(columns=["white_move", "black_move"])
@@ -653,7 +675,8 @@ class Move_Tracker():
         Move_Tracker.df_moves.index = np.arange(1, len(Move_Tracker.df_moves)+1)
         Move_Tracker.df_prior_moves = pd.DataFrame(columns=["white_move", "black_move"])
         Move_Tracker.df_prior_moves.index = np.arange(1, len(Move_Tracker.df_prior_moves)+1)
-        Move_Tracker.move_counter = lambda : len(Move_Tracker.df_moves)
+        #%% The below 1 line may need to be deleted
+        Move_Tracker.move_counter = lambda : len(Move_Tracker.df_moves) 
         Move_Tracker.selected_move = (0, "")
     def undo_move_in_dfs(undo_color):
         if undo_color == "black":
@@ -1052,7 +1075,9 @@ class Move_Controller():
         prior_moves_dict = {}
         # Update df_moves dictionary with a new record for the new move (when white's turn)
         if piece.color == "white":
-            Move_Tracker.df_moves.loc[Move_Tracker.move_counter()+1] = ["", ""]
+            next_move = Move_Tracker.move_counter()+1
+            Move_Tracker.df_moves.loc[next_move] = ["", ""]
+            Move_Tracker.df_prior_moves.loc[next_move] = ["", ""]
         # Taking a piece by checking if available grid is opposite color of piece
         # And iterating through all pieces to check if coordinates of that grid
         # are the same as any of the pieces
