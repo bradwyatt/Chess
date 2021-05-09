@@ -217,20 +217,20 @@ class Preferences():
     def game_properties_popup():
         layout = [
             [sg.Text('Please enter the information for the game below. All fields are optional.')],
-            [sg.Text('Event', size=(15, 1)), sg.InputText()],
-            [sg.Text('Site', size=(15, 1)), sg.InputText()],
-            [sg.Text('Date', size=(15, 1)), sg.InputText()],
-            [sg.Text('Round', size=(15, 1)), sg.InputText()],
-            [sg.Text('White', size=(15, 1)), sg.InputText()],
-            [sg.Text('Black', size=(15, 1)), sg.InputText()],
-            [sg.Text('Result', size=(15, 1)), sg.InputText()],
-            [sg.Text('WhiteElo', size=(15, 1)), sg.InputText()],
-            [sg.Text('BlackElo', size=(15, 1)), sg.InputText()],
-            [sg.Text('ECO', size=(15, 1)), sg.InputText()],
-            [sg.Submit("Ok"), sg.Cancel()]
+            [sg.Text('Event', size=(7, 0)), sg.InputText()],
+            [sg.Text('Site', size=(7, 0)), sg.InputText()],
+            [sg.Text('Date', size=(7, 0)), sg.InputText()],
+            [sg.Text('Round', size=(7, 0)), sg.InputText()],
+            [sg.Text('White', size=(7, 0)), sg.InputText()],
+            [sg.Text('Black', size=(7, 0)), sg.InputText()],
+            [sg.Text('Result', size=(7, 0)), sg.InputText()],
+            [sg.Text('WhiteElo', size=(7, 0)), sg.InputText()],
+            [sg.Text('BlackElo', size=(7, 0)), sg.InputText()],
+            [sg.Text('ECO', size=(7, 0)), sg.InputText()],
+            [sg.Submit("Ok"), sg.Cancel("Cancel")]
         ]
-        
-        window = sg.Window('Game Properties', layout)
+        #Please enter the information for the game below. All fields are optional.
+        window = sg.Window('Game Properties', layout, element_justification='center')
         event, values = window.read()
         window.close()
         if event == 'Cancel' or event == None:
@@ -1354,8 +1354,6 @@ def main():
         arial_font = pygame.font.SysFont('Arial', 24)
         move_notation_font = pygame.font.SysFont('Arial', 16)
         
-        PGN_WRITER_AND_LOADER = PGN_Writer_and_Loader()
-        
         PLAY_EDIT_SWITCH_BUTTON = PlayEditSwitchButton(initvar.PLAY_EDIT_SWITCH_BUTTON_TOPLEFT, GAME_MODE_SPRITES)
         FLIP_BOARD_BUTTON = FlipBoardButton(initvar.FLIP_BOARD_BUTTON_TOPLEFT)
         GAME_PROPERTIES_BUTTON = GamePropertiesButton(initvar.GAME_PROPERTIES_BUTTON_TOPLEFT)
@@ -1422,12 +1420,12 @@ def main():
                         if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS) and len(MoveNumberRectangle.rectangle_list) > initvar.MOVES_PANE_MAX_MOVES and PanelRectangles.scroll_range[1] < len(MoveNumberRectangle.rectangle_list): # Scroll down
                             update_scroll_range(1)
                         if PGN_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
-                            game_controller = PGN_WRITER_AND_LOADER.pgn_load(PLAY_EDIT_SWITCH_BUTTON)
+                            game_controller = PGN_Writer_and_Loader.pgn_load(PLAY_EDIT_SWITCH_BUTTON)
                             for grid in board.Grid.grid_list:
                                 grid.no_highlight()
                             Grid_Controller.update_grid()
                         if PGN_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
-                            PGN_WRITER_AND_LOADER.write_moves(Move_Tracker.df_moves, game_controller.result_abb)
+                            PGN_Writer_and_Loader.write_moves(Move_Tracker.df_moves, game_controller.result_abb)
                         if FLIP_BOARD_BUTTON.rect.collidepoint(MOUSEPOS):
                             Grid_Controller.flip_grids()
                             if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
