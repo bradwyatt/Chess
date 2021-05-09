@@ -674,15 +674,21 @@ class Switch_Modes_Controller():
                                         for piece_list in replayed_objects.Piece_Lists_Shortcut.black_pieces():
                                             for piece in piece_list:
                                                 if piece.captured_move_number_and_coordinate:
-                                                    if ast.literal_eval(move_dict[piece_history])['after'] == piece.captured_move_number_and_coordinate['coordinate'] \
-                                                        and piece.captured_move_number_and_coordinate['move_number'] == piece_history:
+                                                    if piece.captured_move_number_and_coordinate['move_number'] == piece_history:
+                                                        if 'ep_grid_after_coord' in piece.captured_move_number_and_coordinate:
+                                                            # En Passant exception
+                                                            piece.coordinate = piece.captured_move_number_and_coordinate['ep_grid_after_coord'][0] + str(int(piece.captured_move_number_and_coordinate['ep_grid_after_coord'][1])-1)
+                                                        else:
                                                             piece.coordinate = ast.literal_eval(move_dict[piece_history])['after']
                                     elif replayed_obj.color == "black":
                                         for piece_list in replayed_objects.Piece_Lists_Shortcut.white_pieces():
                                             for piece in piece_list:
                                                 if piece.captured_move_number_and_coordinate:
-                                                    if ast.literal_eval(move_dict[piece_history])['after'] == piece.captured_move_number_and_coordinate['coordinate'] \
-                                                        and piece.captured_move_number_and_coordinate['move_number'] == piece_history:
+                                                    if piece.captured_move_number_and_coordinate['move_number'] == piece_history:
+                                                        if 'ep_grid_after_coord' in piece.captured_move_number_and_coordinate:
+                                                            # En Passant exception
+                                                            piece.coordinate = piece.captured_move_number_and_coordinate['ep_grid_after_coord'][0] + str(int(piece.captured_move_number_and_coordinate['ep_grid_after_coord'][1])+1)
+                                                        else:
                                                             piece.coordinate = ast.literal_eval(move_dict[piece_history])['after']
                                 if "=Q" in ast.literal_eval(move_dict[piece_history])['move_notation']:
                                     if replayed_obj.color == "white":
@@ -697,6 +703,8 @@ class Switch_Modes_Controller():
                                                 if piece.coordinate == eval(Move_Tracker.df_prior_moves.loc[piece_history, "black_move"])['after']:
                                                     piece.kill()
                                                     replayed_objects.ReplayedQueen.black_queen_list.remove(piece)
+        # -1 in the list refers to the highlighted move in the pane
+        # Retrieve the grids from the piece that we are replaying, and get the grid from the previous move to that one
         prior_move_grid_and_piece_highlight_dict = Switch_Modes_Controller.list_of_moves_backwards(Move_Tracker.df_prior_moves)[-1]
         old_grid_coordinate_before = ast.literal_eval(list(prior_move_grid_and_piece_highlight_dict.values())[0])['before']
         old_grid_coordinate_after = ast.literal_eval(list(prior_move_grid_and_piece_highlight_dict.values())[0])['after']
