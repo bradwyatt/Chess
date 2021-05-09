@@ -590,6 +590,7 @@ class Grid_Controller():
 class Switch_Modes_Controller():
     EDIT_MODE, PLAY_MODE = 0, 1
     GAME_MODE = EDIT_MODE
+    PAUSED = False
     def switch_mode(game_mode, PLAY_EDIT_SWITCH_BUTTON):
         if game_mode == Switch_Modes_Controller.EDIT_MODE:
             log.info("\nEditing Mode Activated\n")
@@ -617,6 +618,9 @@ class Switch_Modes_Controller():
         # Play pieces spawn where their placed piece correspondents are located
         for placed_obj in placed_list:
             class_obj(placed_obj.coordinate, color)
+    def pause_game(paused):
+        Switch_Modes_Controller.PAUSED = paused
+        print("Pause status: " + str(Switch_Modes_Controller.PAUSED))
 
 class Move_Tracker():
     df_moves = pd.DataFrame(columns=["white_move", "black_move"])
@@ -1284,6 +1288,7 @@ class Move_Controller():
             prior_moves_dict['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
             Move_Tracker.selected_move = (Move_Tracker.move_counter(), "white_move")
             Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "white_move"] = str(prior_moves_dict)
+        Switch_Modes_Controller.pause_game(False)
         log.info(move_text)
         if game_controller.result_abb != "*":
             log.info(game_controller.result_abb)
@@ -1444,6 +1449,14 @@ def main():
                         for piece_move_rect in PieceMoveRectangle.rectangle_list:
                             if piece_move_rect.rect.collidepoint(MOUSEPOS) and piece_move_rect.text_is_visible:
                                 Move_Tracker.selected_move = (piece_move_rect.move_number, piece_move_rect.move_color)
+                                if Move_Tracker.selected_move[0] == len(Move_Tracker.df_moves):
+                                    if Move_Tracker.df_moves.loc[len(Move_Tracker.df_moves), "black_move"] != "" \
+                                        and piece_move_rect.move_color == "white_move":
+                                            Switch_Modes_Controller.pause_game(True)
+                                    else:
+                                        Switch_Modes_Controller.pause_game(False)
+                                else:
+                                    Switch_Modes_Controller.pause_game(True)
                         # Editing mode only
                         if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE:
                             #BUTTONS
@@ -1582,8 +1595,9 @@ def main():
                     placed_objects.PLACED_SPRITES.draw(SCREEN)
                 elif(Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE): #Only draw play sprites in play mode
                     FLIP_BOARD_BUTTON.draw(SCREEN)
-                    play_objects.PLAY_SPRITES.update()
-                    play_objects.PLAY_SPRITES.draw(SCREEN)
+                    if Switch_Modes_Controller.PAUSED == False:
+                        play_objects.PLAY_SPRITES.update()
+                        play_objects.PLAY_SPRITES.draw(SCREEN)
                     PGN_SAVE_FILE_BUTTON.draw(SCREEN)
                     PLAY_PANEL_SPRITES.draw(SCREEN)
                     
