@@ -643,7 +643,11 @@ class Switch_Modes_Controller():
         # Play pieces spawn where their placed piece correspondents are located
         for play_obj in play_list:
             if play_obj.coordinate is not None:
-                class_obj(color, play_obj.coordinate_history, play_obj.coordinate)
+                class_obj(color, play_obj.coordinate_history, coord=play_obj.coordinate)
+            elif play_obj.coordinate is None:
+                class_obj(color, play_obj.coordinate_history, 
+                          captured_move_number_and_coordinate=play_obj.captured_move_number_and_coordinate, 
+                          out_of_bounds_x_y=play_obj.rect.topleft)
     def rewind_moves():
         list_of_moves_backwards = Switch_Modes_Controller.list_of_moves_backwards(Move_Tracker.df_prior_moves)[:-1]
         # list_of_moves_backwards list is ordered in descending order to the selected move
@@ -665,6 +669,34 @@ class Switch_Modes_Controller():
                                         Grid_Controller.piece_on_grid('d1').coordinate = 'a1'
                                     elif replayed_obj.color == "black":
                                         Grid_Controller.piece_on_grid('d8').coordinate = 'a8'
+                                if "x" in ast.literal_eval(move_dict[piece_history])['move_notation']:
+                                    if replayed_obj.color == "white":
+                                        for piece_list in replayed_objects.Piece_Lists_Shortcut.black_pieces():
+                                            for piece in piece_list:
+                                                if piece.captured_move_number_and_coordinate:
+                                                    if ast.literal_eval(move_dict[piece_history])['after'] == piece.captured_move_number_and_coordinate['coordinate'] \
+                                                        and piece.captured_move_number_and_coordinate['move_number'] == piece_history:
+                                                            piece.coordinate = ast.literal_eval(move_dict[piece_history])['after']
+                                    elif replayed_obj.color == "black":
+                                        for piece_list in replayed_objects.Piece_Lists_Shortcut.white_pieces():
+                                            for piece in piece_list:
+                                                if piece.captured_move_number_and_coordinate:
+                                                    if ast.literal_eval(move_dict[piece_history])['after'] == piece.captured_move_number_and_coordinate['coordinate'] \
+                                                        and piece.captured_move_number_and_coordinate['move_number'] == piece_history:
+                                                            piece.coordinate = ast.literal_eval(move_dict[piece_history])['after']
+                                if "=Q" in ast.literal_eval(move_dict[piece_history])['move_notation']:
+                                    if replayed_obj.color == "white":
+                                        for piece_list in replayed_objects.Piece_Lists_Shortcut.white_pieces():
+                                            for piece in replayed_objects.ReplayedQueen.white_queen_list:
+                                                if piece.coordinate == eval(Move_Tracker.df_prior_moves.loc[piece_history, "white_move"])['after']:
+                                                    piece.kill()
+                                                    replayed_objects.ReplayedQueen.white_queen_list.remove(piece)
+                                    elif replayed_obj.color == "black":
+                                        for piece_list in replayed_objects.Piece_Lists_Shortcut.black_pieces():
+                                            for piece in replayed_objects.ReplayedQueen.black_queen_list:
+                                                if piece.coordinate == eval(Move_Tracker.df_prior_moves.loc[piece_history, "black_move"])['after']:
+                                                    piece.kill()
+                                                    replayed_objects.ReplayedQueen.black_queen_list.remove(piece)
         prior_move_grid_and_piece_highlight_dict = Switch_Modes_Controller.list_of_moves_backwards(Move_Tracker.df_prior_moves)[-1]
         old_grid_coordinate_before = ast.literal_eval(list(prior_move_grid_and_piece_highlight_dict.values())[0])['before']
         old_grid_coordinate_after = ast.literal_eval(list(prior_move_grid_and_piece_highlight_dict.values())[0])['after']

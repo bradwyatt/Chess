@@ -46,7 +46,7 @@ class Piece_Lists_Shortcut():
 class ReplayedPawn(pygame.sprite.Sprite):
     white_pawn_list = []
     black_pawn_list = []
-    def __init__(self, color, coordinate_history, coord=None):
+    def __init__(self, color, coordinate_history, coord=None, captured_move_number_and_coordinate=None, out_of_bounds_x_y=None):
         pygame.sprite.Sprite.__init__(self)
         self.color = color
         if self.color == "white":
@@ -60,13 +60,18 @@ class ReplayedPawn(pygame.sprite.Sprite):
         self.coordinate = coord
         self.coordinate_history = coordinate_history
         self.rect = self.image.get_rect()
-        for grid in board.Grid.grid_list:
-            if grid.coordinate == self.coordinate:
-                self.rect.topleft = grid.rect.topleft
+        if self.coordinate is not None:
+            for grid in board.Grid.grid_list:
+                if grid.coordinate == self.coordinate:
+                    self.rect.topleft = grid.rect.topleft
+        else:
+            self.rect.topleft = out_of_bounds_x_y
         self.prior_move_color = False
         self.taken_off_board = False
+        self.captured_move_number_and_coordinate = captured_move_number_and_coordinate
     def update(self):
-        self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
+        if self.coordinate is not None:
+            self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
     def destroy(self):
         if self.color == "white":
             ReplayedPawn.white_pawn_list.remove(self)
@@ -89,7 +94,7 @@ class ReplayedPawn(pygame.sprite.Sprite):
 class ReplayedBishop(pygame.sprite.Sprite):
     white_bishop_list = []
     black_bishop_list = []
-    def __init__(self, color, coordinate_history, coord=None):
+    def __init__(self, color, coordinate_history, coord=None, captured_move_number_and_coordinate=None, out_of_bounds_x_y=None):
         pygame.sprite.Sprite.__init__(self)
         self.color = color
         if self.color == "white":
@@ -103,13 +108,18 @@ class ReplayedBishop(pygame.sprite.Sprite):
         self.coordinate = coord
         self.coordinate_history = coordinate_history
         self.rect = self.image.get_rect()
-        for grid in board.Grid.grid_list:
-            if grid.coordinate == self.coordinate:
-                self.rect.topleft = grid.rect.topleft
+        if self.coordinate is not None:
+            for grid in board.Grid.grid_list:
+                if grid.coordinate == self.coordinate:
+                    self.rect.topleft = grid.rect.topleft
+        else:
+            self.rect.topleft = out_of_bounds_x_y
         self.prior_move_color = False
         self.taken_off_board = False
+        self.captured_move_number_and_coordinate = captured_move_number_and_coordinate
     def update(self):
-        self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
+        if self.coordinate is not None:
+            self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
     def destroy(self):
         if self.color == "white":
             ReplayedBishop.white_bishop_list.remove(self)
@@ -132,7 +142,7 @@ class ReplayedBishop(pygame.sprite.Sprite):
 class ReplayedKnight(pygame.sprite.Sprite):
     white_knight_list = []
     black_knight_list = []
-    def __init__(self, color, coordinate_history, coord=None):
+    def __init__(self, color, coordinate_history, coord=None, captured_move_number_and_coordinate=None, out_of_bounds_x_y=None):
         pygame.sprite.Sprite.__init__(self)
         self.color = color
         if self.color == "white":
@@ -146,13 +156,18 @@ class ReplayedKnight(pygame.sprite.Sprite):
         self.coordinate = coord
         self.coordinate_history = coordinate_history
         self.rect = self.image.get_rect()
-        for grid in board.Grid.grid_list:
-            if grid.coordinate == self.coordinate:
-                self.rect.topleft = grid.rect.topleft
+        if self.coordinate is not None:
+            for grid in board.Grid.grid_list:
+                if grid.coordinate == self.coordinate:
+                    self.rect.topleft = grid.rect.topleft
+        else:
+            self.rect.topleft = out_of_bounds_x_y
         self.prior_move_color = False
         self.taken_off_board = False
+        self.captured_move_number_and_coordinate = captured_move_number_and_coordinate
     def update(self):
-        self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
+        if self.coordinate is not None:
+            self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
     def destroy(self):
         if self.color == "white":
             ReplayedKnight.white_knight_list.remove(self)
@@ -175,7 +190,7 @@ class ReplayedKnight(pygame.sprite.Sprite):
 class ReplayedRook(pygame.sprite.Sprite):
     white_rook_list = []
     black_rook_list = []
-    def __init__(self, color, coordinate_history, coord=None):
+    def __init__(self, color, coordinate_history, coord=None, captured_move_number_and_coordinate=None, out_of_bounds_x_y=None):
         pygame.sprite.Sprite.__init__(self)
         self.color = color
         if self.color == "white":
@@ -189,13 +204,18 @@ class ReplayedRook(pygame.sprite.Sprite):
         self.coordinate = coord
         self.coordinate_history = coordinate_history
         self.rect = self.image.get_rect()
-        for grid in board.Grid.grid_list:
-            if grid.coordinate == self.coordinate:
-                self.rect.topleft = grid.rect.topleft
+        if self.coordinate is not None:
+            for grid in board.Grid.grid_list:
+                if grid.coordinate == self.coordinate:
+                    self.rect.topleft = grid.rect.topleft
+        else:
+            self.rect.topleft = out_of_bounds_x_y
         self.prior_move_color = False
         self.taken_off_board = False
+        self.captured_move_number_and_coordinate = captured_move_number_and_coordinate
     def update(self):
-        self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
+        if self.coordinate is not None:
+            self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
     def destroy(self):
         if self.color == "white":
             ReplayedRook.white_rook_list.remove(self)
@@ -218,7 +238,7 @@ class ReplayedRook(pygame.sprite.Sprite):
 class ReplayedQueen(pygame.sprite.Sprite):
     white_queen_list = []
     black_queen_list = []
-    def __init__(self, color, coordinate_history, coord=None):
+    def __init__(self, color, coordinate_history, coord=None, captured_move_number_and_coordinate=None, out_of_bounds_x_y=None):
         pygame.sprite.Sprite.__init__(self)
         self.color = color
         if self.color == "white":
@@ -232,13 +252,18 @@ class ReplayedQueen(pygame.sprite.Sprite):
         self.coordinate = coord
         self.coordinate_history = coordinate_history
         self.rect = self.image.get_rect()
-        for grid in board.Grid.grid_list:
-            if grid.coordinate == self.coordinate:
-                self.rect.topleft = grid.rect.topleft
+        if self.coordinate is not None:
+            for grid in board.Grid.grid_list:
+                if grid.coordinate == self.coordinate:
+                    self.rect.topleft = grid.rect.topleft
+        else:
+            self.rect.topleft = out_of_bounds_x_y
         self.prior_move_color = False
         self.taken_off_board = False
+        self.captured_move_number_and_coordinate = captured_move_number_and_coordinate
     def update(self):
-        self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
+        if self.coordinate is not None:
+            self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
     def destroy(self):
         if self.color == "white":
             ReplayedQueen.white_queen_list.remove(self)
@@ -261,7 +286,7 @@ class ReplayedQueen(pygame.sprite.Sprite):
 class ReplayedKing(pygame.sprite.Sprite):
     white_king_list = []
     black_king_list = []
-    def __init__(self, color, coordinate_history, coord=None):
+    def __init__(self, color, coordinate_history, coord=None, captured_move_number_and_coordinate=None, out_of_bounds_x_y=None):
         pygame.sprite.Sprite.__init__(self)
         self.color = color
         if self.color == "white":
@@ -275,13 +300,18 @@ class ReplayedKing(pygame.sprite.Sprite):
         self.coordinate = coord
         self.coordinate_history = coordinate_history
         self.rect = self.image.get_rect()
-        for grid in board.Grid.grid_list:
-            if grid.coordinate == self.coordinate:
-                self.rect.topleft = grid.rect.topleft
+        if self.coordinate is not None:
+            for grid in board.Grid.grid_list:
+                if grid.coordinate == self.coordinate:
+                    self.rect.topleft = grid.rect.topleft
+        else:
+            self.rect.topleft = out_of_bounds_x_y
         self.prior_move_color = False
         self.taken_off_board = False
+        self.captured_move_number_and_coordinate = captured_move_number_and_coordinate
     def update(self):
-        self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
+        if self.coordinate is not None:
+            self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
     def destroy(self):
         if self.color == "white":
             ReplayedKing.white_king_list.remove(self)
