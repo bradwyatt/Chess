@@ -2,12 +2,10 @@
 Chess created by Brad Wyatt
 
 Features To-Do (short-term):
-Undo move
-Play back one move
+Play back moves
 Be able to click on a move in the pane to view it
 --> One idea I had before was pause mode (mode between edit and play)
 --> I think the right thing to do would take the df_prior_moves to get the move. The tricky part is differentiating this from Undo move (through a conditional variable checking within each class for example). And coloring prior_move_color appropriately.
-Game Properties
 Menu objects are still invisible yet clickable
 
 Buttons to Implement:
@@ -15,7 +13,6 @@ Previous Move
 Next Move
 Beginning of Game
 Latest move
-Game Properties (use Babaschess for model)
 
 Clean Code Ideas:
 Edit_Mode_Controller to handle all the clicking event functions
@@ -50,6 +47,7 @@ import copy
 import tkinter as tk
 from tkinter.colorchooser import askcolor
 from tkinter.filedialog import *
+from tkinter import ttk  
 from ast import *
 import pygame
 import datetime
@@ -58,6 +56,8 @@ import logging.handlers
 import pandas as pd
 import numpy as np
 import initvar
+import PySimpleGUI as sg
+
 
 #############
 # Logging
@@ -114,10 +114,10 @@ def pos_load_file(reset=False):
     if open_file:
         open_file.close()
     
+    log.info("Removing sprites and loading piece positions...")
+    
     # Removes all placed lists
     placed_objects.remove_all_placed()
-    
-    log.info("Removed all sprites. Now creating lists for loaded level.")
     
     for white_pawn_pos in loaded_dict['white_pawn']:
         placed_objects.PlacedPawn(white_pawn_pos, "white")
@@ -180,7 +180,7 @@ def pos_save_file():
         else:
             log.info("Error! Need king to save!")
     except IOError:
-        log.info("Save File Error, please restart game and try again.")
+        log.info("Save File Error (IOError)")
 
 class PlayEditSwitchButton(pygame.sprite.Sprite):
     def __init__(self, pos, GAME_MODE_SPRITES):
@@ -198,23 +198,57 @@ class PlayEditSwitchButton(pygame.sprite.Sprite):
 
 class Preferences():
     colorkey = initvar.COLORKEY_RGB
+    Event = ""
+    Site = ""
+    Date = ""
+    Round = ""
+    White = ""
+    Black = ""
+    Result = ""
+    WhiteElo = ""
+    BlackElo = ""
+    ECO = ""
+    TimeControl = "0"
     def get_color():
         color = askcolor()
         return [color[0][0], color[0][1], color[0][2]]
+    def game_properties_popup():
+        layout = [
+            [sg.Text('Please enter the information for the game below (all fields are optional)')],
+            [sg.Text('Event', size=(9, 0)), sg.InputText(default_text=Preferences.Event)],
+            [sg.Text('Site', size=(9, 0)), sg.InputText(default_text=Preferences.Site)],
+            [sg.Text('Date', size=(9, 0)), sg.InputText(default_text=Preferences.Date)],
+            [sg.Text('Round', size=(9, 0)), sg.InputText(default_text=Preferences.Round)],
+            [sg.Text('White', size=(9, 0)), sg.InputText(default_text=Preferences.White)],
+            [sg.Text('Black', size=(9, 0)), sg.InputText(default_text=Preferences.Black)],
+            [sg.Text('Result', size=(9, 0)), sg.InputText(default_text=Preferences.Result)],
+            [sg.Text('WhiteElo', size=(9, 0)), sg.InputText(default_text=Preferences.WhiteElo)],
+            [sg.Text('BlackElo', size=(9, 0)), sg.InputText(default_text=Preferences.BlackElo)],
+            [sg.Text('ECO', size=(9, 0)), sg.InputText(default_text=Preferences.ECO)],
+            [sg.Text('TimeControl', size=(9, 0)), sg.InputText(default_text=Preferences.TimeControl)],
+            [sg.Submit("Ok"), sg.Cancel("Cancel")]
+        ]
+        #Please enter the information for the game below. All fields are optional.
+        window = sg.Window('Game Properties', layout, element_justification='center')
+        event, values = window.read()
+        window.close()
+        if event == 'Cancel' or event == None:
+            return
+        else:
+            Preferences.Event = values[0]
+            Preferences.Site = values[1]
+            Preferences.Date = values[2]
+            Preferences.Round = values[3]
+            Preferences.White = values[4]
+            Preferences.Black = values[5]
+            Preferences.Result = values[6]
+            Preferences.WhiteElo = values[7]
+            Preferences.BlackElo = values[8]
+            Preferences.ECO = values[9]
+            Preferences.TimeControl = values[10]
 
 class PGN_Writer_and_Loader():
-    def __init__(self):
-        self.Event = ""
-        self.Site = ""
-        self.Date = ""
-        self.Round = ""
-        self.White = ""
-        self.Black = ""
-        self.Result = ""
-        self.WhiteElo = ""
-        self.BlackElo = ""
-        self.ECO = ""
-    def write_moves(self, df_moves, result_abb):
+    def write_moves(df_moves, result_abb):
         try:
             df = df_moves.copy()
             save_file_prompt = asksaveasfilename(defaultextension=".pgn")
@@ -222,15 +256,17 @@ class PGN_Writer_and_Loader():
             if save_file_name is not None:
                 # Write the file to disk
                 pgn_output = ""
-                pgn_output += '[Event "' + self.Event + '"]\n'
-                pgn_output += '[Site "' + self.Site + '"]\n'
-                pgn_output += '[Date "' + self.Date + '"]\n'
-                pgn_output += '[Round "' + self.Round + '"]\n'
-                pgn_output += '[White "' + self.White + '"]\n'
-                pgn_output += '[Black "' + self.Black + '"]\n'
-                pgn_output += '[Result "' + self.Result + '"]\n'
-                pgn_output += '[ECO "' + self.ECO + '"]\n'
-                pgn_output += '[BlackElo "' + self.BlackElo + '"]\n\n'
+                pgn_output += '[Event "' + Preferences.Event + '"]\n'
+                pgn_output += '[Site "' + Preferences.Site + '"]\n'
+                pgn_output += '[Date "' + Preferences.Date + '"]\n'
+                pgn_output += '[Round "' + Preferences.Round + '"]\n'
+                pgn_output += '[White "' + Preferences.White + '"]\n'
+                pgn_output += '[Black "' + Preferences.Black + '"]\n'
+                pgn_output += '[Result "' + Preferences.Result + '"]\n'
+                pgn_output += '[ECO "' + Preferences.ECO + '"]\n'
+                pgn_output += '[TimeControl "' + Preferences.TimeControl + '"]\n'
+                pgn_output += '[WhiteElo "' + Preferences.WhiteElo + '"]\n'
+                pgn_output += '[BlackElo "' + Preferences.BlackElo + '"]\n\n'
                 for i in df.index:
                     # If black hasn't moved then shorten the pgn output so it doesn't give two spaces
                     if str(df.loc[i, 'black_move']) == "":
@@ -244,8 +280,8 @@ class PGN_Writer_and_Loader():
             else:
                 log.info("Error! Need king to save!")
         except IOError:
-            log.info("Save File Error, please restart game and try again.")
-    def pgn_load(self, PLAY_EDIT_SWITCH_BUTTON):
+            log.info("Save File Error (IOError)")
+    def pgn_load(PLAY_EDIT_SWITCH_BUTTON):
         open_file = None
         request_file_name = askopenfilename(defaultextension=".pgn")
         log.info("Loading " + os.path.basename(request_file_name))
@@ -272,45 +308,49 @@ class PGN_Writer_and_Loader():
                     # Skip any lines that have empty spaces, we are only getting the chess game moves
                     chess_game.append(row)
         try:
-            self.Event = parameters['Event']
+            Preferences.Event = parameters['Event'].replace('"', '')
         except KeyError:
-            self.Event = ""
+            Preferences.Event = ""
         try:
-            self.Site = parameters['Site']
+            Preferences.Site = parameters['Site'].replace('"', '')
         except KeyError:
-            self.Site = ""
+            Preferences.Site = ""
         try:
-            self.Date = parameters['Date']
+            Preferences.Date = parameters['Date'].replace('"', '')
         except KeyError:
-            self.Date = ""
+            Preferences.Date = ""
         try:
-            self.Round = parameters['Round']
+            Preferences.Round = parameters['Round'].replace('"', '')
         except KeyError:
-            self.Round = ""
+            Preferences.Round = ""
         try:
-            self.White = parameters['White']
+            Preferences.White = parameters['White'].replace('"', '')
         except KeyError:
-            self.White = ""
+            Preferences.White = ""
         try:
-            self.Black = parameters['Black']
+            Preferences.Black = parameters['Black'].replace('"', '')
         except KeyError:
-            self.Black = ""
+            Preferences.Black = ""
         try:
-            self.Result = parameters['Result']
+            Preferences.Result = parameters['Result'].replace('"', '')
         except KeyError:
-            self.Result = ""
+            Preferences.Result = ""
         try:
-            self.WhiteElo = parameters['WhiteElo']
+            Preferences.WhiteElo = parameters['WhiteElo'].replace('"', '')
         except KeyError:
-            self.WhiteElo = ""
+            Preferences.WhiteElo = ""
         try:
-            self.BlackElo = parameters['BlackElo']
+            Preferences.BlackElo = parameters['BlackElo'].replace('"', '')
         except KeyError:
-            self.BlackElo = ""
+            Preferences.BlackElo = ""
         try:
-            self.ECO = parameters['ECO']
+            Preferences.ECO = parameters['ECO'].replace('"', '')
         except KeyError:
-            self.ECO = ""
+            Preferences.ECO = ""
+        try:
+            Preferences.TimeControl = parameters['TimeControl'].replace('"', '')
+        except KeyError:
+            Preferences.TimeControl = "0"
         
         # Removes line breaks and formulates all elements into one element in the list
         chess_game = "".join(chess_game).split("  ")
@@ -584,21 +624,21 @@ class Move_Tracker():
     df_prior_moves = pd.DataFrame(columns=["white_move", "black_move"])
     df_prior_moves.index = np.arange(1, len(df_prior_moves)+1)
     move_counter = lambda : len(Move_Tracker.df_moves)
-    selected_move = [0, ""]
+    selected_move = (0, "")
     def restart():
         Move_Tracker.df_moves = pd.DataFrame(columns=["white_move", "black_move"])
         Move_Tracker.df_moves.index = np.arange(1, len(Move_Tracker.df_moves)+1)
         Move_Tracker.df_prior_moves = pd.DataFrame(columns=["white_move", "black_move"])
         Move_Tracker.df_prior_moves.index = np.arange(1, len(Move_Tracker.df_prior_moves)+1)
         Move_Tracker.move_counter = lambda : len(Move_Tracker.df_moves)
-        Move_Tracker.selected_move = [0, ""]
+        Move_Tracker.selected_move = (0, "")
     def undo_move_in_dfs(undo_color):
         if undo_color == "black":
             for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
                 for black_piece in black_piece_list:
                     if Move_Tracker.move_counter() in black_piece.coordinate_history:
                         del black_piece.coordinate_history[Move_Tracker.move_counter()]
-            Move_Tracker.selected_move = [Move_Tracker.move_counter(), "white_move"]
+            Move_Tracker.selected_move = (Move_Tracker.move_counter(), "white_move")
             Move_Tracker.df_moves.loc[Move_Tracker.move_counter(), "black_move"] = ''
             Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "black_move"] = ''
             
@@ -607,7 +647,7 @@ class Move_Tracker():
                 for black_piece in black_piece_list:
                     if Move_Tracker.move_counter() in black_piece.coordinate_history:
                         del black_piece.coordinate_history[Move_Tracker.move_counter()]
-            Move_Tracker.selected_move = [Move_Tracker.move_counter()-1, "black_move"]
+            Move_Tracker.selected_move = (Move_Tracker.move_counter()-1, "black_move")
             Move_Tracker.df_moves = Move_Tracker.df_moves.iloc[:-1]
             Move_Tracker.df_prior_moves = Move_Tracker.df_prior_moves.iloc[:-1]
 
@@ -1209,6 +1249,7 @@ class Move_Controller():
             Text_Controller.check_checkmate_text = ""
         for grid in board.Grid.grid_list:
             grid.no_highlight()
+        Preferences.Result = game_controller.result_abb
         return check_abb
     def record_move(game_controller, grid, piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen=None):
         check_abb = ""
@@ -1227,7 +1268,7 @@ class Move_Controller():
             Move_Tracker.df_moves.loc[Move_Tracker.move_counter(), "black_move"] = Move_Controller.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
             piece.coordinate_history[Move_Tracker.move_counter()]['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
             prior_moves_dict['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
-            Move_Tracker.selected_move = [Move_Tracker.move_counter(), "black_move"]
+            Move_Tracker.selected_move = (Move_Tracker.move_counter(), "black_move")
             Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "black_move"] = str(prior_moves_dict)
         elif(game_controller.WHOSETURN == "black"):
             # Create new record to make room for new white move
@@ -1241,7 +1282,7 @@ class Move_Controller():
             Move_Tracker.df_moves.loc[Move_Tracker.move_counter(), "white_move"] = Move_Controller.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
             piece.coordinate_history[Move_Tracker.move_counter()]['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
             prior_moves_dict['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
-            Move_Tracker.selected_move = [Move_Tracker.move_counter(), "white_move"]
+            Move_Tracker.selected_move = (Move_Tracker.move_counter(), "white_move")
             Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "white_move"] = str(prior_moves_dict)
         log.info(move_text)
         if game_controller.result_abb != "*":
@@ -1320,8 +1361,6 @@ def main():
         arial_font = pygame.font.SysFont('Arial', 24)
         move_notation_font = pygame.font.SysFont('Arial', 16)
         
-        PGN_WRITER_AND_LOADER = PGN_Writer_and_Loader()
-        
         PLAY_EDIT_SWITCH_BUTTON = PlayEditSwitchButton(initvar.PLAY_EDIT_SWITCH_BUTTON_TOPLEFT, GAME_MODE_SPRITES)
         FLIP_BOARD_BUTTON = FlipBoardButton(initvar.FLIP_BOARD_BUTTON_TOPLEFT)
         GAME_PROPERTIES_BUTTON = GamePropertiesButton(initvar.GAME_PROPERTIES_BUTTON_TOPLEFT)
@@ -1382,18 +1421,19 @@ def main():
                             debug_message = 1
                             state = DEBUG
                     # Menu, inanimate buttons at top, and on right side of game board
-                    if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and MOUSEPOS[0] > board.X_GRID_END:
+                    if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and MOUSEPOS[0] > initvar.X_GRID_END:
                         if SCROLL_UP_BUTTON.rect.collidepoint(MOUSEPOS) and PanelRectangles.scroll_range[0] > 1: # Scroll up
                             update_scroll_range(-1)
                         if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS) and len(MoveNumberRectangle.rectangle_list) > initvar.MOVES_PANE_MAX_MOVES and PanelRectangles.scroll_range[1] < len(MoveNumberRectangle.rectangle_list): # Scroll down
                             update_scroll_range(1)
                         if PGN_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
-                            game_controller = PGN_WRITER_AND_LOADER.pgn_load(PLAY_EDIT_SWITCH_BUTTON)
+                            game_controller = PGN_Writer_and_Loader.pgn_load(PLAY_EDIT_SWITCH_BUTTON)
                             for grid in board.Grid.grid_list:
                                 grid.no_highlight()
                             Grid_Controller.update_grid()
                         if PGN_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
-                            PGN_WRITER_AND_LOADER.write_moves(Move_Tracker.df_moves, game_controller.result_abb)
+                            Preferences.game_properties_popup()
+                            PGN_Writer_and_Loader.write_moves(Move_Tracker.df_moves, game_controller.result_abb)
                         if FLIP_BOARD_BUTTON.rect.collidepoint(MOUSEPOS):
                             Grid_Controller.flip_grids()
                             if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
@@ -1403,8 +1443,7 @@ def main():
                         # When clicking on a move on the right pane, it is your selected move
                         for piece_move_rect in PieceMoveRectangle.rectangle_list:
                             if piece_move_rect.rect.collidepoint(MOUSEPOS) and piece_move_rect.text_is_visible:
-                                Move_Tracker.selected_move[0] = piece_move_rect.move_number
-                                Move_Tracker.selected_move[1] = piece_move_rect.move_color
+                                Move_Tracker.selected_move = (piece_move_rect.move_number, piece_move_rect.move_color)
                         # Editing mode only
                         if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE:
                             #BUTTONS
@@ -1416,6 +1455,9 @@ def main():
                                 pos_load_file()
                             if RESET_BOARD_BUTTON.rect.collidepoint(MOUSEPOS):
                                 pos_load_file(reset=True)
+                            if GAME_PROPERTIES_BUTTON.rect.collidepoint(MOUSEPOS):
+                                Preferences.game_properties_popup()
+                                
 
                             # DRAG OBJECTS
                             # Goes through each of the types of pieces
@@ -1429,8 +1471,8 @@ def main():
                     
                     # Mouse click on the board
                     elif (event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and
-                          MOUSEPOS[0] > initvar.X_GRID_START and MOUSEPOS[0] < board.X_GRID_END and
-                          MOUSEPOS[1] > initvar.Y_GRID_START and MOUSEPOS[1] < board.Y_GRID_END): 
+                          MOUSEPOS[0] > initvar.X_GRID_START and MOUSEPOS[0] < initvar.X_GRID_END and
+                          MOUSEPOS[1] > initvar.Y_GRID_START and MOUSEPOS[1] < initvar.Y_GRID_END): 
                         # Drag piece to board (initialize placed piece)
                         start_objects.Dragging.dragging_to_placed_no_dups(MOUSE_COORD)
                         if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
@@ -1553,22 +1595,51 @@ def main():
                     # Update objects that aren't in a sprite group
                     SCROLL_UP_BUTTON.draw(SCREEN)
                     SCROLL_DOWN_BUTTON.draw(SCREEN, len(Move_Tracker.df_moves))
+                render_text = lambda x: arial_font.render(x, 1, (0, 0, 0)) 
                 # Board Coordinates Drawing
                 for text in range(0,len(Text_Controller.coor_letter_text_list)):
                     SCREEN.blit(Text_Controller.coor_letter_text_list[text], (initvar.X_GRID_START+initvar.X_GRID_WIDTH/3+(initvar.X_GRID_WIDTH*text), initvar.Y_GRID_START-(initvar.Y_GRID_HEIGHT*0.75)))
-                    SCREEN.blit(Text_Controller.coor_letter_text_list[text], (initvar.X_GRID_START+initvar.X_GRID_WIDTH/3+(initvar.X_GRID_WIDTH*text), board.Y_GRID_END+(initvar.Y_GRID_HEIGHT*0.25)))
+                    SCREEN.blit(Text_Controller.coor_letter_text_list[text], (initvar.X_GRID_START+initvar.X_GRID_WIDTH/3+(initvar.X_GRID_WIDTH*text), initvar.Y_GRID_END+(initvar.Y_GRID_HEIGHT*0.25)))
                 for text in range(0,len(Text_Controller.coor_number_text_list)):
                     SCREEN.blit(Text_Controller.coor_number_text_list[text], (initvar.X_GRID_START-initvar.X_GRID_WIDTH/2, initvar.Y_GRID_START+initvar.Y_GRID_HEIGHT/4+(initvar.Y_GRID_HEIGHT*text)))
-                    SCREEN.blit(Text_Controller.coor_number_text_list[text], (board.X_GRID_END+initvar.X_GRID_WIDTH/3, initvar.Y_GRID_START+initvar.Y_GRID_HEIGHT/4+(initvar.Y_GRID_HEIGHT*text)))
+                    SCREEN.blit(Text_Controller.coor_number_text_list[text], (initvar.X_GRID_END+initvar.X_GRID_WIDTH/3, initvar.Y_GRID_START+initvar.Y_GRID_HEIGHT/4+(initvar.Y_GRID_HEIGHT*text)))
                 if(Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE):
                     check_checkmate_text_render = arial_font.render(Text_Controller.check_checkmate_text, 1, (0, 0, 0))
-                    if game_controller.WHOSETURN == "white":
-                        whose_turn_text = arial_font.render("White's move", 1, (0, 0, 0))
-                    elif game_controller.WHOSETURN == "black":
-                        whose_turn_text = arial_font.render("Black's move", 1, (0, 0, 0))
-                    SCREEN.blit(whose_turn_text, (board.X_GRID_END+initvar.X_GRID_WIDTH, initvar.SCREEN_HEIGHT/2))
-                    SCREEN.blit(check_checkmate_text_render, (board.X_GRID_END+initvar.X_GRID_WIDTH, 200))
+                    if Grid_Controller.flipped == True:
+                        if game_controller.WHOSETURN == "white" and game_controller.result_abb == "*":
+                            whose_turn_text = arial_font.render("White's move", 1, (0, 0, 0))
+                            SCREEN.blit(whose_turn_text, initvar.BLACK_MOVE_X_Y)
+                        elif game_controller.WHOSETURN == "black" and game_controller.result_abb == "*":
+                            whose_turn_text = arial_font.render("Black's move", 1, (0, 0, 0))
+                            SCREEN.blit(whose_turn_text, initvar.WHITE_MOVE_X_Y)
+                    else:
+                        if game_controller.WHOSETURN == "white" and game_controller.result_abb == "*":
+                            whose_turn_text = arial_font.render("White's move", 1, (0, 0, 0))
+                            SCREEN.blit(whose_turn_text, initvar.WHITE_MOVE_X_Y)
+                        elif game_controller.WHOSETURN == "black" and game_controller.result_abb == "*":
+                            whose_turn_text = arial_font.render("Black's move", 1, (0, 0, 0))
+                            SCREEN.blit(whose_turn_text, initvar.BLACK_MOVE_X_Y)
+                    SCREEN.blit(check_checkmate_text_render, initvar.CHECK_CHECKMATE_X_Y)
+                if Grid_Controller.flipped == True:
+                    if Preferences.WhiteElo != "":
+                        SCREEN.blit(render_text(Preferences.White + " (" + Preferences.WhiteElo + ")"), initvar.BLACK_X_Y)
+                    else:
+                        SCREEN.blit(render_text(Preferences.White), initvar.BLACK_X_Y)
+                    if Preferences.BlackElo != "":
+                        SCREEN.blit(render_text(Preferences.Black + " (" + Preferences.BlackElo + ")"), initvar.WHITE_X_Y)
+                    else:
+                        SCREEN.blit(render_text(Preferences.Black), initvar.WHITE_X_Y)
+                else:
+                    if Preferences.WhiteElo != "":
+                        SCREEN.blit(render_text(Preferences.White + " (" + Preferences.WhiteElo + ")"), initvar.WHITE_X_Y)
+                    else:
+                        SCREEN.blit(render_text(Preferences.White), initvar.WHITE_X_Y)
+                    if Preferences.BlackElo != "":
+                        SCREEN.blit(render_text(Preferences.Black + " (" + Preferences.BlackElo + ")"), initvar.BLACK_X_Y)
+                    else:
+                        SCREEN.blit(render_text(Preferences.Black), initvar.BLACK_X_Y)
                 pygame.display.update()
+                #print("MEOW 1123 " + today.strftime("%Y-%m-%d %H%M%S"))
             elif state == DEBUG:
                 if debug_message == 1:
                     log.info("Entering debug mode")
