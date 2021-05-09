@@ -598,6 +598,7 @@ class Switch_Modes_Controller():
             Switch_Modes_Controller.GAME_MODE = Switch_Modes_Controller.EDIT_MODE
             PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(Switch_Modes_Controller.GAME_MODE)
             Text_Controller.check_checkmate_text = ""
+            Switch_Modes_Controller.pause_game(False)
         elif game_mode == Switch_Modes_Controller.PLAY_MODE:
             log.info("Play Mode Activated\n")
             Switch_Modes_Controller.GAME_MODE = Switch_Modes_Controller.PLAY_MODE
@@ -625,7 +626,7 @@ class Switch_Modes_Controller():
             if play_obj.coordinate is not None:
                 class_obj(color, play_obj.coordinate_history, play_obj.coordinate)
     def rewind_moves():
-        list_of_moves_backwards = Switch_Modes_Controller.list_of_moves_backwards(Move_Tracker.df_prior_moves)
+        list_of_moves_backwards = Switch_Modes_Controller.list_of_moves_backwards(Move_Tracker.df_prior_moves)[:-1]
         print("LIST OF MOVES BACKWARDS " + str(list_of_moves_backwards))
         # list_of_moves_backwards list is ordered in descending order to the selected move
         for move_dict in list_of_moves_backwards:
@@ -635,11 +636,16 @@ class Switch_Modes_Controller():
                         if piece_history in dict(move_dict):
                             if paused_obj.coordinate_history[piece_history] == ast.literal_eval(move_dict[piece_history]):
                                 paused_obj.coordinate = ast.literal_eval(move_dict[piece_history])['before']
+                                Grid_Controller.prior_move_color(paused_obj.coordinate, paused_obj)
+        prior_move_grid_and_piece_highlight_dict = Switch_Modes_Controller.list_of_moves_backwards(Move_Tracker.df_prior_moves)[-1]
+        old_grid_coordinate_before = ast.literal_eval(list(prior_move_grid_and_piece_highlight_dict.values())[0])['before']
+        old_grid_coordinate_after = ast.literal_eval(list(prior_move_grid_and_piece_highlight_dict.values())[0])['after']
+        old_piece = Grid_Controller.piece_on_grid(old_grid_coordinate_after)
+        Grid_Controller.prior_move_color(old_grid_coordinate_before, old_piece)
     def pause_game(paused):
         #%% Working on currently
         Switch_Modes_Controller.PAUSED = paused
         if Switch_Modes_Controller.PAUSED == True:
-            log.info("Paused")
             paused_objects.remove_all_paused()
             #print(str(Switch_Modes_Controller.list_of_moves_backwards(Move_Tracker.df_prior_moves)))
             Switch_Modes_Controller.play_to_paused(play_objects.PlayPawn.white_pawn_list, paused_objects.PausedPawn, "white")
@@ -656,7 +662,6 @@ class Switch_Modes_Controller():
             Switch_Modes_Controller.play_to_paused(play_objects.PlayKing.black_king_list, paused_objects.PausedKing, "black")
             Switch_Modes_Controller.rewind_moves()
         else:
-            log.info("Resume")
             paused_objects.remove_all_paused()
     def list_of_moves_backwards(df_prior_moves):
         moves_backwards_list = []
@@ -680,7 +685,7 @@ class Switch_Modes_Controller():
             moves_backwards_dict[move_num] = df_prior_moves.loc[move_num, 'white_move']
             moves_backwards_list.append(moves_backwards_dict)
         # When select a move on pane, we take back the move right after that
-        return moves_backwards_list[:-1]
+        return moves_backwards_list
         
 
 class Move_Tracker():
