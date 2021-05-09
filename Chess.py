@@ -210,23 +210,25 @@ class Preferences():
     Result = ""
     WhiteElo = ""
     BlackElo = ""
-    ECO = ""
+    ECO = "0"
+    TimeControl = ""
     def get_color():
         color = askcolor()
         return [color[0][0], color[0][1], color[0][2]]
     def game_properties_popup():
         layout = [
-            [sg.Text('Please enter the information for the game below. All fields are optional.')],
-            [sg.Text('Event', size=(7, 0)), sg.InputText()],
-            [sg.Text('Site', size=(7, 0)), sg.InputText()],
-            [sg.Text('Date', size=(7, 0)), sg.InputText()],
-            [sg.Text('Round', size=(7, 0)), sg.InputText()],
-            [sg.Text('White', size=(7, 0)), sg.InputText()],
-            [sg.Text('Black', size=(7, 0)), sg.InputText()],
-            [sg.Text('Result', size=(7, 0)), sg.InputText()],
-            [sg.Text('WhiteElo', size=(7, 0)), sg.InputText()],
-            [sg.Text('BlackElo', size=(7, 0)), sg.InputText()],
-            [sg.Text('ECO', size=(7, 0)), sg.InputText()],
+            [sg.Text('Please enter the information for the game below (all fields are optional)')],
+            [sg.Text('Event', size=(9, 0)), sg.InputText()],
+            [sg.Text('Site', size=(9, 0)), sg.InputText()],
+            [sg.Text('Date', size=(9, 0)), sg.InputText()],
+            [sg.Text('Round', size=(9, 0)), sg.InputText()],
+            [sg.Text('White', size=(9, 0)), sg.InputText()],
+            [sg.Text('Black', size=(9, 0)), sg.InputText()],
+            [sg.Text('Result', size=(9, 0)), sg.InputText()],
+            [sg.Text('WhiteElo', size=(9, 0)), sg.InputText()],
+            [sg.Text('BlackElo', size=(9, 0)), sg.InputText()],
+            [sg.Text('ECO', size=(9, 0)), sg.InputText()],
+            [sg.Text('TimeControl', size=(9, 0)), sg.InputText()],
             [sg.Submit("Ok"), sg.Cancel("Cancel")]
         ]
         #Please enter the information for the game below. All fields are optional.
@@ -246,6 +248,7 @@ class Preferences():
             Preferences.WhiteElo = values[7]
             Preferences.BlackElo = values[8]
             Preferences.ECO = values[9]
+            Preferences.TimeControl = values[10]
 
 class PGN_Writer_and_Loader():
     def write_moves(df_moves, result_abb):
@@ -264,6 +267,8 @@ class PGN_Writer_and_Loader():
                 pgn_output += '[Black "' + Preferences.Black + '"]\n'
                 pgn_output += '[Result "' + Preferences.Result + '"]\n'
                 pgn_output += '[ECO "' + Preferences.ECO + '"]\n'
+                pgn_output += '[TimeControl "' + Preferences.TimeControl + '"]\n'
+                pgn_output += '[WhiteElo "' + Preferences.WhiteElo + '"]\n'
                 pgn_output += '[BlackElo "' + Preferences.BlackElo + '"]\n\n'
                 for i in df.index:
                     # If black hasn't moved then shorten the pgn output so it doesn't give two spaces
@@ -306,45 +311,49 @@ class PGN_Writer_and_Loader():
                     # Skip any lines that have empty spaces, we are only getting the chess game moves
                     chess_game.append(row)
         try:
-            Preferences.Event = parameters['Event']
+            Preferences.Event = parameters['Event'].replace('"', '')
         except KeyError:
             Preferences.Event = ""
         try:
-            Preferences.Site = parameters['Site']
+            Preferences.Site = parameters['Site'].replace('"', '')
         except KeyError:
             Preferences.Site = ""
         try:
-            Preferences.Date = parameters['Date']
+            Preferences.Date = parameters['Date'].replace('"', '')
         except KeyError:
             Preferences.Date = ""
         try:
-            Preferences.Round = parameters['Round']
+            Preferences.Round = parameters['Round'].replace('"', '')
         except KeyError:
             Preferences.Round = ""
         try:
-            Preferences.White = parameters['White']
+            Preferences.White = parameters['White'].replace('"', '')
         except KeyError:
             Preferences.White = ""
         try:
-            Preferences.Black = parameters['Black']
+            Preferences.Black = parameters['Black'].replace('"', '')
         except KeyError:
             Preferences.Black = ""
         try:
-            Preferences.Result = parameters['Result']
+            Preferences.Result = parameters['Result'].replace('"', '')
         except KeyError:
             Preferences.Result = ""
         try:
-            Preferences.WhiteElo = parameters['WhiteElo']
+            Preferences.WhiteElo = parameters['WhiteElo'].replace('"', '')
         except KeyError:
             Preferences.WhiteElo = ""
         try:
-            Preferences.BlackElo = parameters['BlackElo']
+            Preferences.BlackElo = parameters['BlackElo'].replace('"', '')
         except KeyError:
             Preferences.BlackElo = ""
         try:
-            Preferences.ECO = parameters['ECO']
+            Preferences.ECO = parameters['ECO'].replace('"', '')
         except KeyError:
             Preferences.ECO = ""
+        try:
+            Preferences.TimeControl = parameters['TimeControl'].replace('"', '')
+        except KeyError:
+            Preferences.TimeControl = "0"
         
         # Removes line breaks and formulates all elements into one element in the list
         chess_game = "".join(chess_game).split("  ")
@@ -1414,7 +1423,7 @@ def main():
                             debug_message = 1
                             state = DEBUG
                     # Menu, inanimate buttons at top, and on right side of game board
-                    if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and MOUSEPOS[0] > board.X_GRID_END:
+                    if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and MOUSEPOS[0] > initvar.X_GRID_END:
                         if SCROLL_UP_BUTTON.rect.collidepoint(MOUSEPOS) and PanelRectangles.scroll_range[0] > 1: # Scroll up
                             update_scroll_range(-1)
                         if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS) and len(MoveNumberRectangle.rectangle_list) > initvar.MOVES_PANE_MAX_MOVES and PanelRectangles.scroll_range[1] < len(MoveNumberRectangle.rectangle_list): # Scroll down
@@ -1463,8 +1472,8 @@ def main():
                     
                     # Mouse click on the board
                     elif (event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and
-                          MOUSEPOS[0] > initvar.X_GRID_START and MOUSEPOS[0] < board.X_GRID_END and
-                          MOUSEPOS[1] > initvar.Y_GRID_START and MOUSEPOS[1] < board.Y_GRID_END): 
+                          MOUSEPOS[0] > initvar.X_GRID_START and MOUSEPOS[0] < initvar.X_GRID_END and
+                          MOUSEPOS[1] > initvar.Y_GRID_START and MOUSEPOS[1] < initvar.Y_GRID_END): 
                         # Drag piece to board (initialize placed piece)
                         start_objects.Dragging.dragging_to_placed_no_dups(MOUSE_COORD)
                         if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
@@ -1591,29 +1600,45 @@ def main():
                 # Board Coordinates Drawing
                 for text in range(0,len(Text_Controller.coor_letter_text_list)):
                     SCREEN.blit(Text_Controller.coor_letter_text_list[text], (initvar.X_GRID_START+initvar.X_GRID_WIDTH/3+(initvar.X_GRID_WIDTH*text), initvar.Y_GRID_START-(initvar.Y_GRID_HEIGHT*0.75)))
-                    SCREEN.blit(Text_Controller.coor_letter_text_list[text], (initvar.X_GRID_START+initvar.X_GRID_WIDTH/3+(initvar.X_GRID_WIDTH*text), board.Y_GRID_END+(initvar.Y_GRID_HEIGHT*0.25)))
+                    SCREEN.blit(Text_Controller.coor_letter_text_list[text], (initvar.X_GRID_START+initvar.X_GRID_WIDTH/3+(initvar.X_GRID_WIDTH*text), initvar.Y_GRID_END+(initvar.Y_GRID_HEIGHT*0.25)))
                 for text in range(0,len(Text_Controller.coor_number_text_list)):
                     SCREEN.blit(Text_Controller.coor_number_text_list[text], (initvar.X_GRID_START-initvar.X_GRID_WIDTH/2, initvar.Y_GRID_START+initvar.Y_GRID_HEIGHT/4+(initvar.Y_GRID_HEIGHT*text)))
-                    SCREEN.blit(Text_Controller.coor_number_text_list[text], (board.X_GRID_END+initvar.X_GRID_WIDTH/3, initvar.Y_GRID_START+initvar.Y_GRID_HEIGHT/4+(initvar.Y_GRID_HEIGHT*text)))
+                    SCREEN.blit(Text_Controller.coor_number_text_list[text], (initvar.X_GRID_END+initvar.X_GRID_WIDTH/3, initvar.Y_GRID_START+initvar.Y_GRID_HEIGHT/4+(initvar.Y_GRID_HEIGHT*text)))
                 if(Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE):
                     check_checkmate_text_render = arial_font.render(Text_Controller.check_checkmate_text, 1, (0, 0, 0))
-                    if game_controller.WHOSETURN == "white":
-                        whose_turn_text = arial_font.render("White's move", 1, (0, 0, 0))
-                        SCREEN.blit(whose_turn_text, (board.X_GRID_END+initvar.X_GRID_WIDTH, 500))
-                    elif game_controller.WHOSETURN == "black":
-                        whose_turn_text = arial_font.render("Black's move", 1, (0, 0, 0))
-                        SCREEN.blit(whose_turn_text, (board.X_GRID_END+initvar.X_GRID_WIDTH, 300))
-                    SCREEN.blit(check_checkmate_text_render, (board.X_GRID_END+initvar.X_GRID_WIDTH, 200))
+                    if Grid_Controller.flipped == True:
+                        if game_controller.WHOSETURN == "white" and game_controller.result_abb == "*":
+                            whose_turn_text = arial_font.render("White's move", 1, (0, 0, 0))
+                            SCREEN.blit(whose_turn_text, initvar.BLACK_MOVE_X_Y)
+                        elif game_controller.WHOSETURN == "black" and game_controller.result_abb == "*":
+                            whose_turn_text = arial_font.render("Black's move", 1, (0, 0, 0))
+                            SCREEN.blit(whose_turn_text, initvar.WHITE_MOVE_X_Y)
+                    else:
+                        if game_controller.WHOSETURN == "white" and game_controller.result_abb == "*":
+                            whose_turn_text = arial_font.render("White's move", 1, (0, 0, 0))
+                            SCREEN.blit(whose_turn_text, initvar.WHITE_MOVE_X_Y)
+                        elif game_controller.WHOSETURN == "black" and game_controller.result_abb == "*":
+                            whose_turn_text = arial_font.render("Black's move", 1, (0, 0, 0))
+                            SCREEN.blit(whose_turn_text, initvar.BLACK_MOVE_X_Y)
+                    SCREEN.blit(check_checkmate_text_render, initvar.CHECK_CHECKMATE_X_Y)
                 if Grid_Controller.flipped == True:
-                    SCREEN.blit(render_text(Preferences.White), initvar.BLACK_X_Y)
-                    SCREEN.blit(render_text(Preferences.WhiteElo), initvar.BLACK_ELO_X_Y)
-                    SCREEN.blit(render_text(Preferences.Black), initvar.WHITE_X_Y)
-                    SCREEN.blit(render_text(Preferences.BlackElo), initvar.WHITE_ELO_X_Y)
+                    if Preferences.WhiteElo != "":
+                        SCREEN.blit(render_text(Preferences.White + " (" + Preferences.WhiteElo + ")"), initvar.BLACK_X_Y)
+                    else:
+                        SCREEN.blit(render_text(Preferences.White), initvar.BLACK_X_Y)
+                    if Preferences.BlackElo != "":
+                        SCREEN.blit(render_text(Preferences.Black + " (" + Preferences.BlackElo + ")"), initvar.WHITE_X_Y)
+                    else:
+                        SCREEN.blit(render_text(Preferences.Black), initvar.WHITE_X_Y)
                 else:
-                    SCREEN.blit(render_text(Preferences.White), initvar.WHITE_X_Y)
-                    SCREEN.blit(render_text(Preferences.WhiteElo), initvar.WHITE_ELO_X_Y)
-                    SCREEN.blit(render_text(Preferences.Black), initvar.BLACK_X_Y)
-                    SCREEN.blit(render_text(Preferences.BlackElo), initvar.BLACK_ELO_X_Y)
+                    if Preferences.WhiteElo != "":
+                        SCREEN.blit(render_text(Preferences.White + " (" + Preferences.WhiteElo + ")"), initvar.WHITE_X_Y)
+                    else:
+                        SCREEN.blit(render_text(Preferences.White), initvar.WHITE_X_Y)
+                    if Preferences.BlackElo != "":
+                        SCREEN.blit(render_text(Preferences.Black + " (" + Preferences.BlackElo + ")"), initvar.BLACK_X_Y)
+                    else:
+                        SCREEN.blit(render_text(Preferences.Black), initvar.BLACK_X_Y)
                 pygame.display.update()
                 #print("MEOW 1123 " + today.strftime("%Y-%m-%d %H%M%S"))
             elif state == DEBUG:

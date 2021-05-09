@@ -59,17 +59,14 @@ class Grid(pygame.sprite.Sprite):
             self.image = IMAGES["SPR_WHITE_GRID"]
         self.highlighted = False
 
-X_GRID_END = initvar.X_GRID_START+(initvar.X_GRID_WIDTH*8)
-Y_GRID_END = initvar.Y_GRID_START+(initvar.Y_GRID_HEIGHT*8)
-XGRIDRANGE = [initvar.X_GRID_START, X_GRID_END, initvar.X_GRID_WIDTH] #1st num: begin 2nd: end 3rd: step
-YGRIDRANGE = [initvar.Y_GRID_START, Y_GRID_END, initvar.Y_GRID_HEIGHT] #1st num: begin 2nd: end 3rd: step
+
         
 # Creates grid setting coordinate as list with first element being letter and second being number
 coordinates_dict_with_pos = {}
-for x in range(initvar.X_GRID_START, X_GRID_END, initvar.X_GRID_WIDTH): 
-    for y in range(initvar.Y_GRID_START, Y_GRID_END, initvar.Y_GRID_HEIGHT): 
+for x in range(initvar.X_GRID_START, initvar.X_GRID_END, initvar.X_GRID_WIDTH): 
+    for y in range(initvar.Y_GRID_START, initvar.Y_GRID_END, initvar.Y_GRID_HEIGHT): 
         grid_pos = x, y
-        grid_coordinate_as_list_element = [chr(int((x-initvar.X_GRID_START)/initvar.X_GRID_WIDTH)+97), int((Y_GRID_END-y)/initvar.Y_GRID_HEIGHT)]
+        grid_coordinate_as_list_element = [chr(int((x-initvar.X_GRID_START)/initvar.X_GRID_WIDTH)+97), int((initvar.Y_GRID_END-y)/initvar.Y_GRID_HEIGHT)]
         grid_coordinate = "".join(map(str, (grid_coordinate_as_list_element)))
         coordinates_dict_with_pos[grid_coordinate] = grid_pos
 for coordinate in coordinates_dict_with_pos.keys():
