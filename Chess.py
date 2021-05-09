@@ -553,13 +553,24 @@ class Grid_Controller():
             else:
                 grid.prior_move_color = False
             grid.no_highlight()
-        for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
-            for piece in piece_list:
-                if piece == prior_move_piece:
-                    piece.prior_move_color = True
-                else:
-                    piece.prior_move_color = False
-                piece.no_highlight()
+        if Switch_Modes_Controller.PAUSED == False:
+            # Updating prior move sprites for play objects
+            for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
+                for piece in piece_list:
+                    if piece == prior_move_piece:
+                        piece.prior_move_color = True
+                    else:
+                        piece.prior_move_color = False
+                    piece.no_highlight()
+        else:
+            # Updating prior move sprites for pause objects
+            for piece_list in paused_objects.Piece_Lists_Shortcut.all_pieces():
+                for piece in piece_list:
+                    if piece == prior_move_piece:
+                        piece.prior_move_color = True
+                    else:
+                        piece.prior_move_color = False
+                    piece.prior_move_update()
     def piece_on_grid(grid_coordinate):
         for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
             for piece in piece_list:
