@@ -214,7 +214,7 @@ class Preferences():
     def get_color():
         color = askcolor()
         return [color[0][0], color[0][1], color[0][2]]
-    def popupmsg():
+    def game_properties_popup():
         layout = [
             [sg.Text('Please enter the information for the game below. All fields are optional.')],
             [sg.Text('Event', size=(15, 1)), sg.InputText()],
@@ -227,22 +227,25 @@ class Preferences():
             [sg.Text('WhiteElo', size=(15, 1)), sg.InputText()],
             [sg.Text('BlackElo', size=(15, 1)), sg.InputText()],
             [sg.Text('ECO', size=(15, 1)), sg.InputText()],
-            [sg.Submit(), sg.Cancel()]
+            [sg.Submit("Ok"), sg.Cancel()]
         ]
         
-        window = sg.Window('Simple data entry window', layout)
+        window = sg.Window('Game Properties', layout)
         event, values = window.read()
         window.close()
-        Preferences.Event = values[0]
-        Preferences.Site = values[1]
-        Preferences.Date = values[2]
-        Preferences.Round = values[3]
-        Preferences.White = values[4]
-        Preferences.Black = values[5]
-        Preferences.Result = values[6]
-        Preferences.WhiteElo = values[7]
-        Preferences.BlackElo = values[8]
-        Preferences.ECO = values[9]
+        if event == 'Cancel' or event == None:
+            return
+        else:
+            Preferences.Event = values[0]
+            Preferences.Site = values[1]
+            Preferences.Date = values[2]
+            Preferences.Round = values[3]
+            Preferences.White = values[4]
+            Preferences.Black = values[5]
+            Preferences.Result = values[6]
+            Preferences.WhiteElo = values[7]
+            Preferences.BlackElo = values[8]
+            Preferences.ECO = values[9]
 
 class PGN_Writer_and_Loader():
     def write_moves(df_moves, result_abb):
@@ -1447,7 +1450,7 @@ def main():
                             if RESET_BOARD_BUTTON.rect.collidepoint(MOUSEPOS):
                                 pos_load_file(reset=True)
                             if GAME_PROPERTIES_BUTTON.rect.collidepoint(MOUSEPOS):
-                                Preferences.popupmsg()
+                                Preferences.game_properties_popup()
                                 
 
                             # DRAG OBJECTS
