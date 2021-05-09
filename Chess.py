@@ -893,7 +893,7 @@ class Move_Controller():
             for piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
                 for piece in piece_list:
                     # Selects piece
-                    if (piece.rect.collidepoint(mousepos) and piece.select == False):
+                    if (piece.rect.collidepoint(mousepos) and piece.select == False and Switch_Modes_Controller.PAUSED == False):
                         clicked_piece = piece
                     else:
                         # Unselects piece
@@ -904,7 +904,7 @@ class Move_Controller():
         elif game_controller.WHOSETURN == "black":
             for piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
                 for piece in piece_list:
-                    if (piece.rect.collidepoint(mousepos) and piece.select == False):
+                    if (piece.rect.collidepoint(mousepos) and piece.select == False and Switch_Modes_Controller.PAUSED == False):
                         clicked_piece = piece
                     else:
                         piece.no_highlight()
