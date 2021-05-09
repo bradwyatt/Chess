@@ -2,56 +2,56 @@ import pygame
 from load_images_sounds import *
 import board
 
-PLACED_SPRITES = pygame.sprite.Group()
+PAUSED_SPRITES = pygame.sprite.Group()
 
 def remove_placed_object(mousepos):
-    for placed_item_list in (PlacedPawn.white_pawn_list, PlacedBishop.white_bishop_list,
-                             PlacedKnight.white_knight_list, PlacedRook.white_rook_list,
-                             PlacedQueen.white_queen_list, PlacedKing.white_king_list,
-                             PlacedPawn.black_pawn_list, PlacedBishop.black_bishop_list,
-                             PlacedKnight.black_knight_list, PlacedRook.black_rook_list,
-                             PlacedQueen.black_queen_list, PlacedKing.black_king_list):
-        for placed_item in placed_item_list:
-            if placed_item.rect.collidepoint(mousepos):
-                PLACED_SPRITES.remove(placed_item)
-                placed_item_list.remove(placed_item)
+    for paused_item_list in (PausedPawn.white_pawn_list, PausedBishop.white_bishop_list,
+                             PausedKnight.white_knight_list, PausedRook.white_rook_list,
+                             PausedQueen.white_queen_list, PausedKing.white_king_list,
+                             PausedPawn.black_pawn_list, PausedBishop.black_bishop_list,
+                             PausedKnight.black_knight_list, PausedRook.black_rook_list,
+                             PausedQueen.black_queen_list, PausedKing.black_king_list):
+        for paused_item in paused_item_list:
+            if paused_item.rect.collidepoint(mousepos):
+                PAUSED_SPRITES.remove(paused_item)
+                paused_item_list.remove(paused_item)
     return
 
-def remove_all_placed():
-    for spr_list in [PlacedPawn.white_pawn_list, PlacedBishop.white_bishop_list,
-                     PlacedKnight.white_knight_list, PlacedRook.white_rook_list,
-                     PlacedQueen.white_queen_list, PlacedKing.white_king_list, 
-                     PlacedPawn.black_pawn_list, PlacedBishop.black_bishop_list, 
-                     PlacedKnight.black_knight_list, PlacedRook.black_rook_list,
-                     PlacedQueen.black_queen_list, PlacedKing.black_king_list]:
+def remove_all_paused():
+    for spr_list in [PausedPawn.white_pawn_list, PausedBishop.white_bishop_list,
+                     PausedKnight.white_knight_list, PausedRook.white_rook_list,
+                     PausedQueen.white_queen_list, PausedKing.white_king_list, 
+                     PausedPawn.black_pawn_list, PausedBishop.black_bishop_list, 
+                     PausedKnight.black_knight_list, PausedRook.black_rook_list,
+                     PausedQueen.black_queen_list, PausedKing.black_king_list]:
         for obj in spr_list:
             obj.kill()
-    PlacedPawn.white_pawn_list = []
-    PlacedBishop.white_bishop_list = []
-    PlacedKnight.white_knight_list = []
-    PlacedRook.white_rook_list = []
-    PlacedQueen.white_queen_list = []
-    PlacedKing.white_king_list = []
-    PlacedPawn.black_pawn_list = []
-    PlacedBishop.black_bishop_list = []
-    PlacedKnight.black_knight_list = []
-    PlacedRook.black_rook_list = []
-    PlacedQueen.black_queen_list = []
-    PlacedKing.black_king_list = []
+    PausedPawn.white_pawn_list = []
+    PausedBishop.white_bishop_list = []
+    PausedKnight.white_knight_list = []
+    PausedRook.white_rook_list = []
+    PausedQueen.white_queen_list = []
+    PausedKing.white_king_list = []
+    PausedPawn.black_pawn_list = []
+    PausedBishop.black_bishop_list = []
+    PausedKnight.black_knight_list = []
+    PausedRook.black_rook_list = []
+    PausedQueen.black_queen_list = []
+    PausedKing.black_king_list = []
 
 class PausedPawn(pygame.sprite.Sprite):
     white_pawn_list = []
     black_pawn_list = []
-    def __init__(self, coord, col):
+    def __init__(self, col, coord=None):
         pygame.sprite.Sprite.__init__(self)
         self.col = col
         if self.col == "white":
             self.image = IMAGES["SPR_WHITE_PAWN"]
-            PLACED_SPRITES.add(self)
+            PAUSED_SPRITES.add(self)
             PlacedPawn.white_pawn_list.append(self)
         elif self.col == "black":
             self.image = IMAGES["SPR_BLACK_PAWN"]
-            PLACED_SPRITES.add(self)
+            PAUSED_SPRITES.add(self)
             PlacedPawn.black_pawn_list.append(self)
         self.coordinate = coord
         self.rect = self.image.get_rect()
@@ -70,16 +70,16 @@ class PausedPawn(pygame.sprite.Sprite):
 class PausedBishop(pygame.sprite.Sprite):
     white_bishop_list = []
     black_bishop_list = []
-    def __init__(self, coord, col):
+    def __init__(self, col, coord=None):
         pygame.sprite.Sprite.__init__(self)
         self.col = col
         if self.col == "white":
             self.image = IMAGES["SPR_WHITE_BISHOP"]
-            PLACED_SPRITES.add(self)
+            PAUSED_SPRITES.add(self)
             PlacedBishop.white_bishop_list.append(self)
         elif self.col == "black":
             self.image = IMAGES["SPR_BLACK_BISHOP"]
-            PLACED_SPRITES.add(self)
+            PAUSED_SPRITES.add(self)
             PlacedBishop.black_bishop_list.append(self)
         self.coordinate = coord
         self.rect = self.image.get_rect()
@@ -98,16 +98,16 @@ class PausedBishop(pygame.sprite.Sprite):
 class PausedKnight(pygame.sprite.Sprite):
     white_knight_list = []
     black_knight_list = []
-    def __init__(self, coord, col):
+    def __init__(self, col, coord=None):
         pygame.sprite.Sprite.__init__(self)
         self.col = col
         if self.col == "white":
             self.image = IMAGES["SPR_WHITE_KNIGHT"]
-            PLACED_SPRITES.add(self)
+            PAUSED_SPRITES.add(self)
             PlacedKnight.white_knight_list.append(self)
         elif self.col == "black":
             self.image = IMAGES["SPR_BLACK_KNIGHT"]
-            PLACED_SPRITES.add(self)
+            PAUSED_SPRITES.add(self)
             PlacedKnight.black_knight_list.append(self)
         self.coordinate = coord
         self.rect = self.image.get_rect()
@@ -126,16 +126,16 @@ class PausedKnight(pygame.sprite.Sprite):
 class PausedRook(pygame.sprite.Sprite):
     white_rook_list = []
     black_rook_list = []
-    def __init__(self, coord, col):
+    def __init__(self, col, coord=None):
         pygame.sprite.Sprite.__init__(self)
         self.col = col
         if self.col == "white":
             self.image = IMAGES["SPR_WHITE_ROOK"]
-            PLACED_SPRITES.add(self)
+            PAUSED_SPRITES.add(self)
             PlacedRook.white_rook_list.append(self)
         elif self.col == "black":
             self.image = IMAGES["SPR_BLACK_ROOK"]
-            PLACED_SPRITES.add(self)
+            PAUSED_SPRITES.add(self)
             PlacedRook.black_rook_list.append(self)
         self.coordinate = coord
         self.rect = self.image.get_rect()
@@ -154,16 +154,16 @@ class PausedRook(pygame.sprite.Sprite):
 class PausedQueen(pygame.sprite.Sprite):
     white_queen_list = []
     black_queen_list = []
-    def __init__(self, coord, col):
+    def __init__(self, col, coord=None):
         pygame.sprite.Sprite.__init__(self)
         self.col = col
         if self.col == "white":
             self.image = IMAGES["SPR_WHITE_QUEEN"]
-            PLACED_SPRITES.add(self)
+            PAUSED_SPRITES.add(self)
             PlacedQueen.white_queen_list.append(self)
         elif self.col == "black":
             self.image = IMAGES["SPR_BLACK_QUEEN"]
-            PLACED_SPRITES.add(self)
+            PAUSED_SPRITES.add(self)
             PlacedQueen.black_queen_list.append(self)
         self.coordinate = coord
         self.rect = self.image.get_rect()
@@ -182,16 +182,16 @@ class PausedQueen(pygame.sprite.Sprite):
 class PausedKing(pygame.sprite.Sprite):
     white_king_list = []
     black_king_list = []
-    def __init__(self, coord, col):
+    def __init__(self, col, coord=None):
         pygame.sprite.Sprite.__init__(self)
         self.col = col
         if self.col == "white":
             self.image = IMAGES["SPR_WHITE_KING"]
-            PLACED_SPRITES.add(self)
+            PAUSED_SPRITES.add(self)
             PlacedKing.white_king_list.append(self)
         elif self.col == "black":
             self.image = IMAGES["SPR_BLACK_KING"]
-            PLACED_SPRITES.add(self)
+            PAUSED_SPRITES.add(self)
             PlacedKing.black_king_list.append(self)
         self.coordinate = coord
         self.rect = self.image.get_rect()

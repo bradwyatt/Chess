@@ -618,9 +618,28 @@ class Switch_Modes_Controller():
         # Play pieces spawn where their placed piece correspondents are located
         for placed_obj in placed_list:
             class_obj(placed_obj.coordinate, color)
+    def play_to_paused(play_list, class_obj, color):
+        # Play pieces spawn where their placed piece correspondents are located
+        for play_obj in play_list:
+            class_obj(color, play_obj.rect.topleft)
     def pause_game(paused):
         Switch_Modes_Controller.PAUSED = paused
-        print("Pause status: " + str(Switch_Modes_Controller.PAUSED))
+        if Switch_Modes_Controller.PAUSED == True:
+            log.info("Paused")
+            Switch_Modes_Controller.play_to_paused(play_objects.PlayPawn.white_pawn_list, play_objects.PlayPawn, "white")
+            Switch_Modes_Controller.play_to_paused(play_objects.PlayBishop.white_bishop_list, play_objects.PlayBishop, "white")
+            Switch_Modes_Controller.play_to_paused(play_objects.PlayKnight.white_knight_list, play_objects.PlayKnight, "white")
+            Switch_Modes_Controller.play_to_paused(play_objects.PlayRook.white_rook_list, play_objects.PlayRook, "white")
+            Switch_Modes_Controller.play_to_paused(play_objects.PlayQueen.white_queen_list, play_objects.PlayQueen, "white")
+            Switch_Modes_Controller.play_to_paused(play_objects.PlayKing.white_king_list, play_objects.PlayKing, "white")
+            Switch_Modes_Controller.play_to_paused(play_objects.PlayPawn.black_pawn_list, play_objects.PlayPawn, "black")
+            Switch_Modes_Controller.play_to_paused(play_objects.PlayBishop.black_bishop_list, play_objects.PlayBishop, "black")
+            Switch_Modes_Controller.play_to_paused(play_objects.PlayKnight.black_knight_list, play_objects.PlayKnight, "black")
+            Switch_Modes_Controller.play_to_paused(play_objects.PlayRook.black_rook_list, play_objects.PlayRook, "black")
+            Switch_Modes_Controller.play_to_paused(play_objects.PlayQueen.black_queen_list, play_objects.PlayQueen, "black")
+            Switch_Modes_Controller.play_to_paused(play_objects.PlayKing.black_king_list, play_objects.PlayKing, "black")
+        else:
+            log.info("Resume")
 
 class Move_Tracker():
     df_moves = pd.DataFrame(columns=["white_move", "black_move"])
@@ -1658,7 +1677,7 @@ def main():
                 if debug_message == 1:
                     log.info("Entering debug mode")
                     debug_message = 0
-                    # USE BREAKPOINT HERE
+                    #%% Testing (space)
                     print(str(Move_Tracker.selected_move))
                     #print(str(Move_Tracker.df_moves))
                     log.info("Use breakpoint here")
