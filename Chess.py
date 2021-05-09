@@ -4,7 +4,7 @@ Chess created by Brad Wyatt
 Features To-Do (short-term):
 Play back moves
 Be able to click on a move in the pane to view it
---> One idea I had before was pause mode (mode between edit and play)
+--> One idea I had before was replayed mode (mode between edit and play)
 --> I think the right thing to do would take the df_prior_moves to get the move. The tricky part is differentiating this from Undo move (through a conditional variable checking within each class for example). And coloring prior_move_color appropriately.
 Menu objects are still invisible yet clickable
 
@@ -37,7 +37,7 @@ import board
 import start_objects
 import placed_objects
 import play_objects
-import paused_objects
+import replayed_objects
 from load_images_sounds import *
 from menu_buttons import *
 import random
@@ -553,7 +553,7 @@ class Grid_Controller():
             else:
                 grid.prior_move_color = False
             grid.no_highlight()
-        if Switch_Modes_Controller.PAUSED == False:
+        if Switch_Modes_Controller.REPLAYED == False:
             # Updating prior move sprites for play objects
             for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
                 for piece in piece_list:
@@ -565,8 +565,8 @@ class Grid_Controller():
         else:
             #%% Prior move color func
             #print("PIECE: " + str(prior_move_piece) + " with coordinate " + str(prior_move_piece.coordinate))
-            # Updating prior move sprites for pause objects
-            for piece_list in paused_objects.Piece_Lists_Shortcut.all_pieces():
+            # Updating prior move sprites for replayed objects
+            for piece_list in replayed_objects.Piece_Lists_Shortcut.all_pieces():
                 for piece in piece_list:
                     if piece == prior_move_piece:
                         piece.prior_move_color = True
@@ -575,13 +575,13 @@ class Grid_Controller():
                     piece.prior_move_update()
             #print("Does piece have red color? " + str(prior_move_piece.prior_move_color))
     def piece_on_grid(grid_coordinate):
-        if Switch_Modes_Controller.PAUSED == False:
+        if Switch_Modes_Controller.REPLAYED == False:
             for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
                 for piece in piece_list:
                     if grid_coordinate == piece.coordinate:
                         return piece
         else:
-            for piece_list in paused_objects.Piece_Lists_Shortcut.all_pieces():
+            for piece_list in replayed_objects.Piece_Lists_Shortcut.all_pieces():
                 for piece in piece_list:
                     if grid_coordinate == piece.coordinate:
                         return piece
@@ -611,7 +611,7 @@ class Grid_Controller():
 class Switch_Modes_Controller():
     EDIT_MODE, PLAY_MODE = 0, 1
     GAME_MODE = EDIT_MODE
-    PAUSED = False
+    REPLAYED = False
     def switch_mode(game_mode, PLAY_EDIT_SWITCH_BUTTON):
         if game_mode == Switch_Modes_Controller.EDIT_MODE:
             log.info("\nEditing Mode Activated\n")
@@ -639,7 +639,7 @@ class Switch_Modes_Controller():
         # Play pieces spawn where their placed piece correspondents are located
         for placed_obj in placed_list:
             class_obj(placed_obj.coordinate, color)
-    def play_to_paused(play_list, class_obj, color):
+    def play_to_replayed(play_list, class_obj, color):
         # Play pieces spawn where their placed piece correspondents are located
         for play_obj in play_list:
             if play_obj.coordinate is not None:
@@ -648,48 +648,48 @@ class Switch_Modes_Controller():
         list_of_moves_backwards = Switch_Modes_Controller.list_of_moves_backwards(Move_Tracker.df_prior_moves)[:-1]
         # list_of_moves_backwards list is ordered in descending order to the selected move
         for move_dict in list_of_moves_backwards:
-            for paused_obj_list in paused_objects.Piece_Lists_Shortcut.all_pieces():
-                for paused_obj in paused_obj_list:
-                    for piece_history in paused_obj.coordinate_history:
+            for replayed_obj_list in replayed_objects.Piece_Lists_Shortcut.all_pieces():
+                for replayed_obj in replayed_obj_list:
+                    for piece_history in replayed_obj.coordinate_history:
                         if piece_history in dict(move_dict):
-                            if paused_obj.coordinate_history[piece_history] == ast.literal_eval(move_dict[piece_history]):
-                                paused_obj.coordinate = ast.literal_eval(move_dict[piece_history])['before']
-                                Grid_Controller.prior_move_color(paused_obj.coordinate, paused_obj)
+                            if replayed_obj.coordinate_history[piece_history] == ast.literal_eval(move_dict[piece_history]):
+                                replayed_obj.coordinate = ast.literal_eval(move_dict[piece_history])['before']
+                                Grid_Controller.prior_move_color(replayed_obj.coordinate, replayed_obj)
                                 if ast.literal_eval(move_dict[piece_history])['move_notation'] == "O-O":
-                                    if paused_obj.color == "white":
+                                    if replayed_obj.color == "white":
                                         Grid_Controller.piece_on_grid('f1').coordinate = 'h1'
-                                    elif paused_obj.color == "black":
+                                    elif replayed_obj.color == "black":
                                         Grid_Controller.piece_on_grid('f8').coordinate = 'h8'
                                 elif ast.literal_eval(move_dict[piece_history])['move_notation'] == "O-O-O":
-                                    if paused_obj.color == "white":
+                                    if replayed_obj.color == "white":
                                         Grid_Controller.piece_on_grid('d1').coordinate = 'a1'
-                                    elif paused_obj.color == "black":
+                                    elif replayed_obj.color == "black":
                                         Grid_Controller.piece_on_grid('d8').coordinate = 'a8'
         prior_move_grid_and_piece_highlight_dict = Switch_Modes_Controller.list_of_moves_backwards(Move_Tracker.df_prior_moves)[-1]
         old_grid_coordinate_before = ast.literal_eval(list(prior_move_grid_and_piece_highlight_dict.values())[0])['before']
         old_grid_coordinate_after = ast.literal_eval(list(prior_move_grid_and_piece_highlight_dict.values())[0])['after']
         old_piece = Grid_Controller.piece_on_grid(old_grid_coordinate_after)
         Grid_Controller.prior_move_color(old_grid_coordinate_before, old_piece)
-    def pause_game(paused, game_controller):
+    def replayed_game(replayed, game_controller):
         #%% Working on currently
-        Switch_Modes_Controller.PAUSED = paused
-        if Switch_Modes_Controller.PAUSED == True:
-            paused_objects.remove_all_paused()
-            Switch_Modes_Controller.play_to_paused(play_objects.PlayPawn.white_pawn_list, paused_objects.PausedPawn, "white")
-            Switch_Modes_Controller.play_to_paused(play_objects.PlayBishop.white_bishop_list, paused_objects.PausedBishop, "white")
-            Switch_Modes_Controller.play_to_paused(play_objects.PlayKnight.white_knight_list, paused_objects.PausedKnight, "white")
-            Switch_Modes_Controller.play_to_paused(play_objects.PlayRook.white_rook_list, paused_objects.PausedRook, "white")
-            Switch_Modes_Controller.play_to_paused(play_objects.PlayQueen.white_queen_list, paused_objects.PausedQueen, "white")
-            Switch_Modes_Controller.play_to_paused(play_objects.PlayKing.white_king_list, paused_objects.PausedKing, "white")
-            Switch_Modes_Controller.play_to_paused(play_objects.PlayPawn.black_pawn_list, paused_objects.PausedPawn, "black")
-            Switch_Modes_Controller.play_to_paused(play_objects.PlayBishop.black_bishop_list, paused_objects.PausedBishop, "black")
-            Switch_Modes_Controller.play_to_paused(play_objects.PlayKnight.black_knight_list, paused_objects.PausedKnight, "black")
-            Switch_Modes_Controller.play_to_paused(play_objects.PlayRook.black_rook_list, paused_objects.PausedRook, "black")
-            Switch_Modes_Controller.play_to_paused(play_objects.PlayQueen.black_queen_list, paused_objects.PausedQueen, "black")
-            Switch_Modes_Controller.play_to_paused(play_objects.PlayKing.black_king_list, paused_objects.PausedKing, "black")
+        Switch_Modes_Controller.REPLAYED = replayed
+        if Switch_Modes_Controller.REPLAYED == True:
+            replayed_objects.remove_all_replayed()
+            Switch_Modes_Controller.play_to_replayed(play_objects.PlayPawn.white_pawn_list, replayed_objects.ReplayedPawn, "white")
+            Switch_Modes_Controller.play_to_replayed(play_objects.PlayBishop.white_bishop_list, replayed_objects.ReplayedBishop, "white")
+            Switch_Modes_Controller.play_to_replayed(play_objects.PlayKnight.white_knight_list, replayed_objects.ReplayedKnight, "white")
+            Switch_Modes_Controller.play_to_replayed(play_objects.PlayRook.white_rook_list, replayed_objects.ReplayedRook, "white")
+            Switch_Modes_Controller.play_to_replayed(play_objects.PlayQueen.white_queen_list, replayed_objects.ReplayedQueen, "white")
+            Switch_Modes_Controller.play_to_replayed(play_objects.PlayKing.white_king_list, replayed_objects.ReplayedKing, "white")
+            Switch_Modes_Controller.play_to_replayed(play_objects.PlayPawn.black_pawn_list, replayed_objects.ReplayedPawn, "black")
+            Switch_Modes_Controller.play_to_replayed(play_objects.PlayBishop.black_bishop_list, replayed_objects.ReplayedBishop, "black")
+            Switch_Modes_Controller.play_to_replayed(play_objects.PlayKnight.black_knight_list, replayed_objects.ReplayedKnight, "black")
+            Switch_Modes_Controller.play_to_replayed(play_objects.PlayRook.black_rook_list, replayed_objects.ReplayedRook, "black")
+            Switch_Modes_Controller.play_to_replayed(play_objects.PlayQueen.black_queen_list, replayed_objects.ReplayedQueen, "black")
+            Switch_Modes_Controller.play_to_replayed(play_objects.PlayKing.black_king_list, replayed_objects.ReplayedKing, "black")
             Switch_Modes_Controller.rewind_moves()
         else:
-            paused_objects.remove_all_paused()
+            replayed_objects.remove_all_replayed()
             Grid_Controller.update_prior_move_color(game_controller.WHOSETURN)
     def list_of_moves_backwards(df_prior_moves):
         moves_backwards_list = []
@@ -808,7 +808,7 @@ class Game_Controller():
         play_objects.PlayKing.black_king_list = []
         for grid in board.Grid.grid_list:
             grid.reset_play_interaction_vars()
-        Switch_Modes_Controller.pause_game(False, self)
+        Switch_Modes_Controller.replayed_game(False, self)
         # Reset Moves Panel
         MoveNumberRectangle.rectangle_list = []
         PieceMoveRectangle.rectangle_list = []
@@ -988,7 +988,7 @@ class Move_Controller():
             for piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
                 for piece in piece_list:
                     # Selects piece
-                    if (piece.rect.collidepoint(mousepos) and piece.select == False and Switch_Modes_Controller.PAUSED == False):
+                    if (piece.rect.collidepoint(mousepos) and piece.select == False and Switch_Modes_Controller.REPLAYED == False):
                         clicked_piece = piece
                     else:
                         # Unselects piece
@@ -999,7 +999,7 @@ class Move_Controller():
         elif game_controller.WHOSETURN == "black":
             for piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
                 for piece in piece_list:
-                    if (piece.rect.collidepoint(mousepos) and piece.select == False and Switch_Modes_Controller.PAUSED == False):
+                    if (piece.rect.collidepoint(mousepos) and piece.select == False and Switch_Modes_Controller.REPLAYED == False):
                         clicked_piece = piece
                     else:
                         piece.no_highlight()
@@ -1011,7 +1011,7 @@ class Move_Controller():
             clicked_piece.spaces_available(game_controller)
             clicked_piece = None
     def undo_move(game_controller):
-        Switch_Modes_Controller.pause_game(False, game_controller)
+        Switch_Modes_Controller.replayed_game(False, game_controller)
         pieces_to_undo = []
         # Using pieces_to_undo as a list for castling
         if Move_Tracker.move_counter() >= 1:
@@ -1386,7 +1386,7 @@ class Move_Controller():
             prior_moves_dict['move_notation'] = Move_Controller.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
             Move_Tracker.selected_move = (Move_Tracker.move_counter(), "white_move")
             Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "white_move"] = str(prior_moves_dict)
-        Switch_Modes_Controller.pause_game(False, game_controller)
+        Switch_Modes_Controller.replayed_game(False, game_controller)
         log.info(move_text)
         if game_controller.result_abb != "*":
             log.info(game_controller.result_abb)
@@ -1550,11 +1550,11 @@ def main():
                                 if Move_Tracker.selected_move[0] == len(Move_Tracker.df_moves):
                                     if Move_Tracker.df_moves.loc[len(Move_Tracker.df_moves), "black_move"] != "" \
                                         and piece_move_rect.move_color == "white_move":
-                                            Switch_Modes_Controller.pause_game(True, game_controller)
+                                            Switch_Modes_Controller.replayed_game(True, game_controller)
                                     else:
-                                        Switch_Modes_Controller.pause_game(False, game_controller)
+                                        Switch_Modes_Controller.replayed_game(False, game_controller)
                                 else:
-                                    Switch_Modes_Controller.pause_game(True, game_controller)
+                                    Switch_Modes_Controller.replayed_game(True, game_controller)
                         # Editing mode only
                         if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE:
                             #BUTTONS
@@ -1694,12 +1694,12 @@ def main():
                     placed_objects.PLACED_SPRITES.draw(SCREEN)
                 elif(Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE): #Only draw play sprites in play mode
                     FLIP_BOARD_BUTTON.draw(SCREEN)
-                    if Switch_Modes_Controller.PAUSED == False:
+                    if Switch_Modes_Controller.REPLAYED == False:
                         play_objects.PLAY_SPRITES.update()
                         play_objects.PLAY_SPRITES.draw(SCREEN)
                     else:
-                        paused_objects.PAUSED_SPRITES.update()
-                        paused_objects.PAUSED_SPRITES.draw(SCREEN)
+                        replayed_objects.REPLAYED_SPRITES.update()
+                        replayed_objects.REPLAYED_SPRITES.draw(SCREEN)
                     PGN_SAVE_FILE_BUTTON.draw(SCREEN)
                     PLAY_PANEL_SPRITES.draw(SCREEN)
                     

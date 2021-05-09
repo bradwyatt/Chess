@@ -2,48 +2,48 @@ import pygame
 from load_images_sounds import *
 import board
 
-PAUSED_SPRITES = pygame.sprite.Group()
+REPLAYED_SPRITES = pygame.sprite.Group()
 
-def remove_all_paused():
-    for spr_list in [PausedPawn.white_pawn_list, PausedBishop.white_bishop_list,
-                     PausedKnight.white_knight_list, PausedRook.white_rook_list,
-                     PausedQueen.white_queen_list, PausedKing.white_king_list, 
-                     PausedPawn.black_pawn_list, PausedBishop.black_bishop_list, 
-                     PausedKnight.black_knight_list, PausedRook.black_rook_list,
-                     PausedQueen.black_queen_list, PausedKing.black_king_list]:
+def remove_all_replayed():
+    for spr_list in [ReplayedPawn.white_pawn_list, ReplayedBishop.white_bishop_list,
+                     ReplayedKnight.white_knight_list, ReplayedRook.white_rook_list,
+                     ReplayedQueen.white_queen_list, ReplayedKing.white_king_list, 
+                     ReplayedPawn.black_pawn_list, ReplayedBishop.black_bishop_list, 
+                     ReplayedKnight.black_knight_list, ReplayedRook.black_rook_list,
+                     ReplayedQueen.black_queen_list, ReplayedKing.black_king_list]:
         for obj in spr_list:
             obj.kill()
-    PausedPawn.white_pawn_list = []
-    PausedBishop.white_bishop_list = []
-    PausedKnight.white_knight_list = []
-    PausedRook.white_rook_list = []
-    PausedQueen.white_queen_list = []
-    PausedKing.white_king_list = []
-    PausedPawn.black_pawn_list = []
-    PausedBishop.black_bishop_list = []
-    PausedKnight.black_knight_list = []
-    PausedRook.black_rook_list = []
-    PausedQueen.black_queen_list = []
-    PausedKing.black_king_list = []
+    ReplayedPawn.white_pawn_list = []
+    ReplayedBishop.white_bishop_list = []
+    ReplayedKnight.white_knight_list = []
+    ReplayedRook.white_rook_list = []
+    ReplayedQueen.white_queen_list = []
+    ReplayedKing.white_king_list = []
+    ReplayedPawn.black_pawn_list = []
+    ReplayedBishop.black_bishop_list = []
+    ReplayedKnight.black_knight_list = []
+    ReplayedRook.black_rook_list = []
+    ReplayedQueen.black_queen_list = []
+    ReplayedKing.black_king_list = []
     
 class Piece_Lists_Shortcut():
     def all_pieces():
-        return [PausedPawn.white_pawn_list, PausedBishop.white_bishop_list, 
-                PausedKnight.white_knight_list, PausedRook.white_rook_list, 
-                PausedQueen.white_queen_list, PausedKing.white_king_list,
-                PausedPawn.black_pawn_list, PausedBishop.black_bishop_list, 
-                PausedKnight.black_knight_list, PausedRook.black_rook_list, 
-                PausedQueen.black_queen_list, PausedKing.black_king_list]
+        return [ReplayedPawn.white_pawn_list, ReplayedBishop.white_bishop_list, 
+                ReplayedKnight.white_knight_list, ReplayedRook.white_rook_list, 
+                ReplayedQueen.white_queen_list, ReplayedKing.white_king_list,
+                ReplayedPawn.black_pawn_list, ReplayedBishop.black_bishop_list, 
+                ReplayedKnight.black_knight_list, ReplayedRook.black_rook_list, 
+                ReplayedQueen.black_queen_list, ReplayedKing.black_king_list]
     def white_pieces():
-        return [PausedPawn.white_pawn_list, PausedBishop.white_bishop_list, 
-                PausedKnight.white_knight_list, PausedRook.white_rook_list, 
-                PausedQueen.white_queen_list, PausedKing.white_king_list]
+        return [ReplayedPawn.white_pawn_list, ReplayedBishop.white_bishop_list, 
+                ReplayedKnight.white_knight_list, ReplayedRook.white_rook_list, 
+                ReplayedQueen.white_queen_list, ReplayedKing.white_king_list]
     def black_pieces():
-        return [PausedPawn.black_pawn_list, PausedBishop.black_bishop_list, 
-                PausedKnight.black_knight_list, PausedRook.black_rook_list, 
-                PausedQueen.black_queen_list, PausedKing.black_king_list]
+        return [ReplayedPawn.black_pawn_list, ReplayedBishop.black_bishop_list, 
+                ReplayedKnight.black_knight_list, ReplayedRook.black_rook_list, 
+                ReplayedQueen.black_queen_list, ReplayedKing.black_king_list]
 
-class PausedPawn(pygame.sprite.Sprite):
+class ReplayedPawn(pygame.sprite.Sprite):
     white_pawn_list = []
     black_pawn_list = []
     def __init__(self, color, coordinate_history, coord=None):
@@ -51,12 +51,12 @@ class PausedPawn(pygame.sprite.Sprite):
         self.color = color
         if self.color == "white":
             self.image = IMAGES["SPR_WHITE_PAWN"]
-            PAUSED_SPRITES.add(self)
-            PausedPawn.white_pawn_list.append(self)
+            REPLAYED_SPRITES.add(self)
+            ReplayedPawn.white_pawn_list.append(self)
         elif self.color == "black":
             self.image = IMAGES["SPR_BLACK_PAWN"]
-            PAUSED_SPRITES.add(self)
-            PausedPawn.black_pawn_list.append(self)
+            REPLAYED_SPRITES.add(self)
+            ReplayedPawn.black_pawn_list.append(self)
         self.coordinate = coord
         self.coordinate_history = coordinate_history
         self.rect = self.image.get_rect()
@@ -69,9 +69,9 @@ class PausedPawn(pygame.sprite.Sprite):
         self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
     def destroy(self):
         if self.color == "white":
-            PausedPawn.white_pawn_list.remove(self)
+            ReplayedPawn.white_pawn_list.remove(self)
         elif self.color == "black":
-            PausedPawn.black_pawn_list.remove(self)
+            ReplayedPawn.black_pawn_list.remove(self)
         self.kill()
     def prior_move_update(self):
         if self.taken_off_board != True:
@@ -86,7 +86,7 @@ class PausedPawn(pygame.sprite.Sprite):
                 else:
                     self.image = IMAGES["SPR_BLACK_PAWN"]
 
-class PausedBishop(pygame.sprite.Sprite):
+class ReplayedBishop(pygame.sprite.Sprite):
     white_bishop_list = []
     black_bishop_list = []
     def __init__(self, color, coordinate_history, coord=None):
@@ -94,12 +94,12 @@ class PausedBishop(pygame.sprite.Sprite):
         self.color = color
         if self.color == "white":
             self.image = IMAGES["SPR_WHITE_BISHOP"]
-            PAUSED_SPRITES.add(self)
-            PausedBishop.white_bishop_list.append(self)
+            REPLAYED_SPRITES.add(self)
+            ReplayedBishop.white_bishop_list.append(self)
         elif self.color == "black":
             self.image = IMAGES["SPR_BLACK_BISHOP"]
-            PAUSED_SPRITES.add(self)
-            PausedBishop.black_bishop_list.append(self)
+            REPLAYED_SPRITES.add(self)
+            ReplayedBishop.black_bishop_list.append(self)
         self.coordinate = coord
         self.coordinate_history = coordinate_history
         self.rect = self.image.get_rect()
@@ -112,9 +112,9 @@ class PausedBishop(pygame.sprite.Sprite):
         self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
     def destroy(self):
         if self.color == "white":
-            PausedBishop.white_bishop_list.remove(self)
+            ReplayedBishop.white_bishop_list.remove(self)
         elif self.color == "black":
-            PausedBishop.black_bishop_list.remove(self)
+            ReplayedBishop.black_bishop_list.remove(self)
         self.kill()
     def prior_move_update(self):
         if self.taken_off_board != True:
@@ -129,7 +129,7 @@ class PausedBishop(pygame.sprite.Sprite):
                 else:
                     self.image = IMAGES["SPR_BLACK_BISHOP"]
 
-class PausedKnight(pygame.sprite.Sprite):
+class ReplayedKnight(pygame.sprite.Sprite):
     white_knight_list = []
     black_knight_list = []
     def __init__(self, color, coordinate_history, coord=None):
@@ -137,12 +137,12 @@ class PausedKnight(pygame.sprite.Sprite):
         self.color = color
         if self.color == "white":
             self.image = IMAGES["SPR_WHITE_KNIGHT"]
-            PAUSED_SPRITES.add(self)
-            PausedKnight.white_knight_list.append(self)
+            REPLAYED_SPRITES.add(self)
+            ReplayedKnight.white_knight_list.append(self)
         elif self.color == "black":
             self.image = IMAGES["SPR_BLACK_KNIGHT"]
-            PAUSED_SPRITES.add(self)
-            PausedKnight.black_knight_list.append(self)
+            REPLAYED_SPRITES.add(self)
+            ReplayedKnight.black_knight_list.append(self)
         self.coordinate = coord
         self.coordinate_history = coordinate_history
         self.rect = self.image.get_rect()
@@ -155,9 +155,9 @@ class PausedKnight(pygame.sprite.Sprite):
         self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
     def destroy(self):
         if self.color == "white":
-            PausedKnight.white_knight_list.remove(self)
+            ReplayedKnight.white_knight_list.remove(self)
         elif self.color == "black":
-            PausedKnight.black_knight_list.remove(self)
+            ReplayedKnight.black_knight_list.remove(self)
         self.kill()
     def prior_move_update(self):
         if self.taken_off_board != True:
@@ -172,7 +172,7 @@ class PausedKnight(pygame.sprite.Sprite):
                 else:
                     self.image = IMAGES["SPR_BLACK_KNIGHT"]
         
-class PausedRook(pygame.sprite.Sprite):
+class ReplayedRook(pygame.sprite.Sprite):
     white_rook_list = []
     black_rook_list = []
     def __init__(self, color, coordinate_history, coord=None):
@@ -180,12 +180,12 @@ class PausedRook(pygame.sprite.Sprite):
         self.color = color
         if self.color == "white":
             self.image = IMAGES["SPR_WHITE_ROOK"]
-            PAUSED_SPRITES.add(self)
-            PausedRook.white_rook_list.append(self)
+            REPLAYED_SPRITES.add(self)
+            ReplayedRook.white_rook_list.append(self)
         elif self.color == "black":
             self.image = IMAGES["SPR_BLACK_ROOK"]
-            PAUSED_SPRITES.add(self)
-            PausedRook.black_rook_list.append(self)
+            REPLAYED_SPRITES.add(self)
+            ReplayedRook.black_rook_list.append(self)
         self.coordinate = coord
         self.coordinate_history = coordinate_history
         self.rect = self.image.get_rect()
@@ -198,9 +198,9 @@ class PausedRook(pygame.sprite.Sprite):
         self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
     def destroy(self):
         if self.color == "white":
-            PausedRook.white_rook_list.remove(self)
+            ReplayedRook.white_rook_list.remove(self)
         elif self.color == "black":
-            PausedRook.black_rook_list.remove(self)
+            ReplayedRook.black_rook_list.remove(self)
         self.kill()
     def prior_move_update(self):
         if self.taken_off_board != True:
@@ -215,7 +215,7 @@ class PausedRook(pygame.sprite.Sprite):
                 else:
                     self.image = IMAGES["SPR_BLACK_ROOK"]
         
-class PausedQueen(pygame.sprite.Sprite):
+class ReplayedQueen(pygame.sprite.Sprite):
     white_queen_list = []
     black_queen_list = []
     def __init__(self, color, coordinate_history, coord=None):
@@ -223,12 +223,12 @@ class PausedQueen(pygame.sprite.Sprite):
         self.color = color
         if self.color == "white":
             self.image = IMAGES["SPR_WHITE_QUEEN"]
-            PAUSED_SPRITES.add(self)
-            PausedQueen.white_queen_list.append(self)
+            REPLAYED_SPRITES.add(self)
+            ReplayedQueen.white_queen_list.append(self)
         elif self.color == "black":
             self.image = IMAGES["SPR_BLACK_QUEEN"]
-            PAUSED_SPRITES.add(self)
-            PausedQueen.black_queen_list.append(self)
+            REPLAYED_SPRITES.add(self)
+            ReplayedQueen.black_queen_list.append(self)
         self.coordinate = coord
         self.coordinate_history = coordinate_history
         self.rect = self.image.get_rect()
@@ -241,9 +241,9 @@ class PausedQueen(pygame.sprite.Sprite):
         self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
     def destroy(self):
         if self.color == "white":
-            PausedQueen.white_queen_list.remove(self)
+            ReplayedQueen.white_queen_list.remove(self)
         elif self.color == "black":
-            PausedQueen.black_queen_list.remove(self)
+            ReplayedQueen.black_queen_list.remove(self)
         self.kill()
     def prior_move_update(self):
         if self.taken_off_board != True:
@@ -258,7 +258,7 @@ class PausedQueen(pygame.sprite.Sprite):
                 else:
                     self.image = IMAGES["SPR_BLACK_QUEEN"]
         
-class PausedKing(pygame.sprite.Sprite):
+class ReplayedKing(pygame.sprite.Sprite):
     white_king_list = []
     black_king_list = []
     def __init__(self, color, coordinate_history, coord=None):
@@ -266,12 +266,12 @@ class PausedKing(pygame.sprite.Sprite):
         self.color = color
         if self.color == "white":
             self.image = IMAGES["SPR_WHITE_KING"]
-            PAUSED_SPRITES.add(self)
-            PausedKing.white_king_list.append(self)
+            REPLAYED_SPRITES.add(self)
+            ReplayedKing.white_king_list.append(self)
         elif self.color == "black":
             self.image = IMAGES["SPR_BLACK_KING"]
-            PAUSED_SPRITES.add(self)
-            PausedKing.black_king_list.append(self)
+            REPLAYED_SPRITES.add(self)
+            ReplayedKing.black_king_list.append(self)
         self.coordinate = coord
         self.coordinate_history = coordinate_history
         self.rect = self.image.get_rect()
@@ -284,9 +284,9 @@ class PausedKing(pygame.sprite.Sprite):
         self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
     def destroy(self):
         if self.color == "white":
-            PausedKing.white_king_list.remove(self)
+            ReplayedKing.white_king_list.remove(self)
         elif self.color == "black":
-            PausedKing.black_king_list.remove(self)
+            ReplayedKing.black_king_list.remove(self)
         self.kill()
     def prior_move_update(self):
         if self.taken_off_board != True:
