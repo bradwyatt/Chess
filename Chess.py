@@ -618,7 +618,6 @@ class Switch_Modes_Controller():
             Switch_Modes_Controller.GAME_MODE = Switch_Modes_Controller.EDIT_MODE
             PLAY_EDIT_SWITCH_BUTTON.image = PLAY_EDIT_SWITCH_BUTTON.game_mode_button(Switch_Modes_Controller.GAME_MODE)
             Text_Controller.check_checkmate_text = ""
-            Switch_Modes_Controller.pause_game(False, game_controller)
         elif game_mode == Switch_Modes_Controller.PLAY_MODE:
             log.info("Play Mode Activated\n")
             Switch_Modes_Controller.GAME_MODE = Switch_Modes_Controller.PLAY_MODE
@@ -656,6 +655,16 @@ class Switch_Modes_Controller():
                             if paused_obj.coordinate_history[piece_history] == ast.literal_eval(move_dict[piece_history]):
                                 paused_obj.coordinate = ast.literal_eval(move_dict[piece_history])['before']
                                 Grid_Controller.prior_move_color(paused_obj.coordinate, paused_obj)
+                                if ast.literal_eval(move_dict[piece_history])['move_notation'] == "O-O":
+                                    if paused_obj.color == "white":
+                                        Grid_Controller.piece_on_grid('f1').coordinate = 'h1'
+                                    elif paused_obj.color == "black":
+                                        Grid_Controller.piece_on_grid('f8').coordinate = 'h8'
+                                elif ast.literal_eval(move_dict[piece_history])['move_notation'] == "O-O-O":
+                                    if paused_obj.color == "white":
+                                        Grid_Controller.piece_on_grid('d1').coordinate = 'a1'
+                                    elif paused_obj.color == "black":
+                                        Grid_Controller.piece_on_grid('d8').coordinate = 'a8'
         prior_move_grid_and_piece_highlight_dict = Switch_Modes_Controller.list_of_moves_backwards(Move_Tracker.df_prior_moves)[-1]
         old_grid_coordinate_before = ast.literal_eval(list(prior_move_grid_and_piece_highlight_dict.values())[0])['before']
         old_grid_coordinate_after = ast.literal_eval(list(prior_move_grid_and_piece_highlight_dict.values())[0])['after']
@@ -799,6 +808,7 @@ class Game_Controller():
         play_objects.PlayKing.black_king_list = []
         for grid in board.Grid.grid_list:
             grid.reset_play_interaction_vars()
+        Switch_Modes_Controller.pause_game(False, self)
         # Reset Moves Panel
         MoveNumberRectangle.rectangle_list = []
         PieceMoveRectangle.rectangle_list = []
@@ -1638,6 +1648,7 @@ def main():
                     
                     # MIDDLE MOUSE DEBUGGER
                     if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[1]:
+                    #%% Middle mouse debugger
                         def test_piece():
                             for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
                                 for piece in piece_list:
