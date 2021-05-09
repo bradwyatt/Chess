@@ -218,17 +218,17 @@ class Preferences():
     def game_properties_popup():
         layout = [
             [sg.Text('Please enter the information for the game below (all fields are optional)')],
-            [sg.Text('Event', size=(9, 0)), sg.InputText()],
-            [sg.Text('Site', size=(9, 0)), sg.InputText()],
-            [sg.Text('Date', size=(9, 0)), sg.InputText()],
-            [sg.Text('Round', size=(9, 0)), sg.InputText()],
-            [sg.Text('White', size=(9, 0)), sg.InputText()],
-            [sg.Text('Black', size=(9, 0)), sg.InputText()],
-            [sg.Text('Result', size=(9, 0)), sg.InputText()],
-            [sg.Text('WhiteElo', size=(9, 0)), sg.InputText()],
-            [sg.Text('BlackElo', size=(9, 0)), sg.InputText()],
-            [sg.Text('ECO', size=(9, 0)), sg.InputText()],
-            [sg.Text('TimeControl', size=(9, 0)), sg.InputText()],
+            [sg.Text('Event', size=(9, 0)), sg.InputText(default_text=Preferences.Event)],
+            [sg.Text('Site', size=(9, 0)), sg.InputText(default_text=Preferences.Site)],
+            [sg.Text('Date', size=(9, 0)), sg.InputText(default_text=Preferences.Date)],
+            [sg.Text('Round', size=(9, 0)), sg.InputText(default_text=Preferences.Round)],
+            [sg.Text('White', size=(9, 0)), sg.InputText(default_text=Preferences.White)],
+            [sg.Text('Black', size=(9, 0)), sg.InputText(default_text=Preferences.Black)],
+            [sg.Text('Result', size=(9, 0)), sg.InputText(default_text=Preferences.Result)],
+            [sg.Text('WhiteElo', size=(9, 0)), sg.InputText(default_text=Preferences.WhiteElo)],
+            [sg.Text('BlackElo', size=(9, 0)), sg.InputText(default_text=Preferences.BlackElo)],
+            [sg.Text('ECO', size=(9, 0)), sg.InputText(default_text=Preferences.ECO)],
+            [sg.Text('TimeControl', size=(9, 0)), sg.InputText(default_text=Preferences.TimeControl)],
             [sg.Submit("Ok"), sg.Cancel("Cancel")]
         ]
         #Please enter the information for the game below. All fields are optional.
@@ -1252,6 +1252,7 @@ class Move_Controller():
             Text_Controller.check_checkmate_text = ""
         for grid in board.Grid.grid_list:
             grid.no_highlight()
+        Preferences.Result = game_controller.result_abb
         return check_abb
     def record_move(game_controller, grid, piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen=None):
         check_abb = ""
