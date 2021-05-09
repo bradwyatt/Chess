@@ -677,7 +677,8 @@ class Switch_Modes_Controller():
                 moves_backwards_dict = {}
             moves_backwards_dict[move_num] = df_prior_moves.loc[move_num, 'white_move']
             moves_backwards_list.append(moves_backwards_dict)
-        return moves_backwards_list
+        # When select a move on pane, we take back the move right after that
+        return moves_backwards_list[:-1]
         
 
 class Move_Tracker():
