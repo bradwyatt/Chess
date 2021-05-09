@@ -59,6 +59,8 @@ import logging.handlers
 import pandas as pd
 import numpy as np
 import initvar
+import PySimpleGUI as sg
+
 
 #############
 # Logging
@@ -199,66 +201,51 @@ class PlayEditSwitchButton(pygame.sprite.Sprite):
 
 class Preferences():
     colorkey = initvar.COLORKEY_RGB
+    Event = ""
+    Site = ""
+    Date = ""
+    Round = ""
+    White = ""
+    Black = ""
+    Result = ""
+    WhiteElo = ""
+    BlackElo = ""
+    ECO = ""
     def get_color():
         color = askcolor()
         return [color[0][0], color[0][1], color[0][2]]
-    def popupmsg(msg):
-        pass
-    def popupmsg_test(msg):
-        master = tk.Tk()
-        #root.withdraw()
-        tk.Label(master, text="First Name").grid(row=0)
-        tk.Label(master, text="Last Name").grid(row=1)
+    def popupmsg():
+        layout = [
+            [sg.Text('Please enter the information for the game below. All fields are optional.')],
+            [sg.Text('Event', size=(15, 1)), sg.InputText()],
+            [sg.Text('Site', size=(15, 1)), sg.InputText()],
+            [sg.Text('Date', size=(15, 1)), sg.InputText()],
+            [sg.Text('Round', size=(15, 1)), sg.InputText()],
+            [sg.Text('White', size=(15, 1)), sg.InputText()],
+            [sg.Text('Black', size=(15, 1)), sg.InputText()],
+            [sg.Text('Result', size=(15, 1)), sg.InputText()],
+            [sg.Text('WhiteElo', size=(15, 1)), sg.InputText()],
+            [sg.Text('BlackElo', size=(15, 1)), sg.InputText()],
+            [sg.Text('ECO', size=(15, 1)), sg.InputText()],
+            [sg.Submit(), sg.Cancel()]
+        ]
         
-        e1 = tk.Entry(master)
-        e2 = tk.Entry(master)
-        
-        e1.grid(row=0, column=1)
-        e2.grid(row=1, column=1)
-        global not_clicked
-        not_clicked = True
-        def test123():
-            global not_clicked
-            if not_clicked == False:
-                print("Clicked")
-                return "yay"
-            else:
-                print("Not clicked action")
-                not_clicked = False
-                return "bleh"
-        
-        tk.Button(master, 
-          text='Quit', 
-          command=lambda: test123()).grid(row=3, 
-                                    column=0, 
-                                    sticky=tk.W, 
-                                    pady=4)
-        print("meow")
-        if test123() == "yay":
-            print("E1: " + str(e1.__dict__))
-            print("E1: " + str(e1.tk__dict__))
-            master.withdraw()
-            return "zzzzz", "meow"
-        else:
-            print("ABC 123")
-            master.mainloop()
-        print("TEST123")
-        return
-        
+        window = sg.Window('Simple data entry window', layout)
+        event, values = window.read()
+        window.close()
+        Preferences.Event = values[0]
+        Preferences.Site = values[1]
+        Preferences.Date = values[2]
+        Preferences.Round = values[3]
+        Preferences.White = values[4]
+        Preferences.Black = values[5]
+        Preferences.Result = values[6]
+        Preferences.WhiteElo = values[7]
+        Preferences.BlackElo = values[8]
+        Preferences.ECO = values[9]
 
 class PGN_Writer_and_Loader():
-    def __init__(self):
-        self.Event = ""
-        self.Site = ""
-        self.Date = ""
-        self.Round = ""
-        self.White = ""
-        self.Black = ""
-        self.Result = ""
-        self.WhiteElo = ""
-        self.BlackElo = ""
-        self.ECO = ""
-    def write_moves(self, df_moves, result_abb):
+    def write_moves(df_moves, result_abb):
         try:
             df = df_moves.copy()
             save_file_prompt = asksaveasfilename(defaultextension=".pgn")
@@ -266,15 +253,15 @@ class PGN_Writer_and_Loader():
             if save_file_name is not None:
                 # Write the file to disk
                 pgn_output = ""
-                pgn_output += '[Event "' + self.Event + '"]\n'
-                pgn_output += '[Site "' + self.Site + '"]\n'
-                pgn_output += '[Date "' + self.Date + '"]\n'
-                pgn_output += '[Round "' + self.Round + '"]\n'
-                pgn_output += '[White "' + self.White + '"]\n'
-                pgn_output += '[Black "' + self.Black + '"]\n'
-                pgn_output += '[Result "' + self.Result + '"]\n'
-                pgn_output += '[ECO "' + self.ECO + '"]\n'
-                pgn_output += '[BlackElo "' + self.BlackElo + '"]\n\n'
+                pgn_output += '[Event "' + Preferences.Event + '"]\n'
+                pgn_output += '[Site "' + Preferences.Site + '"]\n'
+                pgn_output += '[Date "' + Preferences.Date + '"]\n'
+                pgn_output += '[Round "' + Preferences.Round + '"]\n'
+                pgn_output += '[White "' + Preferences.White + '"]\n'
+                pgn_output += '[Black "' + Preferences.Black + '"]\n'
+                pgn_output += '[Result "' + Preferences.Result + '"]\n'
+                pgn_output += '[ECO "' + Preferences.ECO + '"]\n'
+                pgn_output += '[BlackElo "' + Preferences.BlackElo + '"]\n\n'
                 for i in df.index:
                     # If black hasn't moved then shorten the pgn output so it doesn't give two spaces
                     if str(df.loc[i, 'black_move']) == "":
@@ -289,7 +276,7 @@ class PGN_Writer_and_Loader():
                 log.info("Error! Need king to save!")
         except IOError:
             log.info("Save File Error, please restart game and try again.")
-    def pgn_load(self, PLAY_EDIT_SWITCH_BUTTON):
+    def pgn_load(PLAY_EDIT_SWITCH_BUTTON):
         open_file = None
         request_file_name = askopenfilename(defaultextension=".pgn")
         log.info("Loading " + os.path.basename(request_file_name))
@@ -316,45 +303,45 @@ class PGN_Writer_and_Loader():
                     # Skip any lines that have empty spaces, we are only getting the chess game moves
                     chess_game.append(row)
         try:
-            self.Event = parameters['Event']
+            Preferences.Event = parameters['Event']
         except KeyError:
-            self.Event = ""
+            Preferences.Event = ""
         try:
-            self.Site = parameters['Site']
+            Preferences.Site = parameters['Site']
         except KeyError:
-            self.Site = ""
+            Preferences.Site = ""
         try:
-            self.Date = parameters['Date']
+            Preferences.Date = parameters['Date']
         except KeyError:
-            self.Date = ""
+            Preferences.Date = ""
         try:
-            self.Round = parameters['Round']
+            Preferences.Round = parameters['Round']
         except KeyError:
-            self.Round = ""
+            Preferences.Round = ""
         try:
-            self.White = parameters['White']
+            Preferences.White = parameters['White']
         except KeyError:
-            self.White = ""
+            Preferences.White = ""
         try:
-            self.Black = parameters['Black']
+            Preferences.Black = parameters['Black']
         except KeyError:
-            self.Black = ""
+            Preferences.Black = ""
         try:
-            self.Result = parameters['Result']
+            Preferences.Result = parameters['Result']
         except KeyError:
-            self.Result = ""
+            Preferences.Result = ""
         try:
-            self.WhiteElo = parameters['WhiteElo']
+            Preferences.WhiteElo = parameters['WhiteElo']
         except KeyError:
-            self.WhiteElo = ""
+            Preferences.WhiteElo = ""
         try:
-            self.BlackElo = parameters['BlackElo']
+            Preferences.BlackElo = parameters['BlackElo']
         except KeyError:
-            self.BlackElo = ""
+            Preferences.BlackElo = ""
         try:
-            self.ECO = parameters['ECO']
+            Preferences.ECO = parameters['ECO']
         except KeyError:
-            self.ECO = ""
+            Preferences.ECO = ""
         
         # Removes line breaks and formulates all elements into one element in the list
         chess_game = "".join(chess_game).split("  ")
@@ -1460,9 +1447,8 @@ def main():
                             if RESET_BOARD_BUTTON.rect.collidepoint(MOUSEPOS):
                                 pos_load_file(reset=True)
                             if GAME_PROPERTIES_BUTTON.rect.collidepoint(MOUSEPOS):
-                                print("game properties")
-                                e1, e2 = Preferences.popupmsg("PROPERTIES")
-                                print("FINALLY EXITED")
+                                Preferences.popupmsg()
+                                
 
                             # DRAG OBJECTS
                             # Goes through each of the types of pieces
@@ -1600,6 +1586,7 @@ def main():
                     # Update objects that aren't in a sprite group
                     SCROLL_UP_BUTTON.draw(SCREEN)
                     SCROLL_DOWN_BUTTON.draw(SCREEN, len(Move_Tracker.df_moves))
+                render_text = lambda x: arial_font.render(x, 1, (0, 0, 0)) 
                 # Board Coordinates Drawing
                 for text in range(0,len(Text_Controller.coor_letter_text_list)):
                     SCREEN.blit(Text_Controller.coor_letter_text_list[text], (initvar.X_GRID_START+initvar.X_GRID_WIDTH/3+(initvar.X_GRID_WIDTH*text), initvar.Y_GRID_START-(initvar.Y_GRID_HEIGHT*0.75)))
@@ -1611,12 +1598,23 @@ def main():
                     check_checkmate_text_render = arial_font.render(Text_Controller.check_checkmate_text, 1, (0, 0, 0))
                     if game_controller.WHOSETURN == "white":
                         whose_turn_text = arial_font.render("White's move", 1, (0, 0, 0))
+                        SCREEN.blit(whose_turn_text, (board.X_GRID_END+initvar.X_GRID_WIDTH, 500))
                     elif game_controller.WHOSETURN == "black":
                         whose_turn_text = arial_font.render("Black's move", 1, (0, 0, 0))
-                    SCREEN.blit(whose_turn_text, (board.X_GRID_END+initvar.X_GRID_WIDTH, initvar.SCREEN_HEIGHT/2))
+                        SCREEN.blit(whose_turn_text, (board.X_GRID_END+initvar.X_GRID_WIDTH, 300))
                     SCREEN.blit(check_checkmate_text_render, (board.X_GRID_END+initvar.X_GRID_WIDTH, 200))
+                SCREEN.blit(render_text("Event: " + Preferences.Event), (20, 550))
+                SCREEN.blit(render_text("Site: " + Preferences.Site), (20, 590))
+                SCREEN.blit(render_text("Date: " + Preferences.Date), (20, 630))
+                SCREEN.blit(render_text("Round: " + Preferences.Round), (20, 630))
+                SCREEN.blit(render_text("White: " + Preferences.White), (450, 550))
+                SCREEN.blit(render_text("Black: " + Preferences.Black), (450, 230))
+                SCREEN.blit(render_text("Result: " + Preferences.Result), (90, 430))
+                SCREEN.blit(render_text("WhiteElo: " + Preferences.WhiteElo), (400, 600))
+                SCREEN.blit(render_text("BlackElo: " + Preferences.BlackElo), (400, 330))
+                SCREEN.blit(render_text("ECO: " + Preferences.ECO), (20, 670))
                 pygame.display.update()
-                print("MEOW 1123 " + today.strftime("%Y-%m-%d %H%M%S"))
+                #print("MEOW 1123 " + today.strftime("%Y-%m-%d %H%M%S"))
             elif state == DEBUG:
                 if debug_message == 1:
                     log.info("Entering debug mode")

@@ -3,7 +3,7 @@ import pygame
 #################
 # USER CAN SET BELOW PARAMETERS
 #################
-SCREEN_WIDTH, SCREEN_HEIGHT = 936, 650
+SCREEN_WIDTH, SCREEN_HEIGHT = 936, 700
 
 MOVE_BG_IMAGE = pygame.image.load('Sprites/move_bg.png')
 MOVE_BG_IMAGE_HEIGHT = 675
