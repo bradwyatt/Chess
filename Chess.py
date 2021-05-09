@@ -49,7 +49,7 @@ import tkinter as tk
 from tkinter.colorchooser import askcolor
 from tkinter.filedialog import *
 from tkinter import ttk  
-from ast import *
+import ast
 import pygame
 import datetime
 import logging
@@ -107,7 +107,7 @@ def pos_load_file(reset=False):
             log.info("File not found")
             return
         loaded_file = open_file.read()
-        loaded_dict = literal_eval(loaded_file)
+        loaded_dict = ast.literal_eval(loaded_file)
     
     for obj_list in play_objects.Piece_Lists_Shortcut.all_pieces():
         for obj in obj_list:
@@ -623,13 +623,23 @@ class Switch_Modes_Controller():
         # Play pieces spawn where their placed piece correspondents are located
         for play_obj in play_list:
             if play_obj.coordinate is not None:
-                class_obj(color, play_obj.coordinate)
+                class_obj(color, play_obj.coordinate_history, play_obj.coordinate)
+    def rewind_moves():
+        list_of_moves_backwards = Switch_Modes_Controller.list_of_moves_backwards(Move_Tracker.df_prior_moves)
+        print("LIST OF MOVES BACKWARDS " + str(list_of_moves_backwards))
+        # list_of_moves_backwards list is ordered in descending order to the selected move
+        for move_dict in list_of_moves_backwards:
+            for paused_obj_list in paused_objects.Piece_Lists_Shortcut.all_pieces():
+                for paused_obj in paused_obj_list:
+                    for piece_history in paused_obj.coordinate_history:
+                        if piece_history in dict(move_dict):
+                            paused_obj.coordinate = ast.literal_eval(move_dict[piece_history])['before']
     def pause_game(paused):
         #%% Working on currently
         Switch_Modes_Controller.PAUSED = paused
         if Switch_Modes_Controller.PAUSED == True:
             log.info("Paused")
-            print(str(Switch_Modes_Controller.list_of_moves_backwards(Move_Tracker.df_prior_moves)))
+            #print(str(Switch_Modes_Controller.list_of_moves_backwards(Move_Tracker.df_prior_moves)))
             Switch_Modes_Controller.play_to_paused(play_objects.PlayPawn.white_pawn_list, paused_objects.PausedPawn, "white")
             Switch_Modes_Controller.play_to_paused(play_objects.PlayBishop.white_bishop_list, paused_objects.PausedBishop, "white")
             Switch_Modes_Controller.play_to_paused(play_objects.PlayKnight.white_knight_list, paused_objects.PausedKnight, "white")
@@ -642,24 +652,31 @@ class Switch_Modes_Controller():
             Switch_Modes_Controller.play_to_paused(play_objects.PlayRook.black_rook_list, paused_objects.PausedRook, "black")
             Switch_Modes_Controller.play_to_paused(play_objects.PlayQueen.black_queen_list, paused_objects.PausedQueen, "black")
             Switch_Modes_Controller.play_to_paused(play_objects.PlayKing.black_king_list, paused_objects.PausedKing, "black")
+            Switch_Modes_Controller.rewind_moves()
         else:
             log.info("Resume")
+            paused_objects.remove_all_paused()
     def list_of_moves_backwards(df_prior_moves):
         moves_backwards_list = []
         limit_moves = Move_Tracker.selected_move[0]
         limit_color = Move_Tracker.selected_move[1]
         #Move_Tracker.selected_move = (0, "")
         for move_num in range(Move_Tracker.move_counter(), limit_moves-1, -1):
+            moves_backwards_dict = {}
             if limit_color == 'black_move' and move_num == limit_moves:
                 # Selected move is black, so ignore the white move on that same move number and break 
-                moves_backwards_list.append(df_prior_moves.loc[move_num, 'black_move'])
+                moves_backwards_dict[move_num] = df_prior_moves.loc[move_num, 'black_move']
+                moves_backwards_list.append(moves_backwards_dict)
                 break
             elif df_prior_moves.loc[move_num, 'black_move'] == '':
                 # Current move has no black move yet, so ignore adding that to list
                 pass
             else:
-                moves_backwards_list.append(df_prior_moves.loc[move_num, 'black_move'])
-            moves_backwards_list.append(df_prior_moves.loc[move_num, 'white_move'])
+                moves_backwards_dict[move_num] = df_prior_moves.loc[move_num, 'black_move']
+                moves_backwards_list.append(moves_backwards_dict)
+                moves_backwards_dict = {}
+            moves_backwards_dict[move_num] = df_prior_moves.loc[move_num, 'white_move']
+            moves_backwards_list.append(moves_backwards_dict)
         return moves_backwards_list
         
 
