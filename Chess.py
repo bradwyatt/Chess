@@ -1588,12 +1588,13 @@ def main():
                             Move_Controller.undo_move(game_controller)
                         if PREV_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
                             #%% Working on prev move button
-                            if Move_Tracker.selected_move[1] == "black_move":
-                                Move_Tracker.selected_move = Move_Tracker.selected_move[0], "white_move"
-                            else:
-                                Move_Tracker.selected_move = Move_Tracker.selected_move[0]-1, "black_move"
-                            print("Selected move: " + str(Move_Tracker.selected_move))
-                            Switch_Modes_Controller.replayed_game(True, game_controller)
+                            if Move_Tracker.selected_move[0] != 1 or Move_Tracker.selected_move[1] != "white_move":
+                                if Move_Tracker.selected_move[1] == "black_move":
+                                    Move_Tracker.selected_move = Move_Tracker.selected_move[0], "white_move"
+                                else:
+                                    Move_Tracker.selected_move = Move_Tracker.selected_move[0]-1, "black_move"
+                                print("Selected move: " + str(Move_Tracker.selected_move))
+                                Switch_Modes_Controller.replayed_game(True, game_controller)
                         # When clicking on a move on the right pane, it is your selected move
                         for piece_move_rect in PieceMoveRectangle.rectangle_list:
                             if piece_move_rect.rect.collidepoint(MOUSEPOS) and piece_move_rect.text_is_visible:
