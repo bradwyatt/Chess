@@ -2,17 +2,8 @@
 Chess created by Brad Wyatt
 
 Features To-Do (short-term):
-Play back moves
-Be able to click on a move in the pane to view it
---> One idea I had before was replayed mode (mode between edit and play)
---> I think the right thing to do would take the df_prior_moves to get the move. The tricky part is differentiating this from Undo move (through a conditional variable checking within each class for example). And coloring prior_move_color appropriately.
+Fix scroll bar with move buttons
 Menu objects are still invisible yet clickable
-
-Buttons to Implement:
-Previous Move
-Next Move
-Beginning of Game
-Latest move
 
 Clean Code Ideas:
 Edit_Mode_Controller to handle all the clicking event functions
@@ -30,7 +21,6 @@ Splitting groups of statements that were for after clicking into functions and m
 Feedback
 
 Optional:
-Perhaps using a direction arrow (like babaschess) to determine which piece could take the other piece. This could get confusing when flipping board though
 AI
 """
 import board
@@ -1642,6 +1632,12 @@ def main():
                             else:
                                 # Last move 
                                 Switch_Modes_Controller.replayed_game(False, game_controller)
+                        if LAST_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
+                            if Move_Tracker.df_moves.loc[Move_Tracker.move_counter(), "black_move"] == "":
+                                Move_Tracker.selected_move = Move_Tracker.move_counter(), "white_move"
+                            else:
+                                Move_Tracker.selected_move = Move_Tracker.move_counter(), "black_move"
+                            Switch_Modes_Controller.replayed_game(False, game_controller)
                         # When clicking on a move on the right pane, it is your selected move
                         for piece_move_rect in PieceMoveRectangle.rectangle_list:
                             if piece_move_rect.rect.collidepoint(MOUSEPOS) and piece_move_rect.text_is_visible:
