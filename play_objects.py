@@ -6,20 +6,20 @@ PLAY_SPRITES = pygame.sprite.Group()
 
 class Piece_Lists_Shortcut():
     def all_pieces():
-        return [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
+        return [PlayKing.black_king_list, PlayKing.white_king_list,
+                PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
                 PlayKnight.white_knight_list, PlayRook.white_rook_list, 
-                PlayQueen.white_queen_list, PlayKing.white_king_list,
-                PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
-                PlayKnight.black_knight_list, PlayRook.black_rook_list, 
-                PlayQueen.black_queen_list, PlayKing.black_king_list]
+                PlayQueen.white_queen_list, PlayPawn.black_pawn_list, 
+                PlayBishop.black_bishop_list, PlayKnight.black_knight_list, 
+                PlayRook.black_rook_list, PlayQueen.black_queen_list]
     def white_pieces():
-        return [PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 
-                PlayKnight.white_knight_list, PlayRook.white_rook_list, 
-                PlayQueen.white_queen_list, PlayKing.white_king_list]
+        return [PlayKing.white_king_list, PlayPawn.white_pawn_list,  
+                PlayBishop.white_bishop_list, PlayKnight.white_knight_list, 
+                PlayRook.white_rook_list, PlayQueen.white_queen_list]
     def black_pieces():
-        return [PlayPawn.black_pawn_list, PlayBishop.black_bishop_list, 
-                PlayKnight.black_knight_list, PlayRook.black_rook_list, 
-                PlayQueen.black_queen_list, PlayKing.black_king_list]
+        return [PlayKing.black_king_list, PlayPawn.black_pawn_list,  
+                PlayBishop.black_bishop_list, PlayKnight.black_knight_list, 
+                PlayRook.black_rook_list, PlayQueen.black_queen_list]
 
 class ChessPiece:
     def __init__(self, coord, image, col):
@@ -343,22 +343,26 @@ def bishop_direction_spaces_available(bishop, game_controller, x, y):
                         grid.highlight(bishop.color, bishop.coordinate)
                     # If current king is in check
                     elif game_controller.color_in_check == bishop.color:
+                        
                         # Disable piece if it is pinned and checked from another enemy piece
-                        if bishop.pinned == True:
-                            bishop.disable = True
-                            return
-                        # Block path of enemy bishop, rook, or queen 
-                        # You cannot have multiple spaces in one direction when blocking so return
-                        elif grid.coordinate in game_controller.check_attacking_coordinates[:-1] \
-                            and (game_controller.attacker_piece == "bishop" or game_controller.attacker_piece == "rook" \
-                                 or game_controller.attacker_piece == "queen"):
-                            grid.highlight(bishop.color, bishop.coordinate)
-                            return
-                        # The only grid available is the attacker piece when pawn or knight
-                        elif grid.coordinate == game_controller.check_attacking_coordinates[0] \
-                            and (game_controller.attacker_piece == "pawn" or game_controller.attacker_piece == "knight"):
-                            grid.highlight(bishop.color, bishop.coordinate)
-                            return
+                        try:
+                            if bishop.pinned == True:
+                                bishop.disable = True
+                                return
+                            # Block path of enemy bishop, rook, or queen 
+                            # You cannot have multiple spaces in one direction when blocking so return
+                            elif grid.coordinate in game_controller.check_attacking_coordinates[:-1] \
+                                and (game_controller.attacker_piece == "bishop" or game_controller.attacker_piece == "rook" \
+                                     or game_controller.attacker_piece == "queen"):
+                                grid.highlight(bishop.color, bishop.coordinate)
+                                return
+                            # The only grid available is the attacker piece when pawn or knight
+                            elif grid.coordinate == game_controller.check_attacking_coordinates[0] \
+                                and (game_controller.attacker_piece == "pawn" or game_controller.attacker_piece == "knight"):
+                                grid.highlight(bishop.color, bishop.coordinate)
+                                return
+                        except:
+                            print("BISHOP COORD " + str(bishop.coordinate))
                     # If pinned and the grid is within the attacking coordinates restraint
                     # Includes grid.coordinate != self.coordinate so that staying at same coordinate doesn't count as move
                     elif(bishop.pinned == True and grid.coordinate in bishop.pin_attacking_coordinates \

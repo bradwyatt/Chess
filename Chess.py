@@ -563,8 +563,6 @@ class Grid_Controller():
                         piece.prior_move_color = False
                     piece.no_highlight()
         else:
-            #%% Prior move color func
-            #print("PIECE: " + str(prior_move_piece) + " with coordinate " + str(prior_move_piece.coordinate))
             # Updating prior move sprites for replayed objects
             for piece_list in replayed_objects.Piece_Lists_Shortcut.all_pieces():
                 for piece in piece_list:
@@ -711,7 +709,6 @@ class Switch_Modes_Controller():
         old_piece = Grid_Controller.piece_on_grid(old_grid_coordinate_after)
         Grid_Controller.prior_move_color(old_grid_coordinate_before, old_piece)
     def replayed_game(replayed, game_controller):
-        #%% Working on currently
         Switch_Modes_Controller.REPLAYED = replayed
         if Switch_Modes_Controller.REPLAYED == True:
             replayed_objects.remove_all_replayed()
@@ -1122,11 +1119,12 @@ class Move_Controller():
                 Move_Tracker.undo_move_in_dfs("black")
                 game_controller.switch_turn("black")
                 Grid_Controller.update_prior_move_color("black")
+                print("TESTING123")
+                #%% Trying to resolve issue where we undo move into check
                 Move_Controller.game_status_check(game_controller)
                 log.info("Back to (" + str(len(Move_Tracker.df_moves)) + ".) " + "Black undo turn " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
             elif game_controller.WHOSETURN == "black":
                 for piece_to_undo in pieces_to_undo:
-                    #print("PIECES TO UNDO " + str(piece_to_undo) + " LIST " + str(piece_to_undo.coordinate_history))
                     piece_to_undo.coordinate = piece_to_undo.coordinate_history[Move_Tracker.move_counter()]['before']
                     piece_to_undo.rect.topleft = board.Grid.grid_dict[piece_to_undo.coordinate].rect.topleft
                     del piece_to_undo.coordinate_history[Move_Tracker.move_counter()]
