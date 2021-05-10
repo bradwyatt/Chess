@@ -1595,12 +1595,17 @@ def main():
                             Switch_Modes_Controller.replayed_game(True, game_controller, True)
                             Move_Tracker.selected_move = (0, "black_move")
                         if PREV_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
-                            #if Move_Tracker.selected_move[0] != 1 or Move_Tracker.selected_move[1] != "white_move":
-                            if Move_Tracker.selected_move[1] == "black_move":
+                            if Move_Tracker.selected_move = (0, "black_move"):
+                                pass
+                            elif Move_Tracker.selected_move == (1, "white_move"):
+                                Switch_Modes_Controller.replayed_game(True, game_controller, True)
+                                Move_Tracker.selected_move = (0, "black_move")
+                            elif Move_Tracker.selected_move[1] == "black_move":
                                 Move_Tracker.selected_move = Move_Tracker.selected_move[0], "white_move"
+                                Switch_Modes_Controller.replayed_game(True, game_controller)
                             else:
                                 Move_Tracker.selected_move = Move_Tracker.selected_move[0]-1, "black_move"
-                            Switch_Modes_Controller.replayed_game(True, game_controller)
+                                Switch_Modes_Controller.replayed_game(True, game_controller)
                         if NEXT_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
                             if Move_Tracker.selected_move[0] != Move_Tracker.move_counter():
                                 # When selected move is not at the last move number
