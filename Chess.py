@@ -583,7 +583,7 @@ class Grid_Controller():
                 for piece in piece_list:
                     if grid_coordinate == piece.coordinate:
                         return piece
-    def update_prior_move_color(whoseturn):
+    def update_prior_move_color(whoseturn=None):
         if Move_Tracker.move_counter() == 0:
             for grid in board.Grid.grid_list:
                 grid.prior_move_color = False
@@ -604,6 +604,15 @@ class Grid_Controller():
                     for move_num in piece.coordinate_history:
                         if move_num == Move_Tracker.move_counter():
                             Grid_Controller.prior_move_color(piece.coordinate_history[move_num]['before'], piece)
+        else:
+            # Replayed use case
+            for grid in board.Grid.grid_list:
+                grid.prior_move_color = False
+                grid.no_highlight()
+            for piece_list in replayed_objects.Piece_Lists_Shortcut.all_pieces():
+                for piece in piece_list:
+                    piece.prior_move_color = False
+                    piece.prior_move_update()
         
 
 class Switch_Modes_Controller():
@@ -1593,12 +1602,14 @@ def main():
                         if BEGINNING_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
                             Move_Tracker.selected_move = 1, "white_move"
                             Switch_Modes_Controller.replayed_game(True, game_controller, True)
+                            Grid_Controller.update_prior_move_color()
                             Move_Tracker.selected_move = (0, "black_move")
                         if PREV_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
                             if Move_Tracker.selected_move == (0, "black_move"):
                                 pass
                             elif Move_Tracker.selected_move == (1, "white_move"):
                                 Switch_Modes_Controller.replayed_game(True, game_controller, True)
+                                Grid_Controller.update_prior_move_color()
                                 Move_Tracker.selected_move = (0, "black_move")
                             elif Move_Tracker.selected_move[1] == "black_move":
                                 Move_Tracker.selected_move = Move_Tracker.selected_move[0], "white_move"
