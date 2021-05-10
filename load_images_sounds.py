@@ -104,6 +104,7 @@ load_image("Sprites/positions_loadfile.png", "SPR_POS_LOAD_FILE_BUTTON", True, T
 load_image("Sprites/flipboard.png", "SPR_FLIP_BOARD_BUTTON", True, True)
 load_image("Sprites/gamepropertiesbutton.png", "SPR_GAME_PROPERTIES_BUTTON", True, True)
 load_image("Sprites/beginning_move_button.png", "SPR_BEGINNING_MOVE_BUTTON", True, True)
+load_image("Sprites/undo_move_button.png", "SPR_UNDO_MOVE_BUTTON", True, True)
 load_image("Sprites/last_move_button.png", "SPR_LAST_MOVE_BUTTON", True, True)
 load_image("Sprites/next_move_button.png", "SPR_NEXT_MOVE_BUTTON", True, True)
 load_image("Sprites/prev_move_button.png", "SPR_PREV_MOVE_BUTTON", True, True)

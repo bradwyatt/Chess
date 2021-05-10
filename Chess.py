@@ -1525,6 +1525,7 @@ def main():
         PREV_MOVE_BUTTON = PrevMoveButton(initvar.PREV_MOVE_BUTTON_TOPLEFT)
         NEXT_MOVE_BUTTON = NextMoveButton(initvar.NEXT_MOVE_BUTTON_TOPLEFT)
         LAST_MOVE_BUTTON = LastMoveButton(initvar.LAST_MOVE_BUTTON_TOPLEFT)
+        UNDO_MOVE_BUTTON = UndoMoveButton(initvar.UNDO_MOVE_BUTTON_TOPLEFT)
         
         #Backgrounds
         INFO_SCREEN = pygame.image.load("Sprites/infoscreen.bmp").convert()
