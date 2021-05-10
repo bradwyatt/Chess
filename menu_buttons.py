@@ -143,6 +143,14 @@ class PrevMoveButton(pygame.sprite.Sprite):
         self.rect.topleft = pos
         PLAY_PANEL_SPRITES.add(self)
         
+class UndoMoveButton(pygame.sprite.Sprite):
+    def __init__(self, pos):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = IMAGES["SPR_UNDO_MOVE_BUTTON"]
+        self.rect = self.image.get_rect()
+        self.rect.topleft = pos
+        PLAY_PANEL_SPRITES.add(self)
+        
 class PanelRectangles(pygame.sprite.Sprite):
     scroll_range = [1, initvar.MOVES_PANE_MAX_MOVES]
     def __init__(self, move_number, x, y, width, height):

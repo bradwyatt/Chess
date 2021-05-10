@@ -1585,7 +1585,7 @@ def main():
                             Grid_Controller.flip_grids()
                             if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
                                 game_controller.captured_pieces_flip(Grid_Controller.flipped)
-                        if PREV_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
+                        if UNDO_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
                             Move_Controller.undo_move(game_controller)
                         # When clicking on a move on the right pane, it is your selected move
                         for piece_move_rect in PieceMoveRectangle.rectangle_list:
