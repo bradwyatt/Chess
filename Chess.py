@@ -1587,20 +1587,41 @@ def main():
                         if UNDO_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
                             Move_Controller.undo_move(game_controller)
                         if PREV_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
-                            #%% Working on prev move button
                             if Move_Tracker.selected_move[0] != 1 or Move_Tracker.selected_move[1] != "white_move":
                                 if Move_Tracker.selected_move[1] == "black_move":
                                     Move_Tracker.selected_move = Move_Tracker.selected_move[0], "white_move"
                                 else:
                                     Move_Tracker.selected_move = Move_Tracker.selected_move[0]-1, "black_move"
-                                print("Selected move: " + str(Move_Tracker.selected_move))
                                 Switch_Modes_Controller.replayed_game(True, game_controller)
+                        if NEXT_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
+                            if Move_Tracker.selected_move[0] != Move_Tracker.move_counter():
+                                # When selected move is not at the last move number
+                                if Move_Tracker.selected_move[1] == "black_move":
+                                    # When selected move is not at last move number and we are at black move
+                                    Move_Tracker.selected_move = Move_Tracker.selected_move[0]+1, "white_move"
+                                    if Move_Tracker.selected_move[0] == Move_Tracker.move_counter() and \
+                                        Move_Tracker.df_moves.loc[Move_Tracker.move_counter(), "black_move"] == "":
+                                            # Went to last move number and there is no black move yet
+                                            Switch_Modes_Controller.replayed_game(False, game_controller)
+                                elif Move_Tracker.selected_move[1] == "white_move":
+                                    # When selected move is not at last move number and we are at white move
+                                    Move_Tracker.selected_move = Move_Tracker.selected_move[0], "black_move"
+                                    Switch_Modes_Controller.replayed_game(True, game_controller)
+                            elif Move_Tracker.selected_move[0] == Move_Tracker.move_counter() \
+                                and Move_Tracker.df_moves.loc[Move_Tracker.move_counter(), "black_move"] != "" \
+                                    and Move_Tracker.selected_move[1] == "white_move":
+                                        # We are at last move (and black has not moved yet)
+                                        Move_Tracker.selected_move = Move_Tracker.selected_move[0], "black_move"
+                                        Switch_Modes_Controller.replayed_game(False, game_controller)
+                            else:
+                                # Last move 
+                                Switch_Modes_Controller.replayed_game(False, game_controller)
                         # When clicking on a move on the right pane, it is your selected move
                         for piece_move_rect in PieceMoveRectangle.rectangle_list:
                             if piece_move_rect.rect.collidepoint(MOUSEPOS) and piece_move_rect.text_is_visible:
                                 Move_Tracker.selected_move = (piece_move_rect.move_number, piece_move_rect.move_color)
-                                if Move_Tracker.selected_move[0] == len(Move_Tracker.df_moves):
-                                    if Move_Tracker.df_moves.loc[len(Move_Tracker.df_moves), "black_move"] != "" \
+                                if Move_Tracker.selected_move[0] == Move_Tracker.move_counter():
+                                    if Move_Tracker.df_moves.loc[Move_Tracker.move_counter(), "black_move"] != "" \
                                         and piece_move_rect.move_color == "white_move":
                                             Switch_Modes_Controller.replayed_game(True, game_controller)
                                     else:
