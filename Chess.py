@@ -1124,7 +1124,6 @@ class Move_Controller():
                 scroll_to_latest_move(Move_Tracker.move_counter())
                 game_controller.switch_turn("black", undo=True)
                 Grid_Controller.update_prior_move_color("black")
-                #%% Trying to resolve issue where we undo move into check
                 Move_Controller.game_status_check(game_controller)
                 log.info("Back to (" + str(len(Move_Tracker.df_moves)) + ".) " + "Black undo turn " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
             elif game_controller.WHOSETURN == "black":
@@ -1587,6 +1586,14 @@ def main():
                                 game_controller.captured_pieces_flip(Grid_Controller.flipped)
                         if UNDO_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
                             Move_Controller.undo_move(game_controller)
+                        if PREV_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
+                            #%% Working on prev move button
+                            if Move_Tracker.selected_move[1] == "black_move":
+                                Move_Tracker.selected_move = Move_Tracker.selected_move[0], "white_move"
+                            else:
+                                Move_Tracker.selected_move = Move_Tracker.selected_move[0]-1, "black_move"
+                            print("Selected move: " + str(Move_Tracker.selected_move))
+                            Switch_Modes_Controller.replayed_game(True, game_controller)
                         # When clicking on a move on the right pane, it is your selected move
                         for piece_move_rect in PieceMoveRectangle.rectangle_list:
                             if piece_move_rect.rect.collidepoint(MOUSEPOS) and piece_move_rect.text_is_visible:
