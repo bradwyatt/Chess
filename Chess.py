@@ -1595,7 +1595,7 @@ def main():
                             Switch_Modes_Controller.replayed_game(True, game_controller, True)
                             Move_Tracker.selected_move = (0, "black_move")
                         if PREV_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
-                            if Move_Tracker.selected_move = (0, "black_move"):
+                            if Move_Tracker.selected_move == (0, "black_move"):
                                 pass
                             elif Move_Tracker.selected_move == (1, "white_move"):
                                 Switch_Modes_Controller.replayed_game(True, game_controller, True)
