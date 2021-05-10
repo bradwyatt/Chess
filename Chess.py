@@ -1117,10 +1117,11 @@ class Move_Controller():
                     play_objects.PlayQueen.black_queen_list.remove(queen)
                 if pieces_to_undo[0] in play_objects.PlayPawn.black_pawn_list:
                     pieces_to_undo[0].taken_off_board = False
-                PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['black_move'].text_is_visible = False
+                PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['black_move'].move_notation = ""
                 PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['black_move'].kill()
                 del PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['black_move']
                 Move_Tracker.undo_move_in_dfs("black")
+                scroll_to_latest_move(Move_Tracker.move_counter())
                 game_controller.switch_turn("black", undo=True)
                 Grid_Controller.update_prior_move_color("black")
                 #%% Trying to resolve issue where we undo move into check
@@ -1147,12 +1148,13 @@ class Move_Controller():
                     play_objects.PlayQueen.white_queen_list.remove(queen)
                 if pieces_to_undo[0] in play_objects.PlayPawn.white_pawn_list:
                     pieces_to_undo[0].taken_off_board = False
-                PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['white_move'].text_is_visible = False
+                PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['white_move'].move_notation = ""
                 PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['white_move'].kill()
                 del PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]
                 MoveNumberRectangle.rectangle_dict[Move_Tracker.move_counter()].text = ""
                 MoveNumberRectangle.rectangle_dict[Move_Tracker.move_counter()].kill()
                 Move_Tracker.undo_move_in_dfs("white")
+                scroll_to_latest_move(Move_Tracker.move_counter())
                 game_controller.switch_turn("white", undo=True)
                 Grid_Controller.update_prior_move_color("white")
                 Move_Controller.game_status_check(game_controller)
@@ -1396,7 +1398,6 @@ class Move_Controller():
         Preferences.Result = game_controller.result_abb
         return check_abb
     def record_move(game_controller, grid, piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen=None):
-        check_abb = ""
         if(game_controller.WHOSETURN == "white"):
             # Log the move
             # Record the move in the df_moves dataframe
@@ -1447,7 +1448,7 @@ def draw_text_on_rects_in_moves_pane(surface, my_font):
             surface.blit(move_notation_text, (piece_move_rect.x, piece_move_rect.y))
 
 def scroll_to_latest_move(latest_move_number):
-    if latest_move_number > initvar.MOVES_PANE_MAX_MOVES:
+    if latest_move_number >= initvar.MOVES_PANE_MAX_MOVES:
         PanelRectangles.scroll_range[0] = latest_move_number - (initvar.MOVES_PANE_MAX_MOVES-1)
         PanelRectangles.scroll_range[1] = latest_move_number
         for move_num_rect in MoveNumberRectangle.rectangle_list:
