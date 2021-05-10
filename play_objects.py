@@ -329,7 +329,6 @@ def bishop_projected(piece_name, piece, game_controller, x, y):
                     if((grid.coordinate[0] == 'a' and x == -1) or (grid.coordinate[0] == 'h' and x == 1) or \
                        (int(grid.coordinate[1]) == 8 and y == 1) or (int(grid.coordinate[1]) == 1 and y == -1)):
                         game_controller.king_in_check(piece_name, piece.coordinate, proj_attacking_coordinates, piece.enemy_color)
-                        print("Queen test 2 " + str(game_controller.check_attacking_coordinates))
                         return
 
 def bishop_direction_spaces_available(bishop, game_controller, x, y):
@@ -344,9 +343,7 @@ def bishop_direction_spaces_available(bishop, game_controller, x, y):
                         grid.highlight(bishop.color, bishop.coordinate)
                     # If current king is in check
                     elif game_controller.color_in_check == bishop.color:
-                        
                         # Disable piece if it is pinned and checked from another enemy piece
-                        try:
                             if bishop.pinned == True:
                                 bishop.disable = True
                                 return
@@ -362,8 +359,6 @@ def bishop_direction_spaces_available(bishop, game_controller, x, y):
                                 and (game_controller.attacker_piece == "pawn" or game_controller.attacker_piece == "knight"):
                                 grid.highlight(bishop.color, bishop.coordinate)
                                 return
-                        except:
-                            print("BISHOP COORD " + str(bishop.coordinate))
                     # If pinned and the grid is within the attacking coordinates restraint
                     # Includes grid.coordinate != self.coordinate so that staying at same coordinate doesn't count as move
                     elif(bishop.pinned == True and grid.coordinate in bishop.pin_attacking_coordinates \
@@ -376,8 +371,6 @@ def bishop_direction_spaces_available(bishop, game_controller, x, y):
                 elif grid.occupied == 1 and grid.occupied_piece_color == bishop.enemy_color:
                     # Check_Attacking_Coordinates only exists when there is check
                     if game_controller.color_in_check == bishop.color:
-                        print("PROBLEM GRID " + str(grid.coordinate))
-                        print("checkattackingcoords " + str(game_controller.check_attacking_coordinates))
                         if grid.coordinate in game_controller.check_attacking_coordinates[:-1] \
                             and (game_controller.attacker_piece == "bishop" or game_controller.attacker_piece == "rook" \
                                  or game_controller.attacker_piece == "queen"):
