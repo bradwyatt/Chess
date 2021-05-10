@@ -343,9 +343,7 @@ def bishop_direction_spaces_available(bishop, game_controller, x, y):
                         grid.highlight(bishop.color, bishop.coordinate)
                     # If current king is in check
                     elif game_controller.color_in_check == bishop.color:
-                        
                         # Disable piece if it is pinned and checked from another enemy piece
-                        try:
                             if bishop.pinned == True:
                                 bishop.disable = True
                                 return
@@ -361,8 +359,6 @@ def bishop_direction_spaces_available(bishop, game_controller, x, y):
                                 and (game_controller.attacker_piece == "pawn" or game_controller.attacker_piece == "knight"):
                                 grid.highlight(bishop.color, bishop.coordinate)
                                 return
-                        except:
-                            print("BISHOP COORD " + str(bishop.coordinate))
                     # If pinned and the grid is within the attacking coordinates restraint
                     # Includes grid.coordinate != self.coordinate so that staying at same coordinate doesn't count as move
                     elif(bishop.pinned == True and grid.coordinate in bishop.pin_attacking_coordinates \

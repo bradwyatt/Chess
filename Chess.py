@@ -852,7 +852,7 @@ class Game_Controller():
         MoveNumberRectangle.rectangle_dict = {}
         PieceMoveRectangle.rectangle_dict = {}
         PanelRectangles.scroll_range = [1, initvar.MOVES_PANE_MAX_MOVES]
-    def switch_turn(self, color_turn):
+    def switch_turn(self, color_turn, undo=False):
         self.WHOSETURN = color_turn
         self.check_attacking_coordinates = []
         self.attacker_piece = ""
@@ -868,9 +868,10 @@ class Game_Controller():
                 piece.pinned = False
                 piece.disable = False
         if self.WHOSETURN == "white":
-            # Since black just moved, there are no check attacking pieces from white
-            if self.color_in_check == "black":
-                self.color_in_check = ""
+            if undo == False:
+                # Since black just moved, there are no check attacking pieces from white
+                if self.color_in_check == "black":
+                    self.color_in_check = ""
             self.projected_black_update()
             self.projected_white_update()
             # If white king is not in check, reset color_in_check, else white in check
@@ -887,12 +888,14 @@ class Game_Controller():
                             for piece in piece_list:
                                 piece.disable = True
         elif self.WHOSETURN == "black":
-            # Since black just moved, there are no check attacking pieces from white
-            if self.color_in_check == "white":
-                self.color_in_check = ""
-            # Project squares for white and black pieces
+            if undo == False:
+                # Since black just moved, there are no check attacking pieces from white
+                if self.color_in_check == "white":
+                    self.color_in_check = ""
+                # Project squares for white and black pieces
             self.projected_white_update()
             self.projected_black_update()
+            
             # If black king is not in check, reset color_in_check, else black in check
             for black_king in play_objects.PlayKing.black_king_list:
                 if board.Grid.grid_dict[black_king.coordinate].coords_of_attacking_pieces['white'] == []:
@@ -1098,6 +1101,7 @@ class Move_Controller():
                     piece_to_undo.coordinate = piece_to_undo.coordinate_history[Move_Tracker.move_counter()]['before']
                     piece_to_undo.rect.topleft = board.Grid.grid_dict[piece_to_undo.coordinate].rect.topleft
                     del piece_to_undo.coordinate_history[Move_Tracker.move_counter()]
+                    Grid_Controller.grid_occupied_by_piece(board.Grid.grid_dict[piece_to_undo.coordinate])
                 if 'O-O' or 'O-O-O' in piece_coordinate_move_notation:
                     for black_king in play_objects.PlayKing.black_king_list:
                         if black_king in pieces_to_undo:
@@ -1113,13 +1117,13 @@ class Move_Controller():
                     play_objects.PlayQueen.black_queen_list.remove(queen)
                 if pieces_to_undo[0] in play_objects.PlayPawn.black_pawn_list:
                     pieces_to_undo[0].taken_off_board = False
-                PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['black_move'].text_is_visible = False
+                PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['black_move'].move_notation = ""
                 PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['black_move'].kill()
                 del PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['black_move']
                 Move_Tracker.undo_move_in_dfs("black")
-                game_controller.switch_turn("black")
+                scroll_to_latest_move(Move_Tracker.move_counter())
+                game_controller.switch_turn("black", undo=True)
                 Grid_Controller.update_prior_move_color("black")
-                print("TESTING123")
                 #%% Trying to resolve issue where we undo move into check
                 Move_Controller.game_status_check(game_controller)
                 log.info("Back to (" + str(len(Move_Tracker.df_moves)) + ".) " + "Black undo turn " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
@@ -1128,6 +1132,7 @@ class Move_Controller():
                     piece_to_undo.coordinate = piece_to_undo.coordinate_history[Move_Tracker.move_counter()]['before']
                     piece_to_undo.rect.topleft = board.Grid.grid_dict[piece_to_undo.coordinate].rect.topleft
                     del piece_to_undo.coordinate_history[Move_Tracker.move_counter()]
+                    Grid_Controller.grid_occupied_by_piece(board.Grid.grid_dict[piece_to_undo.coordinate])
                 if 'O-O' or 'O-O-O' in piece_coordinate_move_notation:
                     for white_king in play_objects.PlayKing.white_king_list:
                         if white_king in pieces_to_undo:
@@ -1143,13 +1148,14 @@ class Move_Controller():
                     play_objects.PlayQueen.white_queen_list.remove(queen)
                 if pieces_to_undo[0] in play_objects.PlayPawn.white_pawn_list:
                     pieces_to_undo[0].taken_off_board = False
-                PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['white_move'].text_is_visible = False
+                PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['white_move'].move_notation = ""
                 PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['white_move'].kill()
                 del PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]
                 MoveNumberRectangle.rectangle_dict[Move_Tracker.move_counter()].text = ""
                 MoveNumberRectangle.rectangle_dict[Move_Tracker.move_counter()].kill()
                 Move_Tracker.undo_move_in_dfs("white")
-                game_controller.switch_turn("white")
+                scroll_to_latest_move(Move_Tracker.move_counter())
+                game_controller.switch_turn("white", undo=True)
                 Grid_Controller.update_prior_move_color("white")
                 Move_Controller.game_status_check(game_controller)
                 log.info("Back to (" + str(len(Move_Tracker.df_moves)) + ".) " + "White undo turn " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
@@ -1392,7 +1398,6 @@ class Move_Controller():
         Preferences.Result = game_controller.result_abb
         return check_abb
     def record_move(game_controller, grid, piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen=None):
-        check_abb = ""
         if(game_controller.WHOSETURN == "white"):
             # Log the move
             # Record the move in the df_moves dataframe
@@ -1443,7 +1448,7 @@ def draw_text_on_rects_in_moves_pane(surface, my_font):
             surface.blit(move_notation_text, (piece_move_rect.x, piece_move_rect.y))
 
 def scroll_to_latest_move(latest_move_number):
-    if latest_move_number > initvar.MOVES_PANE_MAX_MOVES:
+    if latest_move_number >= initvar.MOVES_PANE_MAX_MOVES:
         PanelRectangles.scroll_range[0] = latest_move_number - (initvar.MOVES_PANE_MAX_MOVES-1)
         PanelRectangles.scroll_range[1] = latest_move_number
         for move_num_rect in MoveNumberRectangle.rectangle_list:
