@@ -1369,11 +1369,7 @@ class Move_Controller():
             Text_Controller.check_checkmate_text = "Black King checked"
             for piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
                 for sub_piece in piece_list:
-                    #%% Error here
-                    try:
-                        sub_piece.spaces_available(game_controller)
-                    except:
-                        print("ISSUE!")
+                    sub_piece.spaces_available(game_controller)
             check_abb, game_controller.result_abb = checkmate_check(game_controller, 'black')
         elif game_controller.color_in_check == "white":
             Text_Controller.check_checkmate_text = "White King checked"
