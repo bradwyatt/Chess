@@ -32,12 +32,12 @@ StartPiecesBehind(IMAGES["SPR_BLACK_QUEEN"], initvar.STARTPOS['black_queen'])
 StartPiecesBehind(IMAGES["SPR_BLACK_KING"], initvar.STARTPOS['black_king'])
 
 class StartPawn(pygame.sprite.Sprite):
-    def __init__(self, col, pos):
+    def __init__(self, color, pos):
         pygame.sprite.Sprite.__init__(self)
-        self.col = col
-        if self.col == "white":
+        self.color = color
+        if self.color == "white":
             self.image = IMAGES["SPR_WHITE_PAWN"]
-        elif self.col == "black":
+        elif self.color == "black":
             self.image = IMAGES["SPR_BLACK_PAWN"]
         self.rect = self.image.get_rect() 
         self.rect.topleft = pos
@@ -46,12 +46,12 @@ class StartPawn(pygame.sprite.Sprite):
         pass
 
 class StartBishop(pygame.sprite.Sprite):
-    def __init__(self, col, pos):
+    def __init__(self, color, pos):
         pygame.sprite.Sprite.__init__(self)
-        self.col = col
-        if self.col == "white":
+        self.color = color
+        if self.color == "white":
             self.image = IMAGES["SPR_WHITE_BISHOP"]
-        elif self.col == "black":
+        elif self.color == "black":
             self.image = IMAGES["SPR_BLACK_BISHOP"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
@@ -60,12 +60,12 @@ class StartBishop(pygame.sprite.Sprite):
         pass
     
 class StartKnight(pygame.sprite.Sprite):
-    def __init__(self, col, pos):
+    def __init__(self, color, pos):
         pygame.sprite.Sprite.__init__(self)
-        self.col = col
-        if self.col == "white":
+        self.color = color
+        if self.color == "white":
             self.image = IMAGES["SPR_WHITE_KNIGHT"]
-        elif self.col == "black":
+        elif self.color == "black":
             self.image = IMAGES["SPR_BLACK_KNIGHT"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
@@ -74,12 +74,12 @@ class StartKnight(pygame.sprite.Sprite):
         pass
 
 class StartRook(pygame.sprite.Sprite):
-    def __init__(self, col, pos):
+    def __init__(self, color, pos):
         pygame.sprite.Sprite.__init__(self)
-        self.col = col
-        if self.col == "white":
+        self.color = color
+        if self.color == "white":
             self.image = IMAGES["SPR_WHITE_ROOK"]
-        elif self.col == "black":
+        elif self.color == "black":
             self.image = IMAGES["SPR_BLACK_ROOK"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
@@ -88,12 +88,12 @@ class StartRook(pygame.sprite.Sprite):
         pass
     
 class StartQueen(pygame.sprite.Sprite):
-    def __init__(self, col, pos):
+    def __init__(self, color, pos):
         pygame.sprite.Sprite.__init__(self)
-        self.col = col
-        if self.col == "white":
+        self.color = color
+        if self.color == "white":
             self.image = IMAGES["SPR_WHITE_QUEEN"]
-        elif self.col == "black":
+        elif self.color == "black":
             self.image = IMAGES["SPR_BLACK_QUEEN"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
@@ -102,12 +102,12 @@ class StartQueen(pygame.sprite.Sprite):
         pass
 
 class StartKing(pygame.sprite.Sprite):
-    def __init__(self, col, pos):
+    def __init__(self, color, pos):
         pygame.sprite.Sprite.__init__(self)
-        self.col = col
-        if self.col == "white":
+        self.color = color
+        if self.color == "white":
             self.image = IMAGES["SPR_WHITE_KING"]
-        elif self.col == "black":
+        elif self.color == "black":
             self.image = IMAGES["SPR_BLACK_KING"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
