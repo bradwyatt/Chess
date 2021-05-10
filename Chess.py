@@ -2,17 +2,8 @@
 Chess created by Brad Wyatt
 
 Features To-Do (short-term):
-Play back moves
-Be able to click on a move in the pane to view it
---> One idea I had before was replayed mode (mode between edit and play)
---> I think the right thing to do would take the df_prior_moves to get the move. The tricky part is differentiating this from Undo move (through a conditional variable checking within each class for example). And coloring prior_move_color appropriately.
+Fix scroll bar with move buttons
 Menu objects are still invisible yet clickable
-
-Buttons to Implement:
-Previous Move
-Next Move
-Beginning of Game
-Latest move
 
 Clean Code Ideas:
 Edit_Mode_Controller to handle all the clicking event functions
@@ -30,7 +21,6 @@ Splitting groups of statements that were for after clicking into functions and m
 Feedback
 
 Optional:
-Perhaps using a direction arrow (like babaschess) to determine which piece could take the other piece. This could get confusing when flipping board though
 AI
 """
 import board
@@ -583,7 +573,7 @@ class Grid_Controller():
                 for piece in piece_list:
                     if grid_coordinate == piece.coordinate:
                         return piece
-    def update_prior_move_color(whoseturn):
+    def update_prior_move_color(whoseturn=None):
         if Move_Tracker.move_counter() == 0:
             for grid in board.Grid.grid_list:
                 grid.prior_move_color = False
@@ -604,6 +594,15 @@ class Grid_Controller():
                     for move_num in piece.coordinate_history:
                         if move_num == Move_Tracker.move_counter():
                             Grid_Controller.prior_move_color(piece.coordinate_history[move_num]['before'], piece)
+        else:
+            # Replayed use case
+            for grid in board.Grid.grid_list:
+                grid.prior_move_color = False
+                grid.no_highlight()
+            for piece_list in replayed_objects.Piece_Lists_Shortcut.all_pieces():
+                for piece in piece_list:
+                    piece.prior_move_color = False
+                    piece.prior_move_update()
         
 
 class Switch_Modes_Controller():
@@ -646,8 +645,11 @@ class Switch_Modes_Controller():
                 class_obj(color, play_obj.coordinate_history, 
                           captured_move_number_and_coordinate=play_obj.captured_move_number_and_coordinate, 
                           out_of_bounds_x_y=play_obj.rect.topleft)
-    def rewind_moves():
+    def rewind_moves(start_beginning=False):
+        first_move = Switch_Modes_Controller.list_of_moves_backwards(Move_Tracker.df_prior_moves)[-1]
         list_of_moves_backwards = Switch_Modes_Controller.list_of_moves_backwards(Move_Tracker.df_prior_moves)[:-1]
+        if start_beginning == True:
+            list_of_moves_backwards.append(first_move)
         # list_of_moves_backwards list is ordered in descending order to the selected move
         for move_dict in list_of_moves_backwards:
             for replayed_obj_list in replayed_objects.Piece_Lists_Shortcut.all_pieces():
@@ -708,7 +710,7 @@ class Switch_Modes_Controller():
         old_grid_coordinate_after = ast.literal_eval(list(prior_move_grid_and_piece_highlight_dict.values())[0])['after']
         old_piece = Grid_Controller.piece_on_grid(old_grid_coordinate_after)
         Grid_Controller.prior_move_color(old_grid_coordinate_before, old_piece)
-    def replayed_game(replayed, game_controller):
+    def replayed_game(replayed, game_controller, start_beginning=False):
         Switch_Modes_Controller.REPLAYED = replayed
         if Switch_Modes_Controller.REPLAYED == True:
             replayed_objects.remove_all_replayed()
@@ -724,7 +726,7 @@ class Switch_Modes_Controller():
             Switch_Modes_Controller.play_to_replayed(play_objects.PlayRook.black_rook_list, replayed_objects.ReplayedRook, "black")
             Switch_Modes_Controller.play_to_replayed(play_objects.PlayQueen.black_queen_list, replayed_objects.ReplayedQueen, "black")
             Switch_Modes_Controller.play_to_replayed(play_objects.PlayKing.black_king_list, replayed_objects.ReplayedKing, "black")
-            Switch_Modes_Controller.rewind_moves()
+            Switch_Modes_Controller.rewind_moves(start_beginning)
         else:
             replayed_objects.remove_all_replayed()
             Grid_Controller.update_prior_move_color(game_controller.WHOSETURN)
@@ -1124,7 +1126,6 @@ class Move_Controller():
                 scroll_to_latest_move(Move_Tracker.move_counter())
                 game_controller.switch_turn("black", undo=True)
                 Grid_Controller.update_prior_move_color("black")
-                #%% Trying to resolve issue where we undo move into check
                 Move_Controller.game_status_check(game_controller)
                 log.info("Back to (" + str(len(Move_Tracker.df_moves)) + ".) " + "Black undo turn " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
             elif game_controller.WHOSETURN == "black":
@@ -1525,6 +1526,7 @@ def main():
         PREV_MOVE_BUTTON = PrevMoveButton(initvar.PREV_MOVE_BUTTON_TOPLEFT)
         NEXT_MOVE_BUTTON = NextMoveButton(initvar.NEXT_MOVE_BUTTON_TOPLEFT)
         LAST_MOVE_BUTTON = LastMoveButton(initvar.LAST_MOVE_BUTTON_TOPLEFT)
+        UNDO_MOVE_BUTTON = UndoMoveButton(initvar.UNDO_MOVE_BUTTON_TOPLEFT)
         
         #Backgrounds
         INFO_SCREEN = pygame.image.load("Sprites/infoscreen.bmp").convert()
@@ -1568,6 +1570,7 @@ def main():
                             state = DEBUG
                     # Menu, inanimate buttons at top, and on right side of game board
                     if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and MOUSEPOS[0] > initvar.X_GRID_END:
+                        #%% Left click buttons
                         if SCROLL_UP_BUTTON.rect.collidepoint(MOUSEPOS) and PanelRectangles.scroll_range[0] > 1: # Scroll up
                             update_scroll_range(-1)
                         if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS) and len(MoveNumberRectangle.rectangle_list) > initvar.MOVES_PANE_MAX_MOVES and PanelRectangles.scroll_range[1] < len(MoveNumberRectangle.rectangle_list): # Scroll down
@@ -1584,14 +1587,63 @@ def main():
                             Grid_Controller.flip_grids()
                             if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
                                 game_controller.captured_pieces_flip(Grid_Controller.flipped)
-                        if PREV_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
+                        if UNDO_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
                             Move_Controller.undo_move(game_controller)
+                        if BEGINNING_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
+                            Move_Tracker.selected_move = 1, "white_move"
+                            Switch_Modes_Controller.replayed_game(True, game_controller, True)
+                            Grid_Controller.update_prior_move_color()
+                            Move_Tracker.selected_move = (0, "black_move")
+                        if PREV_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
+                            if Move_Tracker.selected_move == (0, "black_move"):
+                                pass
+                            elif Move_Tracker.selected_move == (1, "white_move"):
+                                Switch_Modes_Controller.replayed_game(True, game_controller, True)
+                                Grid_Controller.update_prior_move_color()
+                                Move_Tracker.selected_move = (0, "black_move")
+                            elif Move_Tracker.selected_move[1] == "black_move":
+                                Move_Tracker.selected_move = Move_Tracker.selected_move[0], "white_move"
+                                Switch_Modes_Controller.replayed_game(True, game_controller)
+                            else:
+                                Move_Tracker.selected_move = Move_Tracker.selected_move[0]-1, "black_move"
+                                Switch_Modes_Controller.replayed_game(True, game_controller)
+                        if NEXT_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
+                            if Move_Tracker.selected_move[0] != Move_Tracker.move_counter():
+                                # When selected move is not at the last move number
+                                if Move_Tracker.selected_move[1] == "black_move":
+                                    # When selected move is not at last move number and we are at black move
+                                    Move_Tracker.selected_move = Move_Tracker.selected_move[0]+1, "white_move"
+                                    if Move_Tracker.selected_move[0] == Move_Tracker.move_counter() and \
+                                        Move_Tracker.df_moves.loc[Move_Tracker.move_counter(), "black_move"] == "":
+                                            # Went to last move number and there is no black move yet
+                                            Switch_Modes_Controller.replayed_game(False, game_controller)
+                                    else:
+                                        Switch_Modes_Controller.replayed_game(True, game_controller)
+                                elif Move_Tracker.selected_move[1] == "white_move":
+                                    # When selected move is not at last move number and we are at white move
+                                    Move_Tracker.selected_move = Move_Tracker.selected_move[0], "black_move"
+                                    Switch_Modes_Controller.replayed_game(True, game_controller)
+                            elif Move_Tracker.selected_move[0] == Move_Tracker.move_counter() \
+                                and Move_Tracker.df_moves.loc[Move_Tracker.move_counter(), "black_move"] != "" \
+                                    and Move_Tracker.selected_move[1] == "white_move":
+                                        # We are at last move (and black has not moved yet)
+                                        Move_Tracker.selected_move = Move_Tracker.selected_move[0], "black_move"
+                                        Switch_Modes_Controller.replayed_game(False, game_controller)
+                            else:
+                                # Last move 
+                                Switch_Modes_Controller.replayed_game(False, game_controller)
+                        if LAST_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
+                            if Move_Tracker.df_moves.loc[Move_Tracker.move_counter(), "black_move"] == "":
+                                Move_Tracker.selected_move = Move_Tracker.move_counter(), "white_move"
+                            else:
+                                Move_Tracker.selected_move = Move_Tracker.move_counter(), "black_move"
+                            Switch_Modes_Controller.replayed_game(False, game_controller)
                         # When clicking on a move on the right pane, it is your selected move
                         for piece_move_rect in PieceMoveRectangle.rectangle_list:
                             if piece_move_rect.rect.collidepoint(MOUSEPOS) and piece_move_rect.text_is_visible:
                                 Move_Tracker.selected_move = (piece_move_rect.move_number, piece_move_rect.move_color)
-                                if Move_Tracker.selected_move[0] == len(Move_Tracker.df_moves):
-                                    if Move_Tracker.df_moves.loc[len(Move_Tracker.df_moves), "black_move"] != "" \
+                                if Move_Tracker.selected_move[0] == Move_Tracker.move_counter():
+                                    if Move_Tracker.df_moves.loc[Move_Tracker.move_counter(), "black_move"] != "" \
                                         and piece_move_rect.move_color == "white_move":
                                             Switch_Modes_Controller.replayed_game(True, game_controller)
                                     else:
