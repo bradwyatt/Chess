@@ -1586,6 +1586,12 @@ def main():
                                 game_controller.captured_pieces_flip(Grid_Controller.flipped)
                         if UNDO_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
                             Move_Controller.undo_move(game_controller)
+                        if BEGINNING_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
+                            if Move_Tracker.selected_move[0] == 1 and Move_Tracker.selected_move[1] == "white_move":
+                                pass
+                            else:
+                                Move_Tracker.selected_move = 1, "white_move"
+                                Switch_Modes_Controller.replayed_game(True, game_controller)
                         if PREV_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
                             if Move_Tracker.selected_move[0] != 1 or Move_Tracker.selected_move[1] != "white_move":
                                 if Move_Tracker.selected_move[1] == "black_move":
@@ -1603,6 +1609,8 @@ def main():
                                         Move_Tracker.df_moves.loc[Move_Tracker.move_counter(), "black_move"] == "":
                                             # Went to last move number and there is no black move yet
                                             Switch_Modes_Controller.replayed_game(False, game_controller)
+                                    else:
+                                        Switch_Modes_Controller.replayed_game(True, game_controller)
                                 elif Move_Tracker.selected_move[1] == "white_move":
                                     # When selected move is not at last move number and we are at white move
                                     Move_Tracker.selected_move = Move_Tracker.selected_move[0], "black_move"
