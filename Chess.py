@@ -2,25 +2,23 @@
 Chess created by Brad Wyatt
 
 Features To-Do (short-term):
-Menu objects are still invisible yet clickable
+Menu objects are still invisible yet can be clickable
 
 Clean Code Ideas:
 Edit_Mode_Controller to handle all the clicking event functions
-Separate Panel in separate file?
+Panel classes in separate file (instead of menu_buttons)
+Getting rid of import *
+Splitting groups of statements that were for after clicking into functions and methods within class
+Feedback
 
 Features To-Do (long-term):
-Customized Turns for black and white
+Remove yellow highlight on grid (with test)
+Customized Turns for black and white (in these cases, substitute first move with "" ?)
 Choose piece for Promotion
 Sounds
 If no king then don't start game
-Remove yellow highlight on grid (with test)
-
-Testing/Code Improvements:
-Getting rid of import *?
-Splitting groups of statements that were for after clicking into functions and methods within classes
-Feedback
-
-Optional:
+Themes
+Grid using color rather than sprite
 AI
 """
 import board
@@ -1799,6 +1797,7 @@ def main():
                 GAME_MODE_SPRITES.draw(SCREEN)
                 board.GRID_SPRITES.draw(SCREEN)
                 Grid_Controller.update_grid()
+                start_objects.START_SPRITES.update(Switch_Modes_Controller.GAME_MODE)
                 
                 SCREEN.blit(initvar.MOVE_BG_IMAGE, (initvar.MOVE_BG_IMAGE_HEIGHT,initvar.MOVE_BG_IMAGE_WIDTH))
                 if(Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE): #Only draw placed sprites in editing mode

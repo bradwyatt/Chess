@@ -12,6 +12,12 @@ class ClearButton(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         start_objects.START_SPRITES.add(self)
+        self.clickable = True
+    def update(self, game_mode):
+        if game_mode == 0:
+            self.clickable = True
+        else:
+            self.clickable = False
     
 class InfoButton(pygame.sprite.Sprite):
     def __init__(self, pos):
@@ -20,6 +26,12 @@ class InfoButton(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         start_objects.START_SPRITES.add(self)
+        self.clickable = True
+    def update(self, game_mode):
+        if game_mode == 0:
+            self.clickable = True
+        else:
+            self.clickable = False
     
 class ResetBoardButton(pygame.sprite.Sprite):
     def __init__(self, pos):
@@ -28,6 +40,12 @@ class ResetBoardButton(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         start_objects.START_SPRITES.add(self)
+        self.clickable = True
+    def update(self, game_mode):
+        if game_mode == 0:
+            self.clickable = True
+        else:
+            self.clickable = False
     
 class ColorButton(pygame.sprite.Sprite):
     def __init__(self, pos):
@@ -36,6 +54,12 @@ class ColorButton(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         start_objects.START_SPRITES.add(self)
+        self.clickable = True
+    def update(self, game_mode):
+        if game_mode == 0:
+            self.clickable = True
+        else:
+            self.clickable = False
         
 class PosSaveFileButton(pygame.sprite.Sprite):
     def __init__(self, pos):
@@ -44,6 +68,12 @@ class PosSaveFileButton(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         start_objects.START_SPRITES.add(self)
+        self.clickable = True
+    def update(self, game_mode):
+        if game_mode == 0:
+            self.clickable = True
+        else:
+            self.clickable = False
     
 class PosLoadFileButton(pygame.sprite.Sprite):
     def __init__(self, pos):
@@ -52,6 +82,12 @@ class PosLoadFileButton(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         start_objects.START_SPRITES.add(self)
+        self.clickable = True
+    def update(self, game_mode):
+        if game_mode == 0:
+            self.clickable = True
+        else:
+            self.clickable = False
         
 class PGNSaveFileButton(pygame.sprite.Sprite):
     def __init__(self, pos):
@@ -69,6 +105,12 @@ class PGNLoadFileButton(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         start_objects.START_SPRITES.add(self)
+        self.clickable = True
+    def update(self, game_mode):
+        if game_mode == 0:
+            self.clickable = True
+        else:
+            self.clickable = False
 
 class FlipBoardButton(pygame.sprite.Sprite):
     def __init__(self, pos):
@@ -86,6 +128,12 @@ class GamePropertiesButton(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         start_objects.START_SPRITES.add(self)
+        self.clickable = True
+    def update(self, game_mode):
+        if game_mode == 0:
+            self.clickable = True
+        else:
+            self.clickable = False
         
 class ScrollUpButton(pygame.sprite.Sprite):
     def __init__(self, pos):

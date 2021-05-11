@@ -42,8 +42,12 @@ class StartPawn(pygame.sprite.Sprite):
         self.rect = self.image.get_rect() 
         self.rect.topleft = pos
         START_SPRITES.add(self)
-    def update(self):
-        pass
+        self.clickable = True
+    def update(self, game_mode):
+        if game_mode == 0:
+            self.clickable = True
+        else:
+            self.clickable = False
 
 class StartBishop(pygame.sprite.Sprite):
     def __init__(self, color, pos):
@@ -56,8 +60,12 @@ class StartBishop(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         START_SPRITES.add(self)
-    def update(self):
-        pass
+        self.clickable = True
+    def update(self, game_mode):
+        if game_mode == 0:
+            self.clickable = True
+        else:
+            self.clickable = False
     
 class StartKnight(pygame.sprite.Sprite):
     def __init__(self, color, pos):
@@ -70,8 +78,12 @@ class StartKnight(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         START_SPRITES.add(self)
-    def update(self):
-        pass
+        self.clickable = True
+    def update(self, game_mode):
+        if game_mode == 0:
+            self.clickable = True
+        else:
+            self.clickable = False
 
 class StartRook(pygame.sprite.Sprite):
     def __init__(self, color, pos):
@@ -84,8 +96,12 @@ class StartRook(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         START_SPRITES.add(self)
-    def update(self):
-        pass
+        self.clickable = True
+    def update(self, game_mode):
+        if game_mode == 0:
+            self.clickable = True
+        else:
+            self.clickable = False
     
 class StartQueen(pygame.sprite.Sprite):
     def __init__(self, color, pos):
@@ -98,8 +114,12 @@ class StartQueen(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         START_SPRITES.add(self)
-    def update(self):
-        pass
+        self.clickable = True
+    def update(self, game_mode):
+        if game_mode == 0:
+            self.clickable = True
+        else:
+            self.clickable = False
 
 class StartKing(pygame.sprite.Sprite):
     def __init__(self, color, pos):
@@ -112,8 +132,12 @@ class StartKing(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         START_SPRITES.add(self)
-    def update(self):
-        pass
+        self.clickable = True
+    def update(self, game_mode):
+        if game_mode == 0:
+            self.clickable = True
+        else:
+            self.clickable = False
     
 class Start():
     start_dict = {}
