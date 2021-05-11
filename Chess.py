@@ -1617,7 +1617,6 @@ def main():
                                 Switch_Modes_Controller.replayed_game(True, game_controller)
                             else:
                                 Move_Tracker.selected_move = Move_Tracker.selected_move[0]-1, "black_move"
-                                #%% Scroll up range
                                 if Move_Tracker.selected_move[0] < PanelRectangles.scroll_range[0] and PanelRectangles.scroll_range[0] >= 1:
                                     Panel_Controller.update_scroll_range(-1)
                                 Switch_Modes_Controller.replayed_game(True, game_controller)
@@ -1627,6 +1626,8 @@ def main():
                                 if Move_Tracker.selected_move[1] == "black_move":
                                     # When selected move is not at last move number and we are at black move
                                     Move_Tracker.selected_move = Move_Tracker.selected_move[0]+1, "white_move"
+                                    if Move_Tracker.selected_move[0] > PanelRectangles.scroll_range[1] and PanelRectangles.scroll_range[1] < Move_Tracker.move_counter():
+                                        Panel_Controller.update_scroll_range(1)
                                     if Move_Tracker.selected_move[0] == Move_Tracker.move_counter() and \
                                         Move_Tracker.df_moves.loc[Move_Tracker.move_counter(), "black_move"] == "":
                                             # Went to last move number and there is no black move yet
