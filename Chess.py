@@ -454,7 +454,7 @@ class PGN_Writer_and_Loader():
                     prior_moves_dict, captured_abb, special_abb, promoted_queen = Move_Controller.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller)
                     check_abb = Move_Controller.game_status_check(game_controller)                    
                     Move_Controller.record_move(game_controller, board.Grid.grid_dict[grid_coordinate], piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen)                    
-                draw_move_rects_on_moves_pane(pygame.font.SysFont('Arial', 16), game_controller)
+                Panel_Controller.draw_move_rects_on_moves_pane(pygame.font.SysFont('Arial', 16), game_controller)
                 
         def prior_move_off(current_coord):
             for play_obj_list in play_objects.Piece_Lists_Shortcut.all_pieces():
@@ -1123,7 +1123,7 @@ class Move_Controller():
                 PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['black_move'].kill()
                 del PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['black_move']
                 Move_Tracker.undo_move_in_dfs("black")
-                scroll_to_latest_move(Move_Tracker.move_counter())
+                Panel_Controller.scroll_to_latest_move(Move_Tracker.move_counter())
                 game_controller.switch_turn("black", undo=True)
                 Grid_Controller.update_prior_move_color("black")
                 Move_Controller.game_status_check(game_controller)
@@ -1155,7 +1155,7 @@ class Move_Controller():
                 MoveNumberRectangle.rectangle_dict[Move_Tracker.move_counter()].text = ""
                 MoveNumberRectangle.rectangle_dict[Move_Tracker.move_counter()].kill()
                 Move_Tracker.undo_move_in_dfs("white")
-                scroll_to_latest_move(Move_Tracker.move_counter())
+                Panel_Controller.scroll_to_latest_move(Move_Tracker.move_counter())
                 game_controller.switch_turn("white", undo=True)
                 Grid_Controller.update_prior_move_color("white")
                 Move_Controller.game_status_check(game_controller)
@@ -1437,64 +1437,65 @@ class Move_Controller():
         
         return
 
-def draw_text_on_rects_in_moves_pane(surface, my_font):
-    for move_num_rect in MoveNumberRectangle.rectangle_list:
-        if move_num_rect.text_is_visible == True:
-            # Only draw the text if the rectangle is below the top of the pane
-            move_num_text = my_font.render(move_num_rect.text, True, initvar.TEXT_COLOR)
-            surface.blit(move_num_text, (move_num_rect.x, move_num_rect.y))
-    for piece_move_rect in PieceMoveRectangle.rectangle_list:
-        if piece_move_rect.text_is_visible == True:
-            move_notation_text = my_font.render(piece_move_rect.move_notation, True, initvar.TEXT_COLOR)
-            surface.blit(move_notation_text, (piece_move_rect.x, piece_move_rect.y))
+class Panel_Controller:
+    def draw_text_on_rects_in_moves_pane(surface, my_font):
+        for move_num_rect in MoveNumberRectangle.rectangle_list:
+            if move_num_rect.text_is_visible == True:
+                # Only draw the text if the rectangle is below the top of the pane
+                move_num_text = my_font.render(move_num_rect.text, True, initvar.TEXT_COLOR)
+                surface.blit(move_num_text, (move_num_rect.x, move_num_rect.y))
+        for piece_move_rect in PieceMoveRectangle.rectangle_list:
+            if piece_move_rect.text_is_visible == True:
+                move_notation_text = my_font.render(piece_move_rect.move_notation, True, initvar.TEXT_COLOR)
+                surface.blit(move_notation_text, (piece_move_rect.x, piece_move_rect.y))
 
-def scroll_to_latest_move(latest_move_number):
-    if latest_move_number >= initvar.MOVES_PANE_MAX_MOVES:
-        PanelRectangles.scroll_range[0] = latest_move_number - (initvar.MOVES_PANE_MAX_MOVES-1)
-        PanelRectangles.scroll_range[1] = latest_move_number
+    def scroll_to_latest_move(latest_move_number):
+        if latest_move_number >= initvar.MOVES_PANE_MAX_MOVES:
+            PanelRectangles.scroll_range[0] = latest_move_number - (initvar.MOVES_PANE_MAX_MOVES-1)
+            PanelRectangles.scroll_range[1] = latest_move_number
+            for move_num_rect in MoveNumberRectangle.rectangle_list:
+                move_num_rect.update_Y()
+            for piece_move_rect in PieceMoveRectangle.rectangle_list:
+                piece_move_rect.update_Y()
+
+    def scroll_to_first_move():
+        PanelRectangles.scroll_range = [1, initvar.MOVES_PANE_MAX_MOVES]
+        for move_num_rect in MoveNumberRectangle.rectangle_list:
+            move_num_rect.update_Y()
+        for piece_move_rect in PieceMoveRectangle.rectangle_list:
+            piece_move_rect.update_Y()
+            
+    def update_scroll_range(unit_change):
+        # unit_change refers to how many moves up/down to go
+        # unit_change = -1 means scrolling up one unit, unit_change = 1 means scrolling down one unit
+        PanelRectangles.scroll_range[0] += unit_change
+        PanelRectangles.scroll_range[1] += unit_change
         for move_num_rect in MoveNumberRectangle.rectangle_list:
             move_num_rect.update_Y()
         for piece_move_rect in PieceMoveRectangle.rectangle_list:
             piece_move_rect.update_Y()
 
-def scroll_to_first_move():
-    PanelRectangles.scroll_range = [1, initvar.MOVES_PANE_MAX_MOVES]
-    for move_num_rect in MoveNumberRectangle.rectangle_list:
-        move_num_rect.update_Y()
-    for piece_move_rect in PieceMoveRectangle.rectangle_list:
-        piece_move_rect.update_Y()
-            
-def update_scroll_range(unit_change):
-    # unit_change refers to how many moves up/down to go
-    # unit_change = -1 means scrolling up one unit, unit_change = 1 means scrolling down one unit
-    PanelRectangles.scroll_range[0] += unit_change
-    PanelRectangles.scroll_range[1] += unit_change
-    for move_num_rect in MoveNumberRectangle.rectangle_list:
-        move_num_rect.update_Y()
-    for piece_move_rect in PieceMoveRectangle.rectangle_list:
-        piece_move_rect.update_Y()
-
-def draw_move_rects_on_moves_pane(my_font, game_controller):
-    if len(Move_Tracker.df_moves) >= 1:
-        # Creating move notation rectangles if they haven't been created before for the respective move
-        # If the last move is not in the dictionary, then add it
-        if len(Move_Tracker.df_moves) not in PieceMoveRectangle.rectangle_dict:
-            PieceMoveRectangle.rectangle_dict[len(Move_Tracker.df_moves)] = {}
-            MoveNumberRectangle.rectangle_dict[len(Move_Tracker.df_moves)] = []
-        # We want the PieceMoveRectangle.rectangle_dict to correspond to the df_moves dataframe
-        if Move_Tracker.df_moves.loc[len(Move_Tracker.df_moves), 'white_move'] != '' and 'white_move' not in PieceMoveRectangle.rectangle_dict[len(Move_Tracker.df_moves)]:
-            # Create new move number rectangle since white made a move
-            MoveNumberRectangle(len(Move_Tracker.df_moves), initvar.MOVES_PANE_MOVE_NUMBER_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(Move_Tracker.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)
-            # Create rectangle which will eventually be used to blit text on it
-            # Parameters: Total number of moves in the game, the move itself, the color of the piece that moved, and position & size of rectangle
-            PieceMoveRectangle(len(Move_Tracker.df_moves), Move_Tracker.df_moves.loc[len(Move_Tracker.df_moves), 'white_move'], 'white_move', initvar.MOVES_PANE_WHITE_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(Move_Tracker.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)
-            # Scroll down automatically when a move is made
-            scroll_to_latest_move(len(Move_Tracker.df_moves))
-        if Move_Tracker.df_moves.loc[len(Move_Tracker.df_moves), 'black_move'] != '' and 'black_move' not in PieceMoveRectangle.rectangle_dict[len(Move_Tracker.df_moves)]:
-            # Only create PieceMoveRectangle when black moved last, don't create a new MoveNumberRectangle
-            PieceMoveRectangle(len(Move_Tracker.df_moves), Move_Tracker.df_moves.loc[len(Move_Tracker.df_moves), 'black_move'], 'black_move', initvar.MOVES_PANE_BLACK_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(Move_Tracker.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)        
-            scroll_to_latest_move(len(Move_Tracker.df_moves))
-        draw_text_on_rects_in_moves_pane(SCREEN, my_font)
+    def draw_move_rects_on_moves_pane(my_font, game_controller):
+        if len(Move_Tracker.df_moves) >= 1:
+            # Creating move notation rectangles if they haven't been created before for the respective move
+            # If the last move is not in the dictionary, then add it
+            if len(Move_Tracker.df_moves) not in PieceMoveRectangle.rectangle_dict:
+                PieceMoveRectangle.rectangle_dict[len(Move_Tracker.df_moves)] = {}
+                MoveNumberRectangle.rectangle_dict[len(Move_Tracker.df_moves)] = []
+            # We want the PieceMoveRectangle.rectangle_dict to correspond to the df_moves dataframe
+            if Move_Tracker.df_moves.loc[len(Move_Tracker.df_moves), 'white_move'] != '' and 'white_move' not in PieceMoveRectangle.rectangle_dict[len(Move_Tracker.df_moves)]:
+                # Create new move number rectangle since white made a move
+                MoveNumberRectangle(len(Move_Tracker.df_moves), initvar.MOVES_PANE_MOVE_NUMBER_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(Move_Tracker.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)
+                # Create rectangle which will eventually be used to blit text on it
+                # Parameters: Total number of moves in the game, the move itself, the color of the piece that moved, and position & size of rectangle
+                PieceMoveRectangle(len(Move_Tracker.df_moves), Move_Tracker.df_moves.loc[len(Move_Tracker.df_moves), 'white_move'], 'white_move', initvar.MOVES_PANE_WHITE_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(Move_Tracker.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)
+                # Scroll down automatically when a move is made
+                Panel_Controller.scroll_to_latest_move(len(Move_Tracker.df_moves))
+            if Move_Tracker.df_moves.loc[len(Move_Tracker.df_moves), 'black_move'] != '' and 'black_move' not in PieceMoveRectangle.rectangle_dict[len(Move_Tracker.df_moves)]:
+                # Only create PieceMoveRectangle when black moved last, don't create a new MoveNumberRectangle
+                PieceMoveRectangle(len(Move_Tracker.df_moves), Move_Tracker.df_moves.loc[len(Move_Tracker.df_moves), 'black_move'], 'black_move', initvar.MOVES_PANE_BLACK_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(Move_Tracker.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)        
+                Panel_Controller.scroll_to_latest_move(len(Move_Tracker.df_moves))
+            Panel_Controller.draw_text_on_rects_in_moves_pane(SCREEN, my_font)
 
 def main():
     try:
@@ -1580,10 +1581,10 @@ def main():
                         #%% Left click buttons
                         if SCROLL_UP_BUTTON.rect.collidepoint(MOUSEPOS) and PanelRectangles.scroll_range[0] > 1: # Scroll up
                             if SCROLL_UP_BUTTON.activate == True:    
-                                update_scroll_range(-1)
+                                Panel_Controller.update_scroll_range(-1)
                         if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS) and len(MoveNumberRectangle.rectangle_list) > initvar.MOVES_PANE_MAX_MOVES and PanelRectangles.scroll_range[1] < len(MoveNumberRectangle.rectangle_list): # Scroll down
                             if SCROLL_DOWN_BUTTON.activate == True:  
-                                update_scroll_range(1)
+                                Panel_Controller.update_scroll_range(1)
                         if PGN_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
                             game_controller = PGN_Writer_and_Loader.pgn_load(PLAY_EDIT_SWITCH_BUTTON)
                             for grid in board.Grid.grid_list:
@@ -1599,12 +1600,11 @@ def main():
                         if UNDO_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
                             Move_Controller.undo_move(game_controller)
                         if BEGINNING_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
-                            #%% First move scroll
                             Move_Tracker.selected_move = 1, "white_move"
                             Switch_Modes_Controller.replayed_game(True, game_controller, True)
                             Grid_Controller.update_prior_move_color()
                             Move_Tracker.selected_move = (0, "black_move")
-                            scroll_to_first_move()
+                            Panel_Controller.scroll_to_first_move()
                         if PREV_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
                             if Move_Tracker.selected_move == (0, "black_move"):
                                 pass
@@ -1617,6 +1617,9 @@ def main():
                                 Switch_Modes_Controller.replayed_game(True, game_controller)
                             else:
                                 Move_Tracker.selected_move = Move_Tracker.selected_move[0]-1, "black_move"
+                                #%% Scroll up range
+                                if Move_Tracker.selected_move[0] < PanelRectangles.scroll_range[0] and PanelRectangles.scroll_range[0] >= 1:
+                                    Panel_Controller.update_scroll_range(-1)
                                 Switch_Modes_Controller.replayed_game(True, game_controller)
                         if NEXT_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
                             if Move_Tracker.selected_move[0] != Move_Tracker.move_counter():
@@ -1648,7 +1651,7 @@ def main():
                                 Move_Tracker.selected_move = Move_Tracker.move_counter(), "white_move"
                             else:
                                 Move_Tracker.selected_move = Move_Tracker.move_counter(), "black_move"
-                            scroll_to_latest_move(Move_Tracker.move_counter())
+                            Panel_Controller.scroll_to_latest_move(Move_Tracker.move_counter())
                             Switch_Modes_Controller.replayed_game(False, game_controller)
                         # When clicking on a move on the right pane, it is your selected move
                         for piece_move_rect in PieceMoveRectangle.rectangle_list:
@@ -1718,11 +1721,11 @@ def main():
                         if event.button == 4: # Scroll up
                             if PanelRectangles.scroll_range[0] > 1:
                                 if SCROLL_UP_BUTTON.activate == True:
-                                    update_scroll_range(-1)
+                                    Panel_Controller.update_scroll_range(-1)
                         if event.button == 5: # Scroll down
                             if len(MoveNumberRectangle.rectangle_list) > initvar.MOVES_PANE_MAX_MOVES and PanelRectangles.scroll_range[1] < len(MoveNumberRectangle.rectangle_list):
                                 if SCROLL_DOWN_BUTTON.activate == True:  
-                                    update_scroll_range(1)
+                                    Panel_Controller.update_scroll_range(1)
                     if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE:
                         # Right click on obj, destroy
                         if(event.type == MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[2]):   
@@ -1816,7 +1819,7 @@ def main():
                     for piece_move_rect in PieceMoveRectangle.rectangle_list:
                         if piece_move_rect.move_number == Move_Tracker.selected_move[0] and piece_move_rect.move_color == Move_Tracker.selected_move[1]:
                             piece_move_rect.draw(SCREEN)
-                    draw_move_rects_on_moves_pane(move_notation_font, game_controller)
+                    Panel_Controller.draw_move_rects_on_moves_pane(move_notation_font, game_controller)
                     # Update objects that aren't in a sprite group
                     SCROLL_UP_BUTTON.draw(SCREEN)
                     SCROLL_DOWN_BUTTON.draw(SCREEN, len(Move_Tracker.df_moves))
