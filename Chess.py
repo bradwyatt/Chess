@@ -1635,10 +1635,12 @@ def main():
                                 # Last move 
                                 Switch_Modes_Controller.replayed_game(False, game_controller)
                         if LAST_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
+                            #%% Last Move WIP
                             if Move_Tracker.df_moves.loc[Move_Tracker.move_counter(), "black_move"] == "":
                                 Move_Tracker.selected_move = Move_Tracker.move_counter(), "white_move"
                             else:
                                 Move_Tracker.selected_move = Move_Tracker.move_counter(), "black_move"
+                            scroll_to_latest_move(Move_Tracker.move_counter())
                             Switch_Modes_Controller.replayed_game(False, game_controller)
                         # When clicking on a move on the right pane, it is your selected move
                         for piece_move_rect in PieceMoveRectangle.rectangle_list:
