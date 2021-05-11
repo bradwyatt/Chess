@@ -93,11 +93,13 @@ class ScrollUpButton(pygame.sprite.Sprite):
         self.image = IMAGES["SPR_SCROLL_UP_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
+        self.activate = False
     def draw(self, screen):
         if PanelRectangles.scroll_range[0] != 1:
+            self.activate = True
             screen.blit(self.image, (self.rect.topleft))
         else:
-            pass
+            self.activate = False
         
 class ScrollDownButton(pygame.sprite.Sprite):
     def __init__(self, pos):
@@ -105,11 +107,13 @@ class ScrollDownButton(pygame.sprite.Sprite):
         self.image = IMAGES["SPR_SCROLL_DOWN_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
+        self.activate = False
     def draw(self, screen, latest_move_number):
         if PanelRectangles.scroll_range[1] != latest_move_number and latest_move_number >= 20:
+            self.activate = True
             screen.blit(self.image, (self.rect.topleft))
         else:
-            pass
+            self.activate = False
 
 class BeginningMoveButton(pygame.sprite.Sprite):
     def __init__(self, pos):

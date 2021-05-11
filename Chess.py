@@ -1572,9 +1572,11 @@ def main():
                     if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and MOUSEPOS[0] > initvar.X_GRID_END:
                         #%% Left click buttons
                         if SCROLL_UP_BUTTON.rect.collidepoint(MOUSEPOS) and PanelRectangles.scroll_range[0] > 1: # Scroll up
-                            update_scroll_range(-1)
+                            if SCROLL_UP_BUTTON.activate == True:    
+                                update_scroll_range(-1)
                         if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS) and len(MoveNumberRectangle.rectangle_list) > initvar.MOVES_PANE_MAX_MOVES and PanelRectangles.scroll_range[1] < len(MoveNumberRectangle.rectangle_list): # Scroll down
-                            update_scroll_range(1)
+                            if SCROLL_DOWN_BUTTON.activate == True:  
+                                update_scroll_range(1)
                         if PGN_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
                             game_controller = PGN_Writer_and_Loader.pgn_load(PLAY_EDIT_SWITCH_BUTTON)
                             for grid in board.Grid.grid_list:
@@ -1705,10 +1707,12 @@ def main():
                         #scroll wheel
                         if event.button == 4: # Scroll up
                             if PanelRectangles.scroll_range[0] > 1:
-                                update_scroll_range(-1)
+                                if SCROLL_UP_BUTTON.activate == True:
+                                    update_scroll_range(-1)
                         if event.button == 5: # Scroll down
                             if len(MoveNumberRectangle.rectangle_list) > initvar.MOVES_PANE_MAX_MOVES and PanelRectangles.scroll_range[1] < len(MoveNumberRectangle.rectangle_list):
-                                update_scroll_range(1)
+                                if SCROLL_DOWN_BUTTON.activate == True:  
+                                    update_scroll_range(1)
                     if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE:
                         # Right click on obj, destroy
                         if(event.type == MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[2]):   
