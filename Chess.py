@@ -2,18 +2,18 @@
 Chess created by Brad Wyatt
 
 Features To-Do (short-term):
-Fix scroll bar with move buttons
 Menu objects are still invisible yet clickable
 
 Clean Code Ideas:
 Edit_Mode_Controller to handle all the clicking event functions
+Separate Panel in separate file?
 
 Features To-Do (long-term):
 Customized Turns for black and white
 Choose piece for Promotion
 Sounds
 If no king then don't start game
-Remove yellow highlight on grid
+Remove yellow highlight on grid (with test)
 
 Testing/Code Improvements:
 Getting rid of import *?

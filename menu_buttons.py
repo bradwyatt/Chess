@@ -109,7 +109,7 @@ class ScrollDownButton(pygame.sprite.Sprite):
         self.rect.topleft = pos
         self.activate = False
     def draw(self, screen, latest_move_number):
-        if PanelRectangles.scroll_range[1] != latest_move_number and latest_move_number >= 20:
+        if PanelRectangles.scroll_range[1] != latest_move_number and latest_move_number > initvar.MOVES_PANE_MAX_MOVES:
             self.activate = True
             screen.blit(self.image, (self.rect.topleft))
         else:
