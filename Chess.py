@@ -1456,6 +1456,13 @@ def scroll_to_latest_move(latest_move_number):
             move_num_rect.update_Y()
         for piece_move_rect in PieceMoveRectangle.rectangle_list:
             piece_move_rect.update_Y()
+
+def scroll_to_first_move():
+    PanelRectangles.scroll_range = [1, initvar.MOVES_PANE_MAX_MOVES]
+    for move_num_rect in MoveNumberRectangle.rectangle_list:
+        move_num_rect.update_Y()
+    for piece_move_rect in PieceMoveRectangle.rectangle_list:
+        piece_move_rect.update_Y()
             
 def update_scroll_range(unit_change):
     # unit_change refers to how many moves up/down to go
@@ -1592,10 +1599,12 @@ def main():
                         if UNDO_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
                             Move_Controller.undo_move(game_controller)
                         if BEGINNING_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
+                            #%% First move scroll
                             Move_Tracker.selected_move = 1, "white_move"
                             Switch_Modes_Controller.replayed_game(True, game_controller, True)
                             Grid_Controller.update_prior_move_color()
                             Move_Tracker.selected_move = (0, "black_move")
+                            scroll_to_first_move()
                         if PREV_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
                             if Move_Tracker.selected_move == (0, "black_move"):
                                 pass
@@ -1635,7 +1644,6 @@ def main():
                                 # Last move 
                                 Switch_Modes_Controller.replayed_game(False, game_controller)
                         if LAST_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
-                            #%% Last Move WIP
                             if Move_Tracker.df_moves.loc[Move_Tracker.move_counter(), "black_move"] == "":
                                 Move_Tracker.selected_move = Move_Tracker.move_counter(), "white_move"
                             else:
