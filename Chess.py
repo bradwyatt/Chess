@@ -13,7 +13,6 @@ Splitting groups of statements that were for after clicking into functions and m
 Feedback
 
 Features To-Do (long-term):
-Remove yellow highlight on grid (with test)
 Customized Turns for black and white (in these cases, substitute first move with "" ?)
 Choose piece for Promotion
 Sounds

@@ -54,3 +54,4 @@ ChessPositions/testing.lvl
 *.ini
 *.bak
 *.stats
+*.spec
