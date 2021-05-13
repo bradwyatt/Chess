@@ -47,7 +47,8 @@ class Grid(pygame.sprite.Sprite):
         elif color == "black" and piece_coord not in self.coords_of_available_pieces['black']:
             self.coords_of_available_pieces['black'].append(piece_coord)
     def highlight(self, color, piece_coord):
-        self.image = IMAGES["SPR_HIGHLIGHT"]
+        if initvar.test_mode == True:
+            self.image = IMAGES["SPR_HIGHLIGHT"]
         self.highlighted = True
         self.available_count_increment(color, piece_coord)
     def no_highlight(self):
