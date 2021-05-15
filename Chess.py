@@ -5,6 +5,7 @@ Features To-Do (short-term):
 Menu objects are still invisible yet can be clickable
 
 Clean Code Ideas:
+Re-examine sprite groups
 Edit_Mode_Controller to handle all the clicking event functions
 Panel classes in separate file (instead of menu_buttons)
 Getting rid of import *
@@ -12,7 +13,6 @@ Splitting groups of statements that were for after clicking into functions and m
 Feedback
 
 Features To-Do (long-term):
-Remove yellow highlight on grid (with test)
 Customized Turns for black and white (in these cases, substitute first move with "" ?)
 Choose piece for Promotion
 Sounds
@@ -1583,27 +1583,27 @@ def main():
                         if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS) and len(MoveNumberRectangle.rectangle_list) > initvar.MOVES_PANE_MAX_MOVES and PanelRectangles.scroll_range[1] < len(MoveNumberRectangle.rectangle_list): # Scroll down
                             if SCROLL_DOWN_BUTTON.activate == True:  
                                 Panel_Controller.update_scroll_range(1)
-                        if PGN_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
+                        if PGN_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS) and PGN_LOAD_FILE_BUTTON.clickable == True:
                             game_controller = PGN_Writer_and_Loader.pgn_load(PLAY_EDIT_SWITCH_BUTTON)
                             for grid in board.Grid.grid_list:
                                 grid.no_highlight()
                             Grid_Controller.update_grid()
-                        if PGN_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
+                        if PGN_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS) and PGN_SAVE_FILE_BUTTON.clickable == True:
                             Preferences.game_properties_popup()
                             PGN_Writer_and_Loader.write_moves(Move_Tracker.df_moves, game_controller.result_abb)
                         if FLIP_BOARD_BUTTON.rect.collidepoint(MOUSEPOS):
                             Grid_Controller.flip_grids()
                             if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
                                 game_controller.captured_pieces_flip(Grid_Controller.flipped)
-                        if UNDO_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
+                        if UNDO_MOVE_BUTTON.rect.collidepoint(MOUSEPOS) and UNDO_MOVE_BUTTON.clickable == True:
                             Move_Controller.undo_move(game_controller)
-                        if BEGINNING_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
+                        if BEGINNING_MOVE_BUTTON.rect.collidepoint(MOUSEPOS) and BEGINNING_MOVE_BUTTON.clickable == True:
                             Move_Tracker.selected_move = 1, "white_move"
                             Switch_Modes_Controller.replayed_game(True, game_controller, True)
                             Grid_Controller.update_prior_move_color()
                             Move_Tracker.selected_move = (0, "black_move")
                             Panel_Controller.scroll_to_first_move()
-                        if PREV_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
+                        if PREV_MOVE_BUTTON.rect.collidepoint(MOUSEPOS) and PREV_MOVE_BUTTON.clickable == True:
                             if Move_Tracker.selected_move == (0, "black_move"):
                                 pass
                             elif Move_Tracker.selected_move == (1, "white_move"):
@@ -1618,7 +1618,7 @@ def main():
                                 if Move_Tracker.selected_move[0] < PanelRectangles.scroll_range[0] and PanelRectangles.scroll_range[0] >= 1:
                                     Panel_Controller.update_scroll_range(-1)
                                 Switch_Modes_Controller.replayed_game(True, game_controller)
-                        if NEXT_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
+                        if NEXT_MOVE_BUTTON.rect.collidepoint(MOUSEPOS) and NEXT_MOVE_BUTTON.clickable == True:
                             if Move_Tracker.selected_move[0] != Move_Tracker.move_counter():
                                 # When selected move is not at the last move number
                                 if Move_Tracker.selected_move[1] == "black_move":
@@ -1645,7 +1645,7 @@ def main():
                             else:
                                 # Last move 
                                 Switch_Modes_Controller.replayed_game(False, game_controller)
-                        if LAST_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
+                        if LAST_MOVE_BUTTON.rect.collidepoint(MOUSEPOS) and LAST_MOVE_BUTTON.clickable == True:
                             if Move_Tracker.df_moves.loc[Move_Tracker.move_counter(), "black_move"] == "":
                                 Move_Tracker.selected_move = Move_Tracker.move_counter(), "white_move"
                             else:
@@ -1669,13 +1669,13 @@ def main():
                             #BUTTONS
                             if COLOR_BUTTON.rect.collidepoint(MOUSEPOS):
                                 Preferences.colorkey = Preferences.get_color()
-                            if POS_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
+                            if POS_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS) and POS_SAVE_FILE_BUTTON.clickable == True:
                                 pos_save_file()
-                            if POS_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS):
+                            if POS_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS) and POS_LOAD_FILE_BUTTON.clickable == True:
                                 pos_load_file()
-                            if RESET_BOARD_BUTTON.rect.collidepoint(MOUSEPOS):
+                            if RESET_BOARD_BUTTON.rect.collidepoint(MOUSEPOS) and RESET_BOARD_BUTTON.clickable == True:
                                 pos_load_file(reset=True)
-                            if GAME_PROPERTIES_BUTTON.rect.collidepoint(MOUSEPOS):
+                            if GAME_PROPERTIES_BUTTON.rect.collidepoint(MOUSEPOS) and GAME_PROPERTIES_BUTTON.clickable == True:
                                 Preferences.game_properties_popup()
                                 
 
@@ -1746,11 +1746,9 @@ def main():
                         elif PLAY_EDIT_SWITCH_BUTTON.rect.collidepoint(MOUSEPOS) and Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
                             Switch_Modes_Controller.switch_mode(Switch_Modes_Controller.EDIT_MODE, PLAY_EDIT_SWITCH_BUTTON)
                             del game_controller
-                        # Undo move through PREV_MOVE_BUTTON
-                        if PREV_MOVE_BUTTON.rect.collidepoint(MOUSEPOS):
-                            pass
                         if INFO_BUTTON.rect.collidepoint(MOUSEPOS):
-                            MENUON = 2
+                            pass
+                            #MENUON = 2
                         if CLEAR_BUTTON.rect.collidepoint(MOUSEPOS):
                             if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE: #Editing mode
                                 start_objects.Start.restart_start_positions()
@@ -1798,6 +1796,7 @@ def main():
                 board.GRID_SPRITES.draw(SCREEN)
                 Grid_Controller.update_grid()
                 start_objects.START_SPRITES.update(Switch_Modes_Controller.GAME_MODE)
+                PLAY_PANEL_SPRITES.update(Switch_Modes_Controller.GAME_MODE)
                 
                 SCREEN.blit(initvar.MOVE_BG_IMAGE, (initvar.MOVE_BG_IMAGE_HEIGHT,initvar.MOVE_BG_IMAGE_WIDTH))
                 if(Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE): #Only draw placed sprites in editing mode
@@ -1812,7 +1811,6 @@ def main():
                     else:
                         replayed_objects.REPLAYED_SPRITES.update()
                         replayed_objects.REPLAYED_SPRITES.draw(SCREEN)
-                    PGN_SAVE_FILE_BUTTON.draw(SCREEN)
                     PLAY_PANEL_SPRITES.draw(SCREEN)
                     
                     # When the piece is selected on the right pane, fill the rectangle corresponding to the move

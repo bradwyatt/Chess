@@ -95,8 +95,12 @@ class PGNSaveFileButton(pygame.sprite.Sprite):
         self.image = IMAGES["SPR_PGN_SAVE_FILE_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
-    def draw(self, screen):
-        screen.blit(self.image, (self.rect.topleft))
+        PLAY_PANEL_SPRITES.add(self)
+    def update(self, game_mode):
+        if game_mode == 1:
+            self.clickable = True
+        else:
+            self.clickable = False
     
 class PGNLoadFileButton(pygame.sprite.Sprite):
     def __init__(self, pos):
@@ -170,6 +174,11 @@ class BeginningMoveButton(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         PLAY_PANEL_SPRITES.add(self)
+    def update(self, game_mode):
+        if game_mode == 1:
+            self.clickable = True
+        else:
+            self.clickable = False
         
 class LastMoveButton(pygame.sprite.Sprite):
     def __init__(self, pos):
@@ -178,7 +187,12 @@ class LastMoveButton(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         PLAY_PANEL_SPRITES.add(self)
-        
+    def update(self, game_mode):
+        if game_mode == 1:
+            self.clickable = True
+        else:
+            self.clickable = False
+            
 class NextMoveButton(pygame.sprite.Sprite):
     def __init__(self, pos):
         pygame.sprite.Sprite.__init__(self)
@@ -186,7 +200,12 @@ class NextMoveButton(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         PLAY_PANEL_SPRITES.add(self)
-
+    def update(self, game_mode):
+        if game_mode == 1:
+            self.clickable = True
+        else:
+            self.clickable = False
+            
 class PrevMoveButton(pygame.sprite.Sprite):
     def __init__(self, pos):
         pygame.sprite.Sprite.__init__(self)
@@ -194,7 +213,12 @@ class PrevMoveButton(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         PLAY_PANEL_SPRITES.add(self)
-        
+    def update(self, game_mode):
+        if game_mode == 1:
+            self.clickable = True
+        else:
+            self.clickable = False
+            
 class UndoMoveButton(pygame.sprite.Sprite):
     def __init__(self, pos):
         pygame.sprite.Sprite.__init__(self)
@@ -202,6 +226,11 @@ class UndoMoveButton(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         PLAY_PANEL_SPRITES.add(self)
+    def update(self, game_mode):
+        if game_mode == 1:
+            self.clickable = True
+        else:
+            self.clickable = False
         
 class PanelRectangles(pygame.sprite.Sprite):
     scroll_range = [1, initvar.MOVES_PANE_MAX_MOVES]
