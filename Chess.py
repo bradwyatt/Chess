@@ -53,19 +53,19 @@ import PySimpleGUI as sg
 #############
 
 today = datetime.datetime.today()
-log_file_name = "{0}.log".format(today.strftime("%Y-%m-%d %H%M%S"))
-log_file = os.path.join("C:/Users/Brad/Documents/GitHub/Chess-WORK-IN-PROGRESS-/logs/", log_file_name)
-
 log = logging.getLogger("log_guy")
 log.handlers = []
 log.setLevel(logging.INFO)
 
 # Handlers for logging errors
-file_handler = logging.FileHandler(log_file)
-log_file_formatter = logging.Formatter("%(levelname)s %(asctime)s %(funcName)s %(lineno)d %(message)s")
-file_handler.setFormatter(log_file_formatter)
-file_handler.setLevel(logging.DEBUG)
-log.addHandler(file_handler)
+if initvar.exe_mode == False:
+    log_file_name = "{0}.log".format(today.strftime("%Y-%m-%d %H%M%S"))
+    log_file = os.path.join("C:/Users/Brad/Documents/GitHub/Chess-WORK-IN-PROGRESS-/logs/", log_file_name)
+    file_handler = logging.FileHandler(log_file)
+    log_file_formatter = logging.Formatter("%(levelname)s %(asctime)s %(funcName)s %(lineno)d %(message)s")
+    file_handler.setFormatter(log_file_formatter)
+    file_handler.setLevel(logging.DEBUG)
+    log.addHandler(file_handler)
 
 console_handler = logging.StreamHandler()
 log_console_handler = logging.Formatter("%(message)s")

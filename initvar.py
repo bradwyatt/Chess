@@ -4,6 +4,7 @@ import pygame
 # USER CAN SET BELOW PARAMETERS
 #################
 
+exe_mode = True
 test_mode = False
 
 SCREEN_WIDTH, SCREEN_HEIGHT = 936, 640
