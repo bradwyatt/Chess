@@ -5,7 +5,6 @@ Features To-Do (short-term):
 Menu objects are still invisible yet can be clickable
 
 Clean Code Ideas:
-Bug: When click "Undo" where enemy queen is attacking king BUT enemy queen is not protected it says "Checkmate"
 Re-examine sprite groups
 Edit_Mode_Controller to handle all the clicking event functions
 Panel classes in separate file (instead of menu_buttons)
@@ -1165,7 +1164,6 @@ class Move_Controller():
                 Panel_Controller.scroll_to_latest_move(Move_Tracker.move_counter())
                 game_controller.switch_turn("white", undo=True)
                 Grid_Controller.update_prior_move_color("white")
-                #%% game_status_check in undo_move might need to be modified
                 Move_Controller.game_status_check(game_controller)
                 log.info("Back to (" + str(len(Move_Tracker.df_moves)) + ".) " + "White undo turn " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
             #print("game_controller df: \n" + str(Move_Tracker.df_moves))
