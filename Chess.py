@@ -5,6 +5,7 @@ Features To-Do (short-term):
 Menu objects are still invisible yet can be clickable
 
 Clean Code Ideas:
+Bug: When click "Undo" where enemy queen is attacking king BUT enemy queen is not protected it says "Checkmate"
 Re-examine sprite groups
 Edit_Mode_Controller to handle all the clicking event functions
 Panel classes in separate file (instead of menu_buttons)
