@@ -820,6 +820,7 @@ class Game_Controller():
         for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
             for piece in piece_list:
                 piece.spaces_available(self)
+        Grid_Controller.update_grid_occupied_detection()
         for grid in board.Grid.grid_list:
             grid.no_highlight()
             
