@@ -1365,7 +1365,6 @@ class Move_Controller():
             Text_Controller.check_checkmate_text = "Stalemate"
             return "1/2-1/2"
         def checkmate_check(game_controller, whoseturn):
-            #%% This might need to be changed in some way
             for subgrid in board.Grid.grid_list:
                 if len(subgrid.coords_of_available_pieces[whoseturn]) > 0:
                     # If able to detect that a grid can be available, that means it's NOT checkmate
@@ -1378,26 +1377,13 @@ class Move_Controller():
                 return "#", "0-1"
         if game_controller.color_in_check == "black":
             Text_Controller.check_checkmate_text = "Black King checked"
-            for piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
-                for sub_piece in piece_list:
-                    sub_piece.spaces_available(game_controller)
             check_abb, game_controller.result_abb = checkmate_check(game_controller, 'black')
         elif game_controller.color_in_check == "white":
             Text_Controller.check_checkmate_text = "White King checked"
-            for piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
-                for sub_piece in piece_list:
-                    sub_piece.spaces_available(game_controller)
             check_abb, game_controller.result_abb = checkmate_check(game_controller, 'white')
         elif game_controller.color_in_check == "" and game_controller.WHOSETURN == "white":
-            for piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
-                for sub_piece in piece_list:
-                    sub_piece.spaces_available(game_controller)
-
             game_controller.result_abb = stalemate_check(game_controller, 'white')
         elif game_controller.color_in_check == "" and game_controller.WHOSETURN == "black":
-            for piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
-                for sub_piece in piece_list:
-                    sub_piece.spaces_available(game_controller)
             game_controller.result_abb = stalemate_check(game_controller, 'black')
         else:
             # No checks
