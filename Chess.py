@@ -531,7 +531,7 @@ class Grid_Controller():
             grid.occupied = False
             grid.occupied_piece = ""
             grid.occupied_piece_color = ""
-    def update_grid():
+    def update_grid_occupied_detection():
         for grid in board.Grid.grid_list:
             if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
                 Grid_Controller.grid_occupied_by_piece(grid)
@@ -813,7 +813,7 @@ class Game_Controller():
                     elif piece.color == "black":
                         piece.rect.topleft = piece.rect.topleft[0], self.black_captured_y
     def refresh_objects(self):
-        Grid_Controller.update_grid()
+        Grid_Controller.update_grid_occupied_detection()
         self.projected_white_update()
         self.projected_black_update()
         
@@ -864,6 +864,7 @@ class Game_Controller():
             grid.coords_of_attacking_pieces['black'] = []
             grid.coords_of_available_pieces['white'] = []
             grid.coords_of_available_pieces['black'] = []
+        Grid_Controller.update_grid_occupied_detection()
         for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
             for piece in piece_list:
                 piece.pinned = False
@@ -874,7 +875,6 @@ class Game_Controller():
                 if self.color_in_check == "black":
                     self.color_in_check = ""
             self.projected_black_update()
-            self.projected_white_update()
             # If white king is not in check, reset color_in_check, else white in check
             for white_king in play_objects.PlayKing.white_king_list:
                 if board.Grid.grid_dict[white_king.coordinate].coords_of_attacking_pieces['black'] == []:
@@ -888,6 +888,10 @@ class Game_Controller():
                                            play_objects.PlayQueen.white_queen_list]:
                             for piece in piece_list:
                                 piece.disable = True
+            for piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
+                for sub_piece in piece_list:
+                    sub_piece.spaces_available(self)
+            Grid_Controller.update_grid_occupied_detection()
         elif self.WHOSETURN == "black":
             if undo == False:
                 # Since black just moved, there are no check attacking pieces from white
@@ -895,7 +899,6 @@ class Game_Controller():
                     self.color_in_check = ""
                 # Project squares for white and black pieces
             self.projected_white_update()
-            self.projected_black_update()
             
             # If black king is not in check, reset color_in_check, else black in check
             for black_king in play_objects.PlayKing.black_king_list:
@@ -910,6 +913,10 @@ class Game_Controller():
                                            play_objects.PlayQueen.black_queen_list]:
                             for piece in piece_list:
                                 piece.disable = True
+            for piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
+                for sub_piece in piece_list:
+                    sub_piece.spaces_available(self)
+            Grid_Controller.update_grid_occupied_detection()
     def projected_white_update(self):
         # Project pieces attacking movements starting now
         for piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
@@ -1157,6 +1164,7 @@ class Move_Controller():
                 Panel_Controller.scroll_to_latest_move(Move_Tracker.move_counter())
                 game_controller.switch_turn("white", undo=True)
                 Grid_Controller.update_prior_move_color("white")
+                #%% game_status_check in undo_move might need to be modified
                 Move_Controller.game_status_check(game_controller)
                 log.info("Back to (" + str(len(Move_Tracker.df_moves)) + ".) " + "White undo turn " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
             #print("game_controller df: \n" + str(Move_Tracker.df_moves))
@@ -1337,7 +1345,7 @@ class Move_Controller():
             if piece.previous_coordinate == 'a8':
                 play_objects.PlayKing.black_king_list[0].queen_side_castle_ability = False
         # Update all grids to reflect the coordinates of the pieces
-        Grid_Controller.update_grid()
+        Grid_Controller.update_grid_occupied_detection()
         # Switch turns
         if(game_controller.WHOSETURN == "white"):
             game_controller.switch_turn("black")
@@ -1357,6 +1365,7 @@ class Move_Controller():
             Text_Controller.check_checkmate_text = "Stalemate"
             return "1/2-1/2"
         def checkmate_check(game_controller, whoseturn):
+            #%% This might need to be changed in some way
             for subgrid in board.Grid.grid_list:
                 if len(subgrid.coords_of_available_pieces[whoseturn]) > 0:
                     # If able to detect that a grid can be available, that means it's NOT checkmate
@@ -1588,7 +1597,7 @@ def main():
                             game_controller = PGN_Writer_and_Loader.pgn_load(PLAY_EDIT_SWITCH_BUTTON)
                             for grid in board.Grid.grid_list:
                                 grid.no_highlight()
-                            Grid_Controller.update_grid()
+                            Grid_Controller.update_grid_occupied_detection()
                         if PGN_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS) and PGN_SAVE_FILE_BUTTON.clickable == True:
                             Preferences.game_properties_popup()
                             PGN_Writer_and_Loader.write_moves(Move_Tracker.df_moves, game_controller.result_abb)
@@ -1773,8 +1782,8 @@ def main():
                                                + ", grid variable: " + str(grid.highlighted) \
                                                    + ", White Pieces Available: " + str(grid.coords_of_available_pieces['white']) \
                                                        + ", Black Pieces Available: " + str(grid.coords_of_available_pieces['black']))
-                        #test_grid_str()
-                        test_piece()
+                        test_grid_str()
+                        #test_piece()
                                 
                 ##################
                 # ALL EDIT ACTIONS
@@ -1795,7 +1804,7 @@ def main():
                 FLIP_BOARD_BUTTON.draw(SCREEN)
                 GAME_MODE_SPRITES.draw(SCREEN)
                 board.GRID_SPRITES.draw(SCREEN)
-                Grid_Controller.update_grid()
+                Grid_Controller.update_grid_occupied_detection()
                 start_objects.START_SPRITES.update(Switch_Modes_Controller.GAME_MODE)
                 PLAY_PANEL_SPRITES.update(Switch_Modes_Controller.GAME_MODE)
                 
