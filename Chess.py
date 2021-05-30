@@ -1621,6 +1621,9 @@ def main():
                             if SCROLL_DOWN_BUTTON.activate == True:  
                                 Panel_Controller.update_scroll_range(1)
                         if PGN_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS) and PGN_LOAD_FILE_BUTTON.clickable == True:
+                            if CPU_Controller.cpu_mode == True:
+                                CPU_Controller.cpu_mode_toggle()
+                                CPU_BUTTON.toggle(CPU_Controller.cpu_mode)
                             game_controller = PGN_Writer_and_Loader.pgn_load(PLAY_EDIT_SWITCH_BUTTON)
                             for grid in board.Grid.grid_list:
                                 grid.no_highlight()
@@ -1635,7 +1638,7 @@ def main():
                         if UNDO_MOVE_BUTTON.rect.collidepoint(MOUSEPOS) and UNDO_MOVE_BUTTON.clickable == True:
                             Move_Controller.undo_move(game_controller)
                         if CPU_BUTTON.rect.collidepoint(MOUSEPOS) and CPU_BUTTON.clickable == True:
-                            CPU_Controller.ai_mode_toggle()
+                            CPU_Controller.cpu_mode_toggle()
                             CPU_BUTTON.toggle(CPU_Controller.cpu_mode)
                         if BEGINNING_MOVE_BUTTON.rect.collidepoint(MOUSEPOS) and BEGINNING_MOVE_BUTTON.clickable == True:
                             Move_Tracker.selected_move = 1, "white_move"
@@ -1749,7 +1752,6 @@ def main():
                                     cpu_piece = cpu_move[1]
                                     cpu_piece.select = True
                                     Move_Controller.update_pieces_and_board(cpu_grid.coordinate, game_controller)
-                                    #Move_Controller.select_piece_unselect_all_others(ai_grid, game_controller)
     
                     if event.type == pygame.MOUSEBUTTONDOWN and (event.button == 4 or event.button == 5):
                         #scroll wheel
