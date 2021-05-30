@@ -786,7 +786,8 @@ class Move_Tracker():
             Move_Tracker.df_prior_moves = Move_Tracker.df_prior_moves.iloc[:-1]
 
 class AI_Controller():
-    ai_mode = False
+    ai_mode = True
+    ai_color = "black"
     total_possible_moves = []
     #%% Currently working on
     def ai_mode_toggle():
@@ -794,12 +795,12 @@ class AI_Controller():
             AI_Controller.ai_mode = True
         elif AI_Controller.ai_mode == True:
             AI_Controller.ai_mode = False
-    def total_possible_moves_update(game_controller):
+    def total_possible_moves_update():
         AI_Controller.total_possible_moves = []
         for grid in board.Grid.grid_list:
             # grid is the future move
-            if grid.coords_of_available_pieces[game_controller.WHOSETURN]:
-                for original_grid_coord_of_piece_to_move in grid.coords_of_available_pieces[game_controller.WHOSETURN]:
+            if grid.coords_of_available_pieces[AI_Controller.ai_color]:
+                for original_grid_coord_of_piece_to_move in grid.coords_of_available_pieces[AI_Controller.ai_color]:
                     for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
                         for piece in piece_list:
                             if original_grid_coord_of_piece_to_move == piece.coordinate:
@@ -1741,14 +1742,15 @@ def main():
                             Move_Controller.update_pieces_and_board(MOUSE_COORD, game_controller)
                             # Selects piece
                             Move_Controller.select_piece_unselect_all_others(MOUSE_COORD, game_controller)
-                            if AI_Controller.ai_mode == True:
-                                AI_Controller.total_possible_moves_update(game_controller)
+                            if AI_Controller.ai_mode == True and game_controller.WHOSETURN == AI_Controller.ai_color:
+                                AI_Controller.total_possible_moves_update()
                                 if AI_Controller.total_possible_moves:
                                     ai_move = AI_Controller.choose_move()
                                     ai_grid = ai_move[0]
                                     ai_piece = ai_move[1]
-                                    Move_Controller.update_pieces_and_board(ai_grid, game_controller)
-                                    Move_Controller.select_piece_unselect_all_others(ai_grid, game_controller)
+                                    ai_piece.select = True
+                                    Move_Controller.update_pieces_and_board(ai_grid.coordinate, game_controller)
+                                    #Move_Controller.select_piece_unselect_all_others(ai_grid, game_controller)
     
                     if event.type == pygame.MOUSEBUTTONDOWN and (event.button == 4 or event.button == 5):
                         #scroll wheel
