@@ -1185,7 +1185,7 @@ class Move_Controller():
                 log.info("Back to (" + str(len(Move_Tracker.df_moves)) + ".) " + "White undo turn " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
             #print("game_controller df: \n" + str(Move_Tracker.df_moves))
             
-    def update_pieces_and_board(new_coord, game_controller):
+    def complete_move(new_coord, game_controller):
         #%% WIP
         for grid in board.Grid.grid_list:
             for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
@@ -1743,7 +1743,7 @@ def main():
                         if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
                             # Moves piece
                             #%% I plan on having this in a new function within a class nto dependent on mouse click
-                            Move_Controller.update_pieces_and_board(MOUSE_COORD, game_controller)
+                            Move_Controller.complete_move(MOUSE_COORD, game_controller)
                             # Selects piece
                             Move_Controller.select_piece_unselect_all_others(MOUSE_COORD, game_controller)
                             if CPU_Controller.cpu_mode == True and game_controller.WHOSETURN == CPU_Controller.cpu_color:
@@ -1753,7 +1753,7 @@ def main():
                                     cpu_grid = cpu_move[0]
                                     cpu_piece = cpu_move[1]
                                     cpu_piece.select = True
-                                    Move_Controller.update_pieces_and_board(cpu_grid.coordinate, game_controller)
+                                    Move_Controller.complete_move(cpu_grid.coordinate, game_controller)
     
                     if event.type == pygame.MOUSEBUTTONDOWN and (event.button == 4 or event.button == 5):
                         #scroll wheel
