@@ -811,6 +811,7 @@ class CPU_Controller():
         return (random.choice(CPU_Controller.total_possible_moves))
     def choose_move():
         move_score_list = []
+        random.shuffle(CPU_Controller.total_possible_moves)
         for possible_move in CPU_Controller.total_possible_moves:
             grid = possible_move[0]
             piece_to_move = possible_move[1]
@@ -821,7 +822,36 @@ class CPU_Controller():
             elif grid.occupied == True and grid.coords_of_attacking_pieces[CPU_Controller.enemy_color]:
                 # Trade only when other piece is higher value
                 move_score = play_objects.Piece_Lists_Shortcut.piece_on_coord(grid.coordinate).score - piece_to_move.score
+            if CPU_Controller.cpu_color == "black":
+                if piece_to_move in play_objects.PlayKing.black_king_list:
+                    # Incentivize Castling
+                    if piece_to_move.king_side_castle_ability == True and grid.coordinate == 'g8':
+                        move_score += 0.5
+                    elif piece_to_move.queen_side_castle_ability == True and grid.coordinate == 'c8':
+                        move_score += 0.5
+                    else:
+                        # If king move not a castle move, don't do it early on
+                        move_score -= 0.5
+                elif piece_to_move in play_objects.PlayRook.black_rook_list:
+                    # Discincentivize rook from moving before castling
+                    if piece_to_move.allowed_to_castle == True:
+                        move_score -= 0.5
+            elif CPU_Controller.cpu_color == "white":
+                if piece_to_move in play_objects.PlayKing.white_king_list:
+                    # Incentivize Castling
+                    if piece_to_move.king_side_castle_ability == True and grid.coordinate == 'g1':
+                        move_score += 0.5
+                    elif piece_to_move.queen_side_castle_ability == True and grid.coordinate == 'c1':
+                        move_score += 0.5
+                    else:
+                        # If king move not a castle move, don't do it early on
+                        move_score -= 0.5
+                elif piece_to_move in play_objects.PlayRook.white_rook_list:
+                    # Discincentivize rook from moving before castling
+                    if piece_to_move.allowed_to_castle == True:
+                        move_score -= 0.5
             move_score_list.append(move_score)
+        print("MOVE SCORE LIST: " + str(move_score_list))
         max_move = max(move_score_list)
         index_of_max_moves = move_score_list.index(max_move)
         return CPU_Controller.total_possible_moves[index_of_max_moves]
@@ -899,6 +929,8 @@ class Game_Controller():
         # No highlights and ensuring that attacking squares (used by diagonal pieces) are set to 0
         for grid in board.Grid.grid_list:
             grid.no_highlight()
+            grid.coords_of_protecting_pieces['white'] = grid.coords_of_attacking_pieces['white']
+            grid.coords_of_protecting_pieces['black'] = grid.coords_of_attacking_pieces['black']
             grid.coords_of_attacking_pieces['white'] = []
             grid.coords_of_attacking_pieces['black'] = []
             grid.coords_of_available_pieces['white'] = []
@@ -1825,8 +1857,8 @@ def main():
                                            + ", White Pieces Attacking: " + str(grid.coords_of_attacking_pieces['white']) \
                                            + ", Black Pieces Attacking: " + str(grid.coords_of_attacking_pieces['black']) \
                                                + ", grid variable: " + str(grid.highlighted) \
-                                                   + ", White Pieces Available: " + str(grid.coords_of_available_pieces['white']) \
-                                                       + ", Black Pieces Available: " + str(grid.coords_of_available_pieces['black']))
+                                                   + ", White Pieces Protecting: " + str(grid.coords_of_protecting_pieces['white']) \
+                                                       + ", Black Pieces Protecting: " + str(grid.coords_of_protecting_pieces['black']))
                         test_grid_str()
                         #test_piece()
                                 
