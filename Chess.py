@@ -788,6 +788,7 @@ class Move_Tracker():
 class CPU_Controller():
     cpu_mode = True
     cpu_color = "black"
+    enemy_color = "white"
     total_possible_moves = []
     #%% Currently working on
     def cpu_mode_toggle():
@@ -809,7 +810,21 @@ class CPU_Controller():
     def random_move():
         return (random.choice(CPU_Controller.total_possible_moves))
     def choose_move():
-        return CPU_Controller.random_move()
+        move_score_list = []
+        for possible_move in CPU_Controller.total_possible_moves:
+            grid = possible_move[0]
+            piece_to_move = possible_move[1]
+            move_score = 0
+            if grid.occupied == True and not grid.coords_of_attacking_pieces[CPU_Controller.enemy_color]:
+                # No other attack pieces
+                move_score += play_objects.Piece_Lists_Shortcut.piece_on_coord(grid.coordinate).score
+            elif grid.occupied == True and grid.coords_of_attacking_pieces[CPU_Controller.enemy_color]:
+                # Trade only when other piece is higher value
+                move_score = play_objects.Piece_Lists_Shortcut.piece_on_coord(grid.coordinate).score - piece_to_move.score
+            move_score_list.append(move_score)
+        max_move = max(move_score_list)
+        index_of_max_moves = move_score_list.index(max_move)
+        return CPU_Controller.total_possible_moves[index_of_max_moves]
 
 class Game_Controller():
     def __init__(self, flipped, whoseturn="white"):
