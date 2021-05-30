@@ -1511,6 +1511,7 @@ def main():
         
         PLAY_EDIT_SWITCH_BUTTON = PlayEditSwitchButton(initvar.PLAY_EDIT_SWITCH_BUTTON_TOPLEFT, GAME_MODE_SPRITES)
         FLIP_BOARD_BUTTON = FlipBoardButton(initvar.FLIP_BOARD_BUTTON_TOPLEFT)
+        AI_BUTTON = AIButton(initvar.AI_BUTTON_TOPLEFT)
         GAME_PROPERTIES_BUTTON = GamePropertiesButton(initvar.GAME_PROPERTIES_BUTTON_TOPLEFT)
         INFO_BUTTON = InfoButton(initvar.INFO_BUTTON_TOPLEFT)
         POS_LOAD_FILE_BUTTON = PosLoadFileButton(initvar.POS_LOAD_FILE_BUTTON_TOPLEFT)
