@@ -126,9 +126,9 @@ class FlipBoardButton(pygame.sprite.Sprite):
         screen.blit(self.image, (self.rect.topleft))
         
 class AIButton(pygame.sprite.Sprite):
-    def __init__(self, pos):
+    def __init__(self, pos, ai_mode):
         pygame.sprite.Sprite.__init__(self)
-        self.image = IMAGES["SPR_AI_BUTTON_ON"]
+        self.toggle(ai_mode)
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         PLAY_PANEL_SPRITES.add(self)
@@ -142,7 +142,6 @@ class AIButton(pygame.sprite.Sprite):
             self.image = IMAGES["SPR_AI_BUTTON_ON"]
         elif ai_mode == False:
             self.image = IMAGES["SPR_AI_BUTTON_OFF"]
-            print("YAYYY")
         
 class GamePropertiesButton(pygame.sprite.Sprite):
     def __init__(self, pos):

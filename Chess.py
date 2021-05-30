@@ -786,7 +786,7 @@ class Move_Tracker():
             Move_Tracker.df_prior_moves = Move_Tracker.df_prior_moves.iloc[:-1]
 
 class AI_Controller():
-    ai_mode = True
+    ai_mode = False
     total_possible_moves = []
     #%% Currently working on
     def ai_mode_toggle():
@@ -1050,14 +1050,14 @@ class Move_Controller():
         elif special_abb == "=Q":
             recorded_move = prefix + captured_abb + piece.coordinate[0] + piece.coordinate[1] + special_abb + check_abb
         return recorded_move
-    def select_piece_unselect_all_others(mousepos, game_controller):
+    def select_piece_unselect_all_others(piece_coord, game_controller):
         clicked_piece = None
         # Selecting and unselecting white pieces
         if game_controller.WHOSETURN == "white":
             for piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
                 for piece in piece_list:
                     # Selects piece
-                    if (piece.rect.collidepoint(mousepos) and piece.select == False and Switch_Modes_Controller.REPLAYED == False):
+                    if (piece.coordinate == piece_coord and piece.select == False and Switch_Modes_Controller.REPLAYED == False):
                         clicked_piece = piece
                     else:
                         # Unselects piece
@@ -1068,7 +1068,7 @@ class Move_Controller():
         elif game_controller.WHOSETURN == "black":
             for piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
                 for piece in piece_list:
-                    if (piece.rect.collidepoint(mousepos) and piece.select == False and Switch_Modes_Controller.REPLAYED == False):
+                    if (piece.coordinate == piece_coord and piece.select == False and Switch_Modes_Controller.REPLAYED == False):
                         clicked_piece = piece
                     else:
                         piece.no_highlight()
@@ -1182,6 +1182,23 @@ class Move_Controller():
                 Move_Controller.game_status_check(game_controller)
                 log.info("Back to (" + str(len(Move_Tracker.df_moves)) + ".) " + "White undo turn " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
             #print("game_controller df: \n" + str(Move_Tracker.df_moves))
+            
+    def update_pieces_and_board(new_coord, game_controller):
+        #%% WIP
+        for grid in board.Grid.grid_list:
+            for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
+                for piece in piece_list:
+                    # Reset the prior move color variable from all pieces
+                    piece.prior_move_color = False
+                    # If piece is allowed to move to another grid coordinate and piece is also selected
+                    if (grid.coordinate == new_coord \
+                        and ((piece.coordinate in grid.coords_of_available_pieces['white'] and piece.color == "white") \
+                             or (piece.coordinate in grid.coords_of_available_pieces['black'] and piece.color == "black")) \
+                                 and piece.select==True):
+                        prior_moves_dict, captured_abb, special_abb, promoted_queen = Move_Controller.make_move(grid, piece, game_controller)
+                        check_abb = Move_Controller.game_status_check(game_controller)
+                        Move_Controller.record_move(game_controller, grid, piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen)
+                                                        
     def make_move(grid, piece, game_controller):
         # Default captured_abb for function to be empty string
         captured_abb = ""
@@ -1534,7 +1551,7 @@ def main():
         
         PLAY_EDIT_SWITCH_BUTTON = PlayEditSwitchButton(initvar.PLAY_EDIT_SWITCH_BUTTON_TOPLEFT, GAME_MODE_SPRITES)
         FLIP_BOARD_BUTTON = FlipBoardButton(initvar.FLIP_BOARD_BUTTON_TOPLEFT)
-        AI_BUTTON = AIButton(initvar.AI_BUTTON_TOPLEFT)
+        AI_BUTTON = AIButton(initvar.AI_BUTTON_TOPLEFT, AI_Controller.ai_mode)
         GAME_PROPERTIES_BUTTON = GamePropertiesButton(initvar.GAME_PROPERTIES_BUTTON_TOPLEFT)
         INFO_BUTTON = InfoButton(initvar.INFO_BUTTON_TOPLEFT)
         POS_LOAD_FILE_BUTTON = PosLoadFileButton(initvar.POS_LOAD_FILE_BUTTON_TOPLEFT)
@@ -1721,34 +1738,17 @@ def main():
                         if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
                             # Moves piece
                             #%% I plan on having this in a new function within a class nto dependent on mouse click
-                            def update_pieces_and_board():
-                                for grid in board.Grid.grid_list:
-                                    for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
-                                        for piece in piece_list:
-                                            # Reset the prior move color variable from all pieces
-                                            piece.prior_move_color = False
-                                            # If piece is allowed to move to another grid coordinate and piece is also selected
-                                            if (grid.rect.collidepoint(MOUSEPOS) \
-                                                and ((piece.coordinate in grid.coords_of_available_pieces['white'] and piece.color == "white") \
-                                                     or (piece.coordinate in grid.coords_of_available_pieces['black'] and piece.color == "black")) \
-                                                         and piece.select==True):
-                                                prior_moves_dict, captured_abb, special_abb, promoted_queen = Move_Controller.make_move(grid, piece, game_controller)
-                                                check_abb = Move_Controller.game_status_check(game_controller)
-                                                Move_Controller.record_move(game_controller, grid, piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen)
-                                                if AI_Controller.ai_mode == True:
-                                                    AI_Controller.total_possible_moves_update(game_controller)
-                                                    if AI_Controller.total_possible_moves:
-                                                        ai_move = AI_Controller.choose_move()
-                                                        ai_grid = ai_move[0]
-                                                        ai_piece = ai_move[1]
-                                                        prior_moves_dict, captured_abb, special_abb, promoted_queen = Move_Controller.make_move(ai_grid, ai_piece, game_controller)
-                                                        check_abb = Move_Controller.game_status_check(game_controller)
-                                                        Move_Controller.record_move(game_controller, grid, piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen)
-
-                                                    
-                            update_pieces_and_board()
+                            Move_Controller.update_pieces_and_board(MOUSE_COORD, game_controller)
                             # Selects piece
-                            Move_Controller.select_piece_unselect_all_others(MOUSEPOS, game_controller)
+                            Move_Controller.select_piece_unselect_all_others(MOUSE_COORD, game_controller)
+                            if AI_Controller.ai_mode == True:
+                                AI_Controller.total_possible_moves_update(game_controller)
+                                if AI_Controller.total_possible_moves:
+                                    ai_move = AI_Controller.choose_move()
+                                    ai_grid = ai_move[0]
+                                    ai_piece = ai_move[1]
+                                    Move_Controller.update_pieces_and_board(ai_grid, game_controller)
+                                    Move_Controller.select_piece_unselect_all_others(ai_grid, game_controller)
     
                     if event.type == pygame.MOUSEBUTTONDOWN and (event.button == 4 or event.button == 5):
                         #scroll wheel
