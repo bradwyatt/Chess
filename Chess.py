@@ -764,8 +764,6 @@ class Move_Tracker():
         Move_Tracker.df_moves.index = np.arange(1, len(Move_Tracker.df_moves)+1)
         Move_Tracker.df_prior_moves = pd.DataFrame(columns=["white_move", "black_move"])
         Move_Tracker.df_prior_moves.index = np.arange(1, len(Move_Tracker.df_prior_moves)+1)
-        #%% The below 1 line may need to be deleted
-        Move_Tracker.move_counter = lambda : len(Move_Tracker.df_moves) 
         Move_Tracker.selected_move = (0, "")
     def undo_move_in_dfs(undo_color):
         if undo_color == "black":
@@ -786,6 +784,8 @@ class Move_Tracker():
             Move_Tracker.df_moves = Move_Tracker.df_moves.iloc[:-1]
             Move_Tracker.df_prior_moves = Move_Tracker.df_prior_moves.iloc[:-1]
 
+class AI_Controller():
+    total_possible_moves = []
 
 class Game_Controller():
     def __init__(self, flipped, whoseturn="white"):
