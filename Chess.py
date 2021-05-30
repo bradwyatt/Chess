@@ -1737,7 +1737,14 @@ def main():
                                                 Move_Controller.record_move(game_controller, grid, piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen)
                                                 if AI_Controller.ai_mode == True:
                                                     AI_Controller.total_possible_moves_update(game_controller)
-                                                    chosen_move = AI_Controller.choose_move()
+                                                    if AI_Controller.total_possible_moves:
+                                                        ai_move = AI_Controller.choose_move()
+                                                        ai_grid = ai_move[0]
+                                                        ai_piece = ai_move[1]
+                                                        prior_moves_dict, captured_abb, special_abb, promoted_queen = Move_Controller.make_move(ai_grid, ai_piece, game_controller)
+                                                        check_abb = Move_Controller.game_status_check(game_controller)
+                                                        Move_Controller.record_move(game_controller, grid, piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen)
+
                                                     
                             update_pieces_and_board()
                             # Selects piece
