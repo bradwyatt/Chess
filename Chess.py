@@ -785,30 +785,29 @@ class Move_Tracker():
             Move_Tracker.df_moves = Move_Tracker.df_moves.iloc[:-1]
             Move_Tracker.df_prior_moves = Move_Tracker.df_prior_moves.iloc[:-1]
 
-class AI_Controller():
-    ai_mode = True
-    ai_color = "black"
+class CPU_Controller():
+    cpu_mode = True
+    cpu_color = "black"
     total_possible_moves = []
     #%% Currently working on
-    def ai_mode_toggle():
-        if AI_Controller.ai_mode == False:
-            AI_Controller.ai_mode = True
-        elif AI_Controller.ai_mode == True:
-            AI_Controller.ai_mode = False
+    def cpu_mode_toggle():
+        if CPU_Controller.cpu_mode == False:
+            CPU_Controller.cpu_mode = True
+        elif CPU_Controller.cpu_mode == True:
+            CPU_Controller.cpu_mode = False
     def total_possible_moves_update():
-        AI_Controller.total_possible_moves = []
+        CPU_Controller.total_possible_moves = []
         for grid in board.Grid.grid_list:
             # grid is the future move
-            if grid.coords_of_available_pieces[AI_Controller.ai_color]:
-                for original_grid_coord_of_piece_to_move in grid.coords_of_available_pieces[AI_Controller.ai_color]:
+            if grid.coords_of_available_pieces[CPU_Controller.cpu_color]:
+                for original_grid_coord_of_piece_to_move in grid.coords_of_available_pieces[CPU_Controller.cpu_color]:
                     for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
                         for piece in piece_list:
                             if original_grid_coord_of_piece_to_move == piece.coordinate:
                                 piece_to_move = piece
-                    AI_Controller.total_possible_moves.append((grid, piece_to_move))
-        #print("Total moves: " + str(AI_Controller.total_possible_moves))
+                    CPU_Controller.total_possible_moves.append((grid, piece_to_move))
     def choose_move():
-        return (random.choice(AI_Controller.total_possible_moves))
+        return (random.choice(CPU_Controller.total_possible_moves))
 
 class Game_Controller():
     def __init__(self, flipped, whoseturn="white"):
@@ -1552,7 +1551,7 @@ def main():
         
         PLAY_EDIT_SWITCH_BUTTON = PlayEditSwitchButton(initvar.PLAY_EDIT_SWITCH_BUTTON_TOPLEFT, GAME_MODE_SPRITES)
         FLIP_BOARD_BUTTON = FlipBoardButton(initvar.FLIP_BOARD_BUTTON_TOPLEFT)
-        AI_BUTTON = AIButton(initvar.AI_BUTTON_TOPLEFT, AI_Controller.ai_mode)
+        CPU_BUTTON = AIButton(initvar.CPU_BUTTON_TOPLEFT, CPU_Controller.cpu_mode)
         GAME_PROPERTIES_BUTTON = GamePropertiesButton(initvar.GAME_PROPERTIES_BUTTON_TOPLEFT)
         INFO_BUTTON = InfoButton(initvar.INFO_BUTTON_TOPLEFT)
         POS_LOAD_FILE_BUTTON = PosLoadFileButton(initvar.POS_LOAD_FILE_BUTTON_TOPLEFT)
@@ -1635,9 +1634,9 @@ def main():
                                 game_controller.captured_pieces_flip(Grid_Controller.flipped)
                         if UNDO_MOVE_BUTTON.rect.collidepoint(MOUSEPOS) and UNDO_MOVE_BUTTON.clickable == True:
                             Move_Controller.undo_move(game_controller)
-                        if AI_BUTTON.rect.collidepoint(MOUSEPOS) and AI_BUTTON.clickable == True:
-                            AI_Controller.ai_mode_toggle()
-                            AI_BUTTON.toggle(AI_Controller.ai_mode)
+                        if CPU_BUTTON.rect.collidepoint(MOUSEPOS) and CPU_BUTTON.clickable == True:
+                            CPU_Controller.ai_mode_toggle()
+                            CPU_BUTTON.toggle(CPU_Controller.cpu_mode)
                         if BEGINNING_MOVE_BUTTON.rect.collidepoint(MOUSEPOS) and BEGINNING_MOVE_BUTTON.clickable == True:
                             Move_Tracker.selected_move = 1, "white_move"
                             Switch_Modes_Controller.replayed_game(True, game_controller, True)
@@ -1742,14 +1741,14 @@ def main():
                             Move_Controller.update_pieces_and_board(MOUSE_COORD, game_controller)
                             # Selects piece
                             Move_Controller.select_piece_unselect_all_others(MOUSE_COORD, game_controller)
-                            if AI_Controller.ai_mode == True and game_controller.WHOSETURN == AI_Controller.ai_color:
-                                AI_Controller.total_possible_moves_update()
-                                if AI_Controller.total_possible_moves:
-                                    ai_move = AI_Controller.choose_move()
-                                    ai_grid = ai_move[0]
-                                    ai_piece = ai_move[1]
-                                    ai_piece.select = True
-                                    Move_Controller.update_pieces_and_board(ai_grid.coordinate, game_controller)
+                            if CPU_Controller.cpu_mode == True and game_controller.WHOSETURN == CPU_Controller.ai_color:
+                                CPU_Controller.total_possible_moves_update()
+                                if CPU_Controller.total_possible_moves:
+                                    cpu_move = CPU_Controller.choose_move()
+                                    cpu_grid = cpu_move[0]
+                                    cpu_piece = cpu_move[1]
+                                    cpu_piece.select = True
+                                    Move_Controller.update_pieces_and_board(cpu_grid.coordinate, game_controller)
                                     #Move_Controller.select_piece_unselect_all_others(ai_grid, game_controller)
     
                     if event.type == pygame.MOUSEBUTTONDOWN and (event.button == 4 or event.button == 5):
