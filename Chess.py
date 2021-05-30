@@ -786,8 +786,14 @@ class Move_Tracker():
             Move_Tracker.df_prior_moves = Move_Tracker.df_prior_moves.iloc[:-1]
 
 class AI_Controller():
+    ai_mode = True
     total_possible_moves = []
     #%% Currently working on
+    def ai_mode_toggle():
+        if AI_Controller.ai_mode == False:
+            AI_Controller.ai_mode = True
+        elif AI_Controller.ai_mode == True:
+            AI_Controller.ai_mode = False
     def total_possible_moves_update(game_controller):
         AI_Controller.total_possible_moves = []
         for grid in board.Grid.grid_list:
@@ -799,7 +805,9 @@ class AI_Controller():
                             if original_grid_coord_of_piece_to_move == piece.coordinate:
                                 piece_to_move = piece
                     AI_Controller.total_possible_moves.append((grid, piece_to_move))
-        print("Total moves: " + str(AI_Controller.total_possible_moves))
+        #print("Total moves: " + str(AI_Controller.total_possible_moves))
+    def choose_move():
+        return (random.choice(AI_Controller.total_possible_moves))
 
 class Game_Controller():
     def __init__(self, flipped, whoseturn="white"):
@@ -1586,7 +1594,8 @@ def main():
                             debug_message = 1
                             state = DEBUG
                     # Menu, inanimate buttons at top, and on right side of game board
-                    if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and MOUSEPOS[0] > initvar.X_GRID_END:
+                    if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] \
+                        and (MOUSEPOS[0] > initvar.X_GRID_END or MOUSEPOS[1] < initvar.Y_GRID_START):
                         #%% Left click buttons
                         if SCROLL_UP_BUTTON.rect.collidepoint(MOUSEPOS) and PanelRectangles.scroll_range[0] > 1: # Scroll up
                             if SCROLL_UP_BUTTON.activate == True:    
@@ -1608,6 +1617,9 @@ def main():
                                 game_controller.captured_pieces_flip(Grid_Controller.flipped)
                         if UNDO_MOVE_BUTTON.rect.collidepoint(MOUSEPOS) and UNDO_MOVE_BUTTON.clickable == True:
                             Move_Controller.undo_move(game_controller)
+                        if AI_BUTTON.rect.collidepoint(MOUSEPOS) and AI_BUTTON.clickable == True:
+                            AI_Controller.ai_mode_toggle()
+                            AI_BUTTON.toggle(AI_Controller.ai_mode)
                         if BEGINNING_MOVE_BUTTON.rect.collidepoint(MOUSEPOS) and BEGINNING_MOVE_BUTTON.clickable == True:
                             Move_Tracker.selected_move = 1, "white_move"
                             Switch_Modes_Controller.replayed_game(True, game_controller, True)
@@ -1708,6 +1720,7 @@ def main():
                         start_objects.Dragging.dragging_to_placed_no_dups(MOUSE_COORD)
                         if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
                             # Moves piece
+                            #%% I plan on having this in a new function within a class nto dependent on mouse click
                             def update_pieces_and_board():
                                 for grid in board.Grid.grid_list:
                                     for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
@@ -1722,10 +1735,13 @@ def main():
                                                 prior_moves_dict, captured_abb, special_abb, promoted_queen = Move_Controller.make_move(grid, piece, game_controller)
                                                 check_abb = Move_Controller.game_status_check(game_controller)
                                                 Move_Controller.record_move(game_controller, grid, piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen)
+                                                if AI_Controller.ai_mode == True:
+                                                    AI_Controller.total_possible_moves_update(game_controller)
+                                                    chosen_move = AI_Controller.choose_move()
+                                                    
                             update_pieces_and_board()
                             # Selects piece
                             Move_Controller.select_piece_unselect_all_others(MOUSEPOS, game_controller)
-                            AI_Controller.total_possible_moves_update(game_controller)
     
                     if event.type == pygame.MOUSEBUTTONDOWN and (event.button == 4 or event.button == 5):
                         #scroll wheel

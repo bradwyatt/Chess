@@ -137,6 +137,12 @@ class AIButton(pygame.sprite.Sprite):
             self.clickable = True
         else:
             self.clickable = False
+    def toggle(self, ai_mode):
+        if ai_mode == True:
+            self.image = IMAGES["SPR_AI_BUTTON_ON"]
+        elif ai_mode == False:
+            self.image = IMAGES["SPR_AI_BUTTON_OFF"]
+            print("YAYYY")
         
 class GamePropertiesButton(pygame.sprite.Sprite):
     def __init__(self, pos):
