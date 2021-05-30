@@ -806,8 +806,10 @@ class CPU_Controller():
                             if original_grid_coord_of_piece_to_move == piece.coordinate:
                                 piece_to_move = piece
                     CPU_Controller.total_possible_moves.append((grid, piece_to_move))
-    def choose_move():
+    def random_move():
         return (random.choice(CPU_Controller.total_possible_moves))
+    def choose_move():
+        return CPU_Controller.random_move()
 
 class Game_Controller():
     def __init__(self, flipped, whoseturn="white"):
