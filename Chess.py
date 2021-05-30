@@ -39,6 +39,7 @@ from tkinter.filedialog import *
 from tkinter import ttk  
 import ast
 import pygame
+import random
 import datetime
 import logging
 import logging.handlers
@@ -454,7 +455,7 @@ class PGN_Writer_and_Loader():
                     Move_Controller.record_move(game_controller, board.Grid.grid_dict[grid_coordinate], piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen)                    
                 Panel_Controller.draw_move_rects_on_moves_pane(pygame.font.SysFont('Arial', 16), game_controller)
                 
-        def prior_move_off(current_coord):
+        def prior_move_grid_update(current_coord):
             for play_obj_list in play_objects.Piece_Lists_Shortcut.all_pieces():
                 for play_obj in play_obj_list:
                     if play_obj.coordinate == grid_coordinate:
@@ -466,7 +467,7 @@ class PGN_Writer_and_Loader():
                         play_obj.prior_move_color = False
                         play_obj.no_highlight()
             return
-        prior_move_off(grid_coordinate)
+        prior_move_grid_update(grid_coordinate)
         
         # This goes through all pieces available moves
         for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
@@ -786,6 +787,19 @@ class Move_Tracker():
 
 class AI_Controller():
     total_possible_moves = []
+    #%% Currently working on
+    def total_possible_moves_update(game_controller):
+        AI_Controller.total_possible_moves = []
+        for grid in board.Grid.grid_list:
+            # grid is the future move
+            if grid.coords_of_available_pieces[game_controller.WHOSETURN]:
+                for original_grid_coord_of_piece_to_move in grid.coords_of_available_pieces[game_controller.WHOSETURN]:
+                    for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
+                        for piece in piece_list:
+                            if original_grid_coord_of_piece_to_move == piece.coordinate:
+                                piece_to_move = piece
+                    AI_Controller.total_possible_moves.append((grid, piece_to_move))
+        print("Total moves: " + str(AI_Controller.total_possible_moves))
 
 class Game_Controller():
     def __init__(self, flipped, whoseturn="white"):
@@ -1019,7 +1033,6 @@ class Move_Controller():
             prefix = prefix_func(piece, piece_name, captured_abb, special_abb)
         elif piece.color == "black":
             prefix = prefix_func(piece, piece_name, captured_abb, special_abb)
-        #recorded_move = piece.color + prefix + " " + piece_name + " from " + str(piece.previous_coordinate) + " to " + str(piece.coordinate)
         if special_abb == "":
             recorded_move = piece_abb + prefix + captured_abb + piece.coordinate[0] + piece.coordinate[1] + check_abb
         elif special_abb == "O-O":
@@ -1710,6 +1723,7 @@ def main():
                             update_pieces_and_board()
                             # Selects piece
                             Move_Controller.select_piece_unselect_all_others(MOUSEPOS, game_controller)
+                            AI_Controller.total_possible_moves_update(game_controller)
     
                     if event.type == pygame.MOUSEBUTTONDOWN and (event.button == 4 or event.button == 5):
                         #scroll wheel
