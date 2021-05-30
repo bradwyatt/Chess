@@ -1551,7 +1551,7 @@ def main():
         
         PLAY_EDIT_SWITCH_BUTTON = PlayEditSwitchButton(initvar.PLAY_EDIT_SWITCH_BUTTON_TOPLEFT, GAME_MODE_SPRITES)
         FLIP_BOARD_BUTTON = FlipBoardButton(initvar.FLIP_BOARD_BUTTON_TOPLEFT)
-        CPU_BUTTON = AIButton(initvar.CPU_BUTTON_TOPLEFT, CPU_Controller.cpu_mode)
+        CPU_BUTTON = CPUButton(initvar.CPU_BUTTON_TOPLEFT, CPU_Controller.cpu_mode)
         GAME_PROPERTIES_BUTTON = GamePropertiesButton(initvar.GAME_PROPERTIES_BUTTON_TOPLEFT)
         INFO_BUTTON = InfoButton(initvar.INFO_BUTTON_TOPLEFT)
         POS_LOAD_FILE_BUTTON = PosLoadFileButton(initvar.POS_LOAD_FILE_BUTTON_TOPLEFT)
@@ -1741,7 +1741,7 @@ def main():
                             Move_Controller.update_pieces_and_board(MOUSE_COORD, game_controller)
                             # Selects piece
                             Move_Controller.select_piece_unselect_all_others(MOUSE_COORD, game_controller)
-                            if CPU_Controller.cpu_mode == True and game_controller.WHOSETURN == CPU_Controller.ai_color:
+                            if CPU_Controller.cpu_mode == True and game_controller.WHOSETURN == CPU_Controller.cpu_color:
                                 CPU_Controller.total_possible_moves_update()
                                 if CPU_Controller.total_possible_moves:
                                     cpu_move = CPU_Controller.choose_move()
