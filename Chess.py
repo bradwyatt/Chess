@@ -1138,9 +1138,7 @@ class Move_Controller():
                     play_objects.PlayQueen.black_queen_list.remove(queen)
                 if pieces_to_undo[0] in play_objects.PlayPawn.black_pawn_list:
                     pieces_to_undo[0].taken_off_board = False
-                PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['black_move'].move_notation = ""
-                PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['black_move'].kill()
-                del PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['black_move']
+                Panel_Controller.remove_latest_move('black_move')
                 Move_Tracker.undo_move_in_dfs("black")
                 Panel_Controller.scroll_to_latest_move(Move_Tracker.move_counter())
                 game_controller.switch_turn("black", undo=True)
@@ -1168,11 +1166,7 @@ class Move_Controller():
                     play_objects.PlayQueen.white_queen_list.remove(queen)
                 if pieces_to_undo[0] in play_objects.PlayPawn.white_pawn_list:
                     pieces_to_undo[0].taken_off_board = False
-                PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['white_move'].move_notation = ""
-                PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['white_move'].kill()
-                del PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]
-                MoveNumberRectangle.rectangle_dict[Move_Tracker.move_counter()].text = ""
-                MoveNumberRectangle.rectangle_dict[Move_Tracker.move_counter()].kill()
+                Panel_Controller.remove_latest_move('white_move')
                 Move_Tracker.undo_move_in_dfs("white")
                 Panel_Controller.scroll_to_latest_move(Move_Tracker.move_counter())
                 game_controller.switch_turn("white", undo=True)
@@ -1502,6 +1496,14 @@ class Panel_Controller:
                 PieceMoveRectangle(len(Move_Tracker.df_moves), Move_Tracker.df_moves.loc[len(Move_Tracker.df_moves), 'black_move'], 'black_move', initvar.MOVES_PANE_BLACK_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(Move_Tracker.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)        
                 Panel_Controller.scroll_to_latest_move(len(Move_Tracker.df_moves))
             Panel_Controller.draw_text_on_rects_in_moves_pane(SCREEN, my_font)
+            
+    def remove_latest_move(color_move):
+        PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()][color_move].move_notation = ""
+        PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()][color_move].kill()
+        del PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()][color_move]
+        if color_move == "white_move":
+            MoveNumberRectangle.rectangle_dict[Move_Tracker.move_counter()].text = ""
+            MoveNumberRectangle.rectangle_dict[Move_Tracker.move_counter()].kill()
 
 def main():
     try:
