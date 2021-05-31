@@ -830,6 +830,8 @@ class CPU_Controller():
                         move_score += 0.5
                     elif piece_to_move.queen_side_castle_ability == True and grid.coordinate == 'c8':
                         move_score += 0.5
+                    elif piece_to_move.castled == True:
+                        pass
                     else:
                         # If king move not a castle move, don't do it early on
                         move_score -= 0.5
@@ -837,11 +839,12 @@ class CPU_Controller():
                     # Disincentivize rook from moving before castling
                     if piece_to_move.allowed_to_castle == True:
                         move_score -= 0.5
+                    elif piece_to_move.allowed_to_castle == False:
+                        pass
                 if len(board.Grid.grid_dict[grid.coordinate].coords_of_attacking_pieces['white']) > 0 \
                     and len(board.Grid.grid_dict[grid.coordinate].coords_of_protecting_pieces['black']) <= 1:
                         # Moving to a square being attacked by white and 0 protection
                         move_score -= piece_to_move.score
-                        print("ABCD234 " + str(grid.coordinate))
                 elif len(board.Grid.grid_dict[grid.coordinate].coords_of_attacking_pieces['white']) > 0 \
                     and len(board.Grid.grid_dict[grid.coordinate].coords_of_protecting_pieces['black']) > 1:
                         # Moving to a square being attacked by white but you have some protection
