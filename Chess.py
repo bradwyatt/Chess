@@ -47,7 +47,7 @@ import pandas as pd
 import numpy as np
 import initvar
 import PySimpleGUI as sg
-
+import pickle
 
 #############
 # Logging
@@ -822,7 +822,7 @@ class CPU_Controller():
             CPU_Controller.cpu_mode = True
         elif CPU_Controller.cpu_mode == True:
             CPU_Controller.cpu_mode = False
-    def analyze_board(grid, piece_to_move, piece_color):
+    def analyze_board(new_grid, piece_to_move, piece_color, game_controller):
         white_score = 0
         black_score = 0
         for white_piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
@@ -830,76 +830,86 @@ class CPU_Controller():
                 if white_piece.taken_off_board == False:
                     if white_piece in play_objects.PlayPawn.white_pawn_list:
                         if piece_to_move == white_piece:
-                            white_score += CPU_Controller.white_pawn_pos_score_dict[grid.coordinate]
+                            white_score += CPU_Controller.white_pawn_pos_score_dict[new_grid.coordinate]
                         else:
                             white_score += CPU_Controller.white_pawn_pos_score_dict[white_piece.coordinate]
                         white_score += initvar.piece_values_dict['pawn']
                     elif white_piece in play_objects.PlayKnight.white_knight_list:
                         if piece_to_move == white_piece:
-                            white_score += CPU_Controller.white_knight_pos_score_dict[grid.coordinate]
+                            white_score += CPU_Controller.white_knight_pos_score_dict[new_grid.coordinate]
                         else:
                             white_score += CPU_Controller.white_knight_pos_score_dict[white_piece.coordinate]
                         white_score += initvar.piece_values_dict['knight']
                     elif white_piece in play_objects.PlayBishop.white_bishop_list:
                         if piece_to_move == white_piece:
-                            white_score += CPU_Controller.white_bishop_pos_score_dict[grid.coordinate]
+                            white_score += CPU_Controller.white_bishop_pos_score_dict[new_grid.coordinate]
                         else:
                             white_score += CPU_Controller.white_bishop_pos_score_dict[white_piece.coordinate]
                         white_score += initvar.piece_values_dict['bishop']
                     elif white_piece in play_objects.PlayKing.white_king_list:
                         if piece_to_move == white_piece:
-                            white_score += CPU_Controller.white_king_pos_score_dict[grid.coordinate]
+                            white_score += CPU_Controller.white_king_pos_score_dict[new_grid.coordinate]
                         else:
                             white_score += CPU_Controller.white_king_pos_score_dict[white_piece.coordinate]
                         white_score += initvar.piece_values_dict['king']
                     elif white_piece in play_objects.PlayRook.white_rook_list:
                         if piece_to_move == white_piece:
-                            white_score += CPU_Controller.white_rook_pos_score_dict[grid.coordinate]
+                            white_score += CPU_Controller.white_rook_pos_score_dict[new_grid.coordinate]
                         else:
                             white_score += CPU_Controller.white_rook_pos_score_dict[white_piece.coordinate]
                         white_score += initvar.piece_values_dict['rook']
                     elif white_piece in play_objects.PlayQueen.white_queen_list:
                         if piece_to_move == white_piece:
-                            white_score += CPU_Controller.white_queen_pos_score_dict[grid.coordinate]
+                            white_score += CPU_Controller.white_queen_pos_score_dict[new_grid.coordinate]
                         else:
                             white_score += CPU_Controller.white_queen_pos_score_dict[white_piece.coordinate]
                         white_score += initvar.piece_values_dict['queen']
+        #%% Analyze board
+        # I need to figure out the attack_count of all grids (AFTER move)
+        # I need to figure out the protector_count of all grids (AFTER move)
+        # SAVE STATE OF ALL GRIDS (and maybe all pieces? and potentially game_controller)
+        original_coordinate_of_piece = piece_to_move.coordinate
+        piece_to_move.coordinate = new_grid.coordinate
+        game_controller.projected_white_update()
+        game_controller.projected_black_update()
+        # RESTORE STATE OF ALL GRIDS and ALL PIECES
+        # INSERT 
         for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
             for black_piece in black_piece_list:
                 if black_piece.taken_off_board == False:
                     if black_piece in play_objects.PlayPawn.black_pawn_list:
                         if piece_to_move == black_piece:
-                            black_score += CPU_Controller.black_pawn_pos_score_dict[grid.coordinate]
+                            black_score += CPU_Controller.black_pawn_pos_score_dict[new_grid.coordinate]
                         else:
                             black_score += CPU_Controller.black_pawn_pos_score_dict[black_piece.coordinate]
                         black_score += initvar.piece_values_dict['pawn']
                     elif black_piece in play_objects.PlayKnight.black_knight_list:
                         if piece_to_move == black_piece:
-                            black_score += CPU_Controller.black_knight_pos_score_dict[grid.coordinate]
+                            black_score += CPU_Controller.black_knight_pos_score_dict[new_grid.coordinate]
                         else:
                             black_score += CPU_Controller.black_knight_pos_score_dict[black_piece.coordinate]
                         black_score += initvar.piece_values_dict['knight']
                     elif black_piece in play_objects.PlayBishop.black_bishop_list:
                         if piece_to_move == black_piece:
-                            black_score += CPU_Controller.black_bishop_pos_score_dict[grid.coordinate]
+                            black_score += CPU_Controller.black_bishop_pos_score_dict[new_grid.coordinate]
                         else:
                             black_score += CPU_Controller.black_bishop_pos_score_dict[black_piece.coordinate]
                         black_score += initvar.piece_values_dict['bishop']
                     elif black_piece in play_objects.PlayKing.black_king_list:
                         if piece_to_move == black_piece:
-                            black_score += CPU_Controller.black_king_pos_score_dict[grid.coordinate]
+                            black_score += CPU_Controller.black_king_pos_score_dict[new_grid.coordinate]
                         else:
                             black_score += CPU_Controller.black_king_pos_score_dict[black_piece.coordinate]
                         black_score += initvar.piece_values_dict['king']
                     elif black_piece in play_objects.PlayRook.black_rook_list:
                         if piece_to_move == black_piece:
-                            black_score += CPU_Controller.black_rook_pos_score_dict[grid.coordinate]
+                            black_score += CPU_Controller.black_rook_pos_score_dict[new_grid.coordinate]
                         else:
                             black_score += CPU_Controller.black_rook_pos_score_dict[black_piece.coordinate]
                         black_score += initvar.piece_values_dict['rook']
                     elif black_piece in play_objects.PlayQueen.black_queen_list:
                         if piece_to_move == black_piece:
-                            black_score += CPU_Controller.black_queen_pos_score_dict[grid.coordinate]
+                            black_score += CPU_Controller.black_queen_pos_score_dict[new_grid.coordinate]
                         else:
                             black_score += CPU_Controller.black_queen_pos_score_dict[black_piece.coordinate]
                         black_score += initvar.piece_values_dict['queen']
@@ -920,14 +930,14 @@ class CPU_Controller():
                     CPU_Controller.total_possible_moves.append((grid, piece_to_move))
     def random_move():
         return (random.choice(CPU_Controller.total_possible_moves))
-    def choose_move():
+    def choose_move(game_controller):
         move_score_list = []
         random.seed(4)
         random.shuffle(CPU_Controller.total_possible_moves)
         for possible_move in CPU_Controller.total_possible_moves:
             grid = possible_move[0]
             piece_to_move = possible_move[1]
-            move_score = CPU_Controller.analyze_board(grid, piece_to_move, CPU_Controller.cpu_color)
+            move_score = CPU_Controller.analyze_board(grid, piece_to_move, CPU_Controller.cpu_color, game_controller)
             if grid.occupied == True and not grid.coords_of_attacking_pieces[CPU_Controller.enemy_color]:
                 # No other attack pieces
                 move_score += play_objects.Piece_Lists_Shortcut.piece_on_coord(grid.coordinate).score
@@ -1960,7 +1970,7 @@ def main():
                             if CPU_Controller.cpu_mode == True and game_controller.WHOSETURN == CPU_Controller.cpu_color:
                                 CPU_Controller.total_possible_moves_update()
                                 if CPU_Controller.total_possible_moves:
-                                    cpu_move = CPU_Controller.choose_move()
+                                    cpu_move = CPU_Controller.choose_move(game_controller)
                                     cpu_grid = cpu_move[0]
                                     cpu_piece = cpu_move[1]
                                     cpu_piece.select = True
