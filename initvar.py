@@ -113,7 +113,9 @@ WHITE_KING_POS_SCORE = [-30, -40, -40, -50, -50, -40, -40, -30,
                         20, 20, 0, 0, 0, 0, 20, 20,
                         20, 30, 10, 0, 0, 10, 30, 20]
 
-WHITE_ROOK_POS_SCORE = [0]*64
-BLACK_ROOK_POS_SCORE = [0]*64
-WHITE_QUEEN_POS_SCORE = [0]*64
-BLACK_QUEEN_POS_SCORE = [0]*64
+piece_values_dict = {"pawn": 100,
+                     "knight": 320,
+                     "bishop": 330,
+                     "rook": 500,
+                     "queen": 975,
+                     "king": 20000}

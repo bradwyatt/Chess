@@ -829,30 +829,44 @@ class CPU_Controller():
             for white_piece in white_piece_list:
                 if white_piece in play_objects.PlayPawn.white_pawn_list:
                     white_score += CPU_Controller.white_pawn_pos_score_dict[white_piece.coordinate]
+                    white_score += initvar.piece_values_dict['pawn']
                 elif white_piece in play_objects.PlayKnight.white_knight_list:
                     white_score += CPU_Controller.white_knight_pos_score_dict[white_piece.coordinate]
+                    white_score += initvar.piece_values_dict['knight']
                 elif white_piece in play_objects.PlayBishop.white_bishop_list:
                     white_score += CPU_Controller.white_bishop_pos_score_dict[white_piece.coordinate]
+                    white_score += initvar.piece_values_dict['bishop']
                 elif white_piece in play_objects.PlayKing.white_king_list:
                     white_score += CPU_Controller.white_king_pos_score_dict[white_piece.coordinate]
+                    white_score += initvar.piece_values_dict['king']
                 elif white_piece in play_objects.PlayRook.white_rook_list:
                     white_score += CPU_Controller.white_rook_pos_score_dict[white_piece.coordinate]
+                    white_score += initvar.piece_values_dict['rook']
                 elif white_piece in play_objects.PlayQueen.white_queen_list:
                     white_score += CPU_Controller.white_queen_pos_score_dict[white_piece.coordinate]
+                    white_score += initvar.piece_values_dict['queen']
         for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
             for black_piece in black_piece_list:
                 if black_piece in play_objects.PlayPawn.black_pawn_list:
                     black_score += CPU_Controller.black_pawn_pos_score_dict[black_piece.coordinate]
+                    black_score += initvar.piece_values_dict['pawn']
                 elif black_piece in play_objects.PlayKnight.black_knight_list:
                     black_score += CPU_Controller.black_knight_pos_score_dict[black_piece.coordinate]
+                    black_score += initvar.piece_values_dict['knight']
                 elif black_piece in play_objects.PlayBishop.black_bishop_list:
                     black_score += CPU_Controller.black_bishop_pos_score_dict[black_piece.coordinate]
+                    black_score += initvar.piece_values_dict['bishop']
                 elif black_piece in play_objects.PlayKing.black_king_list:
                     black_score += CPU_Controller.black_king_pos_score_dict[black_piece.coordinate]
+                    black_score += initvar.piece_values_dict['king']
                 elif black_piece in play_objects.PlayRook.black_rook_list:
                     black_score += CPU_Controller.black_rook_pos_score_dict[black_piece.coordinate]
+                    black_score += initvar.piece_values_dict['rook']
                 elif black_piece in play_objects.PlayQueen.black_queen_list:
                     black_score += CPU_Controller.black_queen_pos_score_dict[black_piece.coordinate]
+                    black_score += initvar.piece_values_dict['queen']
+        print("WHITE POSITION SCORE: " + str(white_score))
+        print("BLACK POSITION SCORE: " + str(black_score))
     def total_possible_moves_update():
         CPU_Controller.total_possible_moves = []
         for grid in board.Grid.grid_list:
@@ -867,6 +881,7 @@ class CPU_Controller():
     def random_move():
         return (random.choice(CPU_Controller.total_possible_moves))
     def choose_move():
+        CPU_Controller.analyze_board()
         move_score_list = []
         random.seed(4)
         random.shuffle(CPU_Controller.total_possible_moves)
