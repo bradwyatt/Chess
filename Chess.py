@@ -822,6 +822,14 @@ class CPU_Controller():
             CPU_Controller.cpu_mode = True
         elif CPU_Controller.cpu_mode == True:
             CPU_Controller.cpu_mode = False
+    def analyze_board():
+        white_score = 0
+        for white_piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
+            for white_piece in white_piece_list:
+                if white_piece in play_objects.PlayPawn.white_pawn_list:
+                    white_score += CPU_Controller.white_pawn_pos_score_dict[white_piece.coordinate]
+                elif white_piece in play_objects.PlayKnight.white_pawn_list:
+                    white_score += CPU_Controller.white_knight_pos_score_dict[white_piece.coordinate]
     def total_possible_moves_update():
         CPU_Controller.total_possible_moves = []
         for grid in board.Grid.grid_list:
