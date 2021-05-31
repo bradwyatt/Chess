@@ -838,23 +838,24 @@ class CPU_Controller():
                     if piece_to_move.allowed_to_castle == True:
                         move_score -= 0.5
                 if len(board.Grid.grid_dict[grid.coordinate].coords_of_attacking_pieces['white']) > 0 \
-                    and len(board.Grid.grid_dict[grid.coordinate].coords_of_protecting_pieces['black']) == 0:
+                    and len(board.Grid.grid_dict[grid.coordinate].coords_of_protecting_pieces['black']) <= 1:
                         # Moving to a square being attacked by white and 0 protection
                         move_score -= piece_to_move.score
+                        print("ABCD234 " + str(grid.coordinate))
                 elif len(board.Grid.grid_dict[grid.coordinate].coords_of_attacking_pieces['white']) > 0 \
-                    and len(board.Grid.grid_dict[grid.coordinate].coords_of_protecting_pieces['black']) > 0:
+                    and len(board.Grid.grid_dict[grid.coordinate].coords_of_protecting_pieces['black']) > 1:
                         # Moving to a square being attacked by white but you have some protection
                     lowest_attacker_score = []
                     for attacking_grid in board.Grid.grid_dict[grid.coordinate].coords_of_attacking_pieces['white']:
                         attacker_piece = play_objects.Piece_Lists_Shortcut.piece_on_coord(attacking_grid)
                         if attacker_piece not in play_objects.PlayKing.white_king_list:
                             if attacker_piece.score <= piece_to_move.score:
-                                lowest_attacker_score.append(piece_to_move.score-attacker_piece.score)
+                                lowest_attacker_score.append(attacker_piece.score-piece_to_move.score)
                             else: 
                                 lowest_attacker_score.append(0)
                         else:
                             lowest_attacker_score.append(0)
-                    move_score -= min(lowest_attacker_score)
+                    move_score += min(lowest_attacker_score)
                 if len(board.Grid.grid_dict[piece_to_move.coordinate].coords_of_attacking_pieces['white']) > 0 \
                     and len(board.Grid.grid_dict[grid.coordinate].coords_of_attacking_pieces['white']) == 0:
                         # Available space without an attacking piece
@@ -863,13 +864,13 @@ class CPU_Controller():
                         else:
                             pass
                 elif len(board.Grid.grid_dict[piece_to_move.coordinate].coords_of_attacking_pieces['white']) > 0 \
-                    and len(board.Grid.grid_dict[piece_to_move.coordinate].coords_of_protecting_pieces['black']) > 0:
+                    and len(board.Grid.grid_dict[piece_to_move.coordinate].coords_of_protecting_pieces['black']) > 1:
                         # Current piece being attacked and is being protected
                     lowest_attacker_score = []
-                    for attacking_grid in board.Grid.grid_dict[piece_to_move.coordinate].coords_of_protecting_pieces['black']:
+                    for attacking_grid in board.Grid.grid_dict[piece_to_move.coordinate].coords_of_attacking_pieces['white']:
                         attacker_piece = play_objects.Piece_Lists_Shortcut.piece_on_coord(attacking_grid)
-                        if attacker_piece not in play_objects.PlayKing.black_king_list:
-                            if attacker_piece.score < piece_to_move.score:
+                        if attacker_piece not in play_objects.PlayKing.white_king_list:
+                            if attacker_piece.score <= piece_to_move.score:
                                 lowest_attacker_score.append(piece_to_move.score-attacker_piece.score)
                             else:
                                 lowest_attacker_score.append(0)
