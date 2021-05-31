@@ -172,6 +172,20 @@ def pos_save_file():
     except IOError:
         log.info("Save File Error (IOError)")
 
+def pos_lists_to_coord(pos_score_list):
+    score_dict = {}
+    coordinate_list = ['a8', 'b8', 'c8', 'd8', 'e8', 'f8', 'g8', 'h8',
+                  'a7', 'b7', 'c7', 'd7', 'e7', 'f7', 'g7', 'h7',
+                  'a6', 'b6', 'c6', 'd6', 'e6', 'f6', 'g6', 'h6',
+                  'a5', 'b5', 'c5', 'd5', 'e5', 'f5', 'g5', 'h5',
+                  'a4', 'b4', 'c4', 'd4', 'e4', 'f4', 'g4', 'h4',
+                  'a3', 'b3', 'c3', 'd3', 'e3', 'f3', 'g3', 'h3',
+                  'a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2',
+                  'a1', 'b1', 'c1', 'd1', 'e1', 'f1', 'g1', 'h1']
+    for item_index in range(0,len(pos_score_list)):
+        score_dict[coordinate_list[item_index]] = pos_score_list[item_index]
+    return score_dict
+
 class PlayEditSwitchButton(pygame.sprite.Sprite):
     def __init__(self, pos, GAME_MODE_SPRITES):
         pygame.sprite.Sprite.__init__(self)
@@ -790,6 +804,18 @@ class CPU_Controller():
     cpu_color = "black"
     enemy_color = "white"
     total_possible_moves = []
+    white_pawn_pos_score_dict = pos_lists_to_coord(initvar.WHITE_PAWN_POS_SCORE)
+    black_pawn_pos_score_dict = pos_lists_to_coord(initvar.WHITE_PAWN_POS_SCORE[::-1])
+    white_knight_pos_score_dict = pos_lists_to_coord(initvar.WHITE_KNIGHT_POS_SCORE)
+    black_knight_pos_score_dict = pos_lists_to_coord(initvar.WHITE_KNIGHT_POS_SCORE[::-1])
+    white_bishop_pos_score_dict = pos_lists_to_coord(initvar.WHITE_BISHOP_POS_SCORE)
+    black_bishop_pos_score_dict = pos_lists_to_coord(initvar.WHITE_BISHOP_POS_SCORE[::-1])
+    white_king_pos_score_dict = pos_lists_to_coord(initvar.WHITE_KING_POS_SCORE)
+    black_king_pos_score_dict = pos_lists_to_coord(initvar.WHITE_KING_POS_SCORE[::-1])
+    white_rook_pos_score_dict = pos_lists_to_coord([0]*64)
+    black_rook_pos_score_dict = pos_lists_to_coord([0]*64)
+    white_queen_pos_score_dict = pos_lists_to_coord([0]*64)
+    black_queen_pos_score_dict = pos_lists_to_coord([0]*64)
     #%% Currently working on
     def cpu_mode_toggle():
         if CPU_Controller.cpu_mode == False:
@@ -841,6 +867,7 @@ class CPU_Controller():
                         move_score -= 0.5
                     elif piece_to_move.allowed_to_castle == False:
                         pass
+                """
                 if len(board.Grid.grid_dict[grid.coordinate].coords_of_attacking_pieces['white']) > 0 \
                     and len(board.Grid.grid_dict[grid.coordinate].coords_of_protecting_pieces['black']) <= 1:
                         # Moving to a square being attacked by white and 0 protection
@@ -898,11 +925,13 @@ class CPU_Controller():
                     and len(board.Grid.grid_dict[piece_to_move.coordinate].coords_of_protecting_pieces['white']) == 0:
                         if len(grid.coords_of_protecting_pieces['white']) > 0:
                             move_score += piece_to_move.score
+                """
             move_score_list.append(move_score)
         print("MOVE SCORE LIST: " + str(move_score_list))
         max_move = max(move_score_list)
         index_of_max_moves = move_score_list.index(max_move)
         return CPU_Controller.total_possible_moves[index_of_max_moves]
+
 
 class Game_Controller():
     def __init__(self, flipped, whoseturn="white"):
