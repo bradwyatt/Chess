@@ -824,12 +824,35 @@ class CPU_Controller():
             CPU_Controller.cpu_mode = False
     def analyze_board():
         white_score = 0
+        black_score = 0
         for white_piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
             for white_piece in white_piece_list:
                 if white_piece in play_objects.PlayPawn.white_pawn_list:
                     white_score += CPU_Controller.white_pawn_pos_score_dict[white_piece.coordinate]
-                elif white_piece in play_objects.PlayKnight.white_pawn_list:
+                elif white_piece in play_objects.PlayKnight.white_knight_list:
                     white_score += CPU_Controller.white_knight_pos_score_dict[white_piece.coordinate]
+                elif white_piece in play_objects.PlayBishop.white_bishop_list:
+                    white_score += CPU_Controller.white_bishop_pos_score_dict[white_piece.coordinate]
+                elif white_piece in play_objects.PlayKing.white_king_list:
+                    white_score += CPU_Controller.white_king_pos_score_dict[white_piece.coordinate]
+                elif white_piece in play_objects.PlayRook.white_rook_list:
+                    white_score += CPU_Controller.white_rook_pos_score_dict[white_piece.coordinate]
+                elif white_piece in play_objects.PlayQueen.white_queen_list:
+                    white_score += CPU_Controller.white_queen_pos_score_dict[white_piece.coordinate]
+        for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
+            for black_piece in black_piece_list:
+                if black_piece in play_objects.PlayPawn.black_pawn_list:
+                    black_score += CPU_Controller.black_pawn_pos_score_dict[black_piece.coordinate]
+                elif black_piece in play_objects.PlayKnight.black_knight_list:
+                    black_score += CPU_Controller.black_knight_pos_score_dict[black_piece.coordinate]
+                elif black_piece in play_objects.PlayBishop.black_bishop_list:
+                    black_score += CPU_Controller.black_bishop_pos_score_dict[black_piece.coordinate]
+                elif black_piece in play_objects.PlayKing.black_king_list:
+                    black_score += CPU_Controller.black_king_pos_score_dict[black_piece.coordinate]
+                elif black_piece in play_objects.PlayRook.black_rook_list:
+                    black_score += CPU_Controller.black_rook_pos_score_dict[black_piece.coordinate]
+                elif black_piece in play_objects.PlayQueen.black_queen_list:
+                    black_score += CPU_Controller.black_queen_pos_score_dict[black_piece.coordinate]
     def total_possible_moves_update():
         CPU_Controller.total_possible_moves = []
         for grid in board.Grid.grid_list:
