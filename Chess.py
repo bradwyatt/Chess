@@ -903,8 +903,6 @@ class CPU_Controller():
                         else:
                             black_score += CPU_Controller.black_queen_pos_score_dict[black_piece.coordinate]
                         black_score += initvar.piece_values_dict['queen']
-        print("WHITE POSITION SCORE: " + str(white_score))
-        print("BLACK POSITION SCORE: " + str(black_score))
         if piece_color == "white":
             return white_score
         elif piece_color == "black":
