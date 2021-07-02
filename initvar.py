@@ -12,10 +12,10 @@ SCREEN_WIDTH, SCREEN_HEIGHT = 1440, 960
 MOVE_BG_IMAGE_X = 1150
 MOVE_BG_IMAGE_Y = 70
 
-STARTPOS = {'white_pawn': (880, 390), 'white_bishop':(880, 340), 'white_knight':(880, 290),
-             'white_rook':(880, 240), 'white_queen':(880, 190), 'white_king':(880, 140),
-             'black_pawn': (940, 550), 'black_bishop':(940, 470), 'black_knight':(940, 390),
-             'black_rook':(940, 310), 'black_queen':(940, 230), 'black_king':(940, 150)}
+STARTPOS = {'white_pawn': (930, 630), 'white_bishop':(930, 550), 'white_knight':(930, 470),
+             'white_rook':(930, 380), 'white_queen':(930, 300), 'white_king':(930, 220),
+             'black_pawn': (1000, 630), 'black_bishop':(1000, 550), 'black_knight':(1000, 470),
+             'black_rook':(1000, 380), 'black_queen':(1000, 300), 'black_king':(1000, 220)}
 
 COLORKEY_RGB = [160, 160, 160]
 X_GRID_START = 300 # First board coordinate for X
@@ -36,7 +36,7 @@ WHITE_MOVE_X_Y = (1000, 345)
 BLACK_MOVE_X_Y = (1000, 200)
 CHECK_CHECKMATE_X_Y = (1000, 270)
 
-PLAY_EDIT_SWITCH_BUTTON_TOPLEFT = (SCREEN_WIDTH-50, 8)
+PLAY_EDIT_SWITCH_BUTTON_TOPLEFT = (30, 350)
 FLIP_BOARD_BUTTON_TOPLEFT = (SCREEN_WIDTH-480, 10)
 CPU_BUTTON_TOPLEFT = (SCREEN_WIDTH-580, 10)
 GAME_PROPERTIES_BUTTON_TOPLEFT = (30, 10)

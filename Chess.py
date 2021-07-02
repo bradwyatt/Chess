@@ -1922,8 +1922,6 @@ def main():
                         # Editing mode only
                         if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE:
                             #BUTTONS
-                            if COLOR_BUTTON.rect.collidepoint(MOUSEPOS):
-                                Preferences.colorkey = Preferences.get_color()
                             if POS_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS) and POS_SAVE_FILE_BUTTON.clickable == True:
                                 pos_save_file()
                             if POS_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS) and POS_LOAD_FILE_BUTTON.clickable == True:
@@ -1996,9 +1994,6 @@ def main():
                         elif PLAY_EDIT_SWITCH_BUTTON.rect.collidepoint(MOUSEPOS) and Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
                             Switch_Modes_Controller.switch_mode(Switch_Modes_Controller.EDIT_MODE, PLAY_EDIT_SWITCH_BUTTON)
                             del game_controller
-                        if INFO_BUTTON.rect.collidepoint(MOUSEPOS):
-                            pass
-                            #MENUON = 2
                         if CLEAR_BUTTON.rect.collidepoint(MOUSEPOS):
                             if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE: #Editing mode
                                 start_objects.Start.restart_start_positions()
