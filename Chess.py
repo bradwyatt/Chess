@@ -467,7 +467,7 @@ class PGN_Writer_and_Loader():
                     prior_moves_dict, captured_abb, special_abb, promoted_queen = Move_Controller.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller)
                     check_abb = Move_Controller.game_status_check(game_controller)                    
                     Move_Controller.record_move(game_controller, board.Grid.grid_dict[grid_coordinate], piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen)                    
-                Panel_Controller.draw_move_rects_on_moves_pane(pygame.font.SysFont('Arial', 16), game_controller)
+                Panel_Controller.draw_move_rects_on_moves_pane(pygame.font.SysFont('Verdana', 16), game_controller)
                 
         def prior_move_grid_update(current_coord):
             for play_obj_list in play_objects.Piece_Lists_Shortcut.all_pieces():
@@ -1174,24 +1174,24 @@ class Game_Controller():
 
 
 class Text_Controller():
-    arial_font = pygame.font.SysFont('Arial', 24)
+    verdana_font = pygame.font.SysFont('Verdana', 24)
     #fonts
-    coor_A_text = arial_font.render("a", 1, (0, 0, 0))
-    coor_B_text = arial_font.render("b", 1, (0, 0, 0))
-    coor_C_text = arial_font.render("c", 1, (0, 0, 0))
-    coor_D_text = arial_font.render("d", 1, (0, 0, 0))
-    coor_E_text = arial_font.render("e", 1, (0, 0, 0))
-    coor_F_text = arial_font.render("f", 1, (0, 0, 0))
-    coor_G_text = arial_font.render("g", 1, (0, 0, 0))
-    coor_H_text = arial_font.render("h", 1, (0, 0, 0))
-    coor_1_text = arial_font.render("1", 1, (0, 0, 0))
-    coor_2_text = arial_font.render("2", 1, (0, 0, 0))
-    coor_3_text = arial_font.render("3", 1, (0, 0, 0))
-    coor_4_text= arial_font.render("4", 1, (0, 0, 0))
-    coor_5_text = arial_font.render("5", 1, (0, 0, 0))
-    coor_6_text = arial_font.render("6", 1, (0, 0, 0))
-    coor_7_text= arial_font.render("7", 1, (0, 0, 0))
-    coor_8_text = arial_font.render("8", 1, (0, 0, 0))
+    coor_A_text = verdana_font.render("a", 1, (0, 0, 0))
+    coor_B_text = verdana_font.render("b", 1, (0, 0, 0))
+    coor_C_text = verdana_font.render("c", 1, (0, 0, 0))
+    coor_D_text = verdana_font.render("d", 1, (0, 0, 0))
+    coor_E_text = verdana_font.render("e", 1, (0, 0, 0))
+    coor_F_text = verdana_font.render("f", 1, (0, 0, 0))
+    coor_G_text = verdana_font.render("g", 1, (0, 0, 0))
+    coor_H_text = verdana_font.render("h", 1, (0, 0, 0))
+    coor_1_text = verdana_font.render("1", 1, (0, 0, 0))
+    coor_2_text = verdana_font.render("2", 1, (0, 0, 0))
+    coor_3_text = verdana_font.render("3", 1, (0, 0, 0))
+    coor_4_text= verdana_font.render("4", 1, (0, 0, 0))
+    coor_5_text = verdana_font.render("5", 1, (0, 0, 0))
+    coor_6_text = verdana_font.render("6", 1, (0, 0, 0))
+    coor_7_text= verdana_font.render("7", 1, (0, 0, 0))
+    coor_8_text = verdana_font.render("8", 1, (0, 0, 0))
     coor_letter_text_list = [coor_A_text, coor_B_text, coor_C_text, coor_D_text, coor_E_text, coor_F_text, coor_G_text, coor_H_text]
     coor_number_text_list = [coor_8_text, coor_7_text, coor_6_text, coor_5_text, coor_4_text, coor_3_text, coor_2_text, coor_1_text]
     check_checkmate_text = ""
@@ -1756,8 +1756,8 @@ def main():
         CLOCK = pygame.time.Clock()
         
         #Fonts
-        arial_font = pygame.font.SysFont('Arial', 24)
-        move_notation_font = pygame.font.SysFont('Arial', 16)
+        verdana_font = pygame.font.SysFont('Verdana', 24)
+        move_notation_font = pygame.font.SysFont('Verdana', 16)
         
         PLAY_EDIT_SWITCH_BUTTON = PlayEditSwitchButton(initvar.PLAY_EDIT_SWITCH_BUTTON_TOPLEFT, GAME_MODE_SPRITES)
         FLIP_BOARD_BUTTON = FlipBoardButton(initvar.FLIP_BOARD_BUTTON_TOPLEFT)
@@ -2066,7 +2066,7 @@ def main():
                     # Update objects that aren't in a sprite group
                     SCROLL_UP_BUTTON.draw(SCREEN)
                     SCROLL_DOWN_BUTTON.draw(SCREEN, len(Move_Tracker.df_moves))
-                render_text = lambda x: arial_font.render(x, 1, (0, 0, 0)) 
+                render_text = lambda x: verdana_font.render(x, 1, (0, 0, 0)) 
                 # Board Coordinates Drawing
                 for text in range(0,len(Text_Controller.coor_letter_text_list)):
                     SCREEN.blit(Text_Controller.coor_letter_text_list[text], (initvar.X_GRID_START+board.X_GRID_WIDTH/3+(board.X_GRID_WIDTH*text), initvar.Y_GRID_START-(board.Y_GRID_HEIGHT*0.75)))
@@ -2075,20 +2075,20 @@ def main():
                     SCREEN.blit(Text_Controller.coor_number_text_list[text], (initvar.X_GRID_START-board.X_GRID_WIDTH/2, initvar.Y_GRID_START+board.Y_GRID_HEIGHT/4+(board.Y_GRID_HEIGHT*text)))
                     SCREEN.blit(Text_Controller.coor_number_text_list[text], (board.X_GRID_END+board.X_GRID_WIDTH/3, initvar.Y_GRID_START+board.Y_GRID_HEIGHT/4+(board.Y_GRID_HEIGHT*text)))
                 if(Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE):
-                    check_checkmate_text_render = arial_font.render(Text_Controller.check_checkmate_text, 1, (0, 0, 0))
+                    check_checkmate_text_render = verdana_font.render(Text_Controller.check_checkmate_text, 1, (0, 0, 0))
                     if Grid_Controller.flipped == True:
                         if game_controller.WHOSETURN == "white" and game_controller.result_abb == "*":
-                            whose_turn_text = arial_font.render("White's move", 1, (0, 0, 0))
+                            whose_turn_text = verdana_font.render("White's move", 1, (0, 0, 0))
                             SCREEN.blit(whose_turn_text, initvar.BLACK_MOVE_X_Y)
                         elif game_controller.WHOSETURN == "black" and game_controller.result_abb == "*":
-                            whose_turn_text = arial_font.render("Black's move", 1, (0, 0, 0))
+                            whose_turn_text = verdana_font.render("Black's move", 1, (0, 0, 0))
                             SCREEN.blit(whose_turn_text, initvar.WHITE_MOVE_X_Y)
                     else:
                         if game_controller.WHOSETURN == "white" and game_controller.result_abb == "*":
-                            whose_turn_text = arial_font.render("White's move", 1, (0, 0, 0))
+                            whose_turn_text = verdana_font.render("White's move", 1, (0, 0, 0))
                             SCREEN.blit(whose_turn_text, initvar.WHITE_MOVE_X_Y)
                         elif game_controller.WHOSETURN == "black" and game_controller.result_abb == "*":
-                            whose_turn_text = arial_font.render("Black's move", 1, (0, 0, 0))
+                            whose_turn_text = verdana_font.render("Black's move", 1, (0, 0, 0))
                             SCREEN.blit(whose_turn_text, initvar.BLACK_MOVE_X_Y)
                     SCREEN.blit(check_checkmate_text_render, initvar.CHECK_CHECKMATE_X_Y)
                 if Grid_Controller.flipped == True:
