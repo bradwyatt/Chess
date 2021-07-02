@@ -292,7 +292,7 @@ class PieceMoveRectangle(PanelRectangles, pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.x = x
         super().__init__(move_number, x, y, width, height)
-        self.image.fill((255, 211, 0))
+        self.image.fill(initvar.RECTANGLE_FILL_COLOR)
         self.move_notation = move_notation
         self.move_color = move_color
         PieceMoveRectangle.rectangle_list.append(self)
