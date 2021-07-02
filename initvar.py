@@ -9,8 +9,8 @@ test_mode = False
 
 SCREEN_WIDTH, SCREEN_HEIGHT = 1440, 960
 
-MOVE_BG_IMAGE_HEIGHT = 675
-MOVE_BG_IMAGE_WIDTH = 70
+MOVE_BG_IMAGE_X = 1000
+MOVE_BG_IMAGE_Y = 70
 
 STARTPOS = {'white_pawn': (480, 390), 'white_bishop':(480, 340), 'white_knight':(480, 290),
              'white_rook':(480, 240), 'white_queen':(480, 190), 'white_king':(480, 140),
