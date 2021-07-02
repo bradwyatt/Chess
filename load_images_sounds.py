@@ -90,7 +90,7 @@ load_image("Sprites/Chess/black_king_priormove.png", "SPR_BLACK_KING_PRIORMOVE",
 load_image("Sprites/grid.png", "SPR_GRID", True, True)
 load_image("Sprites/Redesign/whiteGrid.png", "SPR_WHITE_GRID", True, True)
 load_image("Sprites/Redesign/greenGrid.png", "SPR_GREEN_GRID", True, True)
-load_image("Sprites/prior_move_grid.png", "SPR_PRIOR_MOVE_GRID", True, True)
+load_image("Sprites/Redesign/prior_move_grid.png", "SPR_PRIOR_MOVE_GRID", True, True)
 load_image("Sprites/Chess/highlight.png", "SPR_HIGHLIGHT", True, True)
 load_image("Sprites/Chess/highlight2.png", "SPR_HIGHLIGHT_PROJECTED", True, True)
 load_image("Sprites/Redesign/play_button.png", "SPR_PLAY_BUTTON", True, True)
