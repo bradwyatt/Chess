@@ -1781,8 +1781,7 @@ def main():
         UNDO_MOVE_BUTTON = UndoMoveButton(initvar.UNDO_MOVE_BUTTON_TOPLEFT)
         
         #Backgrounds
-        INFO_SCREEN = pygame.image.load("Sprites/infoscreen.bmp").convert()
-        INFO_SCREEN = pygame.transform.scale(INFO_SCREEN, (initvar.SCREEN_WIDTH, initvar.SCREEN_HEIGHT))
+        
         #window
         gameicon = pygame.image.load("Sprites/chessico.png")
         pygame.display.set_icon(gameicon)
@@ -2039,9 +2038,9 @@ def main():
                 ##################
                 #FOR DEBUGGING PURPOSES, PUT TEST CODE BELOW
                 
-                #Update all sprites
-                SCREEN.fill(Preferences.colorkey)
-                
+                # Set background
+                SCREEN.blit(GAME_BACKGROUND, (0, 0))
+                # Update all sprites
                 FLIP_BOARD_BUTTON.draw(SCREEN)
                 GAME_MODE_SPRITES.draw(SCREEN)
                 board.GRID_SPRITES.draw(SCREEN)
@@ -2049,7 +2048,7 @@ def main():
                 start_objects.START_SPRITES.update(Switch_Modes_Controller.GAME_MODE)
                 PLAY_PANEL_SPRITES.update(Switch_Modes_Controller.GAME_MODE)
                 
-                SCREEN.blit(initvar.MOVE_BG_IMAGE, (initvar.MOVE_BG_IMAGE_HEIGHT,initvar.MOVE_BG_IMAGE_WIDTH))
+                SCREEN.blit(MOVE_BG_IMAGE, (initvar.MOVE_BG_IMAGE_HEIGHT,initvar.MOVE_BG_IMAGE_WIDTH))
                 if(Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE): #Only draw placed sprites in editing mode
                     start_objects.START_SPRITES.draw(SCREEN)
                     placed_objects.PLACED_SPRITES.update()
