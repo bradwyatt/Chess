@@ -63,14 +63,12 @@ class Grid(pygame.sprite.Sprite):
 
 # Retrieve Width and Height
 assert IMAGES["SPR_GREEN_GRID"].get_size() == IMAGES["SPR_WHITE_GRID"].get_size()
-X_GRID_WIDTH = IMAGES["SPR_GREEN_GRID"].get_size()[0]
-Y_GRID_HEIGHT = IMAGES["SPR_GREEN_GRID"].get_size()[1]
+X_GRID_WIDTH = IMAGES["SPR_GREEN_GRID"].get_width()
+Y_GRID_HEIGHT = IMAGES["SPR_GREEN_GRID"].get_height()
 X_GRID_END = initvar.X_GRID_START+(X_GRID_WIDTH*8)
 Y_GRID_END = initvar.Y_GRID_START+(Y_GRID_HEIGHT*8)
 XGRIDRANGE = [initvar.X_GRID_START, X_GRID_END, X_GRID_WIDTH] #1st num: begin 2nd: end 3rd: step
 YGRIDRANGE = [initvar.Y_GRID_START, Y_GRID_END, Y_GRID_HEIGHT] #1st num: begin 2nd: end 3rd: step
-
-print("GET SIZE: " + str(IMAGES["SPR_GREEN_GRID"].get_size()))
 # Creates grid setting coordinate as list with first element being letter and second being number
 coordinates_dict_with_pos = {}
 for x in range(initvar.X_GRID_START, X_GRID_END, X_GRID_WIDTH): 
