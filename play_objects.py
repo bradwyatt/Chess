@@ -20,6 +20,11 @@ class Piece_Lists_Shortcut():
         return [PlayKing.black_king_list, PlayPawn.black_pawn_list,  
                 PlayBishop.black_bishop_list, PlayKnight.black_knight_list, 
                 PlayRook.black_rook_list, PlayQueen.black_queen_list]
+    def piece_on_coord(grid_coord):
+        for piece_list in Piece_Lists_Shortcut.all_pieces():
+            for piece in piece_list:
+                if piece.coordinate == grid_coord:
+                    return piece
 
 class ChessPiece:
     def __init__(self, coord, image, col):
@@ -61,6 +66,7 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_PAWN"]
             PlayPawn.black_pawn_list.append(self)
         super().__init__(coord, self.image, col)
+        self.score = 1
     def captured(self, x, y, move_number, ep_grid_after_coord=None):
         self.taken_off_board = True
         if ep_grid_after_coord:
@@ -216,6 +222,7 @@ class PlayKnight(ChessPiece, pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_KNIGHT"]
             PlayKnight.black_knight_list.append(self)
         super().__init__(coord, self.image, col)
+        self.score = 3
     def projected(self, game_controller):
         if(self.taken_off_board != True):
             self.proj_attacking_coordinates = [self.coordinate]
@@ -407,6 +414,7 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_BISHOP"]
             PlayBishop.black_bishop_list.append(self)
         super().__init__(coord, self.image, col)
+        self.score = 3
     def projected(self, game_controller):
         if(self.taken_off_board != True):
             bishop_projected("bishop", self, game_controller, -1, -1) #southwest
@@ -569,6 +577,7 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
             PlayRook.black_rook_list.append(self)
         super().__init__(coord, self.image, col)
         self.allowed_to_castle = True
+        self.score = 5
     def captured(self, x, y, move_number):
         self.taken_off_board = True
         self.captured_move_number_and_coordinate = {'move_number':move_number, 'coordinate':self.coordinate}
@@ -622,6 +631,7 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_QUEEN"]
             PlayQueen.black_queen_list.append(self)
         super().__init__(coord, self.image, col)
+        self.score = 9
     def captured(self, x, y, move_number):
         self.taken_off_board = True
         self.captured_move_number_and_coordinate = {'move_number':move_number, 'coordinate':self.coordinate}

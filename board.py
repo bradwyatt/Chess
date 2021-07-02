@@ -30,6 +30,7 @@ class Grid(pygame.sprite.Sprite):
         self.occupied_piece = ""
         self.occupied_piece_color = ""
         self.no_highlight()
+        self.coords_of_protecting_pieces = {'white': [], 'black': []}
         self.coords_of_attacking_pieces = {'white': [], 'black': []}
         self.coords_of_available_pieces = {'white': [], 'black': []}
     def attack_count_reset(self):

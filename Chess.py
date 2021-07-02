@@ -172,6 +172,20 @@ def pos_save_file():
     except IOError:
         log.info("Save File Error (IOError)")
 
+def pos_lists_to_coord(pos_score_list):
+    score_dict = {}
+    coordinate_list = ['a8', 'b8', 'c8', 'd8', 'e8', 'f8', 'g8', 'h8',
+                  'a7', 'b7', 'c7', 'd7', 'e7', 'f7', 'g7', 'h7',
+                  'a6', 'b6', 'c6', 'd6', 'e6', 'f6', 'g6', 'h6',
+                  'a5', 'b5', 'c5', 'd5', 'e5', 'f5', 'g5', 'h5',
+                  'a4', 'b4', 'c4', 'd4', 'e4', 'f4', 'g4', 'h4',
+                  'a3', 'b3', 'c3', 'd3', 'e3', 'f3', 'g3', 'h3',
+                  'a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2',
+                  'a1', 'b1', 'c1', 'd1', 'e1', 'f1', 'g1', 'h1']
+    for item_index in range(0,len(pos_score_list)):
+        score_dict[coordinate_list[item_index]] = pos_score_list[item_index]
+    return score_dict
+
 class PlayEditSwitchButton(pygame.sprite.Sprite):
     def __init__(self, pos, GAME_MODE_SPRITES):
         pygame.sprite.Sprite.__init__(self)
@@ -785,21 +799,223 @@ class Move_Tracker():
             Move_Tracker.df_moves = Move_Tracker.df_moves.iloc[:-1]
             Move_Tracker.df_prior_moves = Move_Tracker.df_prior_moves.iloc[:-1]
 
-class AI_Controller():
+class CPU_Controller():
+    cpu_mode = True
+    cpu_color = "black"
+    enemy_color = "white"
     total_possible_moves = []
+    white_pawn_pos_score_dict = pos_lists_to_coord(initvar.WHITE_PAWN_POS_SCORE)
+    black_pawn_pos_score_dict = pos_lists_to_coord(initvar.WHITE_PAWN_POS_SCORE[::-1])
+    white_knight_pos_score_dict = pos_lists_to_coord(initvar.WHITE_KNIGHT_POS_SCORE)
+    black_knight_pos_score_dict = pos_lists_to_coord(initvar.WHITE_KNIGHT_POS_SCORE[::-1])
+    white_bishop_pos_score_dict = pos_lists_to_coord(initvar.WHITE_BISHOP_POS_SCORE)
+    black_bishop_pos_score_dict = pos_lists_to_coord(initvar.WHITE_BISHOP_POS_SCORE[::-1])
+    white_king_pos_score_dict = pos_lists_to_coord(initvar.WHITE_KING_POS_SCORE)
+    black_king_pos_score_dict = pos_lists_to_coord(initvar.WHITE_KING_POS_SCORE[::-1])
+    white_rook_pos_score_dict = pos_lists_to_coord([0]*64)
+    black_rook_pos_score_dict = pos_lists_to_coord([0]*64)
+    white_queen_pos_score_dict = pos_lists_to_coord([0]*64)
+    black_queen_pos_score_dict = pos_lists_to_coord([0]*64)
     #%% Currently working on
-    def total_possible_moves_update(game_controller):
-        AI_Controller.total_possible_moves = []
+    def cpu_mode_toggle():
+        if CPU_Controller.cpu_mode == False:
+            CPU_Controller.cpu_mode = True
+        elif CPU_Controller.cpu_mode == True:
+            CPU_Controller.cpu_mode = False
+    def analyze_board(grid, piece_to_move, piece_color):
+        white_score = 0
+        black_score = 0
+        for white_piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
+            for white_piece in white_piece_list:
+                if white_piece.taken_off_board == False:
+                    if white_piece in play_objects.PlayPawn.white_pawn_list:
+                        if piece_to_move == white_piece:
+                            white_score += CPU_Controller.white_pawn_pos_score_dict[grid.coordinate]
+                        else:
+                            white_score += CPU_Controller.white_pawn_pos_score_dict[white_piece.coordinate]
+                        white_score += initvar.piece_values_dict['pawn']
+                    elif white_piece in play_objects.PlayKnight.white_knight_list:
+                        if piece_to_move == white_piece:
+                            white_score += CPU_Controller.white_knight_pos_score_dict[grid.coordinate]
+                        else:
+                            white_score += CPU_Controller.white_knight_pos_score_dict[white_piece.coordinate]
+                        white_score += initvar.piece_values_dict['knight']
+                    elif white_piece in play_objects.PlayBishop.white_bishop_list:
+                        if piece_to_move == white_piece:
+                            white_score += CPU_Controller.white_bishop_pos_score_dict[grid.coordinate]
+                        else:
+                            white_score += CPU_Controller.white_bishop_pos_score_dict[white_piece.coordinate]
+                        white_score += initvar.piece_values_dict['bishop']
+                    elif white_piece in play_objects.PlayKing.white_king_list:
+                        if piece_to_move == white_piece:
+                            white_score += CPU_Controller.white_king_pos_score_dict[grid.coordinate]
+                        else:
+                            white_score += CPU_Controller.white_king_pos_score_dict[white_piece.coordinate]
+                        white_score += initvar.piece_values_dict['king']
+                    elif white_piece in play_objects.PlayRook.white_rook_list:
+                        if piece_to_move == white_piece:
+                            white_score += CPU_Controller.white_rook_pos_score_dict[grid.coordinate]
+                        else:
+                            white_score += CPU_Controller.white_rook_pos_score_dict[white_piece.coordinate]
+                        white_score += initvar.piece_values_dict['rook']
+                    elif white_piece in play_objects.PlayQueen.white_queen_list:
+                        if piece_to_move == white_piece:
+                            white_score += CPU_Controller.white_queen_pos_score_dict[grid.coordinate]
+                        else:
+                            white_score += CPU_Controller.white_queen_pos_score_dict[white_piece.coordinate]
+                        white_score += initvar.piece_values_dict['queen']
+        for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
+            for black_piece in black_piece_list:
+                if black_piece.taken_off_board == False:
+                    if black_piece in play_objects.PlayPawn.black_pawn_list:
+                        if piece_to_move == black_piece:
+                            black_score += CPU_Controller.black_pawn_pos_score_dict[grid.coordinate]
+                        else:
+                            black_score += CPU_Controller.black_pawn_pos_score_dict[black_piece.coordinate]
+                        black_score += initvar.piece_values_dict['pawn']
+                    elif black_piece in play_objects.PlayKnight.black_knight_list:
+                        if piece_to_move == black_piece:
+                            black_score += CPU_Controller.black_knight_pos_score_dict[grid.coordinate]
+                        else:
+                            black_score += CPU_Controller.black_knight_pos_score_dict[black_piece.coordinate]
+                        black_score += initvar.piece_values_dict['knight']
+                    elif black_piece in play_objects.PlayBishop.black_bishop_list:
+                        if piece_to_move == black_piece:
+                            black_score += CPU_Controller.black_bishop_pos_score_dict[grid.coordinate]
+                        else:
+                            black_score += CPU_Controller.black_bishop_pos_score_dict[black_piece.coordinate]
+                        black_score += initvar.piece_values_dict['bishop']
+                    elif black_piece in play_objects.PlayKing.black_king_list:
+                        if piece_to_move == black_piece:
+                            black_score += CPU_Controller.black_king_pos_score_dict[grid.coordinate]
+                        else:
+                            black_score += CPU_Controller.black_king_pos_score_dict[black_piece.coordinate]
+                        black_score += initvar.piece_values_dict['king']
+                    elif black_piece in play_objects.PlayRook.black_rook_list:
+                        if piece_to_move == black_piece:
+                            black_score += CPU_Controller.black_rook_pos_score_dict[grid.coordinate]
+                        else:
+                            black_score += CPU_Controller.black_rook_pos_score_dict[black_piece.coordinate]
+                        black_score += initvar.piece_values_dict['rook']
+                    elif black_piece in play_objects.PlayQueen.black_queen_list:
+                        if piece_to_move == black_piece:
+                            black_score += CPU_Controller.black_queen_pos_score_dict[grid.coordinate]
+                        else:
+                            black_score += CPU_Controller.black_queen_pos_score_dict[black_piece.coordinate]
+                        black_score += initvar.piece_values_dict['queen']
+        if piece_color == "white":
+            return white_score
+        elif piece_color == "black":
+            return black_score
+    def total_possible_moves_update():
+        CPU_Controller.total_possible_moves = []
         for grid in board.Grid.grid_list:
             # grid is the future move
-            if grid.coords_of_available_pieces[game_controller.WHOSETURN]:
-                for original_grid_coord_of_piece_to_move in grid.coords_of_available_pieces[game_controller.WHOSETURN]:
+            if grid.coords_of_available_pieces[CPU_Controller.cpu_color]:
+                for original_grid_coord_of_piece_to_move in grid.coords_of_available_pieces[CPU_Controller.cpu_color]:
                     for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
                         for piece in piece_list:
                             if original_grid_coord_of_piece_to_move == piece.coordinate:
                                 piece_to_move = piece
-                    AI_Controller.total_possible_moves.append((grid, piece_to_move))
-        print("Total moves: " + str(AI_Controller.total_possible_moves))
+                    CPU_Controller.total_possible_moves.append((grid, piece_to_move))
+    def random_move():
+        return (random.choice(CPU_Controller.total_possible_moves))
+    def choose_move():
+        move_score_list = []
+        random.seed(4)
+        random.shuffle(CPU_Controller.total_possible_moves)
+        for possible_move in CPU_Controller.total_possible_moves:
+            grid = possible_move[0]
+            piece_to_move = possible_move[1]
+            move_score = CPU_Controller.analyze_board(grid, piece_to_move, CPU_Controller.cpu_color)
+            if grid.occupied == True and not grid.coords_of_attacking_pieces[CPU_Controller.enemy_color]:
+                # No other attack pieces
+                move_score += play_objects.Piece_Lists_Shortcut.piece_on_coord(grid.coordinate).score
+            elif grid.occupied == True and grid.coords_of_attacking_pieces[CPU_Controller.enemy_color]:
+                # Trade only when other piece is higher value
+                move_score = play_objects.Piece_Lists_Shortcut.piece_on_coord(grid.coordinate).score - piece_to_move.score
+            if CPU_Controller.cpu_color == "black":
+                if piece_to_move in play_objects.PlayKing.black_king_list:
+                    # Incentivize Castling
+                    if piece_to_move.king_side_castle_ability == True and grid.coordinate == 'g8':
+                        move_score += 0.5
+                    elif piece_to_move.queen_side_castle_ability == True and grid.coordinate == 'c8':
+                        move_score += 0.5
+                    elif piece_to_move.castled == True:
+                        pass
+                    else:
+                        # If king move not a castle move, don't do it early on
+                        move_score -= 0.5
+                elif piece_to_move in play_objects.PlayRook.black_rook_list:
+                    # Disincentivize rook from moving before castling
+                    if piece_to_move.allowed_to_castle == True:
+                        move_score -= 0.5
+                    elif piece_to_move.allowed_to_castle == False:
+                        pass
+                """
+                if len(board.Grid.grid_dict[grid.coordinate].coords_of_attacking_pieces['white']) > 0 \
+                    and len(board.Grid.grid_dict[grid.coordinate].coords_of_protecting_pieces['black']) <= 1:
+                        # Moving to a square being attacked by white and 0 protection
+                        move_score -= piece_to_move.score
+                elif len(board.Grid.grid_dict[grid.coordinate].coords_of_attacking_pieces['white']) > 0 \
+                    and len(board.Grid.grid_dict[grid.coordinate].coords_of_protecting_pieces['black']) > 1:
+                        # Moving to a square being attacked by white but you have some protection
+                    lowest_attacker_score = []
+                    for attacking_grid in board.Grid.grid_dict[grid.coordinate].coords_of_attacking_pieces['white']:
+                        attacker_piece = play_objects.Piece_Lists_Shortcut.piece_on_coord(attacking_grid)
+                        if attacker_piece not in play_objects.PlayKing.white_king_list:
+                            if attacker_piece.score <= piece_to_move.score:
+                                lowest_attacker_score.append(attacker_piece.score-piece_to_move.score)
+                            else: 
+                                lowest_attacker_score.append(0)
+                        else:
+                            lowest_attacker_score.append(0)
+                    move_score += min(lowest_attacker_score)
+                if len(board.Grid.grid_dict[piece_to_move.coordinate].coords_of_attacking_pieces['white']) > 0 \
+                    and len(board.Grid.grid_dict[grid.coordinate].coords_of_attacking_pieces['white']) == 0:
+                        # Available space without an attacking piece
+                        if piece_to_move not in play_objects.PlayKing.black_king_list:
+                            move_score += piece_to_move.score
+                        else:
+                            pass
+                elif len(board.Grid.grid_dict[piece_to_move.coordinate].coords_of_attacking_pieces['white']) > 0 \
+                    and len(board.Grid.grid_dict[piece_to_move.coordinate].coords_of_protecting_pieces['black']) > 1:
+                        # Current piece being attacked and is being protected
+                    lowest_attacker_score = []
+                    for attacking_grid in board.Grid.grid_dict[piece_to_move.coordinate].coords_of_attacking_pieces['white']:
+                        attacker_piece = play_objects.Piece_Lists_Shortcut.piece_on_coord(attacking_grid)
+                        if attacker_piece not in play_objects.PlayKing.white_king_list:
+                            if attacker_piece.score <= piece_to_move.score:
+                                lowest_attacker_score.append(piece_to_move.score-attacker_piece.score)
+                            else:
+                                lowest_attacker_score.append(0)
+                        else:
+                            lowest_attacker_score.append(0)
+                    move_score += max(lowest_attacker_score)
+            elif CPU_Controller.cpu_color == "white":
+                if piece_to_move in play_objects.PlayKing.white_king_list:
+                    # Incentivize Castling
+                    if piece_to_move.king_side_castle_ability == True and grid.coordinate == 'g1':
+                        move_score += 0.5
+                    elif piece_to_move.queen_side_castle_ability == True and grid.coordinate == 'c1':
+                        move_score += 0.5
+                    else:
+                        # If king move not a castle move, don't do it early on
+                        move_score -= 0.5
+                elif piece_to_move in play_objects.PlayRook.white_rook_list:
+                    # Disincentivize rook from moving before castling
+                    if piece_to_move.allowed_to_castle == True:
+                        move_score -= 0.5
+                if len(board.Grid.grid_dict[piece_to_move.coordinate].coords_of_attacking_pieces['black']) > 0 \
+                    and len(board.Grid.grid_dict[piece_to_move.coordinate].coords_of_protecting_pieces['white']) == 0:
+                        if len(grid.coords_of_protecting_pieces['white']) > 0:
+                            move_score += piece_to_move.score
+                """
+            move_score_list.append(move_score)
+        max_move = max(move_score_list)
+        index_of_max_moves = move_score_list.index(max_move)
+        return CPU_Controller.total_possible_moves[index_of_max_moves]
+
 
 class Game_Controller():
     def __init__(self, flipped, whoseturn="white"):
@@ -874,6 +1090,8 @@ class Game_Controller():
         # No highlights and ensuring that attacking squares (used by diagonal pieces) are set to 0
         for grid in board.Grid.grid_list:
             grid.no_highlight()
+            grid.coords_of_protecting_pieces['white'] = grid.coords_of_attacking_pieces['white']
+            grid.coords_of_protecting_pieces['black'] = grid.coords_of_attacking_pieces['black']
             grid.coords_of_attacking_pieces['white'] = []
             grid.coords_of_attacking_pieces['black'] = []
             grid.coords_of_available_pieces['white'] = []
@@ -1042,14 +1260,14 @@ class Move_Controller():
         elif special_abb == "=Q":
             recorded_move = prefix + captured_abb + piece.coordinate[0] + piece.coordinate[1] + special_abb + check_abb
         return recorded_move
-    def select_piece_unselect_all_others(mousepos, game_controller):
+    def select_piece_unselect_all_others(piece_coord, game_controller):
         clicked_piece = None
         # Selecting and unselecting white pieces
         if game_controller.WHOSETURN == "white":
             for piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
                 for piece in piece_list:
                     # Selects piece
-                    if (piece.rect.collidepoint(mousepos) and piece.select == False and Switch_Modes_Controller.REPLAYED == False):
+                    if (piece.coordinate == piece_coord and piece.select == False and Switch_Modes_Controller.REPLAYED == False):
                         clicked_piece = piece
                     else:
                         # Unselects piece
@@ -1060,7 +1278,7 @@ class Move_Controller():
         elif game_controller.WHOSETURN == "black":
             for piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
                 for piece in piece_list:
-                    if (piece.rect.collidepoint(mousepos) and piece.select == False and Switch_Modes_Controller.REPLAYED == False):
+                    if (piece.coordinate == piece_coord and piece.select == False and Switch_Modes_Controller.REPLAYED == False):
                         clicked_piece = piece
                     else:
                         piece.no_highlight()
@@ -1138,9 +1356,7 @@ class Move_Controller():
                     play_objects.PlayQueen.black_queen_list.remove(queen)
                 if pieces_to_undo[0] in play_objects.PlayPawn.black_pawn_list:
                     pieces_to_undo[0].taken_off_board = False
-                PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['black_move'].move_notation = ""
-                PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['black_move'].kill()
-                del PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['black_move']
+                Panel_Controller.remove_latest_move('black_move')
                 Move_Tracker.undo_move_in_dfs("black")
                 Panel_Controller.scroll_to_latest_move(Move_Tracker.move_counter())
                 game_controller.switch_turn("black", undo=True)
@@ -1168,11 +1384,7 @@ class Move_Controller():
                     play_objects.PlayQueen.white_queen_list.remove(queen)
                 if pieces_to_undo[0] in play_objects.PlayPawn.white_pawn_list:
                     pieces_to_undo[0].taken_off_board = False
-                PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['white_move'].move_notation = ""
-                PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]['white_move'].kill()
-                del PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()]
-                MoveNumberRectangle.rectangle_dict[Move_Tracker.move_counter()].text = ""
-                MoveNumberRectangle.rectangle_dict[Move_Tracker.move_counter()].kill()
+                Panel_Controller.remove_latest_move('white_move')
                 Move_Tracker.undo_move_in_dfs("white")
                 Panel_Controller.scroll_to_latest_move(Move_Tracker.move_counter())
                 game_controller.switch_turn("white", undo=True)
@@ -1180,6 +1392,23 @@ class Move_Controller():
                 Move_Controller.game_status_check(game_controller)
                 log.info("Back to (" + str(len(Move_Tracker.df_moves)) + ".) " + "White undo turn " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
             #print("game_controller df: \n" + str(Move_Tracker.df_moves))
+            
+    def complete_move(new_coord, game_controller):
+        #%% WIP
+        for grid in board.Grid.grid_list:
+            for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
+                for piece in piece_list:
+                    # Reset the prior move color variable from all pieces
+                    piece.prior_move_color = False
+                    # If piece is allowed to move to another grid coordinate and piece is also selected
+                    if (grid.coordinate == new_coord \
+                        and ((piece.coordinate in grid.coords_of_available_pieces['white'] and piece.color == "white") \
+                             or (piece.coordinate in grid.coords_of_available_pieces['black'] and piece.color == "black")) \
+                                 and piece.select==True):
+                        prior_moves_dict, captured_abb, special_abb, promoted_queen = Move_Controller.make_move(grid, piece, game_controller)
+                        check_abb = Move_Controller.game_status_check(game_controller)
+                        Move_Controller.record_move(game_controller, grid, piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen)
+                                                        
     def make_move(grid, piece, game_controller):
         # Default captured_abb for function to be empty string
         captured_abb = ""
@@ -1502,6 +1731,14 @@ class Panel_Controller:
                 PieceMoveRectangle(len(Move_Tracker.df_moves), Move_Tracker.df_moves.loc[len(Move_Tracker.df_moves), 'black_move'], 'black_move', initvar.MOVES_PANE_BLACK_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(Move_Tracker.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)        
                 Panel_Controller.scroll_to_latest_move(len(Move_Tracker.df_moves))
             Panel_Controller.draw_text_on_rects_in_moves_pane(SCREEN, my_font)
+            
+    def remove_latest_move(color_move):
+        PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()][color_move].move_notation = ""
+        PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()][color_move].kill()
+        del PieceMoveRectangle.rectangle_dict[Move_Tracker.move_counter()][color_move]
+        if color_move == "white_move":
+            MoveNumberRectangle.rectangle_dict[Move_Tracker.move_counter()].text = ""
+            MoveNumberRectangle.rectangle_dict[Move_Tracker.move_counter()].kill()
 
 def main():
     try:
@@ -1524,7 +1761,7 @@ def main():
         
         PLAY_EDIT_SWITCH_BUTTON = PlayEditSwitchButton(initvar.PLAY_EDIT_SWITCH_BUTTON_TOPLEFT, GAME_MODE_SPRITES)
         FLIP_BOARD_BUTTON = FlipBoardButton(initvar.FLIP_BOARD_BUTTON_TOPLEFT)
-        AI_BUTTON = AIButton(initvar.AI_BUTTON_TOPLEFT)
+        CPU_BUTTON = CPUButton(initvar.CPU_BUTTON_TOPLEFT, CPU_Controller.cpu_mode)
         GAME_PROPERTIES_BUTTON = GamePropertiesButton(initvar.GAME_PROPERTIES_BUTTON_TOPLEFT)
         INFO_BUTTON = InfoButton(initvar.INFO_BUTTON_TOPLEFT)
         POS_LOAD_FILE_BUTTON = PosLoadFileButton(initvar.POS_LOAD_FILE_BUTTON_TOPLEFT)
@@ -1584,7 +1821,8 @@ def main():
                             debug_message = 1
                             state = DEBUG
                     # Menu, inanimate buttons at top, and on right side of game board
-                    if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and MOUSEPOS[0] > initvar.X_GRID_END:
+                    if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] \
+                        and (MOUSEPOS[0] > initvar.X_GRID_END or MOUSEPOS[1] < initvar.Y_GRID_START):
                         #%% Left click buttons
                         if SCROLL_UP_BUTTON.rect.collidepoint(MOUSEPOS) and PanelRectangles.scroll_range[0] > 1: # Scroll up
                             if SCROLL_UP_BUTTON.activate == True:    
@@ -1593,6 +1831,9 @@ def main():
                             if SCROLL_DOWN_BUTTON.activate == True:  
                                 Panel_Controller.update_scroll_range(1)
                         if PGN_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS) and PGN_LOAD_FILE_BUTTON.clickable == True:
+                            if CPU_Controller.cpu_mode == True:
+                                CPU_Controller.cpu_mode_toggle()
+                                CPU_BUTTON.toggle(CPU_Controller.cpu_mode)
                             game_controller = PGN_Writer_and_Loader.pgn_load(PLAY_EDIT_SWITCH_BUTTON)
                             for grid in board.Grid.grid_list:
                                 grid.no_highlight()
@@ -1605,7 +1846,13 @@ def main():
                             if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
                                 game_controller.captured_pieces_flip(Grid_Controller.flipped)
                         if UNDO_MOVE_BUTTON.rect.collidepoint(MOUSEPOS) and UNDO_MOVE_BUTTON.clickable == True:
+                            if CPU_Controller.cpu_mode == True:
+                                CPU_Controller.cpu_mode_toggle()
+                                CPU_BUTTON.toggle(CPU_Controller.cpu_mode)
                             Move_Controller.undo_move(game_controller)
+                        if CPU_BUTTON.rect.collidepoint(MOUSEPOS) and CPU_BUTTON.clickable == True:
+                            CPU_Controller.cpu_mode_toggle()
+                            CPU_BUTTON.toggle(CPU_Controller.cpu_mode)
                         if BEGINNING_MOVE_BUTTON.rect.collidepoint(MOUSEPOS) and BEGINNING_MOVE_BUTTON.clickable == True:
                             Move_Tracker.selected_move = 1, "white_move"
                             Switch_Modes_Controller.replayed_game(True, game_controller, True)
@@ -1706,24 +1953,18 @@ def main():
                         start_objects.Dragging.dragging_to_placed_no_dups(MOUSE_COORD)
                         if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
                             # Moves piece
-                            def update_pieces_and_board():
-                                for grid in board.Grid.grid_list:
-                                    for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
-                                        for piece in piece_list:
-                                            # Reset the prior move color variable from all pieces
-                                            piece.prior_move_color = False
-                                            # If piece is allowed to move to another grid coordinate and piece is also selected
-                                            if (grid.rect.collidepoint(MOUSEPOS) \
-                                                and ((piece.coordinate in grid.coords_of_available_pieces['white'] and piece.color == "white") \
-                                                     or (piece.coordinate in grid.coords_of_available_pieces['black'] and piece.color == "black")) \
-                                                         and piece.select==True):
-                                                prior_moves_dict, captured_abb, special_abb, promoted_queen = Move_Controller.make_move(grid, piece, game_controller)
-                                                check_abb = Move_Controller.game_status_check(game_controller)
-                                                Move_Controller.record_move(game_controller, grid, piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen)
-                            update_pieces_and_board()
+                            #%% I plan on having this in a new function within a class nto dependent on mouse click
+                            Move_Controller.complete_move(MOUSE_COORD, game_controller)
                             # Selects piece
-                            Move_Controller.select_piece_unselect_all_others(MOUSEPOS, game_controller)
-                            AI_Controller.total_possible_moves_update(game_controller)
+                            Move_Controller.select_piece_unselect_all_others(MOUSE_COORD, game_controller)
+                            if CPU_Controller.cpu_mode == True and game_controller.WHOSETURN == CPU_Controller.cpu_color:
+                                CPU_Controller.total_possible_moves_update()
+                                if CPU_Controller.total_possible_moves:
+                                    cpu_move = CPU_Controller.choose_move()
+                                    cpu_grid = cpu_move[0]
+                                    cpu_piece = cpu_move[1]
+                                    cpu_piece.select = True
+                                    Move_Controller.complete_move(cpu_grid.coordinate, game_controller)
     
                     if event.type == pygame.MOUSEBUTTONDOWN and (event.button == 4 or event.button == 5):
                         #scroll wheel
@@ -1780,8 +2021,8 @@ def main():
                                            + ", White Pieces Attacking: " + str(grid.coords_of_attacking_pieces['white']) \
                                            + ", Black Pieces Attacking: " + str(grid.coords_of_attacking_pieces['black']) \
                                                + ", grid variable: " + str(grid.highlighted) \
-                                                   + ", White Pieces Available: " + str(grid.coords_of_available_pieces['white']) \
-                                                       + ", Black Pieces Available: " + str(grid.coords_of_available_pieces['black']))
+                                                   + ", White Pieces Protecting: " + str(grid.coords_of_protecting_pieces['white']) \
+                                                       + ", Black Pieces Protecting: " + str(grid.coords_of_protecting_pieces['black']))
                         test_grid_str()
                         #test_piece()
                                 
