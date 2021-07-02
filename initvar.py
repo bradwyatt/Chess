@@ -9,17 +9,17 @@ test_mode = False
 
 SCREEN_WIDTH, SCREEN_HEIGHT = 1440, 960
 
-MOVE_BG_IMAGE_X = 1000
+MOVE_BG_IMAGE_X = 1150
 MOVE_BG_IMAGE_Y = 70
 
-STARTPOS = {'white_pawn': (480, 390), 'white_bishop':(480, 340), 'white_knight':(480, 290),
-             'white_rook':(480, 240), 'white_queen':(480, 190), 'white_king':(480, 140),
-             'black_pawn': (540, 390), 'black_bishop':(540, 340), 'black_knight':(540, 290),
-             'black_rook':(540, 240), 'black_queen':(540, 190), 'black_king':(540, 140)}
+STARTPOS = {'white_pawn': (880, 390), 'white_bishop':(880, 340), 'white_knight':(880, 290),
+             'white_rook':(880, 240), 'white_queen':(880, 190), 'white_king':(880, 140),
+             'black_pawn': (940, 550), 'black_bishop':(940, 470), 'black_knight':(940, 390),
+             'black_rook':(940, 310), 'black_queen':(940, 230), 'black_king':(940, 150)}
 
 COLORKEY_RGB = [160, 160, 160]
-X_GRID_START = 48 # First board coordinate for X
-Y_GRID_START = 96 # First board coordinate for Y
+X_GRID_START = 300 # First board coordinate for X
+Y_GRID_START = 200 # First board coordinate for Y
 
 
 BLACKANDWHITE_CAPTURED_X = 50
@@ -39,12 +39,12 @@ CHECK_CHECKMATE_X_Y = (1000, 270)
 PLAY_EDIT_SWITCH_BUTTON_TOPLEFT = (SCREEN_WIDTH-50, 8)
 FLIP_BOARD_BUTTON_TOPLEFT = (SCREEN_WIDTH-480, 10)
 CPU_BUTTON_TOPLEFT = (SCREEN_WIDTH-580, 10)
-GAME_PROPERTIES_BUTTON_TOPLEFT = (SCREEN_WIDTH-430, 10)
+GAME_PROPERTIES_BUTTON_TOPLEFT = (30, 10)
 INFO_BUTTON_TOPLEFT = (SCREEN_WIDTH-360, 10)
-POS_LOAD_FILE_BUTTON_TOPLEFT = (SCREEN_WIDTH-305, 10)
-POS_SAVE_FILE_BUTTON_TOPLEFT = (SCREEN_WIDTH-270, 10)
-PGN_LOAD_FILE_BUTTON_TOPLEFT = (SCREEN_WIDTH-50, 100)
-PGN_SAVE_FILE_BUTTON_TOPLEFT = (SCREEN_WIDTH-50, 60)
+POS_LOAD_FILE_BUTTON_TOPLEFT = (30, 250)
+POS_SAVE_FILE_BUTTON_TOPLEFT = (30, 150)
+PGN_LOAD_FILE_BUTTON_TOPLEFT = (30, 300)
+PGN_SAVE_FILE_BUTTON_TOPLEFT = (30, 200)
 COLOR_BUTTON_TOPLEFT = (SCREEN_WIDTH-235, 10)
 RESET_BOARD_BUTTON_TOPLEFT = (SCREEN_WIDTH-190, 10)
 CLEAR_BUTTON_TOPLEFT = (SCREEN_WIDTH-115, 10)
