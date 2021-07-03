@@ -67,11 +67,11 @@ class PosSaveFileButton(pygame.sprite.Sprite):
         self.image = IMAGES["SPR_POS_SAVE_FILE_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
-        start_objects.START_SPRITES.add(self)
         self.clickable = True
-    def update(self, game_mode):
+    def draw(self, screen, game_mode):
         if game_mode == 0:
             self.clickable = True
+            screen.blit(self.image, (self.rect.topleft))
         else:
             self.clickable = False
     
@@ -81,8 +81,9 @@ class PosLoadFileButton(pygame.sprite.Sprite):
         self.image = IMAGES["SPR_POS_LOAD_FILE_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
-        start_objects.START_SPRITES.add(self)
         self.clickable = True
+    def draw(self, screen):
+        screen.blit(self.image, (self.rect.topleft))
     def update(self, game_mode):
         if game_mode == 0:
             self.clickable = True
@@ -95,10 +96,11 @@ class PGNSaveFileButton(pygame.sprite.Sprite):
         self.image = IMAGES["SPR_PGN_SAVE_FILE_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
-        PLAY_PANEL_SPRITES.add(self)
-    def update(self, game_mode):
+        self.clickable = False
+    def draw(self, screen, game_mode):
         if game_mode == 1:
             self.clickable = True
+            screen.blit(self.image, (self.rect.topleft))
         else:
             self.clickable = False
     
@@ -108,11 +110,11 @@ class PGNLoadFileButton(pygame.sprite.Sprite):
         self.image = IMAGES["SPR_PGN_LOAD_FILE_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
-        start_objects.START_SPRITES.add(self)
         self.clickable = True
-    def update(self, game_mode):
+    def draw(self, screen, game_mode):
         if game_mode == 0:
             self.clickable = True
+            screen.blit(self.image, (self.rect.topleft))
         else:
             self.clickable = False
 

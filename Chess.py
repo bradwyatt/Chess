@@ -1823,7 +1823,8 @@ def main():
                             state = DEBUG
                     # Menu, inanimate buttons at top, and on right side of game board
                     if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] \
-                        and (MOUSEPOS[0] > board.X_GRID_END or MOUSEPOS[1] < initvar.Y_GRID_START):
+                        and (MOUSEPOS[0] > board.X_GRID_END or MOUSEPOS[1] < initvar.Y_GRID_START \
+                             or MOUSEPOS[0] < initvar.X_GRID_START or MOUSEPOS[1] > board.Y_GRID_END):
                         #%% Left click buttons
                         if SCROLL_UP_BUTTON.rect.collidepoint(MOUSEPOS) and PanelRectangles.scroll_range[0] > 1: # Scroll up
                             if SCROLL_UP_BUTTON.activate == True:    
@@ -1926,8 +1927,10 @@ def main():
                             #BUTTONS
                             if POS_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS) and POS_SAVE_FILE_BUTTON.clickable == True:
                                 pos_save_file()
+                            print("MOUSEPOS: " + str(MOUSEPOS) + " with posloadfile: " + str(POS_LOAD_FILE_BUTTON.rect.topleft))
                             if POS_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS) and POS_LOAD_FILE_BUTTON.clickable == True:
                                 pos_load_file()
+                                print("CLICKED !!!")
                             if RESET_BOARD_BUTTON.rect.collidepoint(MOUSEPOS) and RESET_BOARD_BUTTON.clickable == True:
                                 pos_load_file(reset=True)
                             if GAME_PROPERTIES_BUTTON.rect.collidepoint(MOUSEPOS) and GAME_PROPERTIES_BUTTON.clickable == True:
@@ -2040,7 +2043,11 @@ def main():
                 # Update all sprites
                 FLIP_BOARD_BUTTON.draw(SCREEN)
                 SAVE_FILE_PLACEHOLDER.draw(SCREEN)
+                POS_SAVE_FILE_BUTTON.draw(SCREEN, Switch_Modes_Controller.GAME_MODE)
+                PGN_SAVE_FILE_BUTTON.draw(SCREEN, Switch_Modes_Controller.GAME_MODE)
                 LOAD_FILE_PLACEHOLDER.draw(SCREEN)
+                POS_LOAD_FILE_BUTTON.update(Switch_Modes_Controller.GAME_MODE)
+                PGN_LOAD_FILE_BUTTON.draw(SCREEN, Switch_Modes_Controller.GAME_MODE)
                 GAME_MODE_SPRITES.draw(SCREEN)
                 board.GRID_SPRITES.draw(SCREEN)
                 Grid_Controller.update_grid_occupied_detection()
@@ -2052,6 +2059,7 @@ def main():
                     start_objects.START_SPRITES.draw(SCREEN)
                     placed_objects.PLACED_SPRITES.update()
                     placed_objects.PLACED_SPRITES.draw(SCREEN)
+                    POS_LOAD_FILE_BUTTON.draw(SCREEN)
                 elif(Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE): #Only draw play sprites in play mode
                     FLIP_BOARD_BUTTON.draw(SCREEN)
                     if Switch_Modes_Controller.REPLAYED == False:
