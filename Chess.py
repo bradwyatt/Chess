@@ -85,7 +85,7 @@ log.addHandler(console_handler)
 # Functions
 #############
 
-def pos_load_file(load_button=True, reset=False):
+def pos_load_file(reset=False):
     open_file = None
     if reset == True:
         loaded_dict = {'white_pawn': ['a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'],
@@ -96,10 +96,7 @@ def pos_load_file(load_button=True, reset=False):
                        'black_rook': ['a8', 'h8'], 'black_queen': ['d8'], 'black_king': ['e8'],
                        'RGB': Preferences.colorkey}
     else:
-        if load_button == True:
-            request_file_name = askopenfilename(defaultextension=".json")
-        elif load_button == False and reset == False:
-            request_file_name = "temp.json"
+        request_file_name = askopenfilename(defaultextension=".lvl")
         try:
             open_file = open(request_file_name, "r")
         except FileNotFoundError:
@@ -165,13 +162,10 @@ def get_dict_rect_positions():
         get_coord_for_all_obj[item_key] = item_list_in_name
     return get_coord_for_all_obj
 
-def pos_save_file(save_button=True):
+def pos_save_file():
     try:
         # default extension is optional, here will add .txt if missing
-        if save_button == True:
-            save_file_prompt = asksaveasfilename(defaultextension=".json")
-        else:
-            save_file_prompt = "temp.json"
+        save_file_prompt = asksaveasfilename(defaultextension=".lvl")
         save_file_name = open(save_file_prompt, "w")
         if save_file_name is not None:
             # Write the file to disk
@@ -179,8 +173,7 @@ def pos_save_file(save_button=True):
             obj_locations['RGB'] = Preferences.colorkey
             save_file_name.write(str(obj_locations))
             save_file_name.close()
-            if save_button == True:
-                log.info("File Saved Successfully.")
+            log.info("File Saved Successfully.")
         else:
             log.info("Error! Need king to save!")
     except IOError:
@@ -940,11 +933,9 @@ class CPU_Controller():
         move_score_list = []
         random.seed(4)
         random.shuffle(CPU_Controller.total_possible_moves)
-        pos_save_file(False)
         for possible_move in CPU_Controller.total_possible_moves:
             grid = possible_move[0]
             piece_to_move = possible_move[1]
-            pos_load_file(load_button=False, reset=False)
             move_score = CPU_Controller.analyze_board(grid, piece_to_move, CPU_Controller.cpu_color)
             if grid.occupied == True and not grid.coords_of_attacking_pieces[CPU_Controller.enemy_color]:
                 # No other attack pieces
@@ -1814,7 +1805,7 @@ def main():
 
                         
         # Load the starting positions of chessboard first
-        pos_load_file(load_button=False, reset=True)
+        pos_load_file(reset=True)
         MOUSE_COORD = ""
         
         def mouse_coordinate(mousepos):
@@ -1957,11 +1948,11 @@ def main():
                         if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE:
                             #BUTTONS
                             if POS_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS) and POS_SAVE_FILE_BUTTON.clickable == True:
-                                pos_save_file(True)
+                                pos_save_file()
                             if POS_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS) and POS_LOAD_FILE_BUTTON.clickable == True:
-                                pos_load_file(load_button=True, reset=False)
+                                pos_load_file()
                             if RESET_BOARD_BUTTON.rect.collidepoint(MOUSEPOS) and RESET_BOARD_BUTTON.clickable == True:
-                                pos_load_file(load_button=False, reset=True)
+                                pos_load_file(reset=True)
                             if GAME_PROPERTIES_BUTTON.rect.collidepoint(MOUSEPOS) and GAME_PROPERTIES_BUTTON.clickable == True:
                                 Preferences.game_properties_popup()
                                 
