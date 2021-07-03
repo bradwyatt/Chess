@@ -67,11 +67,11 @@ class PosSaveFileButton(pygame.sprite.Sprite):
         self.image = IMAGES["SPR_POS_SAVE_FILE_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
-        start_objects.START_SPRITES.add(self)
         self.clickable = True
-    def update(self, game_mode):
-        if game_mode == 0:
+    def draw(self, screen, game_mode, hover):
+        if game_mode == 0 and hover == True:
             self.clickable = True
+            screen.blit(self.image, (self.rect.topleft))
         else:
             self.clickable = False
     
@@ -81,11 +81,11 @@ class PosLoadFileButton(pygame.sprite.Sprite):
         self.image = IMAGES["SPR_POS_LOAD_FILE_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
-        start_objects.START_SPRITES.add(self)
         self.clickable = True
-    def update(self, game_mode):
-        if game_mode == 0:
+    def draw(self, screen, game_mode, hover):
+        if game_mode == 0 and hover == True:
             self.clickable = True
+            screen.blit(self.image, (self.rect.topleft))
         else:
             self.clickable = False
         
@@ -95,10 +95,11 @@ class PGNSaveFileButton(pygame.sprite.Sprite):
         self.image = IMAGES["SPR_PGN_SAVE_FILE_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
-        PLAY_PANEL_SPRITES.add(self)
-    def update(self, game_mode):
-        if game_mode == 1:
+        self.clickable = False
+    def draw(self, screen, game_mode, hover):
+        if game_mode == 1 and hover == True:
             self.clickable = True
+            screen.blit(self.image, (self.rect.topleft))
         else:
             self.clickable = False
     
@@ -108,13 +109,33 @@ class PGNLoadFileButton(pygame.sprite.Sprite):
         self.image = IMAGES["SPR_PGN_LOAD_FILE_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
-        start_objects.START_SPRITES.add(self)
         self.clickable = True
-    def update(self, game_mode):
-        if game_mode == 0:
+    def draw(self, screen, game_mode, hover):
+        if game_mode == 0 and hover == True:
             self.clickable = True
+            screen.blit(self.image, (self.rect.topleft))
         else:
             self.clickable = False
+
+class SaveFilePlaceholder(pygame.sprite.Sprite):
+    def __init__(self, pos):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = IMAGES["SPR_SAVE_FILE_PLACEHOLDER"]
+        self.rect = self.image.get_rect()
+        self.rect.topleft = pos
+        self.hover = False
+    def draw(self, screen):
+        screen.blit(self.image, (self.rect.topleft))
+        
+class LoadFilePlaceholder(pygame.sprite.Sprite):
+    def __init__(self, pos):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = IMAGES["SPR_LOAD_FILE_PLACEHOLDER"]
+        self.rect = self.image.get_rect()
+        self.rect.topleft = pos
+        self.hover = False
+    def draw(self, screen):
+        screen.blit(self.image, (self.rect.topleft))
 
 class FlipBoardButton(pygame.sprite.Sprite):
     def __init__(self, pos):
@@ -131,10 +152,10 @@ class CPUButton(pygame.sprite.Sprite):
         self.toggle(cpu_mode)
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
-        PLAY_PANEL_SPRITES.add(self)
-    def update(self, game_mode):
-        if game_mode == 1:
+    def draw(self, screen, game_mode):
+        if game_mode == 0:
             self.clickable = True
+            screen.blit(self.image, (self.rect.topleft))
         else:
             self.clickable = False
     def toggle(self, cpu_mode):
@@ -292,7 +313,7 @@ class PieceMoveRectangle(PanelRectangles, pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.x = x
         super().__init__(move_number, x, y, width, height)
-        self.image.fill((255, 211, 0))
+        self.image.fill(initvar.RECTANGLE_FILL_COLOR)
         self.move_notation = move_notation
         self.move_color = move_color
         PieceMoveRectangle.rectangle_list.append(self)

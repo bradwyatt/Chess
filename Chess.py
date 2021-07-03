@@ -1,9 +1,6 @@
 """
 Chess created by Brad Wyatt
 
-Features To-Do (short-term):
-Menu objects are still invisible yet can be clickable
-
 Clean Code Ideas:
 Re-examine sprite groups
 Edit_Mode_Controller to handle all the clicking event functions
@@ -12,14 +9,24 @@ Getting rid of import *
 Splitting groups of statements that were for after clicking into functions and methods within class
 Feedback
 
+Design improvements:
+If a piece moves one square, the two squares looks like a two piece in a row blob. Should the square have an outline?
+Reset Board and Clear Board, clearly distinguish the buttons?
+Black pieces to be lighter color?
+Different text color for coordinates  and/or handles/ratings?
+Alien as CPU (excited, neutral, angry)
+Option for asteroid or other space stuff in background?
+
 Features To-Do (long-term):
+Sleep during AI move
+AI (use pickle?)
 Customized Turns for black and white (in these cases, substitute first move with "" ?)
 Choose piece for Promotion
 Sounds
 If no king then don't start game
 Themes
 Grid using color rather than sprite
-AI
+AI or human on BOTH sides
 """
 import board
 import start_objects
@@ -467,7 +474,7 @@ class PGN_Writer_and_Loader():
                     prior_moves_dict, captured_abb, special_abb, promoted_queen = Move_Controller.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller)
                     check_abb = Move_Controller.game_status_check(game_controller)                    
                     Move_Controller.record_move(game_controller, board.Grid.grid_dict[grid_coordinate], piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen)                    
-                Panel_Controller.draw_move_rects_on_moves_pane(pygame.font.SysFont('Arial', 16), game_controller)
+                Panel_Controller.draw_move_rects_on_moves_pane(pygame.font.SysFont('Verdana', 16), game_controller)
                 
         def prior_move_grid_update(current_coord):
             for play_obj_list in play_objects.Piece_Lists_Shortcut.all_pieces():
@@ -1174,24 +1181,24 @@ class Game_Controller():
 
 
 class Text_Controller():
-    arial_font = pygame.font.SysFont('Arial', 24)
-    #fonts
-    coor_A_text = arial_font.render("a", 1, (0, 0, 0))
-    coor_B_text = arial_font.render("b", 1, (0, 0, 0))
-    coor_C_text = arial_font.render("c", 1, (0, 0, 0))
-    coor_D_text = arial_font.render("d", 1, (0, 0, 0))
-    coor_E_text = arial_font.render("e", 1, (0, 0, 0))
-    coor_F_text = arial_font.render("f", 1, (0, 0, 0))
-    coor_G_text = arial_font.render("g", 1, (0, 0, 0))
-    coor_H_text = arial_font.render("h", 1, (0, 0, 0))
-    coor_1_text = arial_font.render("1", 1, (0, 0, 0))
-    coor_2_text = arial_font.render("2", 1, (0, 0, 0))
-    coor_3_text = arial_font.render("3", 1, (0, 0, 0))
-    coor_4_text= arial_font.render("4", 1, (0, 0, 0))
-    coor_5_text = arial_font.render("5", 1, (0, 0, 0))
-    coor_6_text = arial_font.render("6", 1, (0, 0, 0))
-    coor_7_text= arial_font.render("7", 1, (0, 0, 0))
-    coor_8_text = arial_font.render("8", 1, (0, 0, 0))
+    verdana_font = pygame.font.SysFont('Verdana', 24)
+    # Fonts for coordinates
+    coor_A_text = verdana_font.render("a", 1, initvar.UNIVERSAL_TEXT_COLOR)
+    coor_B_text = verdana_font.render("b", 1, initvar.UNIVERSAL_TEXT_COLOR)
+    coor_C_text = verdana_font.render("c", 1, initvar.UNIVERSAL_TEXT_COLOR)
+    coor_D_text = verdana_font.render("d", 1, initvar.UNIVERSAL_TEXT_COLOR)
+    coor_E_text = verdana_font.render("e", 1, initvar.UNIVERSAL_TEXT_COLOR)
+    coor_F_text = verdana_font.render("f", 1, initvar.UNIVERSAL_TEXT_COLOR)
+    coor_G_text = verdana_font.render("g", 1, initvar.UNIVERSAL_TEXT_COLOR)
+    coor_H_text = verdana_font.render("h", 1, initvar.UNIVERSAL_TEXT_COLOR)
+    coor_1_text = verdana_font.render("1", 1, initvar.UNIVERSAL_TEXT_COLOR)
+    coor_2_text = verdana_font.render("2", 1, initvar.UNIVERSAL_TEXT_COLOR)
+    coor_3_text = verdana_font.render("3", 1, initvar.UNIVERSAL_TEXT_COLOR)
+    coor_4_text= verdana_font.render("4", 1, initvar.UNIVERSAL_TEXT_COLOR)
+    coor_5_text = verdana_font.render("5", 1, initvar.UNIVERSAL_TEXT_COLOR)
+    coor_6_text = verdana_font.render("6", 1, initvar.UNIVERSAL_TEXT_COLOR)
+    coor_7_text= verdana_font.render("7", 1, initvar.UNIVERSAL_TEXT_COLOR)
+    coor_8_text = verdana_font.render("8", 1, initvar.UNIVERSAL_TEXT_COLOR)
     coor_letter_text_list = [coor_A_text, coor_B_text, coor_C_text, coor_D_text, coor_E_text, coor_F_text, coor_G_text, coor_H_text]
     coor_number_text_list = [coor_8_text, coor_7_text, coor_6_text, coor_5_text, coor_4_text, coor_3_text, coor_2_text, coor_1_text]
     check_checkmate_text = ""
@@ -1677,11 +1684,11 @@ class Panel_Controller:
         for move_num_rect in MoveNumberRectangle.rectangle_list:
             if move_num_rect.text_is_visible == True:
                 # Only draw the text if the rectangle is below the top of the pane
-                move_num_text = my_font.render(move_num_rect.text, True, initvar.TEXT_COLOR)
+                move_num_text = my_font.render(move_num_rect.text, True, initvar.MOVE_TEXT_COLOR_ON_PANE)
                 surface.blit(move_num_text, (move_num_rect.x, move_num_rect.y))
         for piece_move_rect in PieceMoveRectangle.rectangle_list:
             if piece_move_rect.text_is_visible == True:
-                move_notation_text = my_font.render(piece_move_rect.move_notation, True, initvar.TEXT_COLOR)
+                move_notation_text = my_font.render(piece_move_rect.move_notation, True, initvar.MOVE_TEXT_COLOR_ON_PANE)
                 surface.blit(move_notation_text, (piece_move_rect.x, piece_move_rect.y))
 
     def scroll_to_latest_move(latest_move_number):
@@ -1756,19 +1763,21 @@ def main():
         CLOCK = pygame.time.Clock()
         
         #Fonts
-        arial_font = pygame.font.SysFont('Arial', 24)
-        move_notation_font = pygame.font.SysFont('Arial', 16)
+        verdana_font = pygame.font.SysFont('Verdana', 24)
+        move_notation_font = pygame.font.SysFont('Verdana', 16)
         
         PLAY_EDIT_SWITCH_BUTTON = PlayEditSwitchButton(initvar.PLAY_EDIT_SWITCH_BUTTON_TOPLEFT, GAME_MODE_SPRITES)
         FLIP_BOARD_BUTTON = FlipBoardButton(initvar.FLIP_BOARD_BUTTON_TOPLEFT)
         CPU_BUTTON = CPUButton(initvar.CPU_BUTTON_TOPLEFT, CPU_Controller.cpu_mode)
         GAME_PROPERTIES_BUTTON = GamePropertiesButton(initvar.GAME_PROPERTIES_BUTTON_TOPLEFT)
-        INFO_BUTTON = InfoButton(initvar.INFO_BUTTON_TOPLEFT)
+        #INFO_BUTTON = InfoButton(initvar.INFO_BUTTON_TOPLEFT)
         POS_LOAD_FILE_BUTTON = PosLoadFileButton(initvar.POS_LOAD_FILE_BUTTON_TOPLEFT)
         POS_SAVE_FILE_BUTTON = PosSaveFileButton(initvar.POS_SAVE_FILE_BUTTON_TOPLEFT)
         PGN_LOAD_FILE_BUTTON = PGNLoadFileButton(initvar.PGN_LOAD_FILE_BUTTON_TOPLEFT)
         PGN_SAVE_FILE_BUTTON = PGNSaveFileButton(initvar.PGN_SAVE_FILE_BUTTON_TOPLEFT)
-        COLOR_BUTTON = ColorButton(initvar.COLOR_BUTTON_TOPLEFT)
+        LOAD_FILE_PLACEHOLDER = LoadFilePlaceholder(initvar.LOAD_FILE_PLACEHOLDER_TOPLEFT)
+        SAVE_FILE_PLACEHOLDER = SaveFilePlaceholder(initvar.SAVE_FILE_PLACEHOLDER_TOPLEFT)
+        #COLOR_BUTTON = ColorButton(initvar.COLOR_BUTTON_TOPLEFT)
         RESET_BOARD_BUTTON = ResetBoardButton(initvar.RESET_BOARD_BUTTON_TOPLEFT)
         CLEAR_BUTTON = ClearButton(initvar.CLEAR_BUTTON_TOPLEFT)
         SCROLL_UP_BUTTON = ScrollUpButton(initvar.SCROLL_UP_BUTTON_TOPLEFT)
@@ -1781,8 +1790,7 @@ def main():
         UNDO_MOVE_BUTTON = UndoMoveButton(initvar.UNDO_MOVE_BUTTON_TOPLEFT)
         
         #Backgrounds
-        INFO_SCREEN = pygame.image.load("Sprites/infoscreen.bmp").convert()
-        INFO_SCREEN = pygame.transform.scale(INFO_SCREEN, (initvar.SCREEN_WIDTH, initvar.SCREEN_HEIGHT))
+        
         #window
         gameicon = pygame.image.load("Sprites/chessico.png")
         pygame.display.set_icon(gameicon)
@@ -1820,9 +1828,18 @@ def main():
                         if event.key == pygame.K_SPACE:
                             debug_message = 1
                             state = DEBUG
+                    if SAVE_FILE_PLACEHOLDER.rect.collidepoint(MOUSEPOS):
+                        SAVE_FILE_PLACEHOLDER.hover = True
+                    else:
+                        SAVE_FILE_PLACEHOLDER.hover = False
+                    if LOAD_FILE_PLACEHOLDER.rect.collidepoint(MOUSEPOS):
+                        LOAD_FILE_PLACEHOLDER.hover = True
+                    else:
+                        LOAD_FILE_PLACEHOLDER.hover = False
                     # Menu, inanimate buttons at top, and on right side of game board
                     if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] \
-                        and (MOUSEPOS[0] > initvar.X_GRID_END or MOUSEPOS[1] < initvar.Y_GRID_START):
+                        and (MOUSEPOS[0] > board.X_GRID_END or MOUSEPOS[1] < initvar.Y_GRID_START \
+                             or MOUSEPOS[0] < initvar.X_GRID_START or MOUSEPOS[1] > board.Y_GRID_END):
                         #%% Left click buttons
                         if SCROLL_UP_BUTTON.rect.collidepoint(MOUSEPOS) and PanelRectangles.scroll_range[0] > 1: # Scroll up
                             if SCROLL_UP_BUTTON.activate == True:    
@@ -1923,8 +1940,6 @@ def main():
                         # Editing mode only
                         if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE:
                             #BUTTONS
-                            if COLOR_BUTTON.rect.collidepoint(MOUSEPOS):
-                                Preferences.colorkey = Preferences.get_color()
                             if POS_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS) and POS_SAVE_FILE_BUTTON.clickable == True:
                                 pos_save_file()
                             if POS_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS) and POS_LOAD_FILE_BUTTON.clickable == True:
@@ -1947,8 +1962,8 @@ def main():
                     
                     # Mouse click on the board
                     elif (event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and
-                          MOUSEPOS[0] > initvar.X_GRID_START and MOUSEPOS[0] < initvar.X_GRID_END and
-                          MOUSEPOS[1] > initvar.Y_GRID_START and MOUSEPOS[1] < initvar.Y_GRID_END): 
+                          MOUSEPOS[0] > initvar.X_GRID_START and MOUSEPOS[0] < board.X_GRID_END and
+                          MOUSEPOS[1] > initvar.Y_GRID_START and MOUSEPOS[1] < board.Y_GRID_END): 
                         # Drag piece to board (initialize placed piece)
                         start_objects.Dragging.dragging_to_placed_no_dups(MOUSE_COORD)
                         if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
@@ -1997,9 +2012,6 @@ def main():
                         elif PLAY_EDIT_SWITCH_BUTTON.rect.collidepoint(MOUSEPOS) and Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
                             Switch_Modes_Controller.switch_mode(Switch_Modes_Controller.EDIT_MODE, PLAY_EDIT_SWITCH_BUTTON)
                             del game_controller
-                        if INFO_BUTTON.rect.collidepoint(MOUSEPOS):
-                            pass
-                            #MENUON = 2
                         if CLEAR_BUTTON.rect.collidepoint(MOUSEPOS):
                             if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE: #Editing mode
                                 start_objects.Start.restart_start_positions()
@@ -2039,17 +2051,25 @@ def main():
                 ##################
                 #FOR DEBUGGING PURPOSES, PUT TEST CODE BELOW
                 
-                #Update all sprites
-                SCREEN.fill(Preferences.colorkey)
-                
+                # Set background
+                SCREEN.blit(GAME_BACKGROUND, (0, 0))
+                # Individual sprites update
                 FLIP_BOARD_BUTTON.draw(SCREEN)
+                SAVE_FILE_PLACEHOLDER.draw(SCREEN)
+                POS_SAVE_FILE_BUTTON.draw(SCREEN, Switch_Modes_Controller.GAME_MODE, SAVE_FILE_PLACEHOLDER.hover)
+                PGN_SAVE_FILE_BUTTON.draw(SCREEN, Switch_Modes_Controller.GAME_MODE, SAVE_FILE_PLACEHOLDER.hover)
+                LOAD_FILE_PLACEHOLDER.draw(SCREEN)
+                POS_LOAD_FILE_BUTTON.draw(SCREEN, Switch_Modes_Controller.GAME_MODE, LOAD_FILE_PLACEHOLDER.hover)
+                PGN_LOAD_FILE_BUTTON.draw(SCREEN, Switch_Modes_Controller.GAME_MODE, LOAD_FILE_PLACEHOLDER.hover)
+                CPU_BUTTON.draw(SCREEN, Switch_Modes_Controller.GAME_MODE)
+                # Group sprites update
                 GAME_MODE_SPRITES.draw(SCREEN)
                 board.GRID_SPRITES.draw(SCREEN)
                 Grid_Controller.update_grid_occupied_detection()
                 start_objects.START_SPRITES.update(Switch_Modes_Controller.GAME_MODE)
                 PLAY_PANEL_SPRITES.update(Switch_Modes_Controller.GAME_MODE)
                 
-                SCREEN.blit(initvar.MOVE_BG_IMAGE, (initvar.MOVE_BG_IMAGE_HEIGHT,initvar.MOVE_BG_IMAGE_WIDTH))
+                SCREEN.blit(MOVE_BG_IMAGE, (initvar.MOVE_BG_IMAGE_X,initvar.MOVE_BG_IMAGE_Y))
                 if(Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE): #Only draw placed sprites in editing mode
                     start_objects.START_SPRITES.draw(SCREEN)
                     placed_objects.PLACED_SPRITES.update()
@@ -2072,29 +2092,29 @@ def main():
                     # Update objects that aren't in a sprite group
                     SCROLL_UP_BUTTON.draw(SCREEN)
                     SCROLL_DOWN_BUTTON.draw(SCREEN, len(Move_Tracker.df_moves))
-                render_text = lambda x: arial_font.render(x, 1, (0, 0, 0)) 
+                render_text = lambda x: verdana_font.render(x, 1, initvar.UNIVERSAL_TEXT_COLOR) 
                 # Board Coordinates Drawing
                 for text in range(0,len(Text_Controller.coor_letter_text_list)):
-                    SCREEN.blit(Text_Controller.coor_letter_text_list[text], (initvar.X_GRID_START+initvar.X_GRID_WIDTH/3+(initvar.X_GRID_WIDTH*text), initvar.Y_GRID_START-(initvar.Y_GRID_HEIGHT*0.75)))
-                    SCREEN.blit(Text_Controller.coor_letter_text_list[text], (initvar.X_GRID_START+initvar.X_GRID_WIDTH/3+(initvar.X_GRID_WIDTH*text), initvar.Y_GRID_END+(initvar.Y_GRID_HEIGHT*0.25)))
+                    SCREEN.blit(Text_Controller.coor_letter_text_list[text], (initvar.X_GRID_START+board.X_GRID_WIDTH/3+(board.X_GRID_WIDTH*text), initvar.Y_GRID_START-(board.Y_GRID_HEIGHT*0.75)))
+                    SCREEN.blit(Text_Controller.coor_letter_text_list[text], (initvar.X_GRID_START+board.X_GRID_WIDTH/3+(board.X_GRID_WIDTH*text), board.Y_GRID_END+(board.Y_GRID_HEIGHT*0.25)))
                 for text in range(0,len(Text_Controller.coor_number_text_list)):
-                    SCREEN.blit(Text_Controller.coor_number_text_list[text], (initvar.X_GRID_START-initvar.X_GRID_WIDTH/2, initvar.Y_GRID_START+initvar.Y_GRID_HEIGHT/4+(initvar.Y_GRID_HEIGHT*text)))
-                    SCREEN.blit(Text_Controller.coor_number_text_list[text], (initvar.X_GRID_END+initvar.X_GRID_WIDTH/3, initvar.Y_GRID_START+initvar.Y_GRID_HEIGHT/4+(initvar.Y_GRID_HEIGHT*text)))
+                    SCREEN.blit(Text_Controller.coor_number_text_list[text], (initvar.X_GRID_START-board.X_GRID_WIDTH/2, initvar.Y_GRID_START+board.Y_GRID_HEIGHT/4+(board.Y_GRID_HEIGHT*text)))
+                    SCREEN.blit(Text_Controller.coor_number_text_list[text], (board.X_GRID_END+board.X_GRID_WIDTH/3, initvar.Y_GRID_START+board.Y_GRID_HEIGHT/4+(board.Y_GRID_HEIGHT*text)))
                 if(Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE):
-                    check_checkmate_text_render = arial_font.render(Text_Controller.check_checkmate_text, 1, (0, 0, 0))
+                    check_checkmate_text_render = verdana_font.render(Text_Controller.check_checkmate_text, 1, initvar.UNIVERSAL_TEXT_COLOR)
                     if Grid_Controller.flipped == True:
                         if game_controller.WHOSETURN == "white" and game_controller.result_abb == "*":
-                            whose_turn_text = arial_font.render("White's move", 1, (0, 0, 0))
+                            whose_turn_text = verdana_font.render("White's move", 1, initvar.UNIVERSAL_TEXT_COLOR)
                             SCREEN.blit(whose_turn_text, initvar.BLACK_MOVE_X_Y)
                         elif game_controller.WHOSETURN == "black" and game_controller.result_abb == "*":
-                            whose_turn_text = arial_font.render("Black's move", 1, (0, 0, 0))
+                            whose_turn_text = verdana_font.render("Black's move", 1, initvar.UNIVERSAL_TEXT_COLOR)
                             SCREEN.blit(whose_turn_text, initvar.WHITE_MOVE_X_Y)
                     else:
                         if game_controller.WHOSETURN == "white" and game_controller.result_abb == "*":
-                            whose_turn_text = arial_font.render("White's move", 1, (0, 0, 0))
+                            whose_turn_text = verdana_font.render("White's move", 1, initvar.UNIVERSAL_TEXT_COLOR)
                             SCREEN.blit(whose_turn_text, initvar.WHITE_MOVE_X_Y)
                         elif game_controller.WHOSETURN == "black" and game_controller.result_abb == "*":
-                            whose_turn_text = arial_font.render("Black's move", 1, (0, 0, 0))
+                            whose_turn_text = verdana_font.render("Black's move", 1, initvar.UNIVERSAL_TEXT_COLOR)
                             SCREEN.blit(whose_turn_text, initvar.BLACK_MOVE_X_Y)
                     SCREEN.blit(check_checkmate_text_render, initvar.CHECK_CHECKMATE_X_Y)
                 if Grid_Controller.flipped == True:
