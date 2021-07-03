@@ -10,18 +10,23 @@ Splitting groups of statements that were for after clicking into functions and m
 Feedback
 
 Design improvements:
-CPU Mode to be chosen before the game starts (rather than during the game)
-Human mode icon
-Reset Board and Clear Board, clearly distinguish?
+If a piece moves one square, the two squares looks like a two piece in a row blob. Should the square have an outline?
+Reset Board and Clear Board, clearly distinguish the buttons?
+Black pieces to be lighter color?
+Different text color for coordinates  and/or handles/ratings?
+Alien as CPU (excited, neutral, angry)
+Option for asteroid or other space stuff in background?
 
 Features To-Do (long-term):
+Sleep during AI move
+AI (use pickle?)
 Customized Turns for black and white (in these cases, substitute first move with "" ?)
 Choose piece for Promotion
 Sounds
 If no king then don't start game
 Themes
 Grid using color rather than sprite
-AI
+AI or human on BOTH sides
 """
 import board
 import start_objects
