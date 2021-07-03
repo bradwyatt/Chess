@@ -121,7 +121,6 @@ def pos_load_file(reset=False):
     
     # Removes all placed lists
     placed_objects.remove_all_placed()
-    
     for white_pawn_pos in eval(loaded_dict['white_pawn']):
         placed_objects.PlacedPawn(white_pawn_pos, "white")
     for white_bishop_pos in eval(loaded_dict['white_bishop']):
@@ -226,7 +225,6 @@ def pos_save_file():
             # Write the file to disk
             obj_locations = copy.deepcopy(get_dict_rect_positions())
             json.dump(obj_locations, save_file_name)
-            #save_file_name.write(str(obj_locations))
             save_file_name.close()
             log.info("File Saved Successfully.")
         else:
@@ -241,7 +239,7 @@ def save_objects():
         if save_file_name is not None:
             # Write the file to disk
             obj_locations = copy.deepcopy(get_dict_rect_positions())
-            save_file_name.write(str(obj_locations))
+            json.dump(obj_locations, save_file_name)
             save_file_name.close()
     except IOError:
         log.info("Save File Error (IOError)")
