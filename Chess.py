@@ -54,6 +54,7 @@ import pandas as pd
 import numpy as np
 import initvar
 import PySimpleGUI as sg
+import json
 
 
 #############
@@ -88,15 +89,20 @@ log.addHandler(console_handler)
 def pos_load_file(reset=False):
     open_file = None
     if reset == True:
-        loaded_dict = {'white_pawn': ['a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'],
-                       'white_bishop': ['c1', 'f1'], 'white_knight': ['b1', 'g1'],
-                       'white_rook': ['a1', 'h1'], 'white_queen': ['d1'], 'white_king': ['e1'],
-                       'black_pawn': ['a7', 'b7', 'c7', 'd7', 'e7', 'f7', 'g7', 'h7'],
-                       'black_bishop': ['c8', 'f8'], 'black_knight': ['b8', 'g8'],
-                       'black_rook': ['a8', 'h8'], 'black_queen': ['d8'], 'black_king': ['e8'],
-                       'RGB': Preferences.colorkey}
+        loaded_dict = {"white_pawn": "['a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2']",
+                       "white_bishop": "['c1', 'f1']",
+                       "white_knight": "['b1', 'g1']",
+                       "white_rook": "['a1', 'h1']",
+                       "white_queen": "['d1']",
+                       "white_king": "['e1']",
+                       "black_pawn": "['a7', 'b7', 'c7', 'd7', 'e7', 'f7', 'g7', 'h7']",
+                       "black_bishop": "['c8', 'f8']",
+                       "black_knight": "['b8', 'g8']",
+                       "black_rook": "['a8', 'h8']",
+                       "black_queen": "['d8']",
+                       "black_king": "['e8']"}
     else:
-        request_file_name = askopenfilename(defaultextension=".lvl")
+        request_file_name = askopenfilename(defaultextension=".json")
         try:
             open_file = open(request_file_name, "r")
         except FileNotFoundError:
@@ -112,6 +118,53 @@ def pos_load_file(reset=False):
         open_file.close()
     
     log.info("Removing sprites and loading piece positions...")
+    
+    # Removes all placed lists
+    placed_objects.remove_all_placed()
+    
+    for white_pawn_pos in eval(loaded_dict['white_pawn']):
+        placed_objects.PlacedPawn(white_pawn_pos, "white")
+    for white_bishop_pos in eval(loaded_dict['white_bishop']):
+        placed_objects.PlacedBishop(white_bishop_pos, "white")
+    for white_knight_pos in eval(loaded_dict['white_knight']):
+        placed_objects.PlacedKnight(white_knight_pos, "white")
+    for white_rook_pos in eval(loaded_dict['white_rook']):
+        placed_objects.PlacedRook(white_rook_pos, "white")
+    for white_queen_pos in eval(loaded_dict['white_queen']):
+        placed_objects.PlacedQueen(white_queen_pos, "white")
+    for white_king_pos in eval(loaded_dict['white_king']):
+        placed_objects.PlacedKing(white_king_pos, "white")
+    for black_pawn_pos in eval(loaded_dict['black_pawn']):
+        placed_objects.PlacedPawn(black_pawn_pos, "black")
+    for black_bishop_pos in eval(loaded_dict['black_bishop']):
+        placed_objects.PlacedBishop(black_bishop_pos, "black")
+    for black_knight_pos in eval(loaded_dict['black_knight']):
+        placed_objects.PlacedKnight(black_knight_pos, "black")
+    for black_rook_pos in eval(loaded_dict['black_rook']):
+        placed_objects.PlacedRook(black_rook_pos, "black")
+    for black_queen_pos in eval(loaded_dict['black_queen']):
+        placed_objects.PlacedQueen(black_queen_pos, "black")
+    for black_king_pos in eval(loaded_dict['black_king']):
+        placed_objects.PlacedKing(black_king_pos, "black")
+    
+    log.info("Positioning Loaded Successfully")
+    return
+
+def load_objects():
+    open_file = None
+    try:
+        open_file = open("temp.json", "r")
+    except FileNotFoundError:
+        log.info("File not found")
+        return
+    loaded_file = open_file.read()
+    loaded_dict = ast.literal_eval(loaded_file)
+    
+    for obj_list in play_objects.Piece_Lists_Shortcut.all_pieces():
+        for obj in obj_list:
+            obj.destroy()
+    if open_file:
+        open_file.close()
     
     # Removes all placed lists
     placed_objects.remove_all_placed()
@@ -140,42 +193,56 @@ def pos_load_file(reset=False):
         placed_objects.PlacedQueen(black_queen_pos, "black")
     for black_king_pos in loaded_dict['black_king']:
         placed_objects.PlacedKing(black_king_pos, "black")
-    Preferences.colorkey = loaded_dict['RGB']
-    
-    log.info("Positioning Loaded Successfully")
     return
-
-            
+         
 # Returns the tuples of each objects' positions within all classes
 def get_dict_rect_positions():
-    total_placed_list = {'white_pawn': placed_objects.PlacedPawn.white_pawn_list, 'white_bishop': placed_objects.PlacedBishop.white_bishop_list, 
-                         'white_knight': placed_objects.PlacedKnight.white_knight_list, 'white_rook': placed_objects.PlacedRook.white_rook_list,
-                         'white_queen': placed_objects.PlacedQueen.white_queen_list, 'white_king': placed_objects.PlacedKing.white_king_list,
-                         'black_pawn': placed_objects.PlacedPawn.black_pawn_list, 'black_bishop': placed_objects.PlacedBishop.black_bishop_list,
-                         'black_knight': placed_objects.PlacedKnight.black_knight_list, 'black_rook': placed_objects.PlacedRook.black_rook_list,
-                         'black_queen': placed_objects.PlacedQueen.black_queen_list, 'black_king': placed_objects.PlacedKing.black_king_list}
+    total_placed_list = {"white_pawn": placed_objects.PlacedPawn.white_pawn_list,
+                         "white_bishop": placed_objects.PlacedBishop.white_bishop_list, 
+                         "white_knight": placed_objects.PlacedKnight.white_knight_list,
+                         "white_rook": placed_objects.PlacedRook.white_rook_list,
+                         "white_queen": placed_objects.PlacedQueen.white_queen_list,
+                         "white_king": placed_objects.PlacedKing.white_king_list,
+                         "black_pawn": placed_objects.PlacedPawn.black_pawn_list,
+                         "black_bishop": placed_objects.PlacedBishop.black_bishop_list,
+                         "black_knight": placed_objects.PlacedKnight.black_knight_list,
+                         "black_rook": placed_objects.PlacedRook.black_rook_list,
+                         "black_queen": placed_objects.PlacedQueen.black_queen_list,
+                         "black_king": placed_objects.PlacedKing.black_king_list}
     get_coord_for_all_obj = dict.fromkeys(total_placed_list, list)
     for item_key, item_list in total_placed_list.items():
         item_list_in_name = []
         for item_coord in item_list:
             item_list_in_name.append(item_coord.coordinate)
-        get_coord_for_all_obj[item_key] = item_list_in_name
+        get_coord_for_all_obj[item_key] = str(item_list_in_name)
     return get_coord_for_all_obj
 
 def pos_save_file():
     try:
         # default extension is optional, here will add .txt if missing
-        save_file_prompt = asksaveasfilename(defaultextension=".lvl")
+        save_file_prompt = asksaveasfilename(defaultextension=".json")
         save_file_name = open(save_file_prompt, "w")
         if save_file_name is not None:
             # Write the file to disk
             obj_locations = copy.deepcopy(get_dict_rect_positions())
-            obj_locations['RGB'] = Preferences.colorkey
-            save_file_name.write(str(obj_locations))
+            json.dump(obj_locations, save_file_name)
+            #save_file_name.write(str(obj_locations))
             save_file_name.close()
             log.info("File Saved Successfully.")
         else:
             log.info("Error! Need king to save!")
+    except IOError:
+        log.info("Save File Error (IOError)")
+        
+def save_objects():
+    try:
+        # default extension is optional, here will add .txt if missing
+        save_file_name = open("temp.json", "w")
+        if save_file_name is not None:
+            # Write the file to disk
+            obj_locations = copy.deepcopy(get_dict_rect_positions())
+            save_file_name.write(str(obj_locations))
+            save_file_name.close()
     except IOError:
         log.info("Save File Error (IOError)")
 
@@ -208,7 +275,6 @@ class PlayEditSwitchButton(pygame.sprite.Sprite):
         return self.image
 
 class Preferences():
-    colorkey = initvar.COLORKEY_RGB
     Event = ""
     Site = ""
     Date = ""
@@ -933,6 +999,7 @@ class CPU_Controller():
         move_score_list = []
         random.seed(4)
         random.shuffle(CPU_Controller.total_possible_moves)
+        #save_objects()
         for possible_move in CPU_Controller.total_possible_moves:
             grid = possible_move[0]
             piece_to_move = possible_move[1]
@@ -961,66 +1028,8 @@ class CPU_Controller():
                         move_score -= 0.5
                     elif piece_to_move.allowed_to_castle == False:
                         pass
-                """
-                if len(board.Grid.grid_dict[grid.coordinate].coords_of_attacking_pieces['white']) > 0 \
-                    and len(board.Grid.grid_dict[grid.coordinate].coords_of_protecting_pieces['black']) <= 1:
-                        # Moving to a square being attacked by white and 0 protection
-                        move_score -= piece_to_move.score
-                elif len(board.Grid.grid_dict[grid.coordinate].coords_of_attacking_pieces['white']) > 0 \
-                    and len(board.Grid.grid_dict[grid.coordinate].coords_of_protecting_pieces['black']) > 1:
-                        # Moving to a square being attacked by white but you have some protection
-                    lowest_attacker_score = []
-                    for attacking_grid in board.Grid.grid_dict[grid.coordinate].coords_of_attacking_pieces['white']:
-                        attacker_piece = play_objects.Piece_Lists_Shortcut.piece_on_coord(attacking_grid)
-                        if attacker_piece not in play_objects.PlayKing.white_king_list:
-                            if attacker_piece.score <= piece_to_move.score:
-                                lowest_attacker_score.append(attacker_piece.score-piece_to_move.score)
-                            else: 
-                                lowest_attacker_score.append(0)
-                        else:
-                            lowest_attacker_score.append(0)
-                    move_score += min(lowest_attacker_score)
-                if len(board.Grid.grid_dict[piece_to_move.coordinate].coords_of_attacking_pieces['white']) > 0 \
-                    and len(board.Grid.grid_dict[grid.coordinate].coords_of_attacking_pieces['white']) == 0:
-                        # Available space without an attacking piece
-                        if piece_to_move not in play_objects.PlayKing.black_king_list:
-                            move_score += piece_to_move.score
-                        else:
-                            pass
-                elif len(board.Grid.grid_dict[piece_to_move.coordinate].coords_of_attacking_pieces['white']) > 0 \
-                    and len(board.Grid.grid_dict[piece_to_move.coordinate].coords_of_protecting_pieces['black']) > 1:
-                        # Current piece being attacked and is being protected
-                    lowest_attacker_score = []
-                    for attacking_grid in board.Grid.grid_dict[piece_to_move.coordinate].coords_of_attacking_pieces['white']:
-                        attacker_piece = play_objects.Piece_Lists_Shortcut.piece_on_coord(attacking_grid)
-                        if attacker_piece not in play_objects.PlayKing.white_king_list:
-                            if attacker_piece.score <= piece_to_move.score:
-                                lowest_attacker_score.append(piece_to_move.score-attacker_piece.score)
-                            else:
-                                lowest_attacker_score.append(0)
-                        else:
-                            lowest_attacker_score.append(0)
-                    move_score += max(lowest_attacker_score)
-            elif CPU_Controller.cpu_color == "white":
-                if piece_to_move in play_objects.PlayKing.white_king_list:
-                    # Incentivize Castling
-                    if piece_to_move.king_side_castle_ability == True and grid.coordinate == 'g1':
-                        move_score += 0.5
-                    elif piece_to_move.queen_side_castle_ability == True and grid.coordinate == 'c1':
-                        move_score += 0.5
-                    else:
-                        # If king move not a castle move, don't do it early on
-                        move_score -= 0.5
-                elif piece_to_move in play_objects.PlayRook.white_rook_list:
-                    # Disincentivize rook from moving before castling
-                    if piece_to_move.allowed_to_castle == True:
-                        move_score -= 0.5
-                if len(board.Grid.grid_dict[piece_to_move.coordinate].coords_of_attacking_pieces['black']) > 0 \
-                    and len(board.Grid.grid_dict[piece_to_move.coordinate].coords_of_protecting_pieces['white']) == 0:
-                        if len(grid.coords_of_protecting_pieces['white']) > 0:
-                            move_score += piece_to_move.score
-                """
             move_score_list.append(move_score)
+            #load_objects()
         max_move = max(move_score_list)
         index_of_max_moves = move_score_list.index(max_move)
         return CPU_Controller.total_possible_moves[index_of_max_moves]
