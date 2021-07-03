@@ -68,8 +68,8 @@ class PosSaveFileButton(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         self.clickable = True
-    def draw(self, screen, game_mode):
-        if game_mode == 0:
+    def draw(self, screen, game_mode, hover):
+        if game_mode == 0 and hover == True:
             self.clickable = True
             screen.blit(self.image, (self.rect.topleft))
         else:
@@ -82,11 +82,10 @@ class PosLoadFileButton(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         self.clickable = True
-    def draw(self, screen):
-        screen.blit(self.image, (self.rect.topleft))
-    def update(self, game_mode):
-        if game_mode == 0:
+    def draw(self, screen, game_mode, hover):
+        if game_mode == 0 and hover == True:
             self.clickable = True
+            screen.blit(self.image, (self.rect.topleft))
         else:
             self.clickable = False
         
@@ -97,8 +96,8 @@ class PGNSaveFileButton(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         self.clickable = False
-    def draw(self, screen, game_mode):
-        if game_mode == 1:
+    def draw(self, screen, game_mode, hover):
+        if game_mode == 1 and hover == True:
             self.clickable = True
             screen.blit(self.image, (self.rect.topleft))
         else:
@@ -111,8 +110,8 @@ class PGNLoadFileButton(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         self.clickable = True
-    def draw(self, screen, game_mode):
-        if game_mode == 0:
+    def draw(self, screen, game_mode, hover):
+        if game_mode == 0 and hover == True:
             self.clickable = True
             screen.blit(self.image, (self.rect.topleft))
         else:
@@ -124,6 +123,7 @@ class SaveFilePlaceholder(pygame.sprite.Sprite):
         self.image = IMAGES["SPR_SAVE_FILE_PLACEHOLDER"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
+        self.hover = False
     def draw(self, screen):
         screen.blit(self.image, (self.rect.topleft))
         
@@ -133,6 +133,7 @@ class LoadFilePlaceholder(pygame.sprite.Sprite):
         self.image = IMAGES["SPR_LOAD_FILE_PLACEHOLDER"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
+        self.hover = False
     def draw(self, screen):
         screen.blit(self.image, (self.rect.topleft))
 
