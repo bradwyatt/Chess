@@ -811,6 +811,7 @@ class CPU_Controller():
     cpu_color = "black"
     enemy_color = "white"
     total_possible_moves = []
+    # pos_lists_to_coord is a dictionary, where each element is the score based on the piece
     white_pawn_pos_score_dict = pos_lists_to_coord(initvar.WHITE_PAWN_POS_SCORE)
     black_pawn_pos_score_dict = pos_lists_to_coord(initvar.WHITE_PAWN_POS_SCORE[::-1])
     white_knight_pos_score_dict = pos_lists_to_coord(initvar.WHITE_KNIGHT_POS_SCORE)
@@ -819,6 +820,7 @@ class CPU_Controller():
     black_bishop_pos_score_dict = pos_lists_to_coord(initvar.WHITE_BISHOP_POS_SCORE[::-1])
     white_king_pos_score_dict = pos_lists_to_coord(initvar.WHITE_KING_POS_SCORE)
     black_king_pos_score_dict = pos_lists_to_coord(initvar.WHITE_KING_POS_SCORE[::-1])
+    # It does not matter where the rook and queen is on the board
     white_rook_pos_score_dict = pos_lists_to_coord([0]*64)
     black_rook_pos_score_dict = pos_lists_to_coord([0]*64)
     white_queen_pos_score_dict = pos_lists_to_coord([0]*64)
@@ -1402,6 +1404,10 @@ class Move_Controller():
             
     def complete_move(new_coord, game_controller):
         #%% WIP
+        if game_controller.WHOSETURN == CPU_Controller.cpu_color and CPU_Controller.cpu_mode == True:
+            # CPU thinking
+            #pygame.time.wait(5000)
+            pass
         for grid in board.Grid.grid_list:
             for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
                 for piece in piece_list:
@@ -1758,6 +1764,7 @@ def main():
         RUNNING, DEBUG = 0, 1
         state = RUNNING
         debug_message = 0
+        game_controller = None
         
         GAME_MODE_SPRITES = pygame.sprite.Group()
         CLOCK = pygame.time.Clock()
@@ -1972,14 +1979,6 @@ def main():
                             Move_Controller.complete_move(MOUSE_COORD, game_controller)
                             # Selects piece
                             Move_Controller.select_piece_unselect_all_others(MOUSE_COORD, game_controller)
-                            if CPU_Controller.cpu_mode == True and game_controller.WHOSETURN == CPU_Controller.cpu_color:
-                                CPU_Controller.total_possible_moves_update()
-                                if CPU_Controller.total_possible_moves:
-                                    cpu_move = CPU_Controller.choose_move()
-                                    cpu_grid = cpu_move[0]
-                                    cpu_piece = cpu_move[1]
-                                    cpu_piece.select = True
-                                    Move_Controller.complete_move(cpu_grid.coordinate, game_controller)
     
                     if event.type == pygame.MOUSEBUTTONDOWN and (event.button == 4 or event.button == 5):
                         #scroll wheel
@@ -2011,7 +2010,7 @@ def main():
                         #################
                         elif PLAY_EDIT_SWITCH_BUTTON.rect.collidepoint(MOUSEPOS) and Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
                             Switch_Modes_Controller.switch_mode(Switch_Modes_Controller.EDIT_MODE, PLAY_EDIT_SWITCH_BUTTON)
-                            del game_controller
+                            game_controller = None
                         if CLEAR_BUTTON.rect.collidepoint(MOUSEPOS):
                             if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE: #Editing mode
                                 start_objects.Start.restart_start_positions()
@@ -2092,6 +2091,17 @@ def main():
                     # Update objects that aren't in a sprite group
                     SCROLL_UP_BUTTON.draw(SCREEN)
                     SCROLL_DOWN_BUTTON.draw(SCREEN, len(Move_Tracker.df_moves))
+                # CPU Moves once it is their turn
+                if game_controller:
+                    if CPU_Controller.cpu_mode == True and game_controller.WHOSETURN == CPU_Controller.cpu_color:
+                        pygame.display.update()
+                        CPU_Controller.total_possible_moves_update()
+                        if CPU_Controller.total_possible_moves:
+                            cpu_move = CPU_Controller.choose_move()
+                            cpu_grid = cpu_move[0]
+                            cpu_piece = cpu_move[1]
+                            cpu_piece.select = True
+                            Move_Controller.complete_move(cpu_grid.coordinate, game_controller)
                 render_text = lambda x: verdana_font.render(x, 1, initvar.UNIVERSAL_TEXT_COLOR) 
                 # Board Coordinates Drawing
                 for text in range(0,len(Text_Controller.coor_letter_text_list)):
@@ -2136,7 +2146,6 @@ def main():
                     else:
                         SCREEN.blit(render_text(Preferences.Black), initvar.BLACK_X_Y)
                 pygame.display.update()
-                #print("MEOW 1123 " + today.strftime("%Y-%m-%d %H%M%S"))
             elif state == DEBUG:
                 if debug_message == 1:
                     log.info("Entering debug mode")
