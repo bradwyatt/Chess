@@ -1,9 +1,6 @@
 """
 Chess created by Brad Wyatt
 
-Features To-Do (short-term):
-Menu objects are still invisible yet can be clickable
-
 Clean Code Ideas:
 Re-examine sprite groups
 Edit_Mode_Controller to handle all the clicking event functions
@@ -11,6 +8,11 @@ Panel classes in separate file (instead of menu_buttons)
 Getting rid of import *
 Splitting groups of statements that were for after clicking into functions and methods within class
 Feedback
+
+Design improvements:
+CPU Mode to be chosen before the game starts (rather than during the game)
+Human mode icon
+Reset Board and Clear Board, clearly distinguish?
 
 Features To-Do (long-term):
 Customized Turns for black and white (in these cases, substitute first move with "" ?)
