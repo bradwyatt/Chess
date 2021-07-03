@@ -2048,7 +2048,7 @@ def main():
                 
                 # Set background
                 SCREEN.blit(GAME_BACKGROUND, (0, 0))
-                # Update all sprites
+                # Individual sprites update
                 FLIP_BOARD_BUTTON.draw(SCREEN)
                 SAVE_FILE_PLACEHOLDER.draw(SCREEN)
                 POS_SAVE_FILE_BUTTON.draw(SCREEN, Switch_Modes_Controller.GAME_MODE, SAVE_FILE_PLACEHOLDER.hover)
@@ -2056,6 +2056,8 @@ def main():
                 LOAD_FILE_PLACEHOLDER.draw(SCREEN)
                 POS_LOAD_FILE_BUTTON.draw(SCREEN, Switch_Modes_Controller.GAME_MODE, LOAD_FILE_PLACEHOLDER.hover)
                 PGN_LOAD_FILE_BUTTON.draw(SCREEN, Switch_Modes_Controller.GAME_MODE, LOAD_FILE_PLACEHOLDER.hover)
+                CPU_BUTTON.draw(SCREEN, Switch_Modes_Controller.GAME_MODE)
+                # Group sprites update
                 GAME_MODE_SPRITES.draw(SCREEN)
                 board.GRID_SPRITES.draw(SCREEN)
                 Grid_Controller.update_grid_occupied_detection()

@@ -152,10 +152,10 @@ class CPUButton(pygame.sprite.Sprite):
         self.toggle(cpu_mode)
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
-        PLAY_PANEL_SPRITES.add(self)
-    def update(self, game_mode):
-        if game_mode == 1:
+    def draw(self, screen, game_mode):
+        if game_mode == 0:
             self.clickable = True
+            screen.blit(self.image, (self.rect.topleft))
         else:
             self.clickable = False
     def toggle(self, cpu_mode):
