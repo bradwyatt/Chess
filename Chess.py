@@ -149,7 +149,7 @@ def pos_load_file(reset=False):
     log.info("Positioning Loaded Successfully")
     return
 
-def load_objects():
+def load_objects(game_controller):
     open_file = None
     try:
         open_file = open("temp.json", "r")
@@ -166,33 +166,35 @@ def load_objects():
         open_file.close()
     
     # Removes all placed lists
-    placed_objects.remove_all_placed()
+    play_objects.remove_all_play()
     
     for white_pawn_pos in loaded_dict['white_pawn']:
-        placed_objects.PlacedPawn(white_pawn_pos, "white")
+        play_objects.PlayPawn(white_pawn_pos, "white")
     for white_bishop_pos in loaded_dict['white_bishop']:
-        placed_objects.PlacedBishop(white_bishop_pos, "white")
+        play_objects.PlayBishop(white_bishop_pos, "white")
     for white_knight_pos in loaded_dict['white_knight']:
-        placed_objects.PlacedKnight(white_knight_pos, "white")
+        play_objects.PlayKnight(white_knight_pos, "white")
     for white_rook_pos in loaded_dict['white_rook']:
-        placed_objects.PlacedRook(white_rook_pos, "white")
+        play_objects.PlayRook(white_rook_pos, "white")
     for white_queen_pos in loaded_dict['white_queen']:
-        placed_objects.PlacedQueen(white_queen_pos, "white")
+        play_objects.PlayQueen(white_queen_pos, "white")
     for white_king_pos in loaded_dict['white_king']:
-        placed_objects.PlacedKing(white_king_pos, "white")
+        play_objects.PlayKing(white_king_pos, "white")
     for black_pawn_pos in loaded_dict['black_pawn']:
-        placed_objects.PlacedPawn(black_pawn_pos, "black")
+        play_objects.PlayPawn(black_pawn_pos, "black")
     for black_bishop_pos in loaded_dict['black_bishop']:
-        placed_objects.PlacedBishop(black_bishop_pos, "black")
+        play_objects.PlayBishop(black_bishop_pos, "black")
     for black_knight_pos in loaded_dict['black_knight']:
-        placed_objects.PlacedKnight(black_knight_pos, "black")
+        play_objects.PlayKnight(black_knight_pos, "black")
     for black_rook_pos in loaded_dict['black_rook']:
-        placed_objects.PlacedRook(black_rook_pos, "black")
+        play_objects.PlayRook(black_rook_pos, "black")
     for black_queen_pos in loaded_dict['black_queen']:
-        placed_objects.PlacedQueen(black_queen_pos, "black")
+        play_objects.PlayQueen(black_queen_pos, "black")
     for black_king_pos in loaded_dict['black_king']:
-        placed_objects.PlacedKing(black_king_pos, "black")
-    return
+        play_objects.PlayKing(black_king_pos, "black")
+    for key, value in loaded_dict['game_controller'].items():
+        game_controller.key = value
+    return game_controller
          
 # Returns the tuples of each objects' positions within all classes
 def get_dict_rect_positions():
@@ -231,15 +233,43 @@ def pos_save_file():
             log.info("Error! Need king to save!")
     except IOError:
         log.info("Save File Error (IOError)")
-        
-def save_objects():
+
+def save_piece_attributes():
+    total_play_list = {"white_pawn": play_objects.PlayPawn.white_pawn_list,
+                         "white_bishop": play_objects.PlayBishop.white_bishop_list, 
+                         "white_knight": play_objects.PlayKnight.white_knight_list,
+                         "white_rook": play_objects.PlayRook.white_rook_list,
+                         "white_queen": play_objects.PlayQueen.white_queen_list,
+                         "white_king": play_objects.PlayKing.white_king_list,
+                         "black_pawn": play_objects.PlayPawn.black_pawn_list,
+                         "black_bishop": play_objects.PlayBishop.black_bishop_list,
+                         "black_knight": play_objects.PlayKnight.black_knight_list,
+                         "black_rook": play_objects.PlayRook.black_rook_list,
+                         "black_queen": play_objects.PlayQueen.black_queen_list,
+                         "black_king": play_objects.PlayKing.black_king_list}
+    get_attr_for_all_obj = dict.fromkeys(total_play_list, list)
+    for item_key, item_list in total_play_list.items():
+        item_list_in_name = []
+        for item in item_list:
+            keys_to_exclude = ['_Sprite__g', 'image'] # We can't save surface for states
+            item_dict = item.__dict__
+            [item_dict.pop(key) for key in keys_to_exclude]
+            for k, v in item_dict.items():
+                # THe value for each piece (within each piece list) is a string to be in a JSON-friendly format
+                item_dict[k] = str(v)
+            item_list_in_name.append(item_dict)
+        get_attr_for_all_obj[item_key] = item_list_in_name
+    return get_attr_for_all_obj
+
+def save_objects(game_controller):
     try:
         # default extension is optional, here will add .txt if missing
         save_file_name = open("temp.json", "w")
         if save_file_name is not None:
             # Write the file to disk
-            obj_locations = copy.deepcopy(get_dict_rect_positions())
-            json.dump(obj_locations, save_file_name)
+            save_attr_to_json = copy.deepcopy(save_piece_attributes())
+            save_attr_to_json['game_controller'] = game_controller.__dict__
+            json.dump(save_attr_to_json, save_file_name)
             save_file_name.close()
     except IOError:
         log.info("Save File Error (IOError)")
@@ -923,7 +953,7 @@ class CPU_Controller():
                         if piece_to_move == white_piece:
                             white_score += CPU_Controller.white_king_pos_score_dict[grid.coordinate]
                         else:
-                            white_score += CPU_Controller.white_king_pos_score_dict[white_piece.coordinate]
+                            white_score += CPU_Controller.white_king_pos_score_dict[str(white_piece.coordinate)]
                         white_score += initvar.piece_values_dict['king']
                     elif white_piece in play_objects.PlayRook.white_rook_list:
                         if piece_to_move == white_piece:
@@ -993,14 +1023,15 @@ class CPU_Controller():
                     CPU_Controller.total_possible_moves.append((grid, piece_to_move))
     def random_move():
         return (random.choice(CPU_Controller.total_possible_moves))
-    def choose_move():
+    def choose_move(game_controller):
         move_score_list = []
         random.seed(4)
         random.shuffle(CPU_Controller.total_possible_moves)
-        #save_objects()
+        save_objects(game_controller)
         for possible_move in CPU_Controller.total_possible_moves:
             grid = possible_move[0]
             piece_to_move = possible_move[1]
+            print("possible move " + str(possible_move[0].coordinate))
             move_score = CPU_Controller.analyze_board(grid, piece_to_move, CPU_Controller.cpu_color)
             if grid.occupied == True and not grid.coords_of_attacking_pieces[CPU_Controller.enemy_color]:
                 # No other attack pieces
@@ -1027,10 +1058,10 @@ class CPU_Controller():
                     elif piece_to_move.allowed_to_castle == False:
                         pass
             move_score_list.append(move_score)
-            #load_objects()
+            game_controller = load_objects(game_controller)
         max_move = max(move_score_list)
         index_of_max_moves = move_score_list.index(max_move)
-        return CPU_Controller.total_possible_moves[index_of_max_moves]
+        return CPU_Controller.total_possible_moves[index_of_max_moves], game_controller
 
 
 class Game_Controller():
@@ -2104,7 +2135,7 @@ def main():
                         pygame.display.update()
                         CPU_Controller.total_possible_moves_update()
                         if CPU_Controller.total_possible_moves:
-                            cpu_move = CPU_Controller.choose_move()
+                            cpu_move, game_controller = CPU_Controller.choose_move(game_controller)
                             cpu_grid = cpu_move[0]
                             cpu_piece = cpu_move[1]
                             cpu_piece.select = True
