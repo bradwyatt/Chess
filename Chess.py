@@ -1768,6 +1768,8 @@ def main():
         POS_SAVE_FILE_BUTTON = PosSaveFileButton(initvar.POS_SAVE_FILE_BUTTON_TOPLEFT)
         PGN_LOAD_FILE_BUTTON = PGNLoadFileButton(initvar.PGN_LOAD_FILE_BUTTON_TOPLEFT)
         PGN_SAVE_FILE_BUTTON = PGNSaveFileButton(initvar.PGN_SAVE_FILE_BUTTON_TOPLEFT)
+        LOAD_FILE_PLACEHOLDER = LoadFilePlaceholder(initvar.LOAD_FILE_PLACEHOLDER_TOPLEFT)
+        SAVE_FILE_PLACEHOLDER = SaveFilePlaceholder(initvar.SAVE_FILE_PLACEHOLDER_TOPLEFT)
         #COLOR_BUTTON = ColorButton(initvar.COLOR_BUTTON_TOPLEFT)
         RESET_BOARD_BUTTON = ResetBoardButton(initvar.RESET_BOARD_BUTTON_TOPLEFT)
         CLEAR_BUTTON = ClearButton(initvar.CLEAR_BUTTON_TOPLEFT)
@@ -2037,6 +2039,8 @@ def main():
                 SCREEN.blit(GAME_BACKGROUND, (0, 0))
                 # Update all sprites
                 FLIP_BOARD_BUTTON.draw(SCREEN)
+                SAVE_FILE_PLACEHOLDER.draw(SCREEN)
+                LOAD_FILE_PLACEHOLDER.draw(SCREEN)
                 GAME_MODE_SPRITES.draw(SCREEN)
                 board.GRID_SPRITES.draw(SCREEN)
                 Grid_Controller.update_grid_occupied_detection()

@@ -116,6 +116,24 @@ class PGNLoadFileButton(pygame.sprite.Sprite):
         else:
             self.clickable = False
 
+class SaveFilePlaceholder(pygame.sprite.Sprite):
+    def __init__(self, pos):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = IMAGES["SPR_SAVE_FILE_PLACEHOLDER"]
+        self.rect = self.image.get_rect()
+        self.rect.topleft = pos
+    def draw(self, screen):
+        screen.blit(self.image, (self.rect.topleft))
+        
+class LoadFilePlaceholder(pygame.sprite.Sprite):
+    def __init__(self, pos):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = IMAGES["SPR_LOAD_FILE_PLACEHOLDER"]
+        self.rect = self.image.get_rect()
+        self.rect.topleft = pos
+    def draw(self, screen):
+        screen.blit(self.image, (self.rect.topleft))
+
 class FlipBoardButton(pygame.sprite.Sprite):
     def __init__(self, pos):
         pygame.sprite.Sprite.__init__(self)
