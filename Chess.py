@@ -1051,6 +1051,7 @@ class CPU_Controller():
         # Moving piece, removing piece and grid highlights, changing Turn
         piece_to_move.rect.topleft = grid.rect.topleft
         piece_to_move.coordinate = grid.coordinate
+        
         grid.occupied = True
         game_controller.projected_black_update()
         game_controller.projected_white_update()
