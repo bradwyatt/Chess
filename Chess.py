@@ -252,8 +252,7 @@ def save_piece_attributes():
         item_list_in_name = []
         for item in item_list:
             keys_to_exclude = ['_Sprite__g', 'image'] # We can't save surface for states
-            item_dict = item.__dict__
-            [item_dict.pop(key) for key in keys_to_exclude]
+            item_dict = {k:v for k,v in item.__dict__.items() if k not in keys_to_exclude}
             for k, v in item_dict.items():
                 # THe value for each piece (within each piece list) is a string to be in a JSON-friendly format
                 item_dict[k] = str(v)
