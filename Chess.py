@@ -168,30 +168,30 @@ def load_objects(game_controller):
     # Removes all placed lists
     play_objects.remove_all_play()
     
-    for white_pawn_pos in loaded_dict['white_pawn']:
-        play_objects.PlayPawn(white_pawn_pos, "white")
-    for white_bishop_pos in loaded_dict['white_bishop']:
-        play_objects.PlayBishop(white_bishop_pos, "white")
-    for white_knight_pos in loaded_dict['white_knight']:
-        play_objects.PlayKnight(white_knight_pos, "white")
-    for white_rook_pos in loaded_dict['white_rook']:
-        play_objects.PlayRook(white_rook_pos, "white")
-    for white_queen_pos in loaded_dict['white_queen']:
-        play_objects.PlayQueen(white_queen_pos, "white")
-    for white_king_pos in loaded_dict['white_king']:
-        play_objects.PlayKing(white_king_pos, "white")
-    for black_pawn_pos in loaded_dict['black_pawn']:
-        play_objects.PlayPawn(black_pawn_pos, "black")
-    for black_bishop_pos in loaded_dict['black_bishop']:
-        play_objects.PlayBishop(black_bishop_pos, "black")
-    for black_knight_pos in loaded_dict['black_knight']:
-        play_objects.PlayKnight(black_knight_pos, "black")
-    for black_rook_pos in loaded_dict['black_rook']:
-        play_objects.PlayRook(black_rook_pos, "black")
-    for black_queen_pos in loaded_dict['black_queen']:
-        play_objects.PlayQueen(black_queen_pos, "black")
-    for black_king_pos in loaded_dict['black_king']:
-        play_objects.PlayKing(black_king_pos, "black")
+    for white_pawn in loaded_dict['white_pawn']:
+        play_objects.PlayPawn(white_pawn['coordinate'], "white")
+    for white_bishop in loaded_dict['white_bishop']:
+        play_objects.PlayBishop(white_bishop['coordinate'], "white")
+    for white_knight in loaded_dict['white_knight']:
+        play_objects.PlayKnight(white_knight['coordinate'], "white")
+    for white_rook in loaded_dict['white_rook']:
+        play_objects.PlayRook(white_rook['coordinate'], "white")
+    for white_queen in loaded_dict['white_queen']:
+        play_objects.PlayQueen(white_queen['coordinate'], "white")
+    for white_king in loaded_dict['white_king']:
+        play_objects.PlayKing(white_king['coordinate'], "white")
+    for black_pawn in loaded_dict['black_pawn']:
+        play_objects.PlayPawn(black_pawn['coordinate'], "black")
+    for black_bishop in loaded_dict['black_bishop']:
+        play_objects.PlayBishop(black_bishop['coordinate'], "black")
+    for black_knight in loaded_dict['black_knight']:
+        play_objects.PlayKnight(black_knight['coordinate'], "black")
+    for black_rook in loaded_dict['black_rook']:
+        play_objects.PlayRook(black_rook['coordinate'], "black")
+    for black_queen in loaded_dict['black_queen']:
+        play_objects.PlayQueen(black_queen['coordinate'], "black")
+    for black_king in loaded_dict['black_king']:
+        play_objects.PlayKing(black_king['coordinate'], "black")
     for key, value in loaded_dict['game_controller'].items():
         game_controller.key = value
     return game_controller
@@ -952,7 +952,7 @@ class CPU_Controller():
                         if piece_to_move == white_piece:
                             white_score += CPU_Controller.white_king_pos_score_dict[grid.coordinate]
                         else:
-                            white_score += CPU_Controller.white_king_pos_score_dict[str(white_piece.coordinate)]
+                            white_score += CPU_Controller.white_king_pos_score_dict[white_piece.coordinate]
                         white_score += initvar.piece_values_dict['king']
                     elif white_piece in play_objects.PlayRook.white_rook_list:
                         if piece_to_move == white_piece:
@@ -1030,7 +1030,6 @@ class CPU_Controller():
         for possible_move in CPU_Controller.total_possible_moves:
             grid = possible_move[0]
             piece_to_move = possible_move[1]
-            print("possible move " + str(possible_move[0].coordinate))
             move_score = CPU_Controller.analyze_board(grid, piece_to_move, CPU_Controller.cpu_color)
             if grid.occupied == True and not grid.coords_of_attacking_pieces[CPU_Controller.enemy_color]:
                 # No other attack pieces
