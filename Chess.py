@@ -1026,41 +1026,54 @@ class CPU_Controller():
     def random_move():
         return (random.choice(CPU_Controller.total_possible_moves))
     def choose_move(game_controller):
+        #%% Figure out how to move piece then load it back
         move_score_list = []
         random.seed(4)
         random.shuffle(CPU_Controller.total_possible_moves)
+        # Saves state before trying different moves
+        """
+        I am currently testing if I can save state
+        for one position, do a new move, then revert back to state.
+        After calling this function, then make move with highest total
+        """
         save_objects(game_controller)
-        for possible_move in CPU_Controller.total_possible_moves:
-            grid = possible_move[0]
-            piece_to_move = possible_move[1]
-            move_score = CPU_Controller.analyze_board(grid, piece_to_move, CPU_Controller.cpu_color)
-            if grid.occupied == True and not grid.coords_of_attacking_pieces[CPU_Controller.enemy_color]:
-                # No other attack pieces
-                move_score += play_objects.Piece_Lists_Shortcut.piece_on_coord(grid.coordinate).score
-            elif grid.occupied == True and grid.coords_of_attacking_pieces[CPU_Controller.enemy_color]:
-                # Trade only when other piece is higher value
-                move_score = play_objects.Piece_Lists_Shortcut.piece_on_coord(grid.coordinate).score - piece_to_move.score
-            if CPU_Controller.cpu_color == "black":
-                if piece_to_move in play_objects.PlayKing.black_king_list:
-                    # Incentivize Castling
-                    if piece_to_move.king_side_castle_ability == True and grid.coordinate == 'g8':
-                        move_score += 0.5
-                    elif piece_to_move.queen_side_castle_ability == True and grid.coordinate == 'c8':
-                        move_score += 0.5
-                    elif piece_to_move.castled == True:
-                        pass
-                    else:
-                        # If king move not a castle move, don't do it early on
-                        move_score -= 0.5
-                elif piece_to_move in play_objects.PlayRook.black_rook_list:
-                    # Disincentivize rook from moving before castling
-                    if piece_to_move.allowed_to_castle == True:
-                        move_score -= 0.5
-                    elif piece_to_move.allowed_to_castle == False:
-                        pass
-            move_score_list.append(move_score)
-            print("MOVE SCORE: " + str(move_score))
-            #load_objects(game_controller)
+        #for possible_move in CPU_Controller.total_possible_moves:
+        possible_move = CPU_Controller.total_possible_moves[0]
+        grid = possible_move[0]
+        piece_to_move = possible_move[1]
+        piece_to_move.select = True
+        Move_Controller.complete_move(grid.coordinate, game_controller)
+        move_score = 1774
+        #move_score = CPU_Controller.analyze_board(grid, piece_to_move, CPU_Controller.cpu_color)
+        """
+        if grid.occupied == True and not grid.coords_of_attacking_pieces[CPU_Controller.enemy_color]:
+            # No other attack pieces
+            move_score += play_objects.Piece_Lists_Shortcut.piece_on_coord(grid.coordinate).score
+        elif grid.occupied == True and grid.coords_of_attacking_pieces[CPU_Controller.enemy_color]:
+            # Trade only when other piece is higher value
+            move_score = play_objects.Piece_Lists_Shortcut.piece_on_coord(grid.coordinate).score - piece_to_move.score
+        if CPU_Controller.cpu_color == "black":
+            if piece_to_move in play_objects.PlayKing.black_king_list:
+                # Incentivize Castling
+                if piece_to_move.king_side_castle_ability == True and grid.coordinate == 'g8':
+                    move_score += 0.5
+                elif piece_to_move.queen_side_castle_ability == True and grid.coordinate == 'c8':
+                    move_score += 0.5
+                elif piece_to_move.castled == True:
+                    pass
+                else:
+                    # If king move not a castle move, don't do it early on
+                    move_score -= 0.5
+            elif piece_to_move in play_objects.PlayRook.black_rook_list:
+                # Disincentivize rook from moving before castling
+                if piece_to_move.allowed_to_castle == True:
+                    move_score -= 0.5
+                elif piece_to_move.allowed_to_castle == False:
+                    pass
+        """
+        move_score_list.append(move_score)
+        #print("MOVE SCORE: " + str(move_score))
+        load_objects(game_controller)
         max_move = max(move_score_list)
         index_of_max_moves = move_score_list.index(max_move)
         print("Max Move Index: " + str(index_of_max_moves))
@@ -2026,10 +2039,12 @@ def main():
                                     pygame.display.update()
                                     CPU_Controller.total_possible_moves_update()
                                     if CPU_Controller.total_possible_moves:
+                                        #%% Uncomment the blocked out text below
                                         cpu_move, game_controller = CPU_Controller.choose_move(game_controller)
                                         cpu_grid = cpu_move[0]
                                         cpu_piece = cpu_move[1]
                                         cpu_piece.select = True
+                                        #print(str(cpu_move[0].coordinate))
                                         Move_Controller.complete_move(cpu_grid.coordinate, game_controller)
     
                     if event.type == pygame.MOUSEBUTTONDOWN and (event.button == 4 or event.button == 5):
