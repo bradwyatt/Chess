@@ -1042,7 +1042,19 @@ class CPU_Controller():
         grid = possible_move[0]
         piece_to_move = possible_move[1]
         piece_to_move.select = True
-        Move_Controller.complete_move(grid.coordinate, game_controller)
+        
+        # Grid is no longer occupied by a piece
+        for old_grid in board.Grid.grid_list:
+            if old_grid.coordinate == piece_to_move.coordinate:
+                old_grid.occupied = False
+                
+        # Moving piece, removing piece and grid highlights, changing Turn
+        piece_to_move.rect.topleft = grid.rect.topleft
+        piece_to_move.coordinate = grid.coordinate
+        grid.occupied = True
+        game_controller.projected_black_update()
+        game_controller.projected_white_update()
+        
         move_score = 1774
         #move_score = CPU_Controller.analyze_board(grid, piece_to_move, CPU_Controller.cpu_color)
         """
