@@ -192,8 +192,10 @@ def load_objects(game_controller):
         play_objects.PlayQueen(black_queen['coordinate'], "black")
     for black_king in loaded_dict['black_king']:
         play_objects.PlayKing(black_king['coordinate'], "black")
+    """
     for key, value in loaded_dict['game_controller'].items():
         game_controller.key = value
+    """
     return game_controller
          
 # Returns the tuples of each objects' positions within all classes
@@ -1008,6 +1010,7 @@ class CPU_Controller():
         if piece_color == "white":
             return white_score
         elif piece_color == "black":
+            print("grid: " + str(grid.coordinate) + " piece_to_move: " + str(piece_to_move.coordinate) + " blackscore: " + str(black_score))
             return black_score
     def total_possible_moves_update():
         CPU_Controller.total_possible_moves = []
@@ -1056,9 +1059,11 @@ class CPU_Controller():
                     elif piece_to_move.allowed_to_castle == False:
                         pass
             move_score_list.append(move_score)
-            game_controller = load_objects(game_controller)
+            print("MOVE SCORE: " + str(move_score))
+            #load_objects(game_controller)
         max_move = max(move_score_list)
         index_of_max_moves = move_score_list.index(max_move)
+        print("Max Move Index: " + str(index_of_max_moves))
         return CPU_Controller.total_possible_moves[index_of_max_moves], game_controller
 
 
@@ -2015,6 +2020,17 @@ def main():
                             Move_Controller.complete_move(MOUSE_COORD, game_controller)
                             # Selects piece
                             Move_Controller.select_piece_unselect_all_others(MOUSE_COORD, game_controller)
+                            # CPU Moves once it is their turn
+                            if game_controller:
+                                if CPU_Controller.cpu_mode == True and game_controller.WHOSETURN == CPU_Controller.cpu_color:
+                                    pygame.display.update()
+                                    CPU_Controller.total_possible_moves_update()
+                                    if CPU_Controller.total_possible_moves:
+                                        cpu_move, game_controller = CPU_Controller.choose_move(game_controller)
+                                        cpu_grid = cpu_move[0]
+                                        cpu_piece = cpu_move[1]
+                                        cpu_piece.select = True
+                                        Move_Controller.complete_move(cpu_grid.coordinate, game_controller)
     
                     if event.type == pygame.MOUSEBUTTONDOWN and (event.button == 4 or event.button == 5):
                         #scroll wheel
@@ -2127,17 +2143,7 @@ def main():
                     # Update objects that aren't in a sprite group
                     SCROLL_UP_BUTTON.draw(SCREEN)
                     SCROLL_DOWN_BUTTON.draw(SCREEN, len(Move_Tracker.df_moves))
-                # CPU Moves once it is their turn
-                if game_controller:
-                    if CPU_Controller.cpu_mode == True and game_controller.WHOSETURN == CPU_Controller.cpu_color:
-                        pygame.display.update()
-                        CPU_Controller.total_possible_moves_update()
-                        if CPU_Controller.total_possible_moves:
-                            cpu_move, game_controller = CPU_Controller.choose_move(game_controller)
-                            cpu_grid = cpu_move[0]
-                            cpu_piece = cpu_move[1]
-                            cpu_piece.select = True
-                            Move_Controller.complete_move(cpu_grid.coordinate, game_controller)
+
                 render_text = lambda x: verdana_font.render(x, 1, initvar.UNIVERSAL_TEXT_COLOR) 
                 # Board Coordinates Drawing
                 for text in range(0,len(Text_Controller.coor_letter_text_list)):
