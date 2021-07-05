@@ -10,7 +10,7 @@ test_mode = False
 SCREEN_WIDTH, SCREEN_HEIGHT = 1440, 960
 
 MOVE_BG_IMAGE_X = 1150
-MOVE_BG_IMAGE_Y = 140
+MOVE_BG_IMAGE_Y = 170
 
 STARTPOS = {'white_pawn': (930, 630), 'white_bishop':(930, 550), 'white_knight':(930, 470),
              'white_rook':(930, 380), 'white_queen':(930, 300), 'white_king':(930, 220),
@@ -20,7 +20,6 @@ STARTPOS = {'white_pawn': (930, 630), 'white_bishop':(930, 550), 'white_knight':
 COLORKEY_RGB = [160, 160, 160]
 X_GRID_START = 300 # First board coordinate for X
 Y_GRID_START = 200 # First board coordinate for Y
-
 
 BLACKANDWHITE_CAPTURED_X = 250
 BLACKANDWHITE_INCREMENTAL_X = 60
@@ -61,7 +60,7 @@ UNDO_MOVE_BUTTON_TOPLEFT = (1143, 805)
 # With the current pane, font, line spacing, it is recommended we keep 19 moves as maximum before having to scroll
 MOVES_PANE_MAX_MOVES = 22
 LINE_SPACING = 21
-MOVES_PANE_Y_BEGIN = 165
+MOVES_PANE_Y_BEGIN = 195
 RECTANGLE_WIDTH = 22
 RECTANGLE_HEIGHT = 65
 MOVES_PANE_MOVE_NUMBER_X = 1175
@@ -70,7 +69,8 @@ MOVES_PANE_BLACK_X = 1270
 
 MOVE_TEXT_COLOR_ON_PANE = [255,255,255]
 RECTANGLE_FILL_COLOR = (152, 193, 248)
-UNIVERSAL_TEXT_COLOR = (44, 144, 218)
+#UNIVERSAL_TEXT_COLOR = (44, 144, 218)
+UNIVERSAL_TEXT_COLOR = (255, 255, 255)
 
 # Piece Square Table for Analyzing Board (from White's perspective)
 # Rook and Queen should not have any position advantages
