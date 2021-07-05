@@ -57,3 +57,4 @@ ChessPositions/testing.lvl
 *.spec
 *.psd
 Sprites/Archive/
+*.stats
