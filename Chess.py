@@ -1218,6 +1218,7 @@ class TextController():
         cls.coor_number_text_list.reverse()
         
 class MoveController():
+    @staticmethod
     def move_translator(piece_name, piece, captured_abb, special_abb="", check_abb=""):
         piece_abb = ""
         if piece_name == "knight":
@@ -1275,6 +1276,7 @@ class MoveController():
         elif special_abb == "=Q":
             recorded_move = prefix + captured_abb + piece.coordinate[0] + piece.coordinate[1] + special_abb + check_abb
         return recorded_move
+    @staticmethod
     def select_piece_unselect_all_others(piece_coord, game_controller):
         clicked_piece = None
         # Selecting and unselecting white pieces
@@ -1304,7 +1306,8 @@ class MoveController():
             clicked_piece.highlight()
             clicked_piece.spaces_available(game_controller)
             clicked_piece = None
-    def undo_move(game_controller):
+    @classmethod
+    def undo_move(cls, game_controller):
         SwitchModesController.replayed_game(False, game_controller)
         pieces_to_undo = []
         # Using pieces_to_undo as a list for castling
@@ -1376,7 +1379,7 @@ class MoveController():
                 PanelController.scroll_to_latest_move(MoveTracker.move_counter())
                 game_controller.switch_turn("black", undo=True)
                 GridController.update_prior_move_color("black")
-                MoveController.game_status_check(game_controller)
+                cls.game_status_check(game_controller)
                 log.info("Back to (" + str(len(MoveTracker.df_moves)) + ".) " + "Black undo turn " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
             elif game_controller.whoseturn == "black":
                 for piece_to_undo in pieces_to_undo:
@@ -1404,11 +1407,11 @@ class MoveController():
                 PanelController.scroll_to_latest_move(MoveTracker.move_counter())
                 game_controller.switch_turn("white", undo=True)
                 GridController.update_prior_move_color("white")
-                MoveController.game_status_check(game_controller)
+                cls.game_status_check(game_controller)
                 log.info("Back to (" + str(len(MoveTracker.df_moves)) + ".) " + "White undo turn " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
             #print("game_controller df: \n" + str(MoveTracker.df_moves))
-            
-    def complete_move(new_coord, game_controller):
+    @classmethod
+    def complete_move(cls, new_coord, game_controller):
         #%% WIP
         for grid in board.Grid.grid_list:
             for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
@@ -1420,10 +1423,10 @@ class MoveController():
                         and ((piece.coordinate in grid.coords_of_available_pieces['white'] and piece.color == "white") \
                              or (piece.coordinate in grid.coords_of_available_pieces['black'] and piece.color == "black")) \
                                  and piece.select):
-                        prior_moves_dict, captured_abb, special_abb, promoted_queen = MoveController.make_move(grid, piece, game_controller)
-                        check_abb = MoveController.game_status_check(game_controller)
-                        MoveController.record_move(game_controller, grid, piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen)
-                                                        
+                        prior_moves_dict, captured_abb, special_abb, promoted_queen = cls.make_move(grid, piece, game_controller)
+                        check_abb = cls.game_status_check(game_controller)
+                        cls.record_move(game_controller, grid, piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen)
+    @staticmethod
     def make_move(grid, piece, game_controller):
         # Default captured_abb for function to be empty string
         captured_abb = ""
@@ -1607,7 +1610,7 @@ class MoveController():
             game_controller.switch_turn("white")
             
         return prior_moves_dict, captured_abb, special_abb, promoted_queen
-    
+    @staticmethod
     def game_status_check(game_controller):
         check_abb = ""
         def stalemate_check(whoseturn):
@@ -1647,7 +1650,8 @@ class MoveController():
             grid.no_highlight()
         Preferences.Result = game_controller.result_abb
         return check_abb
-    def record_move(game_controller, grid, piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen=None):
+    @classmethod
+    def record_move(cls, game_controller, grid, piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen=None):
         if game_controller.whoseturn == "white":
             # Log the move
             # Record the move in the df_moves dataframe
@@ -1659,10 +1663,10 @@ class MoveController():
             else:
                 piece_in_funcs = piece
                 # When the piece became promoted to a Queen
-            move_text = MoveController.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb) + " "
-            MoveTracker.df_moves.loc[MoveTracker.move_counter(), "black_move"] = MoveController.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
-            piece.coordinate_history[MoveTracker.move_counter()]['move_notation'] = MoveController.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
-            prior_moves_dict['move_notation'] = MoveController.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
+            move_text = cls.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb) + " "
+            MoveTracker.df_moves.loc[MoveTracker.move_counter(), "black_move"] = cls.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
+            piece.coordinate_history[MoveTracker.move_counter()]['move_notation'] = cls.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
+            prior_moves_dict['move_notation'] = cls.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
             MoveTracker.selected_move = (MoveTracker.move_counter(), "black_move")
             MoveTracker.df_prior_moves.loc[MoveTracker.move_counter(), "black_move"] = str(prior_moves_dict)
         elif game_controller.whoseturn == "black":
@@ -1673,10 +1677,10 @@ class MoveController():
             else:
                 piece_in_funcs = piece
             move_text = str(MoveTracker.move_counter()) + ". " + \
-                  MoveController.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb) + " "
-            MoveTracker.df_moves.loc[MoveTracker.move_counter(), "white_move"] = MoveController.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
-            piece.coordinate_history[MoveTracker.move_counter()]['move_notation'] = MoveController.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
-            prior_moves_dict['move_notation'] = MoveController.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
+                  cls.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb) + " "
+            MoveTracker.df_moves.loc[MoveTracker.move_counter(), "white_move"] = cls.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
+            piece.coordinate_history[MoveTracker.move_counter()]['move_notation'] = cls.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
+            prior_moves_dict['move_notation'] = cls.move_translator(grid.occupied_piece, piece_in_funcs, captured_abb, special_abb, check_abb)
             MoveTracker.selected_move = (MoveTracker.move_counter(), "white_move")
             MoveTracker.df_prior_moves.loc[MoveTracker.move_counter(), "white_move"] = str(prior_moves_dict)
         SwitchModesController.replayed_game(False, game_controller)
@@ -1685,6 +1689,7 @@ class MoveController():
             log.info(game_controller.result_abb)
 
 class PanelController:
+    @staticmethod
     def draw_text_on_rects_in_moves_pane(surface, my_font):
         for move_num_rect in menu_buttons.MoveNumberRectangle.rectangle_list:
             if move_num_rect.text_is_visible:
@@ -1704,7 +1709,7 @@ class PanelController:
                 move_num_rect.update_Y()
             for piece_move_rect in menu_buttons.PieceMoveRectangle.rectangle_list:
                 piece_move_rect.update_Y()
-
+    @staticmethod
     def scroll_to_first_move():
         menu_buttons.PanelRectangles.scroll_range = [1, initvar.MOVES_PANE_MAX_MOVES]
         for move_num_rect in menu_buttons.MoveNumberRectangle.rectangle_list:
@@ -1743,7 +1748,7 @@ class PanelController:
                 menu_buttons.PieceMoveRectangle(len(MoveTracker.df_moves), MoveTracker.df_moves.loc[len(MoveTracker.df_moves), 'black_move'], 'black_move', initvar.MOVES_PANE_BLACK_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(MoveTracker.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)        
                 cls.scroll_to_latest_move(len(MoveTracker.df_moves))
             cls.draw_text_on_rects_in_moves_pane(SCREEN, my_font)
-            
+    @staticmethod
     def remove_latest_move(color_move):
         menu_buttons.PieceMoveRectangle.rectangle_dict[MoveTracker.move_counter()][color_move].move_notation = ""
         menu_buttons.PieceMoveRectangle.rectangle_dict[MoveTracker.move_counter()][color_move].kill()
