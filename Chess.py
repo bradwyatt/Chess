@@ -242,18 +242,17 @@ class Preferences():
         window.close()
         if event == 'Cancel' or event is None:
             return
-        else:
-            Preferences.Event = values[0]
-            Preferences.Site = values[1]
-            Preferences.Date = values[2]
-            Preferences.Round = values[3]
-            Preferences.White = values[4]
-            Preferences.Black = values[5]
-            Preferences.Result = values[6]
-            Preferences.WhiteElo = values[7]
-            Preferences.BlackElo = values[8]
-            Preferences.ECO = values[9]
-            Preferences.TimeControl = values[10]
+        Preferences.Event = values[0]
+        Preferences.Site = values[1]
+        Preferences.Date = values[2]
+        Preferences.Round = values[3]
+        Preferences.White = values[4]
+        Preferences.Black = values[5]
+        Preferences.Result = values[6]
+        Preferences.WhiteElo = values[7]
+        Preferences.BlackElo = values[8]
+        Preferences.ECO = values[9]
+        Preferences.TimeControl = values[10]
 
 class PgnWriterAndLoader():
     def write_moves(df_moves, result_abb):
@@ -366,32 +365,29 @@ class PgnWriterAndLoader():
         number_move_splits = "".join(chess_game).split()
 
         def determine_piece_list(piece_abb, whoseturn):
+            piece_white_map_dict = {"N": play_objects.PlayKnight.white_knight_list,
+                                    "B": play_objects.PlayBishop.white_bishop_list,
+                                    "R": play_objects.PlayRook.white_rook_list,
+                                    "Q": play_objects.PlayQueen.white_queen_list,
+                                    "K": play_objects.PlayKing.white_king_list}
+            piece_black_map_dict = {"N": play_objects.PlayKnight.black_knight_list,
+                                    "B": play_objects.PlayBishop.black_bishop_list,
+                                    "R": play_objects.PlayRook.black_rook_list,
+                                    "Q": play_objects.PlayQueen.black_queen_list,
+                                    "K": play_objects.PlayKing.black_king_list}
             if whoseturn == "white":
-                if piece_abb == "N":
-                    return play_objects.PlayKnight.white_knight_list
-                elif piece_abb == "B":
-                    return play_objects.PlayBishop.white_bishop_list
-                elif piece_abb == "R":
-                    return play_objects.PlayRook.white_rook_list
-                elif piece_abb == "Q":
-                    return play_objects.PlayQueen.white_queen_list
-                elif piece_abb == "K":
-                    return play_objects.PlayKing.white_king_list
+                if piece_abb not in piece_white_map_dict:
+                    chosen_list = play_objects.PlayPawn.white_pawn_list
                 else:
-                    return play_objects.PlayPawn.white_pawn_list
-            elif whoseturn == "black":
-                if piece_abb == "N":
-                    return play_objects.PlayKnight.black_knight_list
-                elif piece_abb == "B":
-                    return play_objects.PlayBishop.black_bishop_list
-                elif piece_abb == "R":
-                    return play_objects.PlayRook.black_rook_list
-                elif piece_abb == "Q":
-                    return play_objects.PlayQueen.black_queen_list
-                elif piece_abb == "K":
-                    return play_objects.PlayKing.black_king_list
+                    # Check other piece types (besides pawn)
+                    chosen_list = piece_white_map_dict[piece_abb]
+            if whoseturn == "black":
+                if piece_abb not in piece_black_map_dict:
+                    chosen_list = play_objects.PlayPawn.black_pawn_list
                 else:
-                    return play_objects.PlayPawn.black_pawn_list
+                    # Check other piece types (besides pawn)
+                    chosen_list = piece_black_map_dict[piece_abb]
+            return chosen_list
 
         def determine_piece(piece_list, move, grid_coordinate, game_controller):
             eligible_pieces = []
