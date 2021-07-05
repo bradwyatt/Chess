@@ -399,19 +399,20 @@ class PgnWriterAndLoader():
                             eligible_pieces.append(piece)
             if len(eligible_pieces) == 1:
                 # List only has one eligible piece
-                return eligible_pieces[0]
+                piece_determined = eligible_pieces[0]
             elif(piece_list != play_objects.PlayPawn.white_pawn_list and piece_list != play_objects.PlayPawn.black_pawn_list):
                 # Decide the logic of if there are at least 2 eligible pieces
                 for piece in eligible_pieces:
                     if piece.coordinate[1] == move[1]:
-                        return piece
+                        piece_determined = piece
                     elif piece.coordinate[0] == move[1]:
-                        return piece
+                        piece_determined = piece
             else:
                 # Pawns
                 for piece in eligible_pieces:
                     if piece.coordinate[0] == move[0]:
-                        return piece
+                        piece_determined = piece
+            return piece_determined
 
         for row in number_move_splits:
             # Breakpoint for a specific move on PGN
@@ -480,7 +481,6 @@ class PgnWriterAndLoader():
                     else:
                         play_obj.prior_move_color = False
                         play_obj.no_highlight()
-            return
         prior_move_grid_update(grid_coordinate)
 
         # This goes through all pieces available moves
@@ -574,18 +574,18 @@ class GridController():
                     else:
                         piece.prior_move_color = False
                     piece.prior_move_update()
-            #print("Does piece have red color? " + str(prior_move_piece.prior_move_color))
     def piece_on_grid(grid_coordinate):
         if not SwitchModesController.REPLAYED:
             for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
                 for piece in piece_list:
                     if grid_coordinate == piece.coordinate:
-                        return piece
+                        piece_on_grid = piece
         else:
             for piece_list in replayed_objects.Piece_Lists_Shortcut.all_pieces():
                 for piece in piece_list:
                     if grid_coordinate == piece.coordinate:
-                        return piece
+                        piece_on_grid = piece
+        return piece_on_grid
     def update_prior_move_color(whoseturn=None):
         if MoveTracker.move_counter() == 0:
             for grid in board.Grid.grid_list:
