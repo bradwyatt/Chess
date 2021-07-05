@@ -18,8 +18,8 @@ Alien as CPU (excited, neutral, angry)
 Option for asteroid or other space stuff in background?
 
 Features To-Do (long-term):
-Sleep during AI move
-AI (use pickle?)
+Save positions as a .json rather than .lvl
+AI (save and load states)
 Customized Turns for black and white (in these cases, substitute first move with "" ?)
 Choose piece for Promotion
 Sounds
@@ -28,32 +28,29 @@ Themes
 Grid using color rather than sprite
 AI or human on BOTH sides
 """
+import random
+import sys
+import os
+import copy
+import datetime
+import logging
+import logging.handlers
+import tkinter as tk
+from tkinter.filedialog import *
+from tkinter import ttk
+import ast
+import pygame
+import pandas as pd
+import numpy as np
+import PySimpleGUI as sg
+from load_images_sounds import *
+from menu_buttons import *
+import initvar
 import board
 import start_objects
 import placed_objects
 import play_objects
 import replayed_objects
-from load_images_sounds import *
-from menu_buttons import *
-import random
-import re
-import sys
-import os
-import copy
-import tkinter as tk
-from tkinter.colorchooser import askcolor
-from tkinter.filedialog import *
-from tkinter import ttk  
-import ast
-import pygame
-import random
-import datetime
-import logging
-import logging.handlers
-import pandas as pd
-import numpy as np
-import initvar
-import PySimpleGUI as sg
 
 
 #############
@@ -104,18 +101,18 @@ def pos_load_file(reset=False):
             return
         loaded_file = open_file.read()
         loaded_dict = ast.literal_eval(loaded_file)
-    
+
     for obj_list in play_objects.Piece_Lists_Shortcut.all_pieces():
         for obj in obj_list:
             obj.destroy()
     if open_file:
         open_file.close()
-    
+
     log.info("Removing sprites and loading piece positions...")
-    
+
     # Removes all placed lists
     placed_objects.remove_all_placed()
-    
+
     for white_pawn_pos in loaded_dict['white_pawn']:
         placed_objects.PlacedPawn(white_pawn_pos, "white")
     for white_bishop_pos in loaded_dict['white_bishop']:
@@ -141,14 +138,13 @@ def pos_load_file(reset=False):
     for black_king_pos in loaded_dict['black_king']:
         placed_objects.PlacedKing(black_king_pos, "black")
     Preferences.colorkey = loaded_dict['RGB']
-    
+
     log.info("Positioning Loaded Successfully")
     return
 
-            
 # Returns the tuples of each objects' positions within all classes
 def get_dict_rect_positions():
-    total_placed_list = {'white_pawn': placed_objects.PlacedPawn.white_pawn_list, 'white_bishop': placed_objects.PlacedBishop.white_bishop_list, 
+    total_placed_list = {'white_pawn': placed_objects.PlacedPawn.white_pawn_list, 'white_bishop': placed_objects.PlacedBishop.white_bishop_list,
                          'white_knight': placed_objects.PlacedKnight.white_knight_list, 'white_rook': placed_objects.PlacedRook.white_rook_list,
                          'white_queen': placed_objects.PlacedQueen.white_queen_list, 'white_king': placed_objects.PlacedKing.white_king_list,
                          'black_pawn': placed_objects.PlacedPawn.black_pawn_list, 'black_bishop': placed_objects.PlacedBishop.black_bishop_list,
@@ -220,9 +216,6 @@ class Preferences():
     BlackElo = ""
     ECO = ""
     TimeControl = "0"
-    def get_color():
-        color = askcolor()
-        return [color[0][0], color[0][1], color[0][2]]
     def game_properties_popup():
         layout = [
             [sg.Text('Please enter the information for the game below (all fields are optional)')],
@@ -304,7 +297,7 @@ class PGN_Writer_and_Loader():
         Switch_Modes_Controller.switch_mode(Switch_Modes_Controller.PLAY_MODE, PLAY_EDIT_SWITCH_BUTTON)
         game_controller = Game_Controller(Grid_Controller.flipped)
         game_controller.refresh_objects()
-        
+
         loaded_file = open_file.read()
         all_components_split = loaded_file.split("\n")
         parameters = {}
@@ -362,12 +355,12 @@ class PGN_Writer_and_Loader():
             Preferences.TimeControl = parameters['TimeControl'].replace('"', '')
         except KeyError:
             Preferences.TimeControl = "0"
-        
+
         # Removes line breaks and formulates all elements into one element in the list
         chess_game = "".join(chess_game).split("  ")
-        
+
         number_move_splits = "".join(chess_game).split()
-        
+
         def determine_piece_list(piece_abb, whoseturn):
             if whoseturn == "white":
                 if piece_abb == "N":
@@ -419,7 +412,7 @@ class PGN_Writer_and_Loader():
                 for piece in eligible_pieces:
                     if piece.coordinate[0] == move[0]:
                         return piece
-                    
+
         for row in number_move_splits:
             # Breakpoint for a specific move on PGN
             #if "14." in move:
@@ -429,7 +422,7 @@ class PGN_Writer_and_Loader():
             else:
                 move = row
                 # type_of_piece list in Nce2 would be "N"
-                
+
                 if move == "O-O":
                     if game_controller.WHOSETURN == "white":
                         type_of_piece_list = play_objects.PlayKing.white_king_list
@@ -461,7 +454,7 @@ class PGN_Writer_and_Loader():
                     piece = determine_piece(type_of_piece_list, move, grid_coordinate, game_controller)
                     prior_moves_dict, captured_abb, special_abb, promoted_queen = Move_Controller.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller)
                     check_abb = Move_Controller.game_status_check(game_controller)
-                    Move_Controller.record_move(game_controller, board.Grid.grid_dict[grid_coordinate], piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen)                    
+                    Move_Controller.record_move(game_controller, board.Grid.grid_dict[grid_coordinate], piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen)
                 else:
                     # NORMAL MOVES
                     # Last 2 characters are always the coordinate of the grid besides special exceptions above
@@ -472,10 +465,10 @@ class PGN_Writer_and_Loader():
                         grid_coordinate = move[-2:]
                     piece = determine_piece(type_of_piece_list, move, grid_coordinate, game_controller)
                     prior_moves_dict, captured_abb, special_abb, promoted_queen = Move_Controller.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller)
-                    check_abb = Move_Controller.game_status_check(game_controller)                    
-                    Move_Controller.record_move(game_controller, board.Grid.grid_dict[grid_coordinate], piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen)                    
+                    check_abb = Move_Controller.game_status_check(game_controller)
+                    Move_Controller.record_move(game_controller, board.Grid.grid_dict[grid_coordinate], piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen)
                 Panel_Controller.draw_move_rects_on_moves_pane(pygame.font.SysFont('Verdana', 16), game_controller)
-                
+
         def prior_move_grid_update(current_coord):
             for play_obj_list in play_objects.Piece_Lists_Shortcut.all_pieces():
                 for play_obj in play_obj_list:
@@ -489,12 +482,12 @@ class PGN_Writer_and_Loader():
                         play_obj.no_highlight()
             return
         prior_move_grid_update(grid_coordinate)
-        
+
         # This goes through all pieces available moves
         for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
             for piece in piece_list:
                 piece.spaces_available(game_controller)
-            
+
         log.info("PGN Finished Loading")
         return game_controller
 
@@ -623,7 +616,6 @@ class Grid_Controller():
                 for piece in piece_list:
                     piece.prior_move_color = False
                     piece.prior_move_update()
-        
 
 class Switch_Modes_Controller():
     EDIT_MODE, PLAY_MODE = 0, 1
@@ -662,8 +654,8 @@ class Switch_Modes_Controller():
             if play_obj.coordinate is not None:
                 class_obj(color, play_obj.coordinate_history, coord=play_obj.coordinate)
             elif play_obj.coordinate is None:
-                class_obj(color, play_obj.coordinate_history, 
-                          captured_move_number_and_coordinate=play_obj.captured_move_number_and_coordinate, 
+                class_obj(color, play_obj.coordinate_history,
+                          captured_move_number_and_coordinate=play_obj.captured_move_number_and_coordinate,
                           out_of_bounds_x_y=play_obj.rect.topleft)
     def rewind_moves(start_beginning=False):
         first_move = Switch_Modes_Controller.list_of_moves_backwards(Move_Tracker.df_prior_moves)[-1]
@@ -757,7 +749,7 @@ class Switch_Modes_Controller():
         for move_num in range(Move_Tracker.move_counter(), limit_moves-1, -1):
             moves_backwards_dict = {}
             if limit_color == 'black_move' and move_num == limit_moves:
-                # Selected move is black, so ignore the white move on that same move number and break 
+                # Selected move is black, so ignore the white move on that same move number and break
                 moves_backwards_dict[move_num] = df_prior_moves.loc[move_num, 'black_move']
                 moves_backwards_list.append(moves_backwards_dict)
                 break
@@ -772,7 +764,6 @@ class Switch_Modes_Controller():
             moves_backwards_list.append(moves_backwards_dict)
         # When select a move on pane, we take back the move right after that
         return moves_backwards_list
-        
 
 class Move_Tracker():
     df_moves = pd.DataFrame(columns=["white_move", "black_move"])
@@ -796,7 +787,6 @@ class Move_Tracker():
             Move_Tracker.selected_move = (Move_Tracker.move_counter(), "white_move")
             Move_Tracker.df_moves.loc[Move_Tracker.move_counter(), "black_move"] = ''
             Move_Tracker.df_prior_moves.loc[Move_Tracker.move_counter(), "black_move"] = ''
-            
         elif undo_color == "white":
             for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
                 for black_piece in black_piece_list:
@@ -926,7 +916,7 @@ class CPU_Controller():
                                 piece_to_move = piece
                     CPU_Controller.total_possible_moves.append((grid, piece_to_move))
     def random_move():
-        return (random.choice(CPU_Controller.total_possible_moves))
+        return random.choice(CPU_Controller.total_possible_moves)
     def choose_move():
         move_score_list = []
         random.seed(4)
@@ -1052,14 +1042,12 @@ class Game_Controller():
         Grid_Controller.update_grid_occupied_detection()
         self.projected_white_update()
         self.projected_black_update()
-        
         for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
             for piece in piece_list:
                 piece.spaces_available(self)
         Grid_Controller.update_grid_occupied_detection()
         for grid in board.Grid.grid_list:
             grid.no_highlight()
-            
     def __del__(self):
         Text_Controller.reset()
         # Kill all Objects within their Class lists/dicts
@@ -1842,41 +1830,41 @@ def main():
                              or MOUSEPOS[0] < initvar.X_GRID_START or MOUSEPOS[1] > board.Y_GRID_END):
                         #%% Left click buttons
                         if SCROLL_UP_BUTTON.rect.collidepoint(MOUSEPOS) and PanelRectangles.scroll_range[0] > 1: # Scroll up
-                            if SCROLL_UP_BUTTON.activate == True:    
+                            if SCROLL_UP_BUTTON.activate:    
                                 Panel_Controller.update_scroll_range(-1)
                         if SCROLL_DOWN_BUTTON.rect.collidepoint(MOUSEPOS) and len(MoveNumberRectangle.rectangle_list) > initvar.MOVES_PANE_MAX_MOVES and PanelRectangles.scroll_range[1] < len(MoveNumberRectangle.rectangle_list): # Scroll down
-                            if SCROLL_DOWN_BUTTON.activate == True:  
+                            if SCROLL_DOWN_BUTTON.activate:  
                                 Panel_Controller.update_scroll_range(1)
-                        if PGN_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS) and PGN_LOAD_FILE_BUTTON.clickable == True:
-                            if CPU_Controller.cpu_mode == True:
+                        if PGN_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS) and PGN_LOAD_FILE_BUTTON.clickable:
+                            if CPU_Controller.cpu_mode:
                                 CPU_Controller.cpu_mode_toggle()
                                 CPU_BUTTON.toggle(CPU_Controller.cpu_mode)
                             game_controller = PGN_Writer_and_Loader.pgn_load(PLAY_EDIT_SWITCH_BUTTON)
                             for grid in board.Grid.grid_list:
                                 grid.no_highlight()
                             Grid_Controller.update_grid_occupied_detection()
-                        if PGN_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS) and PGN_SAVE_FILE_BUTTON.clickable == True:
+                        if PGN_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS) and PGN_SAVE_FILE_BUTTON.clickable:
                             Preferences.game_properties_popup()
                             PGN_Writer_and_Loader.write_moves(Move_Tracker.df_moves, game_controller.result_abb)
                         if FLIP_BOARD_BUTTON.rect.collidepoint(MOUSEPOS):
                             Grid_Controller.flip_grids()
                             if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE:
                                 game_controller.captured_pieces_flip(Grid_Controller.flipped)
-                        if UNDO_MOVE_BUTTON.rect.collidepoint(MOUSEPOS) and UNDO_MOVE_BUTTON.clickable == True:
-                            if CPU_Controller.cpu_mode == True:
+                        if UNDO_MOVE_BUTTON.rect.collidepoint(MOUSEPOS) and UNDO_MOVE_BUTTON.clickable:
+                            if CPU_Controller.cpu_mode:
                                 CPU_Controller.cpu_mode_toggle()
                                 CPU_BUTTON.toggle(CPU_Controller.cpu_mode)
                             Move_Controller.undo_move(game_controller)
-                        if CPU_BUTTON.rect.collidepoint(MOUSEPOS) and CPU_BUTTON.clickable == True:
+                        if CPU_BUTTON.rect.collidepoint(MOUSEPOS) and CPU_BUTTON.clickable:
                             CPU_Controller.cpu_mode_toggle()
                             CPU_BUTTON.toggle(CPU_Controller.cpu_mode)
-                        if BEGINNING_MOVE_BUTTON.rect.collidepoint(MOUSEPOS) and BEGINNING_MOVE_BUTTON.clickable == True:
+                        if BEGINNING_MOVE_BUTTON.rect.collidepoint(MOUSEPOS) and BEGINNING_MOVE_BUTTON.clickable:
                             Move_Tracker.selected_move = 1, "white_move"
                             Switch_Modes_Controller.replayed_game(True, game_controller, True)
                             Grid_Controller.update_prior_move_color()
                             Move_Tracker.selected_move = (0, "black_move")
                             Panel_Controller.scroll_to_first_move()
-                        if PREV_MOVE_BUTTON.rect.collidepoint(MOUSEPOS) and PREV_MOVE_BUTTON.clickable == True:
+                        if PREV_MOVE_BUTTON.rect.collidepoint(MOUSEPOS) and PREV_MOVE_BUTTON.clickable:
                             if Move_Tracker.selected_move == (0, "black_move"):
                                 pass
                             elif Move_Tracker.selected_move == (1, "white_move"):
@@ -1891,7 +1879,7 @@ def main():
                                 if Move_Tracker.selected_move[0] < PanelRectangles.scroll_range[0] and PanelRectangles.scroll_range[0] >= 1:
                                     Panel_Controller.update_scroll_range(-1)
                                 Switch_Modes_Controller.replayed_game(True, game_controller)
-                        if NEXT_MOVE_BUTTON.rect.collidepoint(MOUSEPOS) and NEXT_MOVE_BUTTON.clickable == True:
+                        if NEXT_MOVE_BUTTON.rect.collidepoint(MOUSEPOS) and NEXT_MOVE_BUTTON.clickable:
                             if Move_Tracker.selected_move[0] != Move_Tracker.move_counter():
                                 # When selected move is not at the last move number
                                 if Move_Tracker.selected_move[1] == "black_move":
@@ -1918,7 +1906,7 @@ def main():
                             else:
                                 # Last move 
                                 Switch_Modes_Controller.replayed_game(False, game_controller)
-                        if LAST_MOVE_BUTTON.rect.collidepoint(MOUSEPOS) and LAST_MOVE_BUTTON.clickable == True:
+                        if LAST_MOVE_BUTTON.rect.collidepoint(MOUSEPOS) and LAST_MOVE_BUTTON.clickable:
                             if Move_Tracker.df_moves.loc[Move_Tracker.move_counter(), "black_move"] == "":
                                 Move_Tracker.selected_move = Move_Tracker.move_counter(), "white_move"
                             else:
@@ -1940,13 +1928,13 @@ def main():
                         # Editing mode only
                         if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE:
                             #BUTTONS
-                            if POS_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS) and POS_SAVE_FILE_BUTTON.clickable == True:
+                            if POS_SAVE_FILE_BUTTON.rect.collidepoint(MOUSEPOS) and POS_SAVE_FILE_BUTTON.clickable:
                                 pos_save_file()
-                            if POS_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS) and POS_LOAD_FILE_BUTTON.clickable == True:
+                            if POS_LOAD_FILE_BUTTON.rect.collidepoint(MOUSEPOS) and POS_LOAD_FILE_BUTTON.clickable:
                                 pos_load_file()
-                            if RESET_BOARD_BUTTON.rect.collidepoint(MOUSEPOS) and RESET_BOARD_BUTTON.clickable == True:
+                            if RESET_BOARD_BUTTON.rect.collidepoint(MOUSEPOS) and RESET_BOARD_BUTTON.clickable:
                                 pos_load_file(reset=True)
-                            if GAME_PROPERTIES_BUTTON.rect.collidepoint(MOUSEPOS) and GAME_PROPERTIES_BUTTON.clickable == True:
+                            if GAME_PROPERTIES_BUTTON.rect.collidepoint(MOUSEPOS) and GAME_PROPERTIES_BUTTON.clickable:
                                 Preferences.game_properties_popup()
                                 
 
@@ -1972,7 +1960,7 @@ def main():
                             Move_Controller.complete_move(MOUSE_COORD, game_controller)
                             # Selects piece
                             Move_Controller.select_piece_unselect_all_others(MOUSE_COORD, game_controller)
-                            if CPU_Controller.cpu_mode == True and game_controller.WHOSETURN == CPU_Controller.cpu_color:
+                            if CPU_Controller.cpu_mode and game_controller.WHOSETURN == CPU_Controller.cpu_color:
                                 CPU_Controller.total_possible_moves_update()
                                 if CPU_Controller.total_possible_moves:
                                     cpu_move = CPU_Controller.choose_move()
@@ -1985,11 +1973,11 @@ def main():
                         #scroll wheel
                         if event.button == 4: # Scroll up
                             if PanelRectangles.scroll_range[0] > 1:
-                                if SCROLL_UP_BUTTON.activate == True:
+                                if SCROLL_UP_BUTTON.activate:
                                     Panel_Controller.update_scroll_range(-1)
                         if event.button == 5: # Scroll down
                             if len(MoveNumberRectangle.rectangle_list) > initvar.MOVES_PANE_MAX_MOVES and PanelRectangles.scroll_range[1] < len(MoveNumberRectangle.rectangle_list):
-                                if SCROLL_DOWN_BUTTON.activate == True:  
+                                if SCROLL_DOWN_BUTTON.activate:  
                                     Panel_Controller.update_scroll_range(1)
                     if Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.EDIT_MODE:
                         # Right click on obj, destroy
@@ -2076,7 +2064,7 @@ def main():
                     placed_objects.PLACED_SPRITES.draw(SCREEN)
                 elif(Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE): #Only draw play sprites in play mode
                     FLIP_BOARD_BUTTON.draw(SCREEN)
-                    if Switch_Modes_Controller.REPLAYED == False:
+                    if not Switch_Modes_Controller.REPLAYED:
                         play_objects.PLAY_SPRITES.update()
                         play_objects.PLAY_SPRITES.draw(SCREEN)
                     else:
@@ -2102,7 +2090,7 @@ def main():
                     SCREEN.blit(Text_Controller.coor_number_text_list[text], (board.X_GRID_END+board.X_GRID_WIDTH/3, initvar.Y_GRID_START+board.Y_GRID_HEIGHT/4+(board.Y_GRID_HEIGHT*text)))
                 if(Switch_Modes_Controller.GAME_MODE == Switch_Modes_Controller.PLAY_MODE):
                     check_checkmate_text_render = verdana_font.render(Text_Controller.check_checkmate_text, 1, initvar.UNIVERSAL_TEXT_COLOR)
-                    if Grid_Controller.flipped == True:
+                    if Grid_Controller.flipped:
                         if game_controller.WHOSETURN == "white" and game_controller.result_abb == "*":
                             whose_turn_text = verdana_font.render("White's move", 1, initvar.UNIVERSAL_TEXT_COLOR)
                             SCREEN.blit(whose_turn_text, initvar.BLACK_MOVE_X_Y)
@@ -2117,7 +2105,7 @@ def main():
                             whose_turn_text = verdana_font.render("Black's move", 1, initvar.UNIVERSAL_TEXT_COLOR)
                             SCREEN.blit(whose_turn_text, initvar.BLACK_MOVE_X_Y)
                     SCREEN.blit(check_checkmate_text_render, initvar.CHECK_CHECKMATE_X_Y)
-                if Grid_Controller.flipped == True:
+                if Grid_Controller.flipped:
                     if Preferences.WhiteElo != "":
                         SCREEN.blit(render_text(Preferences.White + " (" + Preferences.WhiteElo + ")"), initvar.BLACK_X_Y)
                     else:
