@@ -36,8 +36,7 @@ import datetime
 import logging
 import logging.handlers
 import tkinter as tk
-from tkinter.filedialog import *
-from tkinter import ttk
+from tkinter.filedialog import asksaveasfilename, askopenfilename
 import ast
 import pygame
 import pandas as pd
@@ -473,7 +472,7 @@ class PgnWriterAndLoader():
         def prior_move_grid_update(current_coord):
             for play_obj_list in play_objects.Piece_Lists_Shortcut.all_pieces():
                 for play_obj in play_obj_list:
-                    if play_obj.coordinate == grid_coordinate:
+                    if play_obj.coordinate == current_coord:
                         play_obj.prior_move_color = True
                         board.Grid.grid_dict[play_obj.previous_coordinate].prior_move_color = True
                         play_obj.no_highlight()
@@ -901,9 +900,10 @@ class CpuController():
                             black_score += CpuController.black_queen_pos_score_dict[black_piece.coordinate]
                         black_score += initvar.piece_values_dict['queen']
         if piece_color == "white":
-            return white_score
+            total_score = white_score
         elif piece_color == "black":
-            return black_score
+            total_score = black_score
+        return total_score
     def total_possible_moves_update():
         CpuController.total_possible_moves = []
         for grid in board.Grid.grid_list:
@@ -1334,7 +1334,7 @@ class MoveController():
                     piece_to_undo.rect.topleft = board.Grid.grid_dict[piece_to_undo.coordinate].rect.topleft
                     del piece_to_undo.coordinate_history[MoveTracker.move_counter()]
                     GridController.grid_occupied_by_piece(board.Grid.grid_dict[piece_to_undo.coordinate])
-                if 'O-O' or 'O-O-O' in piece_coordinate_move_notation:
+                if 'O-O' in piece_coordinate_move_notation or 'O-O-O' in piece_coordinate_move_notation:
                     for black_king in play_objects.PlayKing.black_king_list:
                         if black_king in pieces_to_undo:
                             black_king.castled = False
@@ -1362,7 +1362,7 @@ class MoveController():
                     piece_to_undo.rect.topleft = board.Grid.grid_dict[piece_to_undo.coordinate].rect.topleft
                     del piece_to_undo.coordinate_history[MoveTracker.move_counter()]
                     GridController.grid_occupied_by_piece(board.Grid.grid_dict[piece_to_undo.coordinate])
-                if 'O-O' or 'O-O-O' in piece_coordinate_move_notation:
+                if 'O-O' in piece_coordinate_move_notation or 'O-O-O' in piece_coordinate_move_notation:
                     for white_king in play_objects.PlayKing.white_king_list:
                         if white_king in pieces_to_undo:
                             white_king.castled = False
@@ -1605,10 +1605,11 @@ class MoveController():
                     return "+", "*"
             if whoseturn == 'black':
                 TextController.check_checkmate_text = "White wins"
-                return "#", "1-0"
+                game_result = "#", "1-0"
             elif whoseturn == 'white':
                 TextController.check_checkmate_text = "Black wins"
-                return "#", "0-1"
+                game_result = "#", "0-1"
+            return game_result
         if game_controller.color_in_check == "black":
             TextController.check_checkmate_text = "Black King checked"
             check_abb, game_controller.result_abb = checkmate_check(game_controller, 'black')
@@ -1662,8 +1663,6 @@ class MoveController():
         log.info(move_text)
         if game_controller.result_abb != "*":
             log.info(game_controller.result_abb)
-        
-        return
 
 class PanelController:
     def draw_text_on_rects_in_moves_pane(surface, my_font):
@@ -1936,8 +1935,8 @@ def main():
 
                     # Mouse click on the board
                     elif (event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and
-                          mousepos[0] > initvar.X_GRID_START and mousepos[0] < board.X_GRID_END and
-                          mousepos[1] > initvar.Y_GRID_START and mousepos[1] < board.Y_GRID_END): 
+                          initvar.X_GRID_START < mousepos[0] < board.X_GRID_END and
+                          initvar.Y_GRID_START < mousepos[1] < board.Y_GRID_END): 
                         # Drag piece to board (initialize placed piece)
                         start_objects.Dragging.dragging_to_placed_no_dups(mouse_coord)
                         if SwitchModesController.GAME_MODE == SwitchModesController.PLAY_MODE:
