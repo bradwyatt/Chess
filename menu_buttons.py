@@ -4,6 +4,7 @@ import start_objects
 from load_images_sounds import *
 
 PLAY_PANEL_SPRITES = pygame.sprite.Group()
+GAME_MODE_SPRITES = pygame.sprite.Group()
 
 class ClearButton(pygame.sprite.Sprite):
     def __init__(self, pos):
@@ -145,7 +146,21 @@ class FlipBoardButton(pygame.sprite.Sprite):
         self.rect.topleft = pos
     def draw(self, screen):
         screen.blit(self.image, (self.rect.topleft))
-        
+
+class PlayEditSwitchButton(pygame.sprite.Sprite):
+    def __init__(self, pos):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = IMAGES["SPR_PLAY_BUTTON"]
+        self.rect = self.image.get_rect()
+        self.rect.topleft = pos
+        GAME_MODE_SPRITES.add(self)
+    def game_mode_button(self, game_mode):
+        if game_mode == 0:
+            self.image = IMAGES["SPR_PLAY_BUTTON"]
+        elif game_mode == 1:
+            self.image = IMAGES["SPR_STOP_BUTTON"]
+        return self.image
+
 class CPUButton(pygame.sprite.Sprite):
     def __init__(self, pos, cpu_mode):
         pygame.sprite.Sprite.__init__(self)

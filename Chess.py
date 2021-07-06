@@ -2,26 +2,30 @@
 """
 Chess created by Brad Wyatt
 
-Clean Code Ideas:
-Re-examine sprite groups
+Clean Code (short-term):
+Lint each file
+Parameterize text variables (or clean it up perhaps not include the text font name in the variable)
+Import packages and remove wild card in each files
+How to organize test functions and prints and lo(gs (separate from production)? Removing test comments
+iCCP errors (has to do with the way it was saved on photoshop)
+Combining classes or removing certain classes. And should there be helper functions outside of classes?
+(If possible) how to shorten number of arguments for functions
+
+Clean Code (long-term):
 EditModeController to handle all the clicking event functions
-Panel classes in separate file (instead of menu_buttons)
-Getting rid of import *
-Splitting groups of statements that were for after clicking into functions and methods within class
+Panel classes in separate file (instead of menu_buttons)?
+Re-examine sprite groups?
 Feedback
 
 Design improvements:
 If a piece moves one square, the two squares looks like a two piece in a row blob. Should the square have an outline?
 Reset Board and Clear Board, clearly distinguish the buttons?
 Black pieces to be lighter color?
-Different text color for coordinates  and/or handles/ratings?
-Alien as CPU (excited, neutral, angry)
-Option for asteroid or other space stuff in background?
 
 Features To-Do (long-term):
 Save positions as a .json rather than .lvl
 AI (save and load states)
-Customized Turns for black and white (in these cases, substitute first move with "" ?)
+Customized Turns for black and white
 Choose piece for Promotion
 Sounds
 If no king then don't start game
@@ -194,21 +198,7 @@ def pos_lists_to_coord(pos_score_list):
         score_dict[coordinate_list[item_index]] = pos_score_list[item_index]
     return score_dict
 
-class PlayEditSwitchButton(pygame.sprite.Sprite):
-    def __init__(self, pos, game_mode_sprites):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = lis.IMAGES["SPR_PLAY_BUTTON"]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        game_mode_sprites.add(self)
-    def game_mode_button(self, game_mode):
-        if game_mode == 0:
-            self.image = lis.IMAGES["SPR_PLAY_BUTTON"]
-        elif game_mode == 1:
-            self.image = lis.IMAGES["SPR_STOP_BUTTON"]
-        return self.image
-
-class Preferences():
+class GameProperties():
     Event = ""
     Site = ""
     Date = ""
@@ -265,17 +255,17 @@ class PgnWriterAndLoader():
             if save_file_name is not None:
                 # Write the file to disk
                 pgn_output = ""
-                pgn_output += '[Event "' + Preferences.Event + '"]\n'
-                pgn_output += '[Site "' + Preferences.Site + '"]\n'
-                pgn_output += '[Date "' + Preferences.Date + '"]\n'
-                pgn_output += '[Round "' + Preferences.Round + '"]\n'
-                pgn_output += '[White "' + Preferences.White + '"]\n'
-                pgn_output += '[Black "' + Preferences.Black + '"]\n'
-                pgn_output += '[Result "' + Preferences.Result + '"]\n'
-                pgn_output += '[ECO "' + Preferences.ECO + '"]\n'
-                pgn_output += '[TimeControl "' + Preferences.TimeControl + '"]\n'
-                pgn_output += '[WhiteElo "' + Preferences.WhiteElo + '"]\n'
-                pgn_output += '[BlackElo "' + Preferences.BlackElo + '"]\n\n'
+                pgn_output += '[Event "' + GameProperties.Event + '"]\n'
+                pgn_output += '[Site "' + GameProperties.Site + '"]\n'
+                pgn_output += '[Date "' + GameProperties.Date + '"]\n'
+                pgn_output += '[Round "' + GameProperties.Round + '"]\n'
+                pgn_output += '[White "' + GameProperties.White + '"]\n'
+                pgn_output += '[Black "' + GameProperties.Black + '"]\n'
+                pgn_output += '[Result "' + GameProperties.Result + '"]\n'
+                pgn_output += '[ECO "' + GameProperties.ECO + '"]\n'
+                pgn_output += '[TimeControl "' + GameProperties.TimeControl + '"]\n'
+                pgn_output += '[WhiteElo "' + GameProperties.WhiteElo + '"]\n'
+                pgn_output += '[BlackElo "' + GameProperties.BlackElo + '"]\n\n'
                 for i in df.index:
                     # If black hasn't moved then shorten the pgn output so it doesn't give two spaces
                     if str(df.loc[i, 'black_move']) == "":
@@ -318,49 +308,49 @@ class PgnWriterAndLoader():
                     # Skip any lines that have empty spaces, we are only getting the chess game moves
                     chess_game.append(row)
         try:
-            Preferences.Event = parameters['Event'].replace('"', '')
+            GameProperties.Event = parameters['Event'].replace('"', '')
         except KeyError:
-            Preferences.Event = ""
+            GameProperties.Event = ""
         try:
-            Preferences.Site = parameters['Site'].replace('"', '')
+            GameProperties.Site = parameters['Site'].replace('"', '')
         except KeyError:
-            Preferences.Site = ""
+            GameProperties.Site = ""
         try:
-            Preferences.Date = parameters['Date'].replace('"', '')
+            GameProperties.Date = parameters['Date'].replace('"', '')
         except KeyError:
-            Preferences.Date = ""
+            GameProperties.Date = ""
         try:
-            Preferences.Round = parameters['Round'].replace('"', '')
+            GameProperties.Round = parameters['Round'].replace('"', '')
         except KeyError:
-            Preferences.Round = ""
+            GameProperties.Round = ""
         try:
-            Preferences.White = parameters['White'].replace('"', '')
+            GameProperties.White = parameters['White'].replace('"', '')
         except KeyError:
-            Preferences.White = ""
+            GameProperties.White = ""
         try:
-            Preferences.Black = parameters['Black'].replace('"', '')
+            GameProperties.Black = parameters['Black'].replace('"', '')
         except KeyError:
-            Preferences.Black = ""
+            GameProperties.Black = ""
         try:
-            Preferences.Result = parameters['Result'].replace('"', '')
+            GameProperties.Result = parameters['Result'].replace('"', '')
         except KeyError:
-            Preferences.Result = ""
+            GameProperties.Result = ""
         try:
-            Preferences.WhiteElo = parameters['WhiteElo'].replace('"', '')
+            GameProperties.WhiteElo = parameters['WhiteElo'].replace('"', '')
         except KeyError:
-            Preferences.WhiteElo = ""
+            GameProperties.WhiteElo = ""
         try:
-            Preferences.BlackElo = parameters['BlackElo'].replace('"', '')
+            GameProperties.BlackElo = parameters['BlackElo'].replace('"', '')
         except KeyError:
-            Preferences.BlackElo = ""
+            GameProperties.BlackElo = ""
         try:
-            Preferences.ECO = parameters['ECO'].replace('"', '')
+            GameProperties.ECO = parameters['ECO'].replace('"', '')
         except KeyError:
-            Preferences.ECO = ""
+            GameProperties.ECO = ""
         try:
-            Preferences.TimeControl = parameters['TimeControl'].replace('"', '')
+            GameProperties.TimeControl = parameters['TimeControl'].replace('"', '')
         except KeyError:
-            Preferences.TimeControl = "0"
+            GameProperties.TimeControl = "0"
 
         # Removes line breaks and formulates all elements into one element in the list
         chess_game = "".join(chess_game).split("  ")
@@ -1653,7 +1643,7 @@ class MoveController():
             TextController.check_checkmate_text = ""
         for grid in board.Grid.grid_list:
             grid.no_highlight()
-        Preferences.Result = game_controller.result_abb
+        GameProperties.Result = game_controller.result_abb
         return check_abb
     @classmethod
     def record_move(cls, game_controller, grid, piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen=None):
@@ -1772,14 +1762,13 @@ def main():
         state = running
         debug_message = 0
         
-        game_mode_sprites = pygame.sprite.Group()
         clock = pygame.time.Clock()
         
         #Fonts
         verdana_font = pygame.font.SysFont('Verdana', 24)
         move_notation_font = pygame.font.SysFont('Verdana', 16)
         
-        play_edit_switch_button = PlayEditSwitchButton(initvar.PLAY_EDIT_SWITCH_BUTTON_TOPLEFT, game_mode_sprites)
+        play_edit_switch_button = menu_buttons.PlayEditSwitchButton(initvar.PLAY_EDIT_SWITCH_BUTTON_TOPLEFT)
         flip_board_button = menu_buttons.FlipBoardButton(initvar.FLIP_BOARD_BUTTON_TOPLEFT)
         cpu_button = menu_buttons.CPUButton(initvar.CPU_BUTTON_TOPLEFT, CpuController.cpu_mode)
         game_properties_button = menu_buttons.GamePropertiesButton(initvar.GAME_PROPERTIES_BUTTON_TOPLEFT)
@@ -1858,7 +1847,7 @@ def main():
                                 grid.no_highlight()
                             GridController.update_grid_occupied_detection()
                         if pgn_save_file_button.rect.collidepoint(mousepos) and pgn_save_file_button.clickable:
-                            Preferences.game_properties_popup()
+                            GameProperties.game_properties_popup()
                             PgnWriterAndLoader.write_moves(MoveTracker.df_moves, game_controller.result_abb)
                         if flip_board_button.rect.collidepoint(mousepos):
                             GridController.flip_grids()
@@ -1949,7 +1938,7 @@ def main():
                             if reset_board_button.rect.collidepoint(mousepos) and reset_board_button.clickable:
                                 pos_load_file(reset=True)
                             if game_properties_button.rect.collidepoint(mousepos) and game_properties_button.clickable:
-                                Preferences.game_properties_popup()
+                                GameProperties.game_properties_popup()
                             # DRAG OBJECTS
                             # Goes through each of the types of pieces
                             # If start object is clicked on, then enable drag, blank box changes images to the original piece so it looks better
@@ -2059,7 +2048,7 @@ def main():
                 pgn_load_file_button.draw(lis.SCREEN, SwitchModesController.GAME_MODE, load_file_placeholder.hover)
                 cpu_button.draw(lis.SCREEN, SwitchModesController.GAME_MODE)
                 # Group sprites update
-                game_mode_sprites.draw(lis.SCREEN)
+                menu_buttons.GAME_MODE_SPRITES.draw(lis.SCREEN)
                 board.GRID_SPRITES.draw(lis.SCREEN)
                 GridController.update_grid_occupied_detection()
                 start_objects.START_SPRITES.update(SwitchModesController.GAME_MODE)
@@ -2112,23 +2101,23 @@ def main():
                             lis.SCREEN.blit(whose_turn_text, initvar.BLACK_MOVE_X_Y)
                     lis.SCREEN.blit(check_checkmate_text_render, initvar.CHECK_CHECKMATE_X_Y)
                 if GridController.flipped:
-                    if Preferences.WhiteElo != "":
-                        lis.SCREEN.blit(render_text(Preferences.White + " (" + Preferences.WhiteElo + ")"), initvar.BLACK_X_Y)
+                    if GameProperties.WhiteElo != "":
+                        lis.SCREEN.blit(render_text(GameProperties.White + " (" + GameProperties.WhiteElo + ")"), initvar.BLACK_X_Y)
                     else:
-                        lis.SCREEN.blit(render_text(Preferences.White), initvar.BLACK_X_Y)
-                    if Preferences.BlackElo != "":
-                        lis.SCREEN.blit(render_text(Preferences.Black + " (" + Preferences.BlackElo + ")"), initvar.WHITE_X_Y)
+                        lis.SCREEN.blit(render_text(GameProperties.White), initvar.BLACK_X_Y)
+                    if GameProperties.BlackElo != "":
+                        lis.SCREEN.blit(render_text(GameProperties.Black + " (" + GameProperties.BlackElo + ")"), initvar.WHITE_X_Y)
                     else:
-                        lis.SCREEN.blit(render_text(Preferences.Black), initvar.WHITE_X_Y)
+                        lis.SCREEN.blit(render_text(GameProperties.Black), initvar.WHITE_X_Y)
                 else:
-                    if Preferences.WhiteElo != "":
-                        lis.SCREEN.blit(render_text(Preferences.White + " (" + Preferences.WhiteElo + ")"), initvar.WHITE_X_Y)
+                    if GameProperties.WhiteElo != "":
+                        lis.SCREEN.blit(render_text(GameProperties.White + " (" + GameProperties.WhiteElo + ")"), initvar.WHITE_X_Y)
                     else:
-                        lis.SCREEN.blit(render_text(Preferences.White), initvar.WHITE_X_Y)
-                    if Preferences.BlackElo != "":
-                        lis.SCREEN.blit(render_text(Preferences.Black + " (" + Preferences.BlackElo + ")"), initvar.BLACK_X_Y)
+                        lis.SCREEN.blit(render_text(GameProperties.White), initvar.WHITE_X_Y)
+                    if GameProperties.BlackElo != "":
+                        lis.SCREEN.blit(render_text(GameProperties.Black + " (" + GameProperties.BlackElo + ")"), initvar.BLACK_X_Y)
                     else:
-                        lis.SCREEN.blit(render_text(Preferences.Black), initvar.BLACK_X_Y)
+                        lis.SCREEN.blit(render_text(GameProperties.Black), initvar.BLACK_X_Y)
                 pygame.display.update()
                 #print("MEOW 1123 " + today.strftime("%Y-%m-%d %H%M%S"))
             elif state == debug:
