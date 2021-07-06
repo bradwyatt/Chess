@@ -3,6 +3,7 @@
 Chess created by Brad Wyatt
 
 Clean Code (short-term):
+Documentation
 Lint each file
 Parameterize text variables (or clean it up perhaps not include the text font name in the variable)
 Import packages and remove wild card in each files
