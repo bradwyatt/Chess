@@ -1,3 +1,4 @@
+# pylint: disable=E1101
 """
 Chess created by Brad Wyatt
 
@@ -42,7 +43,7 @@ import pygame
 import pandas as pd
 import numpy as np
 import PySimpleGUI as sg
-from load_images_sounds import *
+import load_images_sounds as lis
 import menu_buttons
 import initvar
 import board
@@ -196,15 +197,15 @@ def pos_lists_to_coord(pos_score_list):
 class PlayEditSwitchButton(pygame.sprite.Sprite):
     def __init__(self, pos, game_mode_sprites):
         pygame.sprite.Sprite.__init__(self)
-        self.image = IMAGES["SPR_PLAY_BUTTON"]
+        self.image = lis.IMAGES["SPR_PLAY_BUTTON"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         game_mode_sprites.add(self)
     def game_mode_button(self, game_mode):
         if game_mode == 0:
-            self.image = IMAGES["SPR_PLAY_BUTTON"]
+            self.image = lis.IMAGES["SPR_PLAY_BUTTON"]
         elif game_mode == 1:
-            self.image = IMAGES["SPR_STOP_BUTTON"]
+            self.image = lis.IMAGES["SPR_STOP_BUTTON"]
         return self.image
 
 class Preferences():
@@ -397,8 +398,8 @@ class PgnWriterAndLoader():
                 if piece.coordinate is not None:
                     piece.spaces_available(game_controller)
                     if (piece.coordinate in board.Grid.grid_dict[grid_coordinate].coords_of_available_pieces['white'] \
-                        or piece.coordinate in board.Grid.grid_dict[grid_coordinate].coords_of_available_pieces['black']):
-                            eligible_pieces.append(piece)
+                    or piece.coordinate in board.Grid.grid_dict[grid_coordinate].coords_of_available_pieces['black']):
+                        eligible_pieces.append(piece)
             if len(eligible_pieces) == 1:
                 # List only has one eligible piece
                 piece_determined = eligible_pieces[0]
@@ -470,7 +471,7 @@ class PgnWriterAndLoader():
                     prior_moves_dict, captured_abb, special_abb, promoted_queen = MoveController.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller)
                     check_abb = MoveController.game_status_check(game_controller)
                     MoveController.record_move(game_controller, board.Grid.grid_dict[grid_coordinate], piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen)
-                PanelController.draw_move_rects_on_moves_pane(pygame.font.SysFont('Verdana', 16), game_controller)
+                PanelController.draw_move_rects_on_moves_pane(pygame.font.SysFont('Verdana', 16))
 
         def prior_move_grid_update(current_coord):
             for play_obj_list in play_objects.Piece_Lists_Shortcut.all_pieces():
@@ -583,17 +584,18 @@ class GridController():
                     piece.prior_move_update()
     @staticmethod
     def piece_on_grid(grid_coordinate):
+        piece_on_grid_var = None
         if not SwitchModesController.REPLAYED:
             for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
                 for piece in piece_list:
                     if grid_coordinate == piece.coordinate:
-                        piece_on_grid = piece
+                        piece_on_grid_var = piece
         else:
             for piece_list in replayed_objects.Piece_Lists_Shortcut.all_pieces():
                 for piece in piece_list:
                     if grid_coordinate == piece.coordinate:
-                        piece_on_grid = piece
-        return piece_on_grid
+                        piece_on_grid_var = piece
+        return piece_on_grid_var
     @classmethod
     def update_prior_move_color(cls, whoseturn=None):
         if MoveTracker.move_counter() == 0:
@@ -1249,12 +1251,12 @@ class MoveController():
                     for attacker_grid in list_of_attack_pieces:
                         # Pawn is only piece that can enter space without attacking it
                         if(board.Grid.grid_dict[attacker_grid].occupied_piece == piece_name \
-                            and piece_name != "pawn" and special_abb != "=Q"):
+                        and piece_name != "pawn" and special_abb != "=Q"):
                             same_piece_list.append(attacker_grid)
                     letter_coords = [coords_from_same_piece[0] for coords_from_same_piece in same_piece_list] 
                     number_coords = [coords_from_same_piece[1] for coords_from_same_piece in same_piece_list] 
                     if(len(same_piece_list) > 0 and ((piece.previous_coordinate[0] not in letter_coords and piece.previous_coordinate[1] in number_coords) \
-                        or (piece.previous_coordinate[0] not in letter_coords and piece.previous_coordinate[1] not in number_coords))):
+                    or (piece.previous_coordinate[0] not in letter_coords and piece.previous_coordinate[1] not in number_coords))):
                         prefix += piece.previous_coordinate[0]
                         return prefix
                     elif piece.previous_coordinate[0] in letter_coords and piece.previous_coordinate[1] not in number_coords:
@@ -1465,19 +1467,19 @@ class MoveController():
                     # Must include taken_off_board bool or else you get NoneType error
                     if not black_pawn.taken_off_board:
                         if black_pawn.coordinate[0] == grid.coordinate[0] and \
-                            int(black_pawn.coordinate[1]) == 5:
-                                black_pawn.captured(game_controller.black_captured_x, game_controller.black_captured_y, MoveTracker.move_counter(), grid.coordinate)
-                                game_controller.black_captured_x += initvar.BLACKANDWHITE_INCREMENTAL_X
-                                captured_abb = "x"
+                        int(black_pawn.coordinate[1]) == 5:
+                            black_pawn.captured(game_controller.black_captured_x, game_controller.black_captured_y, MoveTracker.move_counter(), grid.coordinate)
+                            game_controller.black_captured_x += initvar.BLACKANDWHITE_INCREMENTAL_X
+                            captured_abb = "x"
             elif piece in play_objects.PlayPawn.black_pawn_list:
                 for white_pawn in play_objects.PlayPawn.white_pawn_list:
                     # Must include taken_off_board bool or else you get NoneType error
                     if not white_pawn.taken_off_board:
                         if white_pawn.coordinate[0] == grid.coordinate[0] and \
-                            int(white_pawn.coordinate[1]) == 4:
-                                white_pawn.captured(game_controller.white_captured_x, game_controller.white_captured_y, MoveTracker.move_counter(), grid.coordinate)
-                                game_controller.white_captured_x += initvar.BLACKANDWHITE_INCREMENTAL_X
-                                captured_abb = "x"
+                        int(white_pawn.coordinate[1]) == 4:
+                            white_pawn.captured(game_controller.white_captured_x, game_controller.white_captured_y, MoveTracker.move_counter(), grid.coordinate)
+                            game_controller.white_captured_x += initvar.BLACKANDWHITE_INCREMENTAL_X
+                            captured_abb = "x"
                             
         # Reset en passant skipover for all squares
         for sub_grid in board.Grid.grid_list:
@@ -1621,7 +1623,7 @@ class MoveController():
                     return "*"
             TextController.check_checkmate_text = "Stalemate"
             return "1/2-1/2"
-        def checkmate_check(game_controller, whoseturn):
+        def checkmate_check(whoseturn):
             for subgrid in board.Grid.grid_list:
                 if len(subgrid.coords_of_available_pieces[whoseturn]) > 0:
                     # If able to detect that a grid can be available, that means it's NOT checkmate
@@ -1635,10 +1637,10 @@ class MoveController():
             return game_result
         if game_controller.color_in_check == "black":
             TextController.check_checkmate_text = "Black King checked"
-            check_abb, game_controller.result_abb = checkmate_check(game_controller, 'black')
+            check_abb, game_controller.result_abb = checkmate_check('black')
         elif game_controller.color_in_check == "white":
             TextController.check_checkmate_text = "White King checked"
-            check_abb, game_controller.result_abb = checkmate_check(game_controller, 'white')
+            check_abb, game_controller.result_abb = checkmate_check('white')
         elif game_controller.color_in_check == "" and game_controller.whoseturn == "white":
             game_controller.result_abb = stalemate_check('white')
         elif game_controller.color_in_check == "" and game_controller.whoseturn == "black":
@@ -1727,7 +1729,7 @@ class PanelController:
         for piece_move_rect in menu_buttons.PieceMoveRectangle.rectangle_list:
             piece_move_rect.update_Y()
     @classmethod
-    def draw_move_rects_on_moves_pane(cls, my_font, game_controller):
+    def draw_move_rects_on_moves_pane(cls, my_font):
         if len(MoveTracker.df_moves) >= 1:
             # Creating move notation rectangles if they haven't been created before for the respective move
             # If the last move is not in the dictionary, then add it
@@ -1747,7 +1749,7 @@ class PanelController:
                 # Only create menu_buttons.PieceMoveRectangle when black moved last, don't create a new menu_buttons.MoveNumberRectangle
                 menu_buttons.PieceMoveRectangle(len(MoveTracker.df_moves), MoveTracker.df_moves.loc[len(MoveTracker.df_moves), 'black_move'], 'black_move', initvar.MOVES_PANE_BLACK_X, initvar.MOVES_PANE_Y_BEGIN+initvar.LINE_SPACING*len(MoveTracker.df_moves), initvar.RECTANGLE_WIDTH, initvar.RECTANGLE_HEIGHT)        
                 cls.scroll_to_latest_move(len(MoveTracker.df_moves))
-            cls.draw_text_on_rects_in_moves_pane(SCREEN, my_font)
+            cls.draw_text_on_rects_in_moves_pane(lis.SCREEN, my_font)
     @staticmethod
     def remove_latest_move(color_move):
         menu_buttons.PieceMoveRectangle.rectangle_dict[MoveTracker.move_counter()][color_move].move_notation = ""
@@ -1788,7 +1790,6 @@ def main():
         clear_button = menu_buttons.ClearButton(initvar.CLEAR_BUTTON_TOPLEFT)
         scroll_up_button = menu_buttons.ScrollUpButton(initvar.SCROLL_UP_BUTTON_TOPLEFT)
         scroll_down_button = menu_buttons.ScrollDownButton(initvar.SCROLL_DOWN_BUTTON_TOPLEFT)
-        #game_mode_sprites.add(scroll_down_button)
         beginning_move_button = menu_buttons.BeginningMoveButton(initvar.BEGINNING_MOVE_BUTTON_TOPLEFT)
         prev_move_button = menu_buttons.PrevMoveButton(initvar.PREV_MOVE_BUTTON_TOPLEFT)
         next_move_button = menu_buttons.NextMoveButton(initvar.NEXT_MOVE_BUTTON_TOPLEFT)
@@ -1813,14 +1814,12 @@ def main():
             mousepos = pygame.mouse.get_pos()
             mouse_coord = mouse_coordinate(mousepos)
             if state == running: # Initiate room
-                #Start Objects
-                
                 for event in pygame.event.get():
-                    if event.type == QUIT:
+                    if event.type == pygame.QUIT:
                         pygame.quit()
                         sys.exit()
                     if event.type == pygame.KEYDOWN:
-                        if event.key == K_ESCAPE:
+                        if event.key == pygame.K_ESCAPE:
                             pygame.quit()
                             sys.exit()
                     # If user wants to debug
@@ -1900,9 +1899,9 @@ def main():
                                     if MoveTracker.selected_move[0] > menu_buttons.PanelRectangles.scroll_range[1] and menu_buttons.PanelRectangles.scroll_range[1] < MoveTracker.move_counter():
                                         PanelController.update_scroll_range(1)
                                     if MoveTracker.selected_move[0] == MoveTracker.move_counter() and \
-                                        MoveTracker.df_moves.loc[MoveTracker.move_counter(), "black_move"] == "":
+                                    MoveTracker.df_moves.loc[MoveTracker.move_counter(), "black_move"] == "":
                                             # Went to last move number and there is no black move yet
-                                            SwitchModesController.replayed_game(False, game_controller)
+                                        SwitchModesController.replayed_game(False, game_controller)
                                     else:
                                         SwitchModesController.replayed_game(True, game_controller)
                                 elif MoveTracker.selected_move[1] == "white_move":
@@ -1910,11 +1909,11 @@ def main():
                                     MoveTracker.selected_move = MoveTracker.selected_move[0], "black_move"
                                     SwitchModesController.replayed_game(True, game_controller)
                             elif MoveTracker.selected_move[0] == MoveTracker.move_counter() \
-                                and MoveTracker.df_moves.loc[MoveTracker.move_counter(), "black_move"] != "" \
-                                    and MoveTracker.selected_move[1] == "white_move":
-                                        # We are at last move (and black has not moved yet)
-                                        MoveTracker.selected_move = MoveTracker.selected_move[0], "black_move"
-                                        SwitchModesController.replayed_game(False, game_controller)
+                            and MoveTracker.df_moves.loc[MoveTracker.move_counter(), "black_move"] != "" \
+                            and MoveTracker.selected_move[1] == "white_move":
+                                # We are at last move (and black has not moved yet)
+                                MoveTracker.selected_move = MoveTracker.selected_move[0], "black_move"
+                                SwitchModesController.replayed_game(False, game_controller)
                             else:
                                 # Last move 
                                 SwitchModesController.replayed_game(False, game_controller)
@@ -1931,8 +1930,8 @@ def main():
                                 MoveTracker.selected_move = (piece_move_rect.move_number, piece_move_rect.move_color)
                                 if MoveTracker.selected_move[0] == MoveTracker.move_counter():
                                     if MoveTracker.df_moves.loc[MoveTracker.move_counter(), "black_move"] != "" \
-                                        and piece_move_rect.move_color == "white_move":
-                                            SwitchModesController.replayed_game(True, game_controller)
+                                    and piece_move_rect.move_color == "white_move":
+                                        SwitchModesController.replayed_game(True, game_controller)
                                     else:
                                         SwitchModesController.replayed_game(False, game_controller)
                                 else:
@@ -1990,7 +1989,7 @@ def main():
                                     PanelController.update_scroll_range(1)
                     if SwitchModesController.GAME_MODE == SwitchModesController.EDIT_MODE:
                         # Right click on obj, destroy
-                        if(event.type == MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[2]):
+                        if(event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[2]):
                             EditModeController.right_click_destroy(mousepos)
                     if event.type == pygame.MOUSEBUTTONUP: #Release Drag
                         #################
@@ -2026,11 +2025,11 @@ def main():
                             for grid in board.Grid.grid_list:
                                 if grid.rect.collidepoint(mousepos):
                                     log.info("Coordinate: " + str(grid.coordinate) \
-                                           + ", White Pieces Attacking: " + str(grid.coords_of_attacking_pieces['white']) \
-                                           + ", Black Pieces Attacking: " + str(grid.coords_of_attacking_pieces['black']) \
-                                               + ", grid variable: " + str(grid.highlighted) \
-                                                   + ", White Pieces Protecting: " + str(grid.coords_of_protecting_pieces['white']) \
-                                                       + ", Black Pieces Protecting: " + str(grid.coords_of_protecting_pieces['black']))
+                                    + ", White Pieces Attacking: " + str(grid.coords_of_attacking_pieces['white']) \
+                                    + ", Black Pieces Attacking: " + str(grid.coords_of_attacking_pieces['black']) \
+                                    + ", grid variable: " + str(grid.highlighted) \
+                                    + ", White Pieces Protecting: " + str(grid.coords_of_protecting_pieces['white']) \
+                                    + ", Black Pieces Protecting: " + str(grid.coords_of_protecting_pieces['black']))
                         test_grid_str()
                         #test_piece()
                 ##################
@@ -2046,87 +2045,87 @@ def main():
                 #FOR DEBUGGING PURPOSES, PUT TEST CODE BELOW
                 
                 # Set background
-                SCREEN.blit(GAME_BACKGROUND, (0, 0))
+                lis.SCREEN.blit(lis.GAME_BACKGROUND, (0, 0))
                 # Individual sprites update
-                flip_board_button.draw(SCREEN)
-                save_file_placeholder.draw(SCREEN)
-                pos_save_file_button.draw(SCREEN, SwitchModesController.GAME_MODE, save_file_placeholder.hover)
-                pgn_save_file_button.draw(SCREEN, SwitchModesController.GAME_MODE, save_file_placeholder.hover)
-                load_file_placeholder.draw(SCREEN)
-                pos_load_file_button.draw(SCREEN, SwitchModesController.GAME_MODE, load_file_placeholder.hover)
-                pgn_load_file_button.draw(SCREEN, SwitchModesController.GAME_MODE, load_file_placeholder.hover)
-                cpu_button.draw(SCREEN, SwitchModesController.GAME_MODE)
+                flip_board_button.draw(lis.SCREEN)
+                save_file_placeholder.draw(lis.SCREEN)
+                pos_save_file_button.draw(lis.SCREEN, SwitchModesController.GAME_MODE, save_file_placeholder.hover)
+                pgn_save_file_button.draw(lis.SCREEN, SwitchModesController.GAME_MODE, save_file_placeholder.hover)
+                load_file_placeholder.draw(lis.SCREEN)
+                pos_load_file_button.draw(lis.SCREEN, SwitchModesController.GAME_MODE, load_file_placeholder.hover)
+                pgn_load_file_button.draw(lis.SCREEN, SwitchModesController.GAME_MODE, load_file_placeholder.hover)
+                cpu_button.draw(lis.SCREEN, SwitchModesController.GAME_MODE)
                 # Group sprites update
-                game_mode_sprites.draw(SCREEN)
-                board.GRID_SPRITES.draw(SCREEN)
+                game_mode_sprites.draw(lis.SCREEN)
+                board.GRID_SPRITES.draw(lis.SCREEN)
                 GridController.update_grid_occupied_detection()
                 start_objects.START_SPRITES.update(SwitchModesController.GAME_MODE)
                 menu_buttons.PLAY_PANEL_SPRITES.update(SwitchModesController.GAME_MODE)
-                SCREEN.blit(MOVE_BG_IMAGE, (initvar.MOVE_BG_IMAGE_X,initvar.MOVE_BG_IMAGE_Y))
+                lis.SCREEN.blit(lis.MOVE_BG_IMAGE, (initvar.MOVE_BG_IMAGE_X,initvar.MOVE_BG_IMAGE_Y))
                 if SwitchModesController.GAME_MODE == SwitchModesController.EDIT_MODE: #Only draw placed sprites in editing mode
-                    start_objects.START_SPRITES.draw(SCREEN)
+                    start_objects.START_SPRITES.draw(lis.SCREEN)
                     placed_objects.PLACED_SPRITES.update()
-                    placed_objects.PLACED_SPRITES.draw(SCREEN)
+                    placed_objects.PLACED_SPRITES.draw(lis.SCREEN)
                 elif SwitchModesController.GAME_MODE == SwitchModesController.PLAY_MODE: #Only draw play sprites in play mode
-                    flip_board_button.draw(SCREEN)
+                    flip_board_button.draw(lis.SCREEN)
                     if not SwitchModesController.REPLAYED:
                         play_objects.PLAY_SPRITES.update()
-                        play_objects.PLAY_SPRITES.draw(SCREEN)
+                        play_objects.PLAY_SPRITES.draw(lis.SCREEN)
                     else:
                         replayed_objects.REPLAYED_SPRITES.update()
-                        replayed_objects.REPLAYED_SPRITES.draw(SCREEN)
-                    menu_buttons.PLAY_PANEL_SPRITES.draw(SCREEN)
+                        replayed_objects.REPLAYED_SPRITES.draw(lis.SCREEN)
+                    menu_buttons.PLAY_PANEL_SPRITES.draw(lis.SCREEN)
                     # When the piece is selected on the right pane, fill the rectangle corresponding to the move
                     for piece_move_rect in menu_buttons.PieceMoveRectangle.rectangle_list:
                         if piece_move_rect.move_number == MoveTracker.selected_move[0] and piece_move_rect.move_color == MoveTracker.selected_move[1]:
-                            piece_move_rect.draw(SCREEN)
-                    PanelController.draw_move_rects_on_moves_pane(move_notation_font, game_controller)
+                            piece_move_rect.draw(lis.SCREEN)
+                    PanelController.draw_move_rects_on_moves_pane(move_notation_font)
                     # Update objects that aren't in a sprite group
-                    scroll_up_button.draw(SCREEN)
-                    scroll_down_button.draw(SCREEN, len(MoveTracker.df_moves))
+                    scroll_up_button.draw(lis.SCREEN)
+                    scroll_down_button.draw(lis.SCREEN, len(MoveTracker.df_moves))
                 render_text = lambda x: verdana_font.render(x, 1, initvar.UNIVERSAL_TEXT_COLOR)
                 # Board Coordinates Drawing
                 for text in range(0,len(TextController.coor_letter_text_list)):
-                    SCREEN.blit(TextController.coor_letter_text_list[text], (initvar.X_GRID_START+board.X_GRID_WIDTH/3+(board.X_GRID_WIDTH*text), initvar.Y_GRID_START-(board.Y_GRID_HEIGHT*0.75)))
-                    SCREEN.blit(TextController.coor_letter_text_list[text], (initvar.X_GRID_START+board.X_GRID_WIDTH/3+(board.X_GRID_WIDTH*text), board.Y_GRID_END+(board.Y_GRID_HEIGHT*0.25)))
+                    lis.SCREEN.blit(TextController.coor_letter_text_list[text], (initvar.X_GRID_START+board.X_GRID_WIDTH/3+(board.X_GRID_WIDTH*text), initvar.Y_GRID_START-(board.Y_GRID_HEIGHT*0.75)))
+                    lis.SCREEN.blit(TextController.coor_letter_text_list[text], (initvar.X_GRID_START+board.X_GRID_WIDTH/3+(board.X_GRID_WIDTH*text), board.Y_GRID_END+(board.Y_GRID_HEIGHT*0.25)))
                 for text in range(0,len(TextController.coor_number_text_list)):
-                    SCREEN.blit(TextController.coor_number_text_list[text], (initvar.X_GRID_START-board.X_GRID_WIDTH/2, initvar.Y_GRID_START+board.Y_GRID_HEIGHT/4+(board.Y_GRID_HEIGHT*text)))
-                    SCREEN.blit(TextController.coor_number_text_list[text], (board.X_GRID_END+board.X_GRID_WIDTH/3, initvar.Y_GRID_START+board.Y_GRID_HEIGHT/4+(board.Y_GRID_HEIGHT*text)))
+                    lis.SCREEN.blit(TextController.coor_number_text_list[text], (initvar.X_GRID_START-board.X_GRID_WIDTH/2, initvar.Y_GRID_START+board.Y_GRID_HEIGHT/4+(board.Y_GRID_HEIGHT*text)))
+                    lis.SCREEN.blit(TextController.coor_number_text_list[text], (board.X_GRID_END+board.X_GRID_WIDTH/3, initvar.Y_GRID_START+board.Y_GRID_HEIGHT/4+(board.Y_GRID_HEIGHT*text)))
                 if SwitchModesController.GAME_MODE == SwitchModesController.PLAY_MODE:
                     check_checkmate_text_render = verdana_font.render(TextController.check_checkmate_text, 1, initvar.UNIVERSAL_TEXT_COLOR)
                     if GridController.flipped:
                         if game_controller.whoseturn == "white" and game_controller.result_abb == "*":
                             whose_turn_text = verdana_font.render("White's move", 1, initvar.UNIVERSAL_TEXT_COLOR)
-                            SCREEN.blit(whose_turn_text, initvar.BLACK_MOVE_X_Y)
+                            lis.SCREEN.blit(whose_turn_text, initvar.BLACK_MOVE_X_Y)
                         elif game_controller.whoseturn == "black" and game_controller.result_abb == "*":
                             whose_turn_text = verdana_font.render("Black's move", 1, initvar.UNIVERSAL_TEXT_COLOR)
-                            SCREEN.blit(whose_turn_text, initvar.WHITE_MOVE_X_Y)
+                            lis.SCREEN.blit(whose_turn_text, initvar.WHITE_MOVE_X_Y)
                     else:
                         if game_controller.whoseturn == "white" and game_controller.result_abb == "*":
                             whose_turn_text = verdana_font.render("White's move", 1, initvar.UNIVERSAL_TEXT_COLOR)
-                            SCREEN.blit(whose_turn_text, initvar.WHITE_MOVE_X_Y)
+                            lis.SCREEN.blit(whose_turn_text, initvar.WHITE_MOVE_X_Y)
                         elif game_controller.whoseturn == "black" and game_controller.result_abb == "*":
                             whose_turn_text = verdana_font.render("Black's move", 1, initvar.UNIVERSAL_TEXT_COLOR)
-                            SCREEN.blit(whose_turn_text, initvar.BLACK_MOVE_X_Y)
-                    SCREEN.blit(check_checkmate_text_render, initvar.CHECK_CHECKMATE_X_Y)
+                            lis.SCREEN.blit(whose_turn_text, initvar.BLACK_MOVE_X_Y)
+                    lis.SCREEN.blit(check_checkmate_text_render, initvar.CHECK_CHECKMATE_X_Y)
                 if GridController.flipped:
                     if Preferences.WhiteElo != "":
-                        SCREEN.blit(render_text(Preferences.White + " (" + Preferences.WhiteElo + ")"), initvar.BLACK_X_Y)
+                        lis.SCREEN.blit(render_text(Preferences.White + " (" + Preferences.WhiteElo + ")"), initvar.BLACK_X_Y)
                     else:
-                        SCREEN.blit(render_text(Preferences.White), initvar.BLACK_X_Y)
+                        lis.SCREEN.blit(render_text(Preferences.White), initvar.BLACK_X_Y)
                     if Preferences.BlackElo != "":
-                        SCREEN.blit(render_text(Preferences.Black + " (" + Preferences.BlackElo + ")"), initvar.WHITE_X_Y)
+                        lis.SCREEN.blit(render_text(Preferences.Black + " (" + Preferences.BlackElo + ")"), initvar.WHITE_X_Y)
                     else:
-                        SCREEN.blit(render_text(Preferences.Black), initvar.WHITE_X_Y)
+                        lis.SCREEN.blit(render_text(Preferences.Black), initvar.WHITE_X_Y)
                 else:
                     if Preferences.WhiteElo != "":
-                        SCREEN.blit(render_text(Preferences.White + " (" + Preferences.WhiteElo + ")"), initvar.WHITE_X_Y)
+                        lis.SCREEN.blit(render_text(Preferences.White + " (" + Preferences.WhiteElo + ")"), initvar.WHITE_X_Y)
                     else:
-                        SCREEN.blit(render_text(Preferences.White), initvar.WHITE_X_Y)
+                        lis.SCREEN.blit(render_text(Preferences.White), initvar.WHITE_X_Y)
                     if Preferences.BlackElo != "":
-                        SCREEN.blit(render_text(Preferences.Black + " (" + Preferences.BlackElo + ")"), initvar.BLACK_X_Y)
+                        lis.SCREEN.blit(render_text(Preferences.Black + " (" + Preferences.BlackElo + ")"), initvar.BLACK_X_Y)
                     else:
-                        SCREEN.blit(render_text(Preferences.Black), initvar.BLACK_X_Y)
+                        lis.SCREEN.blit(render_text(Preferences.Black), initvar.BLACK_X_Y)
                 pygame.display.update()
                 #print("MEOW 1123 " + today.strftime("%Y-%m-%d %H%M%S"))
             elif state == debug:
