@@ -299,7 +299,7 @@ class PgnWriterAndLoader():
             open_file = open(request_file_name, "r")
         except FileNotFoundError:
             log.info("File not found")
-            return
+            return None
         SwitchModesController.switch_mode(SwitchModesController.PLAY_MODE, play_edit_switch_button)
         game_controller = GameController(GridController.flipped)
         game_controller.refresh_objects()
@@ -547,10 +547,9 @@ class GridController():
                     elif(piece in play_objects.PlayKing.white_king_list or piece in play_objects.PlayKing.black_king_list):
                         grid.occupied_piece = "king"
                     return
-        else:
-            grid.occupied = False
-            grid.occupied_piece = ""
-            grid.occupied_piece_color = ""
+        grid.occupied = False
+        grid.occupied_piece = ""
+        grid.occupied_piece_color = ""
     @classmethod
     def update_grid_occupied_detection(cls):
         for grid in board.Grid.grid_list:
@@ -721,13 +720,13 @@ class SwitchModesController():
                                     if replayed_obj.color == "white":
                                         for piece_list in replayed_objects.Piece_Lists_Shortcut.white_pieces():
                                             for piece in replayed_objects.ReplayedQueen.white_queen_list:
-                                                if piece.coordinate == eval(MoveTracker.df_prior_moves.loc[piece_history, "white_move"])['after']:
+                                                if piece.coordinate == ast.literal_eval(MoveTracker.df_prior_moves.loc[piece_history, "white_move"])['after']:
                                                     piece.kill()
                                                     replayed_objects.ReplayedQueen.white_queen_list.remove(piece)
                                     elif replayed_obj.color == "black":
                                         for piece_list in replayed_objects.Piece_Lists_Shortcut.black_pieces():
                                             for piece in replayed_objects.ReplayedQueen.black_queen_list:
-                                                if piece.coordinate == eval(MoveTracker.df_prior_moves.loc[piece_history, "black_move"])['after']:
+                                                if piece.coordinate == ast.literal_eval(MoveTracker.df_prior_moves.loc[piece_history, "black_move"])['after']:
                                                     piece.kill()
                                                     replayed_objects.ReplayedQueen.black_queen_list.remove(piece)
         # -1 in the list refers to the highlighted move in the pane
@@ -770,7 +769,7 @@ class SwitchModesController():
                 moves_backwards_dict[move_num] = df_prior_moves.loc[move_num, 'black_move']
                 moves_backwards_list.append(moves_backwards_dict)
                 break
-            elif df_prior_moves.loc[move_num, 'black_move'] == '':
+            if df_prior_moves.loc[move_num, 'black_move'] == '':
                 # Current move has no black move yet, so ignore adding that to list
                 pass
             else:
@@ -1175,15 +1174,16 @@ class GameController():
         for piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
             for piece in piece_list:
                 piece.projected(self)
-    def pinned_piece(self, pinned_piece_coordinate, pin_attacking_coordinates, color):
+    @staticmethod
+    def pinned_piece(pinned_piece_coordinate, pin_attacking_coordinates, color):
         # Iterates through all pieces to find the one that matches
         # the coordinate with the pin
         for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
             for piece in piece_list:
                 if board.Grid.grid_dict[pinned_piece_coordinate].coordinate == piece.coordinate \
-                    and piece.color == color:
+                and piece.color == color:
                     piece.pinned_restrict(pin_attacking_coordinates)
-    def king_in_check(self, attacker_piece, check_piece_coordinate, check_attacking_coordinates, color):
+    def king_in_check(self, attacker_piece, check_attacking_coordinates, color):
         self.color_in_check = color
         self.check_attacking_coordinates = check_attacking_coordinates
         self.attacker_piece = attacker_piece
@@ -1233,12 +1233,14 @@ class MoveController():
             piece_abb = "Q"
         elif piece_name == "king":
             piece_abb = "K"
-        def prefix_func(piece, piece_name, captured_abb, special_abb):
-            # Detecting when there is another piece of same color that 
-            # can attack the same position
-            # In order to get the prefix, we call out the positioning of piece
-            # When there is another of the same piece
-            prefix = ""
+        def get_prefix(piece, piece_name, captured_abb, special_abb):
+            """
+            Detecting when there is another piece of same color that 
+            can attack the same position
+            In order to get the prefix, we call out the positioning of piece
+            When there is another of the same piece
+            """
+            prefix_characters = ""
             for grid in board.Grid.grid_list:
                 if piece.color == "white":
                     list_of_attack_pieces = grid.coords_of_attacking_pieces['white']
@@ -1257,18 +1259,19 @@ class MoveController():
                     number_coords = [coords_from_same_piece[1] for coords_from_same_piece in same_piece_list] 
                     if(len(same_piece_list) > 0 and ((piece.previous_coordinate[0] not in letter_coords and piece.previous_coordinate[1] in number_coords) \
                     or (piece.previous_coordinate[0] not in letter_coords and piece.previous_coordinate[1] not in number_coords))):
-                        prefix += piece.previous_coordinate[0]
-                        return prefix
+                        prefix_characters += piece.previous_coordinate[0]
+                        prefix = prefix_characters
                     elif piece.previous_coordinate[0] in letter_coords and piece.previous_coordinate[1] not in number_coords:
-                        prefix += piece.previous_coordinate[1]
-                        return prefix
+                        prefix_characters += piece.previous_coordinate[1]
+                        prefix = prefix_characters
                     if((piece_name == "pawn" and captured_abb == "x") or (special_abb == "=Q" and captured_abb == "x")):
-                        prefix += piece.previous_coordinate[0]
-                    return prefix
+                        prefix_characters += piece.previous_coordinate[0]
+                    prefix = prefix_characters
+            return prefix
         if piece.color == "white":
-            prefix = prefix_func(piece, piece_name, captured_abb, special_abb)
+            prefix = get_prefix(piece, piece_name, captured_abb, special_abb)
         elif piece.color == "black":
-            prefix = prefix_func(piece, piece_name, captured_abb, special_abb)
+            prefix = get_prefix(piece, piece_name, captured_abb, special_abb)
         if special_abb == "":
             recorded_move = piece_abb + prefix + captured_abb + piece.coordinate[0] + piece.coordinate[1] + check_abb
         elif special_abb == "O-O":
@@ -1316,14 +1319,14 @@ class MoveController():
         if MoveTracker.move_counter() >= 1:
             # Finding the latest piece to undo
             if game_controller.whoseturn == "white":
-                piece_coordinate_move_notation = eval(MoveTracker.df_prior_moves.loc[MoveTracker.move_counter(), "black_move"])['move_notation']
+                piece_coordinate_move_notation = ast.literal_eval(MoveTracker.df_prior_moves.loc[MoveTracker.move_counter(), "black_move"])['move_notation']
                 for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
                     for black_piece in black_piece_list:
                         for piece_history in black_piece.coordinate_history.keys():
                             if MoveTracker.move_counter() == piece_history:
                                 pieces_to_undo.append(black_piece)
             elif game_controller.whoseturn == "black":
-                piece_coordinate_move_notation = eval(MoveTracker.df_prior_moves.loc[MoveTracker.move_counter(), "white_move"])['move_notation']
+                piece_coordinate_move_notation = ast.literal_eval(MoveTracker.df_prior_moves.loc[MoveTracker.move_counter(), "white_move"])['move_notation']
                 for white_piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
                     for white_piece in white_piece_list:
                         for piece_history in white_piece.coordinate_history.keys():
@@ -1370,7 +1373,7 @@ class MoveController():
                             black_rook.allowed_to_castle = True
                 if "=Q" in piece_coordinate_move_notation:
                     for q in play_objects.PlayQueen.black_queen_list:
-                        if q.coordinate == eval(MoveTracker.df_prior_moves.loc[MoveTracker.move_counter(), "black_move"])['after']:
+                        if q.coordinate == ast.literal_eval(MoveTracker.df_prior_moves.loc[MoveTracker.move_counter(), "black_move"])['after']:
                             queen = q
                     queen.kill()
                     play_objects.PlayQueen.black_queen_list.remove(queen)
@@ -1398,7 +1401,7 @@ class MoveController():
                             white_rook.allowed_to_castle = True
                 if "=Q" in piece_coordinate_move_notation:
                     for q in play_objects.PlayQueen.white_queen_list:
-                        if q.coordinate == eval(MoveTracker.df_prior_moves.loc[MoveTracker.move_counter(), "white_move"])['after']:
+                        if q.coordinate == ast.literal_eval(MoveTracker.df_prior_moves.loc[MoveTracker.move_counter(), "white_move"])['after']:
                             queen = q
                     queen.kill()
                     play_objects.PlayQueen.white_queen_list.remove(queen)
