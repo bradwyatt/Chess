@@ -4,6 +4,7 @@
 Global variables for log at the top
 In GameController.switch_turn, the "for grid in board.Grid.grid_list" logic could be in GridController
 In GameController.__del__, at the end where it references menu_buttons, instead we could create PanelController and include those lines
+json_edits.py in the /Test/ folder to use rather than .lvl
 
 ## Clean Code (short-term):
 Documentation
