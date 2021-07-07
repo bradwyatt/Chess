@@ -439,7 +439,7 @@ class PgnWriterAndLoader():
                     prior_moves_dict, captured_abb, special_abb, promoted_queen = MoveController.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller)
                     check_abb = MoveController.game_status_check(game_controller)
                     MoveController.record_move(game_controller, board.Grid.grid_dict[grid_coordinate], piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen)
-                PanelController.draw_move_rects_on_moves_pane(pygame.font.SysFont(initvar.FONT_NAME, initvar.MOVE_NOTATION_FONT_SIZE))
+                PanelController.draw_move_rects_on_moves_pane(pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, initvar.MOVE_NOTATION_FONT_SIZE))
 
         def prior_move_grid_update(current_coord):
             for play_obj_list in play_objects.Piece_Lists_Shortcut.all_pieces():
