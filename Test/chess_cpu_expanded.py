@@ -834,6 +834,7 @@ class CpuController():
     black_rook_pos_score_dict = pos_lists_to_coord([0]*64)
     white_queen_pos_score_dict = pos_lists_to_coord([0]*64)
     black_queen_pos_score_dict = pos_lists_to_coord([0]*64)
+    #%% Currently working on
     @classmethod
     def cpu_mode_toggle(cls):
         if not cls.cpu_mode:
@@ -1193,11 +1194,6 @@ class GameController():
                 and piece.color == color:
                     piece.pinned_restrict(pin_attacking_coordinates)
     def king_in_check(self, attacker_piece, check_attacking_coordinates, color):
-        """
-        This function is called when projected from piece hits king
-        For example, if white bishop checks black king, 
-        the white bishop's projected function calls king_in_check function
-        """
         self.color_in_check = color
         self.check_attacking_coordinates = check_attacking_coordinates
         self.attacker_piece = attacker_piece
@@ -1442,8 +1438,10 @@ class MoveController():
                 GridController.update_prior_move_color("white")
                 cls.game_status_check(game_controller)
                 log.info("Back to (" + str(len(MoveTracker.df_moves)) + ".) " + "White undo turn " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
+            #print("game_controller df: \n" + str(MoveTracker.df_moves))
     @classmethod
     def complete_move(cls, new_coord, game_controller):
+        #%% WIP
         for grid in board.Grid.grid_list:
             for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
                 for piece in piece_list:
@@ -1996,6 +1994,7 @@ def main():
                         start_objects.Dragging.dragging_to_placed_no_dups(mouse_coord)
                         if SwitchModesController.GAME_MODE == SwitchModesController.PLAY_MODE:
                             # Moves piece
+                            #%% I plan on having this in a new function within a class nto dependent on mouse click
                             MoveController.complete_move(mouse_coord, game_controller)
                             # Selects piece
                             MoveController.select_piece_unselect_all_others(mouse_coord, game_controller)
@@ -2045,7 +2044,23 @@ def main():
                     
                     # MIDDLE MOUSE DEBUGGER
                     if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[1]:
-                        pass
+                    #%% Middle mouse debugger
+                        def test_piece():
+                            for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
+                                for piece in piece_list:
+                                    if piece.rect.collidepoint(mousepos):
+                                        print("piece dict: " + str(piece.__dict__))
+                        def test_grid_str():
+                            for grid in board.Grid.grid_list:
+                                if grid.rect.collidepoint(mousepos):
+                                    log.info("Coordinate: " + str(grid.coordinate) \
+                                    + ", White Pieces Attacking: " + str(grid.coords_of_attacking_pieces['white']) \
+                                    + ", Black Pieces Attacking: " + str(grid.coords_of_attacking_pieces['black']) \
+                                    + ", grid variable: " + str(grid.highlighted) \
+                                    + ", White Pieces Protecting: " + str(grid.coords_of_protecting_pieces['white']) \
+                                    + ", Black Pieces Protecting: " + str(grid.coords_of_protecting_pieces['black']))
+                        test_grid_str()
+                        #test_piece()
                 ##################
                 # ALL EDIT ACTIONS
                 ##################
@@ -2141,10 +2156,12 @@ def main():
                     else:
                         lis.SCREEN.blit(render_text(GameProperties.Black), initvar.BLACK_X_Y)
                 pygame.display.update()
+                #print("MEOW 1123 " + today.strftime("%Y-%m-%d %H%M%S"))
             elif state == debug:
                 if debug_message == 1:
                     log.info("Entering debug mode")
                     debug_message = 0
+                    #%% Testing (space)
                     log.info("Use breakpoint here")
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
