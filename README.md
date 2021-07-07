@@ -5,13 +5,15 @@ Global variables for log at the top
 In GameController.switch_turn, the "for grid in board.Grid.grid_list" logic could be in GridController
 In GameController.__del__, at the end where it references menu_buttons, instead we could create PanelController and include those lines
 json_edits.py in the /Test/ folder to use rather than .lvl
+GameController.refresh_objects might want to combine with another method somewhere, might be redundant
+Shorten arguments for functions by if I can not require it (for example, def f(piece, color) could just be f(piece) with color = piece.color)
 
 ## Clean Code (short-term):
 Documentation
 Lint each file
 Parameterize text variables (or clean it up perhaps not include the text font name in the variable)
 Import packages and remove wild card in each files
-How to organize test functions and prints and lo(gs (separate from production)? Removing test comments
+How to organize test functions and prints and logs (separate from production)? Removing test comments
 iCCP errors (has to do with the way it was saved on photoshop)
 Combining classes or removing certain classes. And should there be helper functions outside of classes?
 (If possible) how to shorten number of arguments for functions
