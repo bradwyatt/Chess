@@ -59,3 +59,4 @@ ChessPositions/testing.lvl
 Sprites/Archive/
 *.stats
 .pylint.d/
+Test/
