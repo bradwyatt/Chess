@@ -7,6 +7,7 @@ In GameController.__del__, at the end where it references menu_buttons, instead 
 json_edits.py in the /Test/ folder to use rather than .lvl
 GameController.refresh_objects might want to combine with another method somewhere, might be redundant
 Shorten arguments for functions by if I can not require it (for example, def f(piece, color) could just be f(piece) with color = piece.color)
+The functions for SwitchModesController could be a lot shorter by creating methods on other classes (then referencing those).
 
 ## Clean Code (short-term):
 Documentation
