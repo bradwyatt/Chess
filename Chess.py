@@ -88,6 +88,9 @@ log.addHandler(console_handler)
 #############
 
 def pos_load_file(reset=False):
+    """
+    Load positions of the pieces
+    """
     open_file = None
     if reset:
         loaded_dict = {'white_pawn': ['a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'],
@@ -170,6 +173,9 @@ def get_dict_rect_positions():
     return get_coord_for_all_obj
 
 def pos_save_file():
+    """
+    Save positions of the pieces
+    """
     try:
         # default extension is optional, here will add .txt if missing
         save_file_prompt = asksaveasfilename(defaultextension=".lvl")
@@ -186,6 +192,10 @@ def pos_save_file():
         log.info("Save File Error (IOError)")
 
 def pos_lists_to_coord(pos_score_list):
+    """
+    When analyzing the board, the function returns the score
+    for each of the squares
+    """
     score_dict = {}
     coordinate_list = ['a8', 'b8', 'c8', 'd8', 'e8', 'f8', 'g8', 'h8',
                   'a7', 'b7', 'c7', 'd7', 'e7', 'f7', 'g7', 'h7',
@@ -462,7 +472,7 @@ class PgnWriterAndLoader():
                     prior_moves_dict, captured_abb, special_abb, promoted_queen = MoveController.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller)
                     check_abb = MoveController.game_status_check(game_controller)
                     MoveController.record_move(game_controller, board.Grid.grid_dict[grid_coordinate], piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen)
-                PanelController.draw_move_rects_on_moves_pane(pygame.font.SysFont('Verdana', 16))
+                PanelController.draw_move_rects_on_moves_pane(pygame.font.SysFont(initvar.FONT_NAME, initvar.MOVE_NOTATION_FONT_SIZE))
 
         def prior_move_grid_update(current_coord):
             for play_obj_list in play_objects.Piece_Lists_Shortcut.all_pieces():
@@ -1181,24 +1191,24 @@ class GameController():
 
 
 class TextController():
-    verdana_font = pygame.font.SysFont('Verdana', 24)
-    # Fonts for coordinates
-    coor_A_text = verdana_font.render("a", 1, initvar.UNIVERSAL_TEXT_COLOR)
-    coor_B_text = verdana_font.render("b", 1, initvar.UNIVERSAL_TEXT_COLOR)
-    coor_C_text = verdana_font.render("c", 1, initvar.UNIVERSAL_TEXT_COLOR)
-    coor_D_text = verdana_font.render("d", 1, initvar.UNIVERSAL_TEXT_COLOR)
-    coor_E_text = verdana_font.render("e", 1, initvar.UNIVERSAL_TEXT_COLOR)
-    coor_F_text = verdana_font.render("f", 1, initvar.UNIVERSAL_TEXT_COLOR)
-    coor_G_text = verdana_font.render("g", 1, initvar.UNIVERSAL_TEXT_COLOR)
-    coor_H_text = verdana_font.render("h", 1, initvar.UNIVERSAL_TEXT_COLOR)
-    coor_1_text = verdana_font.render("1", 1, initvar.UNIVERSAL_TEXT_COLOR)
-    coor_2_text = verdana_font.render("2", 1, initvar.UNIVERSAL_TEXT_COLOR)
-    coor_3_text = verdana_font.render("3", 1, initvar.UNIVERSAL_TEXT_COLOR)
-    coor_4_text= verdana_font.render("4", 1, initvar.UNIVERSAL_TEXT_COLOR)
-    coor_5_text = verdana_font.render("5", 1, initvar.UNIVERSAL_TEXT_COLOR)
-    coor_6_text = verdana_font.render("6", 1, initvar.UNIVERSAL_TEXT_COLOR)
-    coor_7_text= verdana_font.render("7", 1, initvar.UNIVERSAL_TEXT_COLOR)
-    coor_8_text = verdana_font.render("8", 1, initvar.UNIVERSAL_TEXT_COLOR)
+    move_notation_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, initvar.MOVE_NOTATION_FONT_SIZE)
+    universal_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, initvar.UNIVERSAL_FONT_SIZE)
+    coor_A_text = universal_font.render("a", 1, initvar.UNIVERSAL_TEXT_COLOR)
+    coor_B_text = universal_font.render("b", 1, initvar.UNIVERSAL_TEXT_COLOR)
+    coor_C_text = universal_font.render("c", 1, initvar.UNIVERSAL_TEXT_COLOR)
+    coor_D_text = universal_font.render("d", 1, initvar.UNIVERSAL_TEXT_COLOR)
+    coor_E_text = universal_font.render("e", 1, initvar.UNIVERSAL_TEXT_COLOR)
+    coor_F_text = universal_font.render("f", 1, initvar.UNIVERSAL_TEXT_COLOR)
+    coor_G_text = universal_font.render("g", 1, initvar.UNIVERSAL_TEXT_COLOR)
+    coor_H_text = universal_font.render("h", 1, initvar.UNIVERSAL_TEXT_COLOR)
+    coor_1_text = universal_font.render("1", 1, initvar.UNIVERSAL_TEXT_COLOR)
+    coor_2_text = universal_font.render("2", 1, initvar.UNIVERSAL_TEXT_COLOR)
+    coor_3_text = universal_font.render("3", 1, initvar.UNIVERSAL_TEXT_COLOR)
+    coor_4_text= universal_font.render("4", 1, initvar.UNIVERSAL_TEXT_COLOR)
+    coor_5_text = universal_font.render("5", 1, initvar.UNIVERSAL_TEXT_COLOR)
+    coor_6_text = universal_font.render("6", 1, initvar.UNIVERSAL_TEXT_COLOR)
+    coor_7_text= universal_font.render("7", 1, initvar.UNIVERSAL_TEXT_COLOR)
+    coor_8_text = universal_font.render("8", 1, initvar.UNIVERSAL_TEXT_COLOR)
     coor_letter_text_list = [coor_A_text, coor_B_text, coor_C_text, coor_D_text, coor_E_text, coor_F_text, coor_G_text, coor_H_text]
     coor_number_text_list = [coor_8_text, coor_7_text, coor_6_text, coor_5_text, coor_4_text, coor_3_text, coor_2_text, coor_1_text]
     check_checkmate_text = ""
@@ -1211,6 +1221,12 @@ class TextController():
         cls.coor_number_text_list.reverse()
         
 class MoveController():
+    """
+    Select piece on board, make the move, complete the move, 
+    check the game status (stalemate, checkmate, check), record the move
+    (use move_translator for converting move to notation). 
+    Ability to undo move
+    """
     @staticmethod
     def move_translator(piece_name, piece, captured_abb, special_abb="", check_abb=""):
         piece_abb = ""
@@ -1685,6 +1701,12 @@ class MoveController():
             log.info(game_controller.result_abb)
 
 class PanelController:
+    """
+    After a move is made, create a new instance of the Move number rectangle,
+    and the piece move rectangle
+    Then position text on those rectangles
+    When the amount of moves exceeds the parameter, scroll to the latest move
+    """
     @staticmethod
     def draw_text_on_rects_in_moves_pane(surface, my_font):
         for move_num_rect in menu_buttons.MoveNumberRectangle.rectangle_list:
@@ -1755,7 +1777,8 @@ class PanelController:
 
 def main():
     try:
-        #Tk box for when saving and loading
+        # Tk box for when saving and loading
+        # Must include this so the TK window doesn't stay in the background
         root = tk.Tk()
         root.withdraw()
         
@@ -1764,10 +1787,6 @@ def main():
         debug_message = 0
         
         clock = pygame.time.Clock()
-        
-        #Fonts
-        verdana_font = pygame.font.SysFont('Verdana', 24)
-        move_notation_font = pygame.font.SysFont('Verdana', 16)
         
         play_edit_switch_button = menu_buttons.PlayEditSwitchButton(initvar.PLAY_EDIT_SWITCH_BUTTON_TOPLEFT)
         flip_board_button = menu_buttons.FlipBoardButton(initvar.FLIP_BOARD_BUTTON_TOPLEFT)
@@ -1788,7 +1807,7 @@ def main():
         next_move_button = menu_buttons.NextMoveButton(initvar.NEXT_MOVE_BUTTON_TOPLEFT)
         last_move_button = menu_buttons.LastMoveButton(initvar.LAST_MOVE_BUTTON_TOPLEFT)
         undo_move_button = menu_buttons.UndoMoveButton(initvar.UNDO_MOVE_BUTTON_TOPLEFT)
-        #window
+        # Window
         gameicon = pygame.image.load("Sprites/chessico.png")
         pygame.display.set_icon(gameicon)
         pygame.display.set_caption('Chess')
@@ -2072,11 +2091,11 @@ def main():
                     for piece_move_rect in menu_buttons.PieceMoveRectangle.rectangle_list:
                         if piece_move_rect.move_number == MoveTracker.selected_move[0] and piece_move_rect.move_color == MoveTracker.selected_move[1]:
                             piece_move_rect.draw(lis.SCREEN)
-                    PanelController.draw_move_rects_on_moves_pane(move_notation_font)
+                    PanelController.draw_move_rects_on_moves_pane(TextController.move_notation_font)
                     # Update objects that aren't in a sprite group
                     scroll_up_button.draw(lis.SCREEN)
                     scroll_down_button.draw(lis.SCREEN, len(MoveTracker.df_moves))
-                render_text = lambda x: verdana_font.render(x, 1, initvar.UNIVERSAL_TEXT_COLOR)
+                render_text = lambda x: TextController.universal_font.render(x, 1, initvar.UNIVERSAL_TEXT_COLOR)
                 # Board Coordinates Drawing
                 for text in range(0,len(TextController.coor_letter_text_list)):
                     lis.SCREEN.blit(TextController.coor_letter_text_list[text], (initvar.X_GRID_START+board.X_GRID_WIDTH/3+(board.X_GRID_WIDTH*text), initvar.Y_GRID_START-(board.Y_GRID_HEIGHT*0.75)))
@@ -2085,20 +2104,20 @@ def main():
                     lis.SCREEN.blit(TextController.coor_number_text_list[text], (initvar.X_GRID_START-board.X_GRID_WIDTH/2, initvar.Y_GRID_START+board.Y_GRID_HEIGHT/4+(board.Y_GRID_HEIGHT*text)))
                     lis.SCREEN.blit(TextController.coor_number_text_list[text], (board.X_GRID_END+board.X_GRID_WIDTH/3, initvar.Y_GRID_START+board.Y_GRID_HEIGHT/4+(board.Y_GRID_HEIGHT*text)))
                 if SwitchModesController.GAME_MODE == SwitchModesController.PLAY_MODE:
-                    check_checkmate_text_render = verdana_font.render(TextController.check_checkmate_text, 1, initvar.UNIVERSAL_TEXT_COLOR)
+                    check_checkmate_text_render = TextController.universal_font.render(TextController.check_checkmate_text, 1, initvar.UNIVERSAL_TEXT_COLOR)
                     if GridController.flipped:
                         if game_controller.whoseturn == "white" and game_controller.result_abb == "*":
-                            whose_turn_text = verdana_font.render("White's move", 1, initvar.UNIVERSAL_TEXT_COLOR)
+                            whose_turn_text = TextController.universal_font.render("White's move", 1, initvar.UNIVERSAL_TEXT_COLOR)
                             lis.SCREEN.blit(whose_turn_text, initvar.BLACK_MOVE_X_Y)
                         elif game_controller.whoseturn == "black" and game_controller.result_abb == "*":
-                            whose_turn_text = verdana_font.render("Black's move", 1, initvar.UNIVERSAL_TEXT_COLOR)
+                            whose_turn_text = TextController.universal_font.render("Black's move", 1, initvar.UNIVERSAL_TEXT_COLOR)
                             lis.SCREEN.blit(whose_turn_text, initvar.WHITE_MOVE_X_Y)
                     else:
                         if game_controller.whoseturn == "white" and game_controller.result_abb == "*":
-                            whose_turn_text = verdana_font.render("White's move", 1, initvar.UNIVERSAL_TEXT_COLOR)
+                            whose_turn_text = TextController.universal_font.render("White's move", 1, initvar.UNIVERSAL_TEXT_COLOR)
                             lis.SCREEN.blit(whose_turn_text, initvar.WHITE_MOVE_X_Y)
                         elif game_controller.whoseturn == "black" and game_controller.result_abb == "*":
-                            whose_turn_text = verdana_font.render("Black's move", 1, initvar.UNIVERSAL_TEXT_COLOR)
+                            whose_turn_text = TextController.universal_font.render("Black's move", 1, initvar.UNIVERSAL_TEXT_COLOR)
                             lis.SCREEN.blit(whose_turn_text, initvar.BLACK_MOVE_X_Y)
                     lis.SCREEN.blit(check_checkmate_text_render, initvar.CHECK_CHECKMATE_X_Y)
                 if GridController.flipped:

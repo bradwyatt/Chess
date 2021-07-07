@@ -69,8 +69,11 @@ MOVES_PANE_BLACK_X = 1270
 
 MOVE_TEXT_COLOR_ON_PANE = [255,255,255]
 RECTANGLE_FILL_COLOR = (152, 193, 248)
-#UNIVERSAL_TEXT_COLOR = (44, 144, 218)
 UNIVERSAL_TEXT_COLOR = (255, 255, 255)
+
+UNIVERSAL_FONT_NAME = 'Verdana'
+UNIVERSAL_FONT_SIZE = 24
+MOVE_NOTATION_FONT_SIZE = 16
 
 # Piece Square Table for Analyzing Board (from White's perspective)
 # Rook and Queen should not have any position advantages
