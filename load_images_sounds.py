@@ -2,8 +2,6 @@ import sys
 import os
 import pygame
 from pygame.constants import RLEACCEL
-from pygame.locals import (KEYDOWN, MOUSEBUTTONDOWN, MOUSEBUTTONUP, K_LEFT,
-                           K_RIGHT, QUIT, K_ESCAPE)
 import initvar
 
 IMAGES = {}

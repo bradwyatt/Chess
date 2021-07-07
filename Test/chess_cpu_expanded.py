@@ -1,6 +1,38 @@
 # pylint: disable=E1101
 """
 Chess created by Brad Wyatt
+
+Clean Code (short-term):
+Documentation
+Lint each file
+Parameterize text variables (or clean it up perhaps not include the text font name in the variable)
+Import packages and remove wild card in each files
+How to organize test functions and prints and lo(gs (separate from production)? Removing test comments
+iCCP errors (has to do with the way it was saved on photoshop)
+Combining classes or removing certain classes. And should there be helper functions outside of classes?
+(If possible) how to shorten number of arguments for functions
+
+Clean Code (long-term):
+EditModeController to handle all the clicking event functions
+Panel classes in separate file (instead of menu_buttons)?
+Re-examine sprite groups?
+Feedback
+
+Design improvements:
+If a piece moves one square, the two squares looks like a two piece in a row blob. Should the square have an outline?
+Reset Board and Clear Board, clearly distinguish the buttons?
+Black pieces to be lighter color?
+
+Features To-Do (long-term):
+Save positions as a .json rather than .lvl
+AI (save and load states)
+Customized Turns for black and white
+Choose piece for Promotion
+Sounds
+If no king then don't start game
+Themes
+Grid using color rather than sprite
+AI or human on BOTH sides
 """
 import random
 import sys
@@ -24,6 +56,7 @@ import start_objects
 import placed_objects
 import play_objects
 import replayed_objects
+
 
 #############
 # Logging
@@ -439,7 +472,7 @@ class PgnWriterAndLoader():
                     prior_moves_dict, captured_abb, special_abb, promoted_queen = MoveController.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller)
                     check_abb = MoveController.game_status_check(game_controller)
                     MoveController.record_move(game_controller, board.Grid.grid_dict[grid_coordinate], piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen)
-                PanelController.draw_move_rects_on_moves_pane(pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, initvar.MOVE_NOTATION_FONT_SIZE))
+                PanelController.draw_move_rects_on_moves_pane(pygame.font.SysFont(initvar.FONT_NAME, initvar.MOVE_NOTATION_FONT_SIZE))
 
         def prior_move_grid_update(current_coord):
             for play_obj_list in play_objects.Piece_Lists_Shortcut.all_pieces():
@@ -801,6 +834,7 @@ class CpuController():
     black_rook_pos_score_dict = pos_lists_to_coord([0]*64)
     white_queen_pos_score_dict = pos_lists_to_coord([0]*64)
     black_queen_pos_score_dict = pos_lists_to_coord([0]*64)
+    #%% Currently working on
     @classmethod
     def cpu_mode_toggle(cls):
         if not cls.cpu_mode:
@@ -1046,13 +1080,7 @@ class GameController():
         for grid in board.Grid.grid_list:
             grid.no_highlight()
     def __del__(self):
-        """
-        GameController can get deleted when going to Edit Mode
-        Remove Check and Checkmate Text
-        Destroy all play objects and remove them from list
-        Reset all the grids
-        """
-        TextController.remove_check_checkmate_text()
+        TextController.reset_check_checkmate_text()
         # Kill all Objects within their Class lists/dicts
         for spr_list in play_objects.Piece_Lists_Shortcut.all_pieces():
             for obj in spr_list:
@@ -1082,19 +1110,6 @@ class GameController():
         menu_buttons.PieceMoveRectangle.rectangle_dict = {}
         menu_buttons.PanelRectangles.scroll_range = [1, initvar.MOVES_PANE_MAX_MOVES]
     def switch_turn(self, color_turn, undo=False):
-        """
-        Change turn
-        If it was in check, it is no longer in check, and no more check piece
-        Reset the grid variables about attacking pieces, available pieces
-        Pieces that were labeled as attacking in grids, now become protecting
-        since the turn switched
-        Reset pinned pieces
-        
-        Checks if it is white move. If so, remove black check.
-        Project black moves.
-        If the grid white king is on has attacking pieces, then it is in check
-        If double check then disable pieces from moving
-        """
         self.whoseturn = color_turn
         self.check_attacking_coordinates = []
         self.attacker_piece = ""
@@ -1160,40 +1175,25 @@ class GameController():
                     sub_piece.spaces_available(self)
             GridController.update_grid_occupied_detection()
     def projected_white_update(self):
-        """
-        Project white pieces attacking movements
-        """
+        # Project pieces attacking movements starting now
         for piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
             for piece in piece_list:
                 piece.projected(self)
     def projected_black_update(self):
-        """
-        Project black pieces attacking movements
-        """
+        # Project pieces attacking movements starting now
         for piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
             for piece in piece_list:
                 piece.projected(self)
     @staticmethod
     def pinned_piece(pinned_piece_coordinate, pin_attacking_coordinates, color):
-        """
-        Iterates through all pieces to find the one that matches
-        the coordinate with the pin
-        """
+        # Iterates through all pieces to find the one that matches
+        # the coordinate with the pin
         for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
             for piece in piece_list:
                 if board.Grid.grid_dict[pinned_piece_coordinate].coordinate == piece.coordinate \
                 and piece.color == color:
                     piece.pinned_restrict(pin_attacking_coordinates)
     def king_in_check(self, attacker_piece, check_attacking_coordinates, color):
-        """
-        This function is called when projected from piece hits king
-        For example, if white bishop checks black king, 
-        the white bishop's projected function calls king_in_check function
-        
-        This is an instance method because GameController keeps track of the 
-        color of who is in check, the coordinates of the attacking coordinates,
-        and the piece that is attacking
-        """
         self.color_in_check = color
         self.check_attacking_coordinates = check_attacking_coordinates
         self.attacker_piece = attacker_piece
@@ -1224,7 +1224,7 @@ class TextController():
     coor_number_text_list = [coor_8_text, coor_7_text, coor_6_text, coor_5_text, coor_4_text, coor_3_text, coor_2_text, coor_1_text]
     check_checkmate_text = ""
     @classmethod
-    def remove_check_checkmate_text(cls):
+    def reset_check_checkmate_text(cls):
         """
         Not in check or checkmate, or resetting the game
         """
@@ -1438,8 +1438,10 @@ class MoveController():
                 GridController.update_prior_move_color("white")
                 cls.game_status_check(game_controller)
                 log.info("Back to (" + str(len(MoveTracker.df_moves)) + ".) " + "White undo turn " + str(piece_to_undo) + " going back to " + str(piece_to_undo.coordinate))
+            #print("game_controller df: \n" + str(MoveTracker.df_moves))
     @classmethod
     def complete_move(cls, new_coord, game_controller):
+        #%% WIP
         for grid in board.Grid.grid_list:
             for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
                 for piece in piece_list:
@@ -1992,6 +1994,7 @@ def main():
                         start_objects.Dragging.dragging_to_placed_no_dups(mouse_coord)
                         if SwitchModesController.GAME_MODE == SwitchModesController.PLAY_MODE:
                             # Moves piece
+                            #%% I plan on having this in a new function within a class nto dependent on mouse click
                             MoveController.complete_move(mouse_coord, game_controller)
                             # Selects piece
                             MoveController.select_piece_unselect_all_others(mouse_coord, game_controller)
@@ -2041,7 +2044,23 @@ def main():
                     
                     # MIDDLE MOUSE DEBUGGER
                     if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[1]:
-                        pass
+                    #%% Middle mouse debugger
+                        def test_piece():
+                            for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
+                                for piece in piece_list:
+                                    if piece.rect.collidepoint(mousepos):
+                                        print("piece dict: " + str(piece.__dict__))
+                        def test_grid_str():
+                            for grid in board.Grid.grid_list:
+                                if grid.rect.collidepoint(mousepos):
+                                    log.info("Coordinate: " + str(grid.coordinate) \
+                                    + ", White Pieces Attacking: " + str(grid.coords_of_attacking_pieces['white']) \
+                                    + ", Black Pieces Attacking: " + str(grid.coords_of_attacking_pieces['black']) \
+                                    + ", grid variable: " + str(grid.highlighted) \
+                                    + ", White Pieces Protecting: " + str(grid.coords_of_protecting_pieces['white']) \
+                                    + ", Black Pieces Protecting: " + str(grid.coords_of_protecting_pieces['black']))
+                        test_grid_str()
+                        #test_piece()
                 ##################
                 # ALL EDIT ACTIONS
                 ##################
@@ -2137,10 +2156,12 @@ def main():
                     else:
                         lis.SCREEN.blit(render_text(GameProperties.Black), initvar.BLACK_X_Y)
                 pygame.display.update()
+                #print("MEOW 1123 " + today.strftime("%Y-%m-%d %H%M%S"))
             elif state == debug:
                 if debug_message == 1:
                     log.info("Entering debug mode")
                     debug_message = 0
+                    #%% Testing (space)
                     log.info("Use breakpoint here")
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:

@@ -110,12 +110,12 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                         grid.attack_count_increment(self.color, self.coordinate)
                         if grid.occupied_piece == "king" and grid.occupied_piece_color == self.enemy_color:
                             #log.info("Check for coordinate " + str(grid.coordinate))
-                            game_controller.king_in_check("pawn", self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
+                            game_controller.king_in_check("pawn", self.proj_attacking_coordinates, self.enemy_color)
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and int(grid.coordinate[1]) == int(self.coordinate[1])+1):
                         grid.attack_count_increment(self.color, self.coordinate)
                         if grid.occupied_piece == "king" and grid.occupied_piece_color == self.enemy_color:
                             #log.info("Check for coordinate " + str(grid.coordinate))
-                            game_controller.king_in_check("pawn", self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
+                            game_controller.king_in_check("pawn", self.proj_attacking_coordinates, self.enemy_color)
             elif(self.color == "black"):
                 for grid in board.Grid.grid_list:
                     # Enemy pieces
@@ -123,12 +123,12 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
                         grid.attack_count_increment(self.color, self.coordinate)
                         if grid.occupied_piece == "king" and grid.occupied_piece_color == self.enemy_color:
                             #log.info("Check for coordinate " + str(grid.coordinate))
-                            game_controller.king_in_check("pawn", self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
+                            game_controller.king_in_check("pawn", self.proj_attacking_coordinates, self.enemy_color)
                     if (ord(grid.coordinate[0]) == ord(self.coordinate[0])+1 and int(grid.coordinate[1]) == int(self.coordinate[1])-1):
                         grid.attack_count_increment(self.color, self.coordinate)
                         if grid.occupied_piece == "king" and grid.occupied_piece_color == self.enemy_color:
                             #log.info("Check for coordinate " + str(grid.coordinate))
-                            game_controller.king_in_check("pawn", self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
+                            game_controller.king_in_check("pawn", self.proj_attacking_coordinates, self.enemy_color)
                 
     def spaces_available(self, game_controller):
         if(self.taken_off_board != True and self.disable == False):
@@ -232,7 +232,7 @@ class PlayKnight(ChessPiece, pygame.sprite.Sprite):
                         grid.attack_count_increment(self.color, self.coordinate)
                         if grid.occupied_piece == "king" and grid.occupied_piece_color == self.enemy_color:
                             #log.info("Check for coordinate " + str(grid.coordinate))
-                            game_controller.king_in_check("knight", self.coordinate, self.proj_attacking_coordinates, self.enemy_color)
+                            game_controller.king_in_check("knight", self.proj_attacking_coordinates, self.enemy_color)
             knight_proj_direction(-1, -2)
             knight_proj_direction(-1, 2)
             knight_proj_direction(1, -2)
@@ -305,7 +305,7 @@ def bishop_projected(piece_name, piece, game_controller, x, y):
                 proj_attacking_coordinates.append(grid.coordinate) 
                 # If King is already in check and it's iterating to next occupied grid space
                 if(pieces_in_way == 1 and king_count == 1):
-                    game_controller.king_in_check(piece_name, piece.coordinate, proj_attacking_coordinates, piece.enemy_color)
+                    game_controller.king_in_check(piece_name, proj_attacking_coordinates, piece.enemy_color)
                     return
                 # Passing this piece's coordinate to this grid
                 if pinned_piece_coord is None:
@@ -335,7 +335,7 @@ def bishop_projected(piece_name, piece, game_controller, x, y):
                     # Corner case where king is on the edge of the board
                     if((grid.coordinate[0] == 'a' and x == -1) or (grid.coordinate[0] == 'h' and x == 1) or \
                        (int(grid.coordinate[1]) == 8 and y == 1) or (int(grid.coordinate[1]) == 1 and y == -1)):
-                        game_controller.king_in_check(piece_name, piece.coordinate, proj_attacking_coordinates, piece.enemy_color)
+                        game_controller.king_in_check(piece_name, proj_attacking_coordinates, piece.enemy_color)
                         return
 
 def bishop_direction_spaces_available(bishop, game_controller, x, y):
@@ -471,7 +471,7 @@ def rook_projected(piece_name, piece, game_controller, x, y):
                 proj_attacking_coordinates.append(grid.coordinate)
                 # If King is already in check and it's iterating to next occupied grid space
                 if(pieces_in_way == 1 and king_count == 1):
-                    game_controller.king_in_check(piece_name, piece.coordinate, proj_attacking_coordinates, piece.enemy_color)
+                    game_controller.king_in_check(piece_name, proj_attacking_coordinates, piece.enemy_color)
                     return
                 # Passing this piece's coordinate to this grid
                 if pinned_piece_coord is None:
@@ -500,7 +500,7 @@ def rook_projected(piece_name, piece, game_controller, x, y):
                     # If the grid is at the last attacking square, there won't be a next iteration, so call king_in_check
                     if((grid.coordinate[0] == 'a' and y == 0) or (grid.coordinate[0] == 'h' and y == 0) or \
                        (int(grid.coordinate[1]) == 1 and x == 0) or (int(grid.coordinate[1]) == 8 and x == 0)):
-                        game_controller.king_in_check(piece_name, piece.coordinate, proj_attacking_coordinates, piece.enemy_color)
+                        game_controller.king_in_check(piece_name, proj_attacking_coordinates, piece.enemy_color)
                         return
     return
 
