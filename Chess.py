@@ -1,38 +1,6 @@
 # pylint: disable=E1101
 """
 Chess created by Brad Wyatt
-
-Clean Code (short-term):
-Documentation
-Lint each file
-Parameterize text variables (or clean it up perhaps not include the text font name in the variable)
-Import packages and remove wild card in each files
-How to organize test functions and prints and lo(gs (separate from production)? Removing test comments
-iCCP errors (has to do with the way it was saved on photoshop)
-Combining classes or removing certain classes. And should there be helper functions outside of classes?
-(If possible) how to shorten number of arguments for functions
-
-Clean Code (long-term):
-EditModeController to handle all the clicking event functions
-Panel classes in separate file (instead of menu_buttons)?
-Re-examine sprite groups?
-Feedback
-
-Design improvements:
-If a piece moves one square, the two squares looks like a two piece in a row blob. Should the square have an outline?
-Reset Board and Clear Board, clearly distinguish the buttons?
-Black pieces to be lighter color?
-
-Features To-Do (long-term):
-Save positions as a .json rather than .lvl
-AI (save and load states)
-Customized Turns for black and white
-Choose piece for Promotion
-Sounds
-If no king then don't start game
-Themes
-Grid using color rather than sprite
-AI or human on BOTH sides
 """
 import random
 import sys
@@ -56,7 +24,6 @@ import start_objects
 import placed_objects
 import play_objects
 import replayed_objects
-
 
 #############
 # Logging
@@ -1079,7 +1046,13 @@ class GameController():
         for grid in board.Grid.grid_list:
             grid.no_highlight()
     def __del__(self):
-        TextController.reset_check_checkmate_text()
+        """
+        GameController can get deleted when going to Edit Mode
+        Remove Check and Checkmate Text
+        Destroy all play objects and remove them from list
+        Reset all the grids
+        """
+        TextController.remove_check_checkmate_text()
         # Kill all Objects within their Class lists/dicts
         for spr_list in play_objects.Piece_Lists_Shortcut.all_pieces():
             for obj in spr_list:
@@ -1109,6 +1082,19 @@ class GameController():
         menu_buttons.PieceMoveRectangle.rectangle_dict = {}
         menu_buttons.PanelRectangles.scroll_range = [1, initvar.MOVES_PANE_MAX_MOVES]
     def switch_turn(self, color_turn, undo=False):
+        """
+        Change turn
+        If it was in check, it is no longer in check, and no more check piece
+        Reset the grid variables about attacking pieces, available pieces
+        Pieces that were labeled as attacking in grids, now become protecting
+        since the turn switched
+        Reset pinned pieces
+        
+        Checks if it is white move. If so, remove black check.
+        Project black moves.
+        If the grid white king is on has attacking pieces, then it is in check
+        If double check then disable pieces from moving
+        """
         self.whoseturn = color_turn
         self.check_attacking_coordinates = []
         self.attacker_piece = ""
@@ -1174,19 +1160,25 @@ class GameController():
                     sub_piece.spaces_available(self)
             GridController.update_grid_occupied_detection()
     def projected_white_update(self):
-        # Project pieces attacking movements starting now
+        """
+        Project white pieces attacking movements
+        """
         for piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
             for piece in piece_list:
                 piece.projected(self)
     def projected_black_update(self):
-        # Project pieces attacking movements starting now
+        """
+        Project black pieces attacking movements
+        """
         for piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
             for piece in piece_list:
                 piece.projected(self)
     @staticmethod
     def pinned_piece(pinned_piece_coordinate, pin_attacking_coordinates, color):
-        # Iterates through all pieces to find the one that matches
-        # the coordinate with the pin
+        """
+        Iterates through all pieces to find the one that matches
+        the coordinate with the pin
+        """
         for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
             for piece in piece_list:
                 if board.Grid.grid_dict[pinned_piece_coordinate].coordinate == piece.coordinate \
@@ -1197,6 +1189,10 @@ class GameController():
         This function is called when projected from piece hits king
         For example, if white bishop checks black king, 
         the white bishop's projected function calls king_in_check function
+        
+        This is an instance method because GameController keeps track of the 
+        color of who is in check, the coordinates of the attacking coordinates,
+        and the piece that is attacking
         """
         self.color_in_check = color
         self.check_attacking_coordinates = check_attacking_coordinates
@@ -1228,7 +1224,7 @@ class TextController():
     coor_number_text_list = [coor_8_text, coor_7_text, coor_6_text, coor_5_text, coor_4_text, coor_3_text, coor_2_text, coor_1_text]
     check_checkmate_text = ""
     @classmethod
-    def reset_check_checkmate_text(cls):
+    def remove_check_checkmate_text(cls):
         """
         Not in check or checkmate, or resetting the game
         """
