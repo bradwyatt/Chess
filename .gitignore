@@ -5,7 +5,7 @@
 *.stats
 *.spec
 *.psd
-Sprites/Archive/
-*.stats
-.pylint.d/
-Test/
+Sprites/Archive/*
+*.stats*
+.pylint.d/*
+Test/*
