@@ -1,10 +1,13 @@
 # Chess
 
 ## Instructions
-### File Structure
 Chess.py --> Execute this file to play  
 initvar.py --> Review this file and check if EXE_MODE = False and TEST_MODE = False  
 Create a "logs" folder  
+
+### File Structure
+Chess.py --> Execute this file to play  
+initvar.py --> Review this file and check if EXE_MODE = False and TEST_MODE = False  
 
 ### Workflow
 
