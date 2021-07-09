@@ -55,9 +55,7 @@ log.addHandler(console_handler)
 #############
 
 def pos_load_file(reset=False):
-    """
-    Load positions of the pieces
-    """
+    """Load positions of the pieces"""
     open_file = None
     if reset:
         loaded_dict = {'white_pawn': ['a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'],
@@ -116,9 +114,7 @@ def pos_load_file(reset=False):
     return
 
 def get_dict_rect_positions():
-    """
-    Returns the tuples of each objects' positions within all classes
-    """
+    """Returns the tuples of each objects' positions within all classes"""
     total_placed_list = {'white_pawn': placed_objects.PlacedPawn.white_pawn_list,
                          'white_bishop': placed_objects.PlacedBishop.white_bishop_list,
                          'white_knight': placed_objects.PlacedKnight.white_knight_list,
@@ -140,9 +136,7 @@ def get_dict_rect_positions():
     return get_coord_for_all_obj
 
 def pos_save_file():
-    """
-    Save positions of the pieces
-    """
+    """Save positions of the pieces"""
     try:
         # default extension is optional, here will add .txt if missing
         save_file_prompt = asksaveasfilename(defaultextension=".lvl")
@@ -596,16 +590,21 @@ class GridController():
                     piece.prior_move_update()
 
 class SwitchModesController():
+    """ Switching modes """
     EDIT_MODE, PLAY_MODE = 0, 1
     GAME_MODE = EDIT_MODE
     REPLAYED = False
     @classmethod
     def switch_mode(cls, game_mode, play_edit_switch_button):
+        """
+        When edit mode is selected, then switch the image of game mode button,
+        and reset the check/checkmate text
+        """
         if game_mode == cls.EDIT_MODE:
             log.info("\nEditing Mode Activated\n")
             cls.GAME_MODE = cls.EDIT_MODE
             play_edit_switch_button.image = play_edit_switch_button.game_mode_button(cls.GAME_MODE)
-            TextController.check_checkmate_text = ""
+            TextController.remove_check_checkmate_text()
         elif game_mode == cls.PLAY_MODE:
             log.info("Play Mode Activated\n")
             cls.GAME_MODE = cls.PLAY_MODE
@@ -706,6 +705,7 @@ class SwitchModesController():
         GridController.prior_move_color(old_grid_coordinate_before, old_piece)
     @classmethod
     def replayed_game(cls, replayed, game_controller, start_beginning=False):
+        """Create replay objects where play objects are"""
         cls.REPLAYED = replayed
         if cls.REPLAYED:
             replayed_objects.remove_all_replayed()
@@ -810,9 +810,7 @@ class CpuController():
     black_queen_pos_score_dict = pos_lists_to_coord([0]*64)
     @classmethod
     def cpu_mode_toggle(cls):
-        """
-        Flip mode based on the CPU or Human toggle button on Edit mode
-        """
+        """ Flip mode based on the CPU or Human toggle button"""
         if not cls.cpu_mode:
             cls.cpu_mode = True
         elif cls.cpu_mode:
@@ -988,9 +986,7 @@ class GameController():
         self.captured_pieces_flip(flipped)
         self.result_abb = "*"
     def captured_pieces_flip(self, flipped):
-        """
-        When board is flipped, the captured pieces outside of board also flips
-        """
+        """When board is flipped, the captured pieces outside of board also flips"""
         if not flipped:
             self.white_captured_y = initvar.WHITE_CAPTURED_Y
             self.black_captured_y = initvar.BLACK_CAPTURED_Y
@@ -1134,16 +1130,12 @@ class GameController():
                     sub_piece.spaces_available(self)
             GridController.update_grid_occupied_detection()
     def projected_white_update(self):
-        """
-        Project white pieces attacking movements
-        """
+        """Project white pieces attacking movements"""
         for piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
             for piece in piece_list:
                 piece.projected(self)
     def projected_black_update(self):
-        """
-        Project black pieces attacking movements
-        """
+        """Project black pieces attacking movements"""
         for piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
             for piece in piece_list:
                 piece.projected(self)
@@ -1173,9 +1165,7 @@ class GameController():
         self.attacker_piece = attacker_piece
 
 class TextController():
-    """
-    Handle all text objects in this class
-    """
+    """Handle all text objects in this class"""
     universal_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, initvar.UNIVERSAL_FONT_SIZE)
     move_notation_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, initvar.MOVE_NOTATION_FONT_SIZE)
     coor_A_text = universal_font.render("a", 1, initvar.UNIVERSAL_TEXT_COLOR)
@@ -1199,15 +1189,11 @@ class TextController():
     check_checkmate_text = ""
     @classmethod
     def remove_check_checkmate_text(cls):
-        """
-        Not in check or checkmate, or resetting the game
-        """
+        """Not in check or checkmate, or resetting the game"""
         cls.check_checkmate_text = ""
     @classmethod
     def flip_board(cls):
-        """
-        Coordinate texts flip when the board flips
-        """
+        """Coordinate texts flip when the board flips"""
         cls.coor_letter_text_list.reverse()
         cls.coor_number_text_list.reverse()
         
@@ -1840,7 +1826,6 @@ def main():
                     if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] \
                         and (mousepos[0] > board.X_GRID_END or mousepos[1] < initvar.Y_GRID_START \
                              or mousepos[0] < initvar.X_GRID_START or mousepos[1] > board.Y_GRID_END):
-                        #%% Left click buttons
                         if scroll_up_button.rect.collidepoint(mousepos) and menu_buttons.PanelRectangles.scroll_range[0] > 1: # Scroll up
                             if scroll_up_button.activate:    
                                 PanelController.update_scroll_range(-1)
