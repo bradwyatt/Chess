@@ -1,4 +1,5 @@
 # pylint: disable=E1101
+# The above errors are due to pylint not being able to read variables from 3rd party libraries
 """
 Chess created by Brad Wyatt
 """
@@ -35,9 +36,9 @@ log.handlers = []
 log.setLevel(logging.INFO)
 
 # Handlers for logging errors
-if not initvar.exe_mode:
+if not initvar.EXE_MODE:
     log_file_name = "{0}.log".format(today.strftime("%Y-%m-%d %H%M%S"))
-    log_file = os.path.join(initvar.logs_folder, log_file_name)
+    log_file = os.path.join(initvar.LOGS_FOLDER, log_file_name)
     file_handler = logging.FileHandler(log_file)
     log_file_formatter = logging.Formatter("%(levelname)s %(asctime)s %(funcName)s %(lineno)d %(message)s")
     file_handler.setFormatter(log_file_formatter)

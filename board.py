@@ -1,29 +1,34 @@
+"""
+Grid class along with the creation of grid squares with coordinate
+"""
 import pygame
-from load_images_sounds import *
+import load_images_sounds as lis
 import initvar
 
 GRID_SPRITES = pygame.sprite.Group()
 
 class Grid(pygame.sprite.Sprite):
+    # pylint: disable=W0201
+    # reset_play_interaction_vars defines init variables (not detected by pylint)
     grid_list = []
     grid_dict = {}
-    def __init__(self, GRID_SPRITES, color, pos, coordinate):
+    def __init__(self, color, pos, given_coordinate):
         pygame.sprite.Sprite.__init__(self)
         self.color = color
-        if(self.color == "green"):
-            self.image = IMAGES["SPR_GREEN_GRID"]
-        elif(self.color == "white"):
-            self.image = IMAGES["SPR_WHITE_GRID"]
+        if self.color == "green":
+            self.image = lis.IMAGES["SPR_GREEN_GRID"]
+        elif self.color == "white":
+            self.image = lis.IMAGES["SPR_WHITE_GRID"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         GRID_SPRITES.add(self)
         self.initial_rect_top_left = pos
-        self.coordinate = coordinate
+        self.coordinate = given_coordinate
         Grid.grid_list.append(self)
         Grid.grid_dict[self.coordinate] = self
         self.reset_play_interaction_vars()
     def reset_play_interaction_vars(self):
-        # Reset all variables that interact with play pieces
+        """Reset all variables that interact with play pieces"""
         self.prior_move_color = False
         self.en_passant_skipover = False
         self.occupied = False
@@ -33,38 +38,47 @@ class Grid(pygame.sprite.Sprite):
         self.coords_of_protecting_pieces = {'white': [], 'black': []}
         self.coords_of_attacking_pieces = {'white': [], 'black': []}
         self.coords_of_available_pieces = {'white': [], 'black': []}
-    def attack_count_reset(self):
-        self.coords_of_attacking_pieces = {'white': [], 'black': []}
+        self.highlighted = False
     def attack_count_increment(self, piece_color, attack_coord):
+        """
+        Update coords_of_attacking_pieces list with the attacking piece,
+        and the coordinate of that attacking piece
+        """
         if piece_color == "white":
             self.coords_of_attacking_pieces['white'].append(attack_coord)
         elif piece_color == "black":
             self.coords_of_attacking_pieces['black'].append(attack_coord)
     def update(self, game_controller):
-        pass
+        """Update function required in pygame sprite group"""
     def available_count_increment(self, color, piece_coord):
+        """
+        Update coords_of_available_pieces list with the piece that is able to
+        legally move there, and the coordinate of that piece
+        """
         if color == "white" and piece_coord not in self.coords_of_available_pieces['white']:
             self.coords_of_available_pieces['white'].append(piece_coord)
         elif color == "black" and piece_coord not in self.coords_of_available_pieces['black']:
             self.coords_of_available_pieces['black'].append(piece_coord)
     def highlight(self, color, piece_coord):
-        if initvar.test_mode == True:
-            self.image = IMAGES["SPR_HIGHLIGHT"]
+        if initvar.TEST_MODE == True:
+            # Yellow highlight for test mode, used for seeing the highlighted
+            # square based on available move from selected piece
+            self.image = lis.IMAGES["SPR_HIGHLIGHT"]
         self.highlighted = True
         self.available_count_increment(color, piece_coord)
     def no_highlight(self):
-        if(self.prior_move_color == True):
-            self.image = IMAGES["SPR_PRIOR_MOVE_GRID"]
-        elif(self.color == "green"):
-            self.image = IMAGES["SPR_GREEN_GRID"]
-        elif(self.color == "white"):
-            self.image = IMAGES["SPR_WHITE_GRID"]
+        if self.prior_move_color == True:
+            self.image = lis.IMAGES["SPR_PRIOR_MOVE_GRID"]
+        elif self.color == "green":
+            self.image = lis.IMAGES["SPR_GREEN_GRID"]
+        elif self.color == "white":
+            self.image = lis.IMAGES["SPR_WHITE_GRID"]
         self.highlighted = False
 
 # Retrieve Width and Height
-assert IMAGES["SPR_GREEN_GRID"].get_size() == IMAGES["SPR_WHITE_GRID"].get_size()
-X_GRID_WIDTH = IMAGES["SPR_GREEN_GRID"].get_width()
-Y_GRID_HEIGHT = IMAGES["SPR_GREEN_GRID"].get_height()
+assert lis.IMAGES["SPR_GREEN_GRID"].get_size() == lis.IMAGES["SPR_WHITE_GRID"].get_size()
+X_GRID_WIDTH = lis.IMAGES["SPR_GREEN_GRID"].get_width()
+Y_GRID_HEIGHT = lis.IMAGES["SPR_GREEN_GRID"].get_height()
 X_GRID_END = initvar.X_GRID_START+(X_GRID_WIDTH*8)
 Y_GRID_END = initvar.Y_GRID_START+(Y_GRID_HEIGHT*8)
 XGRIDRANGE = [initvar.X_GRID_START, X_GRID_END, X_GRID_WIDTH] # 1st num: begin 2nd: end 3rd: step
@@ -81,16 +95,16 @@ for coordinate in coordinates_dict_with_pos.keys():
     for i in range(ord("a"), ord("h"), 2):
         for j in range(2, 9, 2):
             if(ord(coordinate[0]) == i and int(coordinate[1]) == j):
-                Grid(GRID_SPRITES, "white", coordinates_dict_with_pos[coordinate], coordinate)
+                Grid("white", coordinates_dict_with_pos[coordinate], coordinate)
     for i in range(ord("b"), ord("i"), 2):
         for j in range(1, 8, 2):
             if(ord(coordinate[0]) == i and int(coordinate[1]) == j):
-                Grid(GRID_SPRITES, "white", coordinates_dict_with_pos[coordinate], coordinate)
+                Grid("white", coordinates_dict_with_pos[coordinate], coordinate)
     for i in range(ord("a"), ord("h"), 2):
         for j in range(1, 8, 2):
             if(ord(coordinate[0]) == i and int(coordinate[1]) == j):
-                Grid(GRID_SPRITES, "green", coordinates_dict_with_pos[coordinate], coordinate)
+                Grid("green", coordinates_dict_with_pos[coordinate], coordinate)
     for i in range(ord("b"), ord("i"), 2):
         for j in range(2, 9, 2):
             if(ord(coordinate[0]) == i and int(coordinate[1]) == j):
-                Grid(GRID_SPRITES, "green", coordinates_dict_with_pos[coordinate], coordinate)
+                Grid("green", coordinates_dict_with_pos[coordinate], coordinate)

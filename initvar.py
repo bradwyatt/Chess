@@ -1,11 +1,14 @@
+"""
+Chess.py uses the parameters below
+"""
 #################
 # USER CAN SET BELOW PARAMETERS
 #################
 
-exe_mode = False
-test_mode = False
+EXE_MODE = False
+TEST_MODE = False
 
-logs_folder = 'C:/Users/Brad/Documents/GitHub/Chess/logs/'
+LOGS_FOLDER = 'C:/Users/Brad/Documents/GitHub/Chess/logs/'
 
 #################
 # RECOMMENDED PARAMETERS ARE SET BELOW FOR POSITIONING OF OBJECTS
