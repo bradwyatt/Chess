@@ -1,5 +1,3 @@
-import pygame
-
 #################
 # USER CAN SET BELOW PARAMETERS
 #################
@@ -7,15 +5,21 @@ import pygame
 exe_mode = False
 test_mode = False
 
+logs_folder = 'C:/Users/Brad/Documents/GitHub/Chess/logs/'
+
+#################
+# RECOMMENDED PARAMETERS ARE SET BELOW FOR POSITIONING OF OBJECTS
+#################
+
 SCREEN_WIDTH, SCREEN_HEIGHT = 1440, 960
 
 MOVE_BG_IMAGE_X = 1150
 MOVE_BG_IMAGE_Y = 170
 
-STARTPOS = {'white_pawn': (930, 630), 'white_bishop':(930, 550), 'white_knight':(930, 470),
-             'white_rook':(930, 380), 'white_queen':(930, 300), 'white_king':(930, 220),
-             'black_pawn': (1000, 630), 'black_bishop':(1000, 550), 'black_knight':(1000, 470),
-             'black_rook':(1000, 380), 'black_queen':(1000, 300), 'black_king':(1000, 220)}
+STARTPOS = {'white_pawn': (930, 630), 'white_bishop': (930, 550), 'white_knight': (930, 470),
+             'white_rook': (930, 380), 'white_queen': (930, 300), 'white_king': (930, 220),
+             'black_pawn': (1000, 630), 'black_bishop': (1000, 550), 'black_knight': (1000, 470),
+             'black_rook': (1000, 380), 'black_queen': (1000, 300), 'black_king': (1000, 220)}
 
 COLORKEY_RGB = [160, 160, 160]
 X_GRID_START = 300 # First board coordinate for X
