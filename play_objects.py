@@ -20,8 +20,9 @@ class PieceListsShortcut():
         return [PlayKing.black_king_list, PlayPawn.black_pawn_list,  
                 PlayBishop.black_bishop_list, PlayKnight.black_knight_list, 
                 PlayRook.black_rook_list, PlayQueen.black_queen_list]
-    def piece_on_coord(grid_coord):
-        for piece_list in Piece_Lists_Shortcut.all_pieces():
+    @classmethod
+    def piece_on_coord(cls, grid_coord):
+        for piece_list in cls.all_pieces():
             for piece in piece_list:
                 if piece.coordinate == grid_coord:
                     return piece
