@@ -1,8 +1,13 @@
+"""
+Start objects for each piece can be dragged onto the board
+The pane on the right includes white and black pieces
+This feature is useful for if you want to create a chess puzzle
+"""
+import logging
 import pygame
 import initvar
 import placed_objects
 import load_images_sounds as lis
-import logging
 
 log = logging.getLogger(__name__)
 
@@ -147,6 +152,9 @@ class StartKing(pygame.sprite.Sprite):
             self.clickable = False
     
 class Start():
+    """
+    Create start objects (based on piece) within start_dict dictionary, with position
+    """
     start_dict = {}
     start_dict['white_pawn'] = StartPawn("white", initvar.STARTPOS['white_pawn'])
     start_dict['white_bishop'] = StartBishop("white", initvar.STARTPOS['white_bishop'])
@@ -176,37 +184,45 @@ class Start():
         Start.start_dict['black_king'].rect.topleft = initvar.STARTPOS['black_king']
         
 class Dragging():
+    """
+    Handles dragging start objects with the mouse and placing the Placed pieces
+    onto the board
+    """
     drag_piece_name = ""
     @staticmethod
     def dragging_all_false():
+        """If there's a piece following the mouse, reset it back to right pane"""
         Dragging.drag_piece_name = ""
     @classmethod
     def start_drag(cls, piece_name):
+        """Start drag process (if there was a piece being dragged, reset it too)"""
         Start.restart_start_positions()
         cls.dragging_all_false()
         cls.drag_piece_name = piece_name
     @classmethod
     def update_drag_piece_and_all_start_pieces_positions(cls, mousepos):
-        def drag_and_replace_start_obj_image(name_of_piece, mouse_pos):
+        """Drag the Start object to where the mouse position is"""
+        def drag_and_replace_start_obj_image(name_of_piece):
             if cls.drag_piece_name == name_of_piece:
                 Start.start_dict[name_of_piece].rect.topleft = (mousepos[0]-(Start.start_dict[name_of_piece].image.get_width()/2),
                                           mousepos[1]-(Start.start_dict[name_of_piece].image.get_height()/2))
             else:
                 Start.start_dict[name_of_piece].rect.topleft = initvar.STARTPOS[name_of_piece]
-        drag_and_replace_start_obj_image("white_pawn", mousepos)
-        drag_and_replace_start_obj_image("white_bishop", mousepos)
-        drag_and_replace_start_obj_image("white_knight", mousepos)
-        drag_and_replace_start_obj_image("white_rook", mousepos)
-        drag_and_replace_start_obj_image("white_queen", mousepos)
-        drag_and_replace_start_obj_image("white_king", mousepos)
-        drag_and_replace_start_obj_image("black_pawn", mousepos)
-        drag_and_replace_start_obj_image("black_bishop", mousepos)
-        drag_and_replace_start_obj_image("black_knight", mousepos)
-        drag_and_replace_start_obj_image("black_rook", mousepos)
-        drag_and_replace_start_obj_image("black_queen", mousepos)
-        drag_and_replace_start_obj_image("black_king", mousepos)
+        drag_and_replace_start_obj_image("white_pawn")
+        drag_and_replace_start_obj_image("white_bishop")
+        drag_and_replace_start_obj_image("white_knight")
+        drag_and_replace_start_obj_image("white_rook")
+        drag_and_replace_start_obj_image("white_queen")
+        drag_and_replace_start_obj_image("white_king")
+        drag_and_replace_start_obj_image("black_pawn")
+        drag_and_replace_start_obj_image("black_bishop")
+        drag_and_replace_start_obj_image("black_knight")
+        drag_and_replace_start_obj_image("black_rook")
+        drag_and_replace_start_obj_image("black_queen")
+        drag_and_replace_start_obj_image("black_king")
     @classmethod
     def dragging_to_placed_no_dups(cls, mouse_coord):
+        """Create Placed object on the coordinate where the mouse is"""
         for piece_list in [placed_objects.PlacedPawn.white_pawn_list, 
                            placed_objects.PlacedBishop.white_bishop_list, 
                            placed_objects.PlacedKnight.white_knight_list, 
