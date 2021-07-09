@@ -44,10 +44,7 @@ class Grid(pygame.sprite.Sprite):
         Update coords_of_attacking_pieces list with the attacking piece,
         and the coordinate of that attacking piece
         """
-        if piece_color == "white":
-            self.coords_of_attacking_pieces['white'].append(attack_coord)
-        elif piece_color == "black":
-            self.coords_of_attacking_pieces['black'].append(attack_coord)
+        self.coords_of_attacking_pieces[piece_color].append(attack_coord)
     def update(self, game_controller):
         """Update function required in pygame sprite group"""
     def available_count_increment(self, color, piece_coord):
@@ -55,19 +52,19 @@ class Grid(pygame.sprite.Sprite):
         Update coords_of_available_pieces list with the piece that is able to
         legally move there, and the coordinate of that piece
         """
-        if color == "white" and piece_coord not in self.coords_of_available_pieces['white']:
-            self.coords_of_available_pieces['white'].append(piece_coord)
-        elif color == "black" and piece_coord not in self.coords_of_available_pieces['black']:
-            self.coords_of_available_pieces['black'].append(piece_coord)
+        if piece_coord not in self.coords_of_available_pieces[color]:
+            self.coords_of_available_pieces[color].append(piece_coord)
     def highlight(self, color, piece_coord):
-        if initvar.TEST_MODE == True:
+        """Piece clicked and thus grid is highlighted"""
+        if initvar.TEST_MODE:
             # Yellow highlight for test mode, used for seeing the highlighted
             # square based on available move from selected piece
             self.image = lis.IMAGES["SPR_HIGHLIGHT"]
         self.highlighted = True
         self.available_count_increment(color, piece_coord)
     def no_highlight(self):
-        if self.prior_move_color == True:
+        """Force grid to not be highlighted"""
+        if self.prior_move_color:
             self.image = lis.IMAGES["SPR_PRIOR_MOVE_GRID"]
         elif self.color == "green":
             self.image = lis.IMAGES["SPR_GREEN_GRID"]
@@ -91,7 +88,7 @@ for x in range(initvar.X_GRID_START, X_GRID_END, X_GRID_WIDTH):
         grid_coordinate_as_list_element = [chr(int((x-initvar.X_GRID_START)/X_GRID_WIDTH)+97), int((Y_GRID_END-y)/Y_GRID_HEIGHT)]
         grid_coordinate = "".join(map(str, (grid_coordinate_as_list_element)))
         coordinates_dict_with_pos[grid_coordinate] = grid_pos
-for coordinate in coordinates_dict_with_pos.keys():
+for coordinate in coordinates_dict_with_pos:
     for i in range(ord("a"), ord("h"), 2):
         for j in range(2, 9, 2):
             if(ord(coordinate[0]) == i and int(coordinate[1]) == j):
