@@ -4,7 +4,7 @@ import board
 
 PLAY_SPRITES = pygame.sprite.Group()
 
-class Piece_Lists_Shortcut():
+class PieceListsShortcut():
     def all_pieces():
         return [PlayKing.black_king_list, PlayKing.white_king_list,
                 PlayPawn.white_pawn_list, PlayBishop.white_bishop_list, 

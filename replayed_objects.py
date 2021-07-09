@@ -1,10 +1,16 @@
+"""
+Each of the play objects spawn a replay object
+The replay objects are positioned at each of the coordinates for each move
+leading up to the selected move on the right pane (or based on the bottom arrows)
+"""
 import pygame
-from load_images_sounds import *
+import load_images_sounds as lis
 import board
 
 REPLAYED_SPRITES = pygame.sprite.Group()
 
 def remove_all_replayed():
+    """Destroy all replayed pieces"""
     for spr_list in [ReplayedPawn.white_pawn_list, ReplayedBishop.white_bishop_list,
                      ReplayedKnight.white_knight_list, ReplayedRook.white_rook_list,
                      ReplayedQueen.white_queen_list, ReplayedKing.white_king_list, 
@@ -26,7 +32,13 @@ def remove_all_replayed():
     ReplayedQueen.black_queen_list = []
     ReplayedKing.black_king_list = []
     
-class Piece_Lists_Shortcut():
+class PieceListsShortcut():
+    """
+    In chess.py, when going through a loop of each piece from each of the piece
+    lists, it's tedious. These functions (which can be executed as a lambda)
+    make them easier to reference.
+    """
+    @staticmethod
     def all_pieces():
         return [ReplayedPawn.white_pawn_list, ReplayedBishop.white_bishop_list, 
                 ReplayedKnight.white_knight_list, ReplayedRook.white_rook_list, 
@@ -34,10 +46,12 @@ class Piece_Lists_Shortcut():
                 ReplayedPawn.black_pawn_list, ReplayedBishop.black_bishop_list, 
                 ReplayedKnight.black_knight_list, ReplayedRook.black_rook_list, 
                 ReplayedQueen.black_queen_list, ReplayedKing.black_king_list]
+    @staticmethod
     def white_pieces():
         return [ReplayedPawn.white_pawn_list, ReplayedBishop.white_bishop_list, 
                 ReplayedKnight.white_knight_list, ReplayedRook.white_rook_list, 
                 ReplayedQueen.white_queen_list, ReplayedKing.white_king_list]
+    @staticmethod
     def black_pieces():
         return [ReplayedPawn.black_pawn_list, ReplayedBishop.black_bishop_list, 
                 ReplayedKnight.black_knight_list, ReplayedRook.black_rook_list, 
@@ -50,11 +64,11 @@ class ReplayedPawn(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.color = color
         if self.color == "white":
-            self.image = IMAGES["SPR_WHITE_PAWN"]
+            self.image = lis.IMAGES["SPR_WHITE_PAWN"]
             REPLAYED_SPRITES.add(self)
             ReplayedPawn.white_pawn_list.append(self)
         elif self.color == "black":
-            self.image = IMAGES["SPR_BLACK_PAWN"]
+            self.image = lis.IMAGES["SPR_BLACK_PAWN"]
             REPLAYED_SPRITES.add(self)
             ReplayedPawn.black_pawn_list.append(self)
         self.coordinate = coord
@@ -79,17 +93,17 @@ class ReplayedPawn(pygame.sprite.Sprite):
             ReplayedPawn.black_pawn_list.remove(self)
         self.kill()
     def prior_move_update(self):
-        if self.taken_off_board != True:
-            if(self.color == "white"):
-                if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_WHITE_PAWN_PRIORMOVE"]
+        if not self.taken_off_board:
+            if self.color == "white":
+                if self.prior_move_color:
+                    self.image = lis.IMAGES["SPR_WHITE_PAWN_PRIORMOVE"]
                 else:
-                    self.image = IMAGES["SPR_WHITE_PAWN"]
-            elif(self.color == "black"):
-                if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_BLACK_PAWN_PRIORMOVE"]
+                    self.image = lis.IMAGES["SPR_WHITE_PAWN"]
+            elif self.color == "black":
+                if self.prior_move_color:
+                    self.image = lis.IMAGES["SPR_BLACK_PAWN_PRIORMOVE"]
                 else:
-                    self.image = IMAGES["SPR_BLACK_PAWN"]
+                    self.image = lis.IMAGES["SPR_BLACK_PAWN"]
 
 class ReplayedBishop(pygame.sprite.Sprite):
     white_bishop_list = []
@@ -98,11 +112,11 @@ class ReplayedBishop(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.color = color
         if self.color == "white":
-            self.image = IMAGES["SPR_WHITE_BISHOP"]
+            self.image = lis.IMAGES["SPR_WHITE_BISHOP"]
             REPLAYED_SPRITES.add(self)
             ReplayedBishop.white_bishop_list.append(self)
         elif self.color == "black":
-            self.image = IMAGES["SPR_BLACK_BISHOP"]
+            self.image = lis.IMAGES["SPR_BLACK_BISHOP"]
             REPLAYED_SPRITES.add(self)
             ReplayedBishop.black_bishop_list.append(self)
         self.coordinate = coord
@@ -127,17 +141,17 @@ class ReplayedBishop(pygame.sprite.Sprite):
             ReplayedBishop.black_bishop_list.remove(self)
         self.kill()
     def prior_move_update(self):
-        if self.taken_off_board != True:
-            if(self.color == "white"):
-                if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_WHITE_BISHOP_PRIORMOVE"]
+        if not self.taken_off_board:
+            if self.color == "white":
+                if self.prior_move_color:
+                    self.image = lis.IMAGES["SPR_WHITE_BISHOP_PRIORMOVE"]
                 else:
-                    self.image = IMAGES["SPR_WHITE_BISHOP"]
-            elif(self.color == "black"):
-                if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_BLACK_BISHOP_PRIORMOVE"]
+                    self.image = lis.IMAGES["SPR_WHITE_BISHOP"]
+            elif self.color == "black":
+                if self.prior_move_color:
+                    self.image = lis.IMAGES["SPR_BLACK_BISHOP_PRIORMOVE"]
                 else:
-                    self.image = IMAGES["SPR_BLACK_BISHOP"]
+                    self.image = lis.IMAGES["SPR_BLACK_BISHOP"]
 
 class ReplayedKnight(pygame.sprite.Sprite):
     white_knight_list = []
@@ -146,11 +160,11 @@ class ReplayedKnight(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.color = color
         if self.color == "white":
-            self.image = IMAGES["SPR_WHITE_KNIGHT"]
+            self.image = lis.IMAGES["SPR_WHITE_KNIGHT"]
             REPLAYED_SPRITES.add(self)
             ReplayedKnight.white_knight_list.append(self)
         elif self.color == "black":
-            self.image = IMAGES["SPR_BLACK_KNIGHT"]
+            self.image = lis.IMAGES["SPR_BLACK_KNIGHT"]
             REPLAYED_SPRITES.add(self)
             ReplayedKnight.black_knight_list.append(self)
         self.coordinate = coord
@@ -175,17 +189,17 @@ class ReplayedKnight(pygame.sprite.Sprite):
             ReplayedKnight.black_knight_list.remove(self)
         self.kill()
     def prior_move_update(self):
-        if self.taken_off_board != True:
-            if(self.color == "white"):
-                if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_WHITE_KNIGHT_PRIORMOVE"]
+        if not self.taken_off_board:
+            if self.color == "white":
+                if self.prior_move_color:
+                    self.image = lis.IMAGES["SPR_WHITE_KNIGHT_PRIORMOVE"]
                 else:
-                    self.image = IMAGES["SPR_WHITE_KNIGHT"]
-            elif(self.color == "black"):
-                if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_BLACK_KNIGHT_PRIORMOVE"]
+                    self.image = lis.IMAGES["SPR_WHITE_KNIGHT"]
+            elif self.color == "black":
+                if self.prior_move_color:
+                    self.image = lis.IMAGES["SPR_BLACK_KNIGHT_PRIORMOVE"]
                 else:
-                    self.image = IMAGES["SPR_BLACK_KNIGHT"]
+                    self.image = lis.IMAGES["SPR_BLACK_KNIGHT"]
         
 class ReplayedRook(pygame.sprite.Sprite):
     white_rook_list = []
@@ -194,11 +208,11 @@ class ReplayedRook(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.color = color
         if self.color == "white":
-            self.image = IMAGES["SPR_WHITE_ROOK"]
+            self.image = lis.IMAGES["SPR_WHITE_ROOK"]
             REPLAYED_SPRITES.add(self)
             ReplayedRook.white_rook_list.append(self)
         elif self.color == "black":
-            self.image = IMAGES["SPR_BLACK_ROOK"]
+            self.image = lis.IMAGES["SPR_BLACK_ROOK"]
             REPLAYED_SPRITES.add(self)
             ReplayedRook.black_rook_list.append(self)
         self.coordinate = coord
@@ -223,17 +237,17 @@ class ReplayedRook(pygame.sprite.Sprite):
             ReplayedRook.black_rook_list.remove(self)
         self.kill()
     def prior_move_update(self):
-        if self.taken_off_board != True:
-            if(self.color == "white"):
-                if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_WHITE_ROOK_PRIORMOVE"]
+        if not self.taken_off_board:
+            if self.color == "white":
+                if self.prior_move_color:
+                    self.image = lis.IMAGES["SPR_WHITE_ROOK_PRIORMOVE"]
                 else:
-                    self.image = IMAGES["SPR_WHITE_ROOK"]
-            elif(self.color == "black"):
-                if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_BLACK_ROOK_PRIORMOVE"]
+                    self.image = lis.IMAGES["SPR_WHITE_ROOK"]
+            elif self.color == "black":
+                if self.prior_move_color:
+                    self.image = lis.IMAGES["SPR_BLACK_ROOK_PRIORMOVE"]
                 else:
-                    self.image = IMAGES["SPR_BLACK_ROOK"]
+                    self.image = lis.IMAGES["SPR_BLACK_ROOK"]
         
 class ReplayedQueen(pygame.sprite.Sprite):
     white_queen_list = []
@@ -242,11 +256,11 @@ class ReplayedQueen(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.color = color
         if self.color == "white":
-            self.image = IMAGES["SPR_WHITE_QUEEN"]
+            self.image = lis.IMAGES["SPR_WHITE_QUEEN"]
             REPLAYED_SPRITES.add(self)
             ReplayedQueen.white_queen_list.append(self)
         elif self.color == "black":
-            self.image = IMAGES["SPR_BLACK_QUEEN"]
+            self.image = lis.IMAGES["SPR_BLACK_QUEEN"]
             REPLAYED_SPRITES.add(self)
             ReplayedQueen.black_queen_list.append(self)
         self.coordinate = coord
@@ -271,17 +285,17 @@ class ReplayedQueen(pygame.sprite.Sprite):
             ReplayedQueen.black_queen_list.remove(self)
         self.kill()
     def prior_move_update(self):
-        if self.taken_off_board != True:
-            if(self.color == "white"):
-                if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_WHITE_QUEEN_PRIORMOVE"]
+        if not self.taken_off_board:
+            if self.color == "white":
+                if self.prior_move_color:
+                    self.image = lis.IMAGES["SPR_WHITE_QUEEN_PRIORMOVE"]
                 else:
-                    self.image = IMAGES["SPR_WHITE_QUEEN"]
-            elif(self.color == "black"):
-                if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_BLACK_QUEEN_PRIORMOVE"]
+                    self.image = lis.IMAGES["SPR_WHITE_QUEEN"]
+            elif self.color == "black":
+                if self.prior_move_color:
+                    self.image = lis.IMAGES["SPR_BLACK_QUEEN_PRIORMOVE"]
                 else:
-                    self.image = IMAGES["SPR_BLACK_QUEEN"]
+                    self.image = lis.IMAGES["SPR_BLACK_QUEEN"]
         
 class ReplayedKing(pygame.sprite.Sprite):
     white_king_list = []
@@ -290,11 +304,11 @@ class ReplayedKing(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.color = color
         if self.color == "white":
-            self.image = IMAGES["SPR_WHITE_KING"]
+            self.image = lis.IMAGES["SPR_WHITE_KING"]
             REPLAYED_SPRITES.add(self)
             ReplayedKing.white_king_list.append(self)
         elif self.color == "black":
-            self.image = IMAGES["SPR_BLACK_KING"]
+            self.image = lis.IMAGES["SPR_BLACK_KING"]
             REPLAYED_SPRITES.add(self)
             ReplayedKing.black_king_list.append(self)
         self.coordinate = coord
@@ -319,14 +333,14 @@ class ReplayedKing(pygame.sprite.Sprite):
             ReplayedKing.black_king_list.remove(self)
         self.kill()
     def prior_move_update(self):
-        if self.taken_off_board != True:
-            if(self.color == "white"):
-                if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_WHITE_KING_PRIORMOVE"]
+        if not self.taken_off_board:
+            if self.color == "white":
+                if self.prior_move_color:
+                    self.image = lis.IMAGES["SPR_WHITE_KING_PRIORMOVE"]
                 else:
-                    self.image = IMAGES["SPR_WHITE_KING"]
-            elif(self.color == "black"):
-                if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_BLACK_KING_PRIORMOVE"]
+                    self.image = lis.IMAGES["SPR_WHITE_KING"]
+            elif self.color == "black":
+                if self.prior_move_color:
+                    self.image = lis.IMAGES["SPR_BLACK_KING_PRIORMOVE"]
                 else:
-                    self.image = IMAGES["SPR_BLACK_KING"]
+                    self.image = lis.IMAGES["SPR_BLACK_KING"]

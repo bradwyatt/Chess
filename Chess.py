@@ -75,7 +75,7 @@ def pos_load_file(reset=False):
         loaded_file = open_file.read()
         loaded_dict = ast.literal_eval(loaded_file)
 
-    for obj_list in play_objects.Piece_Lists_Shortcut.all_pieces():
+    for obj_list in play_objects.PieceListsShortcut.all_pieces():
         for obj in obj_list:
             obj.destroy()
     if open_file:
@@ -437,7 +437,7 @@ class PgnWriterAndLoader():
                 PanelController.draw_move_rects_on_moves_pane(pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, initvar.MOVE_NOTATION_FONT_SIZE))
 
         def prior_move_grid_update(current_coord):
-            for play_obj_list in play_objects.Piece_Lists_Shortcut.all_pieces():
+            for play_obj_list in play_objects.PieceListsShortcut.all_pieces():
                 for play_obj in play_obj_list:
                     if play_obj.coordinate == current_coord:
                         play_obj.prior_move_color = True
@@ -450,7 +450,7 @@ class PgnWriterAndLoader():
         prior_move_grid_update(grid_coordinate)
 
         # This goes through all pieces available moves
-        for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
+        for piece_list in play_objects.PieceListsShortcut.all_pieces():
             for piece in piece_list:
                 piece.spaces_available(game_controller)
 
@@ -489,7 +489,7 @@ class GridController():
         TextController.flip_board()
     @staticmethod
     def grid_occupied_by_piece(grid):
-        for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
+        for piece_list in play_objects.PieceListsShortcut.all_pieces():
             for piece in piece_list:
                 if grid.rect.topleft == piece.rect.topleft:
                     grid.occupied = True
@@ -528,7 +528,7 @@ class GridController():
             grid.no_highlight()
         if not SwitchModesController.REPLAYED:
             # Updating prior move sprites for play objects
-            for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
+            for piece_list in play_objects.PieceListsShortcut.all_pieces():
                 for piece in piece_list:
                     if piece == prior_move_piece:
                         piece.prior_move_color = True
@@ -537,7 +537,7 @@ class GridController():
                     piece.no_highlight()
         else:
             # Updating prior move sprites for replayed objects
-            for piece_list in replayed_objects.Piece_Lists_Shortcut.all_pieces():
+            for piece_list in replayed_objects.PieceListsShortcut.all_pieces():
                 for piece in piece_list:
                     if piece == prior_move_piece:
                         piece.prior_move_color = True
@@ -548,12 +548,12 @@ class GridController():
     def piece_on_grid(grid_coordinate):
         piece_on_grid_var = None
         if not SwitchModesController.REPLAYED:
-            for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
+            for piece_list in play_objects.PieceListsShortcut.all_pieces():
                 for piece in piece_list:
                     if grid_coordinate == piece.coordinate:
                         piece_on_grid_var = piece
         else:
-            for piece_list in replayed_objects.Piece_Lists_Shortcut.all_pieces():
+            for piece_list in replayed_objects.PieceListsShortcut.all_pieces():
                 for piece in piece_list:
                     if grid_coordinate == piece.coordinate:
                         piece_on_grid_var = piece
@@ -564,18 +564,18 @@ class GridController():
             for grid in board.Grid.grid_list:
                 grid.prior_move_color = False
                 grid.no_highlight()
-            for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
+            for piece_list in play_objects.PieceListsShortcut.all_pieces():
                 for piece in piece_list:
                     piece.prior_move_color = False
                     piece.no_highlight()
         if whoseturn == "white":
-            for piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
+            for piece_list in play_objects.PieceListsShortcut.black_pieces():
                 for piece in piece_list:
                     for move_num in piece.coordinate_history:
                         if move_num == DfTracker.move_counter():
                             cls.prior_move_color(piece.coordinate_history[move_num]['before'], piece)
         elif whoseturn == "black":
-            for piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
+            for piece_list in play_objects.PieceListsShortcut.white_pieces():
                 for piece in piece_list:
                     for move_num in piece.coordinate_history:
                         if move_num == DfTracker.move_counter():
@@ -585,7 +585,7 @@ class GridController():
             for grid in board.Grid.grid_list:
                 grid.prior_move_color = False
                 grid.no_highlight()
-            for piece_list in replayed_objects.Piece_Lists_Shortcut.all_pieces():
+            for piece_list in replayed_objects.PieceListsShortcut.all_pieces():
                 for piece in piece_list:
                     piece.prior_move_color = False
                     piece.prior_move_update()
@@ -646,7 +646,7 @@ class SwitchModesController():
             list_of_moves_backwards.append(first_move)
         # list_of_moves_backwards list is ordered in descending order to the selected move
         for move_dict in list_of_moves_backwards:
-            for replayed_obj_list in replayed_objects.Piece_Lists_Shortcut.all_pieces():
+            for replayed_obj_list in replayed_objects.PieceListsShortcut.all_pieces():
                 for replayed_obj in replayed_obj_list:
                     for piece_history in replayed_obj.coordinate_history:
                         if piece_history in dict(move_dict):
@@ -665,7 +665,7 @@ class SwitchModesController():
                                         GridController.piece_on_grid('d8').coordinate = 'a8'
                                 if "x" in ast.literal_eval(move_dict[piece_history])['move_notation']:
                                     if replayed_obj.color == "white":
-                                        for piece_list in replayed_objects.Piece_Lists_Shortcut.black_pieces():
+                                        for piece_list in replayed_objects.PieceListsShortcut.black_pieces():
                                             for piece in piece_list:
                                                 if piece.captured_move_number_and_coordinate:
                                                     if piece.captured_move_number_and_coordinate['move_number'] == piece_history:
@@ -675,7 +675,7 @@ class SwitchModesController():
                                                         else:
                                                             piece.coordinate = ast.literal_eval(move_dict[piece_history])['after']
                                     elif replayed_obj.color == "black":
-                                        for piece_list in replayed_objects.Piece_Lists_Shortcut.white_pieces():
+                                        for piece_list in replayed_objects.PieceListsShortcut.white_pieces():
                                             for piece in piece_list:
                                                 if piece.captured_move_number_and_coordinate:
                                                     if piece.captured_move_number_and_coordinate['move_number'] == piece_history:
@@ -686,13 +686,13 @@ class SwitchModesController():
                                                             piece.coordinate = ast.literal_eval(move_dict[piece_history])['after']
                                 if "=Q" in ast.literal_eval(move_dict[piece_history])['move_notation']:
                                     if replayed_obj.color == "white":
-                                        for piece_list in replayed_objects.Piece_Lists_Shortcut.white_pieces():
+                                        for piece_list in replayed_objects.PieceListsShortcut.white_pieces():
                                             for piece in replayed_objects.ReplayedQueen.white_queen_list:
                                                 if piece.coordinate == ast.literal_eval(DfTracker.df_prior_moves.loc[piece_history, "white_move"])['after']:
                                                     piece.kill()
                                                     replayed_objects.ReplayedQueen.white_queen_list.remove(piece)
                                     elif replayed_obj.color == "black":
-                                        for piece_list in replayed_objects.Piece_Lists_Shortcut.black_pieces():
+                                        for piece_list in replayed_objects.PieceListsShortcut.black_pieces():
                                             for piece in replayed_objects.ReplayedQueen.black_queen_list:
                                                 if piece.coordinate == ast.literal_eval(DfTracker.df_prior_moves.loc[piece_history, "black_move"])['after']:
                                                     piece.kill()
@@ -773,7 +773,7 @@ class DfTracker():
     @classmethod
     def undo_move_in_dfs(cls, undo_color):
         if undo_color == "black":
-            for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
+            for black_piece_list in play_objects.PieceListsShortcut.black_pieces():
                 for black_piece in black_piece_list:
                     if DfTracker.move_counter() in black_piece.coordinate_history:
                         del black_piece.coordinate_history[cls.move_counter()]
@@ -781,7 +781,7 @@ class DfTracker():
             cls.df_moves.loc[cls.move_counter(), "black_move"] = ''
             cls.df_prior_moves.loc[cls.move_counter(), "black_move"] = ''
         elif undo_color == "white":
-            for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
+            for black_piece_list in play_objects.PieceListsShortcut.black_pieces():
                 for black_piece in black_piece_list:
                     if DfTracker.move_counter() in black_piece.coordinate_history:
                         del black_piece.coordinate_history[cls.move_counter()]
@@ -826,7 +826,7 @@ class CpuController():
         white_score = 0
         black_score = 0
         piece_color = piece_to_move.color
-        for white_piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
+        for white_piece_list in play_objects.PieceListsShortcut.white_pieces():
             for white_piece in white_piece_list:
                 if not white_piece.taken_off_board:
                     if white_piece in play_objects.PlayPawn.white_pawn_list:
@@ -865,7 +865,7 @@ class CpuController():
                         else:
                             white_score += cls.white_queen_pos_score_dict[white_piece.coordinate]
                         white_score += initvar.piece_values_dict['queen']
-        for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
+        for black_piece_list in play_objects.PieceListsShortcut.black_pieces():
             for black_piece in black_piece_list:
                 if not black_piece.taken_off_board:
                     if black_piece in play_objects.PlayPawn.black_pawn_list:
@@ -921,7 +921,7 @@ class CpuController():
             # grid is the future move
             if grid.coords_of_available_pieces[cls.cpu_color]:
                 for original_grid_coord_of_piece_to_move in grid.coords_of_available_pieces[cls.cpu_color]:
-                    for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
+                    for piece_list in play_objects.PieceListsShortcut.all_pieces():
                         for piece in piece_list:
                             if original_grid_coord_of_piece_to_move == piece.coordinate:
                                 piece_to_move = piece
@@ -944,10 +944,10 @@ class CpuController():
             move_score = cls.analyze_board(grid, piece_to_move)
             if grid.occupied and not grid.coords_of_attacking_pieces[cls.enemy_color]:
                 # No other attack pieces
-                move_score += play_objects.Piece_Lists_Shortcut.piece_on_coord(grid.coordinate).score
+                move_score += play_objects.PieceListsShortcut.piece_on_coord(grid.coordinate).score
             elif grid.occupied and grid.coords_of_attacking_pieces[cls.enemy_color]:
                 # Trade only when other piece is higher value
-                move_score = play_objects.Piece_Lists_Shortcut.piece_on_coord(grid.coordinate).score - piece_to_move.score
+                move_score = play_objects.PieceListsShortcut.piece_on_coord(grid.coordinate).score - piece_to_move.score
             if cls.cpu_color == "black":
                 if piece_to_move in play_objects.PlayKing.black_king_list:
                     # Incentivize Castling
@@ -994,7 +994,7 @@ class GameController():
         else:
             self.white_captured_y = initvar.BLACK_CAPTURED_Y
             self.black_captured_y = initvar.WHITE_CAPTURED_Y
-        for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
+        for piece_list in play_objects.PieceListsShortcut.all_pieces():
             for piece in piece_list:
                 if piece.taken_off_board:
                     if piece.color == "white":
@@ -1010,7 +1010,7 @@ class GameController():
         GridController.update_grid_occupied_detection()
         self.projected_white_update()
         self.projected_black_update()
-        for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
+        for piece_list in play_objects.PieceListsShortcut.all_pieces():
             for piece in piece_list:
                 piece.spaces_available(self)
         GridController.update_grid_occupied_detection()
@@ -1025,7 +1025,7 @@ class GameController():
         """
         TextController.remove_check_checkmate_text()
         # Kill all Objects within their Class lists/dicts
-        for spr_list in play_objects.Piece_Lists_Shortcut.all_pieces():
+        for spr_list in play_objects.PieceListsShortcut.all_pieces():
             for obj in spr_list:
                 obj.kill()
         for spr_list in [menu_buttons.MoveNumberRectangle.rectangle_list, menu_buttons.PieceMoveRectangle.rectangle_list]:
@@ -1079,7 +1079,7 @@ class GameController():
             grid.coords_of_available_pieces['white'] = []
             grid.coords_of_available_pieces['black'] = []
         GridController.update_grid_occupied_detection()
-        for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
+        for piece_list in play_objects.PieceListsShortcut.all_pieces():
             for piece in piece_list:
                 piece.pinned = False
                 piece.disable = False
@@ -1102,7 +1102,7 @@ class GameController():
                                            play_objects.PlayQueen.white_queen_list]:
                             for piece in piece_list:
                                 piece.disable = True
-            for piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
+            for piece_list in play_objects.PieceListsShortcut.white_pieces():
                 for sub_piece in piece_list:
                     sub_piece.spaces_available(self)
             GridController.update_grid_occupied_detection()
@@ -1126,18 +1126,18 @@ class GameController():
                                            play_objects.PlayQueen.black_queen_list]:
                             for piece in piece_list:
                                 piece.disable = True
-            for piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
+            for piece_list in play_objects.PieceListsShortcut.black_pieces():
                 for sub_piece in piece_list:
                     sub_piece.spaces_available(self)
             GridController.update_grid_occupied_detection()
     def projected_white_update(self):
         """Project white pieces attacking movements"""
-        for piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
+        for piece_list in play_objects.PieceListsShortcut.white_pieces():
             for piece in piece_list:
                 piece.projected(self)
     def projected_black_update(self):
         """Project black pieces attacking movements"""
-        for piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
+        for piece_list in play_objects.PieceListsShortcut.black_pieces():
             for piece in piece_list:
                 piece.projected(self)
     @staticmethod
@@ -1146,7 +1146,7 @@ class GameController():
         Iterates through all pieces to find the one that matches
         the coordinate with the pin
         """
-        for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
+        for piece_list in play_objects.PieceListsShortcut.all_pieces():
             for piece in piece_list:
                 if board.Grid.grid_dict[pinned_piece_coordinate].coordinate == piece.coordinate \
                 and piece.color == color:
@@ -1271,7 +1271,7 @@ class MoveController():
         clicked_piece = None
         # Selecting and unselecting white pieces
         if game_controller.whoseturn == "white":
-            for piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
+            for piece_list in play_objects.PieceListsShortcut.white_pieces():
                 for piece in piece_list:
                     # Selects piece
                     if (piece.coordinate == piece_coord and not piece.select and not SwitchModesController.REPLAYED):
@@ -1283,7 +1283,7 @@ class MoveController():
                             grid.no_highlight()
         # Selecting and unselecting black pieces
         elif game_controller.whoseturn == "black":
-            for piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
+            for piece_list in play_objects.PieceListsShortcut.black_pieces():
                 for piece in piece_list:
                     if (piece.coordinate == piece_coord and not piece.select and not SwitchModesController.REPLAYED):
                         clicked_piece = piece
@@ -1305,14 +1305,14 @@ class MoveController():
             # Finding the latest piece to undo
             if game_controller.whoseturn == "white":
                 piece_coordinate_move_notation = ast.literal_eval(DfTracker.df_prior_moves.loc[DfTracker.move_counter(), "black_move"])['move_notation']
-                for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
+                for black_piece_list in play_objects.PieceListsShortcut.black_pieces():
                     for black_piece in black_piece_list:
                         for piece_history in black_piece.coordinate_history.keys():
                             if DfTracker.move_counter() == piece_history:
                                 pieces_to_undo.append(black_piece)
             elif game_controller.whoseturn == "black":
                 piece_coordinate_move_notation = ast.literal_eval(DfTracker.df_prior_moves.loc[DfTracker.move_counter(), "white_move"])['move_notation']
-                for white_piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
+                for white_piece_list in play_objects.PieceListsShortcut.white_pieces():
                     for white_piece in white_piece_list:
                         for piece_history in white_piece.coordinate_history.keys():
                             if DfTracker.move_counter() == piece_history:
@@ -1320,7 +1320,7 @@ class MoveController():
             if 'x' in piece_coordinate_move_notation:
                 # Detect pieces that have been taken
                 if pieces_to_undo[0].color == "black":
-                    for white_piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
+                    for white_piece_list in play_objects.PieceListsShortcut.white_pieces():
                         for white_piece in white_piece_list:
                             if white_piece.taken_off_board:
                                 if white_piece.captured_move_number_and_coordinate['move_number'] == DfTracker.move_counter():
@@ -1332,7 +1332,7 @@ class MoveController():
                                         board.Grid.grid_dict[white_piece.captured_move_number_and_coordinate['ep_grid_after_coord']].en_passant_skipover = True
                                     white_piece.captured_move_number_and_coordinate = None
                 elif pieces_to_undo[0].color == "white":
-                    for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
+                    for black_piece_list in play_objects.PieceListsShortcut.black_pieces():
                         for black_piece in black_piece_list:
                             if black_piece.taken_off_board:
                                 if black_piece.captured_move_number_and_coordinate['move_number'] == DfTracker.move_counter():
@@ -1402,7 +1402,7 @@ class MoveController():
     @classmethod
     def complete_move(cls, new_coord, game_controller):
         for grid in board.Grid.grid_list:
-            for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
+            for piece_list in play_objects.PieceListsShortcut.all_pieces():
                 for piece in piece_list:
                     # Reset the prior move color variable from all pieces
                     piece.prior_move_color = False
@@ -1434,7 +1434,7 @@ class MoveController():
         # are the same as any of the pieces
         if((piece.color == "white" and grid.occupied_piece_color == "black") or
             (piece.color == "black" and grid.occupied_piece_color == "white")):
-            for piece_captured_list in play_objects.Piece_Lists_Shortcut.all_pieces():
+            for piece_captured_list in play_objects.PieceListsShortcut.all_pieces():
                 for piece_captured in piece_captured_list:
                     # Moving captured piece off the board
                     if piece_captured.coordinate == grid.coordinate:
