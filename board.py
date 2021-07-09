@@ -15,8 +15,8 @@ class Grid(pygame.sprite.Sprite):
     def __init__(self, color, pos, given_coordinate):
         pygame.sprite.Sprite.__init__(self)
         self.color = color
-        if self.color == "green":
-            self.image = lis.IMAGES["SPR_GREEN_GRID"]
+        if self.color == "blue":
+            self.image = lis.IMAGES["SPR_BLUE_GRID"]
         elif self.color == "white":
             self.image = lis.IMAGES["SPR_WHITE_GRID"]
         self.rect = self.image.get_rect()
@@ -66,16 +66,16 @@ class Grid(pygame.sprite.Sprite):
         """Force grid to not be highlighted"""
         if self.prior_move_color:
             self.image = lis.IMAGES["SPR_PRIOR_MOVE_GRID"]
-        elif self.color == "green":
-            self.image = lis.IMAGES["SPR_GREEN_GRID"]
+        elif self.color == "blue":
+            self.image = lis.IMAGES["SPR_BLUE_GRID"]
         elif self.color == "white":
             self.image = lis.IMAGES["SPR_WHITE_GRID"]
         self.highlighted = False
 
 # Retrieve Width and Height
-assert lis.IMAGES["SPR_GREEN_GRID"].get_size() == lis.IMAGES["SPR_WHITE_GRID"].get_size()
-X_GRID_WIDTH = lis.IMAGES["SPR_GREEN_GRID"].get_width()
-Y_GRID_HEIGHT = lis.IMAGES["SPR_GREEN_GRID"].get_height()
+assert lis.IMAGES["SPR_BLUE_GRID"].get_size() == lis.IMAGES["SPR_WHITE_GRID"].get_size()
+X_GRID_WIDTH = lis.IMAGES["SPR_WHITE_GRID"].get_width()
+Y_GRID_HEIGHT = lis.IMAGES["SPR_WHITE_GRID"].get_height()
 X_GRID_END = initvar.X_GRID_START+(X_GRID_WIDTH*8)
 Y_GRID_END = initvar.Y_GRID_START+(Y_GRID_HEIGHT*8)
 XGRIDRANGE = [initvar.X_GRID_START, X_GRID_END, X_GRID_WIDTH] # 1st num: begin 2nd: end 3rd: step
@@ -100,8 +100,8 @@ for coordinate in coordinates_dict_with_pos:
     for i in range(ord("a"), ord("h"), 2):
         for j in range(1, 8, 2):
             if(ord(coordinate[0]) == i and int(coordinate[1]) == j):
-                Grid("green", coordinates_dict_with_pos[coordinate], coordinate)
+                Grid("blue", coordinates_dict_with_pos[coordinate], coordinate)
     for i in range(ord("b"), ord("i"), 2):
         for j in range(2, 9, 2):
             if(ord(coordinate[0]) == i and int(coordinate[1]) == j):
-                Grid("green", coordinates_dict_with_pos[coordinate], coordinate)
+                Grid("blue", coordinates_dict_with_pos[coordinate], coordinate)
