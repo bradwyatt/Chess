@@ -6,6 +6,7 @@ import pygame
 
 exe_mode = False
 test_mode = False
+log_path = "C:/Users/Brad/Documents/GitHub/Chess/logs/"
 
 SCREEN_WIDTH, SCREEN_HEIGHT = 1440, 960
 
