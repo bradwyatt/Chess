@@ -28,7 +28,6 @@ Reset Board and Clear Board, clearly distinguish the buttons?\
 Black pieces to be lighter color?
 
 ## Features To-Do (long-term):
-Save positions as a .json rather than .lvl\
 AI (save and load states)\
 Customized Turns for black and white\
 Choose piece for Promotion\
