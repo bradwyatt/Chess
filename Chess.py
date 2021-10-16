@@ -147,7 +147,6 @@ def pos_save_file():
     Save positions of the pieces
     """
     try:
-        # default extension is optional, here will add .txt if missing
         save_file_prompt = asksaveasfilename(defaultextension=".json")
         save_file_name = open(save_file_prompt, "w")
         if save_file_name is not None:
