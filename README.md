@@ -1,9 +1,15 @@
 # Chess
-
-Chess
+Chess created using pygame but without using any chess-related libraries
 
 ## Prerequisites
-Made with Python 3.8.8 using pygame.
+Python 3.8.8
+
+```
+numpy==1.20.2
+pygame==2.0.1
+pandas==1.2.3
+PySimpleGUI==4.49.0
+```
 
 ## Demo
 <p align="center">
