@@ -36,4 +36,4 @@ Sounds\
 If no king then don't start game\
 Themes\
 Grid using color rather than sprite\
-AI or human on BOTH sides\
+AI or human on BOTH sides
