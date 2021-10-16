@@ -12,6 +12,7 @@ import logging.handlers
 import tkinter as tk
 from tkinter.filedialog import asksaveasfilename, askopenfilename
 import ast
+import json
 import pygame
 import pandas as pd
 import numpy as np
@@ -67,7 +68,7 @@ def pos_load_file(reset=False):
                        'black_bishop': ['c8', 'f8'], 'black_knight': ['b8', 'g8'],
                        'black_rook': ['a8', 'h8'], 'black_queen': ['d8'], 'black_king': ['e8']}
     else:
-        request_file_name = askopenfilename(defaultextension=".lvl")
+        request_file_name = askopenfilename(defaultextension=".json")
         try:
             open_file = open(request_file_name, "r")
         except FileNotFoundError:
@@ -137,7 +138,9 @@ def get_dict_rect_positions():
         for item_coord in item_list:
             item_list_in_name.append(item_coord.coordinate)
         get_coord_for_all_obj[item_key] = item_list_in_name
-    return get_coord_for_all_obj
+    # Tuple positions converted to string to be JSON-compatible
+    all_obj_coord_json = json.dumps(get_coord_for_all_obj)
+    return all_obj_coord_json
 
 def pos_save_file():
     """
@@ -145,11 +148,12 @@ def pos_save_file():
     """
     try:
         # default extension is optional, here will add .txt if missing
-        save_file_prompt = asksaveasfilename(defaultextension=".lvl")
+        save_file_prompt = asksaveasfilename(defaultextension=".json")
         save_file_name = open(save_file_prompt, "w")
         if save_file_name is not None:
             # Write the file to disk
             obj_locations = copy.deepcopy(get_dict_rect_positions())
+            print(str(obj_locations))
             save_file_name.write(str(obj_locations))
             save_file_name.close()
             log.info("File Saved Successfully.")
