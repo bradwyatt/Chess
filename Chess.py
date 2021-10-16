@@ -37,7 +37,7 @@ log.setLevel(logging.INFO)
 # Handlers for logging errors
 if not initvar.exe_mode:
     log_file_name = "{0}.log".format(today.strftime("%Y-%m-%d %H%M%S"))
-    log_file = os.path.join("C:/Users/Brad/Documents/GitHub/Chess-WORK-IN-PROGRESS-/logs/", log_file_name)
+    log_file = os.path.join(initvar.log_path, log_file_name)
     file_handler = logging.FileHandler(log_file)
     log_file_formatter = logging.Formatter("%(levelname)s %(asctime)s %(funcName)s %(lineno)d %(message)s")
     file_handler.setFormatter(log_file_formatter)
