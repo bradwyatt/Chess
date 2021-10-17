@@ -926,53 +926,56 @@ class CpuController():
                 move_score += play_objects.Piece_Lists_Shortcut.piece_on_coord(grid.coordinate).score
             elif grid.occupied and grid.coords_of_attacking_pieces[cls.enemy_color]:
                 # Trade only when enemy piece is higher value
-                print("Move Score Before: " + str(move_score))
                 move_score += play_objects.Piece_Lists_Shortcut.piece_on_coord(grid.coordinate).score - piece_to_move.score
-                print("Move Score After: " + str(move_score))
-            if len(board.Grid.grid_dict[grid.coordinate].coords_of_attacking_pieces[cls.enemy_color]) > 0 \
-                and len(board.Grid.grid_dict[grid.coordinate].coords_of_protecting_pieces[cls.cpu_color]) <= 1:
-                    # Moving to a square being attacked by white and 0 protection
-                    move_score -= piece_to_move.score
-            elif len(board.Grid.grid_dict[grid.coordinate].coords_of_attacking_pieces[cls.enemy_color]) > 0 \
-                and len(board.Grid.grid_dict[grid.coordinate].coords_of_protecting_pieces[cls.cpu_color]) > 1:
-                    # Moving to a square being attacked by white but you have some protection
-                lowest_attacker_score = []
-                for attacking_grid in board.Grid.grid_dict[grid.coordinate].coords_of_attacking_pieces[cls.enemy_color]:
+            elif not grid.occupied and grid.coords_of_attacking_pieces[cls.enemy_color] \
+                and not grid.coords_of_protecting_pieces[cls.cpu_color]:
+                # Moving to a square (not occupied) being attacked by enemy and 0 protection
+                move_score -= piece_to_move.score
+            elif not grid.occupied and grid.coords_of_attacking_pieces[cls.enemy_color] \
+                and grid.coords_of_protecting_pieces[cls.cpu_color]:
+                # Moving to a square (not occupied) being attacked by enemy but you have some protection
+                # For each attacking piece, calculate what the score would be if enemy takes cpu piece
+                # Enemy king can't attack because at least one of CPU's pieces are protecting it
+                trade_score_list = []
+                for attacking_grid in grid.coords_of_attacking_pieces[cls.enemy_color]:
                     attacker_piece = play_objects.Piece_Lists_Shortcut.piece_on_coord(attacking_grid)
-                    if attacker_piece not in play_objects.PlayKing.white_king_list:
-                        if attacker_piece.score <= piece_to_move.score:
-                            lowest_attacker_score.append(attacker_piece.score-piece_to_move.score)
-                        else: 
-                            lowest_attacker_score.append(0)
+                    if isinstance(attacker_piece, play_objects.PlayKing):
+                        trade_score_list.append(0)
                     else:
-                        lowest_attacker_score.append(0)
-                move_score += min(lowest_attacker_score)
-            if len(board.Grid.grid_dict[piece_to_move.coordinate].coords_of_attacking_pieces[cls.enemy_color]) > 0 \
-                and len(board.Grid.grid_dict[grid.coordinate].coords_of_attacking_pieces[cls.enemy_color]) == 0:
-                    # Available space without an attacking piece
-                    if piece_to_move not in play_objects.PlayKing.black_king_list:
-                        move_score += piece_to_move.score
-                    else:
-                        pass
-            elif len(board.Grid.grid_dict[piece_to_move.coordinate].coords_of_attacking_pieces[cls.enemy_color]) > 0 \
-                and len(board.Grid.grid_dict[piece_to_move.coordinate].coords_of_protecting_pieces[cls.cpu_color]) > 1:
+                        trade_score_list.append(attacker_piece.score-piece_to_move.score)
+                if min(trade_score_list) < 0:
+                    # If there is one piece that has less value than piece_to_move, then move_score should decrease by that
+                    move_score += min(trade_score_list)
+                else:
+                    pass
+            if board.Grid.grid_dict[piece_to_move.coordinate].coords_of_attacking_pieces[cls.enemy_color] \
+                and board.Grid.grid_dict[piece_to_move.coordinate].coords_of_protecting_pieces[cls.cpu_color] \
+                    and not isinstance(piece_to_move, play_objects.PlayKing):
                     # Current piece being attacked and is being protected
-                lowest_attacker_score = []
+                    # Not including King from piece_to_move since it can't trade
+                trade_score_list = []
                 for attacking_grid in board.Grid.grid_dict[piece_to_move.coordinate].coords_of_attacking_pieces[cls.enemy_color]:
                     attacker_piece = play_objects.Piece_Lists_Shortcut.piece_on_coord(attacking_grid)
-                    if attacker_piece not in play_objects.PlayKing.white_king_list:
+                    if not isinstance(attacker_piece, play_objects.PlayKing):
                         if attacker_piece.score <= piece_to_move.score:
-                            lowest_attacker_score.append(piece_to_move.score-attacker_piece.score)
+                            # If attacker piece is less valuable than piece to move, then append to trade_score_list
+                            trade_score_list.append(piece_to_move.score-attacker_piece.score)
                         else:
-                            lowest_attacker_score.append(0)
+                            trade_score_list.append(0)
                     else:
-                        lowest_attacker_score.append(0)
-                move_score += max(lowest_attacker_score)
+                        trade_score_list.append(0)
+                move_score += max(trade_score_list)
+            elif board.Grid.grid_dict[piece_to_move.coordinate].coords_of_attacking_pieces[cls.enemy_color] \
+                and not board.Grid.grid_dict[piece_to_move.coordinate].coords_of_protecting_pieces[cls.cpu_color] \
+                    and not isinstance(piece_to_move, play_objects.PlayKing):
+                    # Current piece being attacked and is not protected
+                    # Not including King from piece_to_move since it can't trade
+                move_score += piece_to_move.score
             move_score_list.append(move_score)
             # gridcoord_piece_score_list for debugging purposes only
             # Gives the piece, the move, the score
             gridcoord_piece_score_list.append((possible_move[0].coordinate, possible_move[1], move_score))
-        print("Total Possible Moves: \n" + str(gridcoord_piece_score_list) + "\n")
+        #print("Total Possible Moves: \n" + str(gridcoord_piece_score_list) + "\n")
         max_move = max(move_score_list)
         index_of_max_moves = move_score_list.index(max_move)
         return cls.total_possible_moves[index_of_max_moves]
@@ -2010,9 +2013,9 @@ def main():
                                 # REMOVE ALL SPRITES
                                 placed_objects.remove_all_placed()
                     
-                    # MIDDLE MOUSE DEBUGGER
+                    #%% Middle Mouse Debugger
                     if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[1]:
-                        pass
+                        print(board.Grid.grid_dict[mouse_coord].coords_of_protecting_pieces)
                 ##################
                 # ALL EDIT ACTIONS
                 ##################
@@ -2023,7 +2026,7 @@ def main():
                 ##################
                 # IN-GAME ACTIONS
                 ##################
-                #FOR DEBUGGING PURPOSES, PUT TEST CODE BELOW
+                #%% Test code below for debugging purposes
                 
                 # Set background
                 lis.SCREEN.blit(lis.GAME_BACKGROUND, (0, 0))
