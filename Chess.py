@@ -915,6 +915,7 @@ class CpuController():
     @classmethod
     def choose_move(cls):
         move_score_list = []
+        gridcoord_piece_score_list = []
         random.seed(4)
         random.shuffle(cls.total_possible_moves)
         for possible_move in cls.total_possible_moves:
@@ -923,7 +924,9 @@ class CpuController():
             move_score = cls.analyze_board(grid, piece_to_move, cls.cpu_color)
             if grid.occupied and not grid.coords_of_attacking_pieces[cls.enemy_color]:
                 # No other attack pieces
+                print("Move Score Before: " + str(move_score))
                 move_score += play_objects.Piece_Lists_Shortcut.piece_on_coord(grid.coordinate).score
+                print("Move Score After: " + str(move_score))
             elif grid.occupied and grid.coords_of_attacking_pieces[cls.enemy_color]:
                 # Trade only when other piece is higher value
                 move_score = play_objects.Piece_Lists_Shortcut.piece_on_coord(grid.coordinate).score - piece_to_move.score
@@ -1005,6 +1008,8 @@ class CpuController():
                             move_score += piece_to_move.score
                 """
             move_score_list.append(move_score)
+            gridcoord_piece_score_list.append((possible_move[0].coordinate, possible_move[1], move_score))
+        print("Total Possible Moves: \n" + str(gridcoord_piece_score_list) + "\n")
         max_move = max(move_score_list)
         index_of_max_moves = move_score_list.index(max_move)
         return cls.total_possible_moves[index_of_max_moves]

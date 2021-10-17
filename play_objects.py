@@ -1,6 +1,7 @@
 import pygame
 from load_images_sounds import *
 import board
+import initvar
 
 PLAY_SPRITES = pygame.sprite.Group()
 
@@ -66,7 +67,7 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_PAWN"]
             PlayPawn.black_pawn_list.append(self)
         super().__init__(coord, self.image, col)
-        self.score = 1
+        self.score = initvar.piece_values_dict["pawn"]
     def captured(self, x, y, move_number, ep_grid_after_coord=None):
         self.taken_off_board = True
         if ep_grid_after_coord:
@@ -222,7 +223,7 @@ class PlayKnight(ChessPiece, pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_KNIGHT"]
             PlayKnight.black_knight_list.append(self)
         super().__init__(coord, self.image, col)
-        self.score = 3
+        self.score = initvar.piece_values_dict["knight"]
     def projected(self, game_controller):
         if(self.taken_off_board != True):
             self.proj_attacking_coordinates = [self.coordinate]
@@ -414,7 +415,7 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_BISHOP"]
             PlayBishop.black_bishop_list.append(self)
         super().__init__(coord, self.image, col)
-        self.score = 3
+        self.score = initvar.piece_values_dict["bishop"]
     def projected(self, game_controller):
         if(self.taken_off_board != True):
             bishop_projected("bishop", self, game_controller, -1, -1) #southwest
@@ -577,7 +578,7 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
             PlayRook.black_rook_list.append(self)
         super().__init__(coord, self.image, col)
         self.allowed_to_castle = True
-        self.score = 5
+        self.score = initvar.piece_values_dict["rook"]
     def captured(self, x, y, move_number):
         self.taken_off_board = True
         self.captured_move_number_and_coordinate = {'move_number':move_number, 'coordinate':self.coordinate}
@@ -631,7 +632,7 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
             self.image = IMAGES["SPR_BLACK_QUEEN"]
             PlayQueen.black_queen_list.append(self)
         super().__init__(coord, self.image, col)
-        self.score = 9
+        self.score = initvar.piece_values_dict["queen"]
     def captured(self, x, y, move_number):
         self.taken_off_board = True
         self.captured_move_number_and_coordinate = {'move_number':move_number, 'coordinate':self.coordinate}
