@@ -61,3 +61,4 @@ Sprites/Archive/
 .pylint.d/
 Test/
 __pycache__/
+ChessPositions/Testing/

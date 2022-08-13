@@ -1,1 +1,0 @@
-{"white_pawn": ["h2", "e2", "h3"], "white_bishop": ["g2"], "white_knight": ["f2", "c2", "g3"], "white_rook": ["b4", "b3", "b2"], "white_queen": ["e1"], "white_king": ["g1"], "black_pawn": ["a7", "b7"], "black_bishop": ["h6", "h7", "h5"], "black_knight": ["f8", "g8", "f6"], "black_rook": ["a8", "a6", "a5"], "black_queen": ["d7", "c7"], "black_king": ["c8"]}
