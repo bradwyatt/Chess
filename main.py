@@ -152,7 +152,6 @@ def pos_save_file():
         if save_file_name is not None:
             # Write the file to disk
             obj_locations = copy.deepcopy(get_dict_rect_positions())
-            print(str(obj_locations))
             save_file_name.write(str(obj_locations))
             save_file_name.close()
             log.info("File Saved Successfully.")
@@ -287,7 +286,7 @@ class PgnWriterAndLoader():
             else:
                 if row != '':
                     # Skip any lines that have empty spaces, we are only getting the chess game moves
-                    chess_game.append(row)
+                    chess_game.append(row + " ")
         try:
             GameProperties.Event = parameters['Event'].replace('"', '')
         except KeyError:
@@ -334,8 +333,10 @@ class PgnWriterAndLoader():
             GameProperties.TimeControl = "0"
 
         # Removes line breaks and formulates all elements into one element in the list
+        # Also if the PGN has no space after the move number, then include a space for easier parsing
         chess_game = "".join(chess_game).split("  ")
-
+        if chess_game[0][2] != " ":
+            chess_game[0] = chess_game[0].replace(".", ". ")
         number_move_splits = "".join(chess_game).split()
 
         def determine_piece_list(piece_abb, whoseturn):
@@ -387,62 +388,65 @@ class PgnWriterAndLoader():
                     if piece.coordinate[0] == move[0]:
                         piece_determined = piece
             return piece_determined
-
         for row in number_move_splits:
             # Breakpoint for a specific move on PGN
             #if "14." in move:
             #    break
-            if ("." in row) or ("*" in row) or ("0-1" in row) or ("1-0" in row) or ("1/2-1/2" in row):
+            if ("." in row) or ("*" in row):
                 pass
             else:
                 move = row
-                # type_of_piece list in Nce2 would be "N"
-
-                if move == "O-O":
-                    if game_controller.whoseturn == "white":
-                        type_of_piece_list = play_objects.PlayKing.white_king_list
-                        grid_coordinate = 'g1'
-                    elif game_controller.whoseturn == "black":
-                        type_of_piece_list = play_objects.PlayKing.black_king_list
-                        grid_coordinate = 'g8'
-                    piece = type_of_piece_list[0]
-                    prior_moves_dict, captured_abb, special_abb, promoted_queen = MoveController.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller)
-                    check_abb = MoveController.game_status_check(game_controller)
-                    MoveController.record_move(game_controller, board.Grid.grid_dict[grid_coordinate], piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen)
-                elif move == "O-O-O":
-                    if game_controller.whoseturn == "white":
-                        type_of_piece_list = play_objects.PlayKing.white_king_list
-                        grid_coordinate = 'c1'
-                    elif game_controller.whoseturn == "black":
-                        type_of_piece_list = play_objects.PlayKing.black_king_list
-                        grid_coordinate = 'c8'
-                    piece = determine_piece(type_of_piece_list, move, grid_coordinate, game_controller)
-                    prior_moves_dict, captured_abb, special_abb, promoted_queen = MoveController.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller)
-                    check_abb = MoveController.game_status_check(game_controller)
-                    MoveController.record_move(game_controller, board.Grid.grid_dict[grid_coordinate], piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen)
-                elif move[-2:] == "=Q":
-                    if game_controller.whoseturn == "white":
-                        type_of_piece_list = play_objects.PlayPawn.white_pawn_list
-                    elif game_controller.whoseturn == "black":
-                        type_of_piece_list = play_objects.PlayPawn.black_pawn_list
-                    grid_coordinate = move[-4:-2]
-                    piece = determine_piece(type_of_piece_list, move, grid_coordinate, game_controller)
-                    prior_moves_dict, captured_abb, special_abb, promoted_queen = MoveController.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller)
-                    check_abb = MoveController.game_status_check(game_controller)
-                    MoveController.record_move(game_controller, board.Grid.grid_dict[grid_coordinate], piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen)
+                if ("0-1" in row) or ("1-0" in row) or ("1/2-1/2" in row):
+                    MoveController.game_status_check(game_controller, imported_game_status=row)
                 else:
-                    # NORMAL MOVES
-                    # Last 2 characters are always the coordinate of the grid besides special exceptions above
-                    type_of_piece_list = determine_piece_list(move[0], game_controller.whoseturn)
-                    if move[-1] == "+" or move[-1] == "#":
-                        grid_coordinate = move[-3:-1]
+                    move = row
+                    # type_of_piece list in Nce2 would be "N"
+    
+                    if move == "O-O":
+                        if game_controller.whoseturn == "white":
+                            type_of_piece_list = play_objects.PlayKing.white_king_list
+                            grid_coordinate = 'g1'
+                        elif game_controller.whoseturn == "black":
+                            type_of_piece_list = play_objects.PlayKing.black_king_list
+                            grid_coordinate = 'g8'
+                        piece = type_of_piece_list[0]
+                        prior_moves_dict, captured_abb, special_abb, promoted_queen = MoveController.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller)
+                        check_abb = MoveController.game_status_check(game_controller)
+                        MoveController.record_move(game_controller, board.Grid.grid_dict[grid_coordinate], piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen)
+                    elif move == "O-O-O":
+                        if game_controller.whoseturn == "white":
+                            type_of_piece_list = play_objects.PlayKing.white_king_list
+                            grid_coordinate = 'c1'
+                        elif game_controller.whoseturn == "black":
+                            type_of_piece_list = play_objects.PlayKing.black_king_list
+                            grid_coordinate = 'c8'
+                        piece = determine_piece(type_of_piece_list, move, grid_coordinate, game_controller)
+                        prior_moves_dict, captured_abb, special_abb, promoted_queen = MoveController.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller)
+                        check_abb = MoveController.game_status_check(game_controller)
+                        MoveController.record_move(game_controller, board.Grid.grid_dict[grid_coordinate], piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen)
+                    elif move[-2:] == "=Q":
+                        if game_controller.whoseturn == "white":
+                            type_of_piece_list = play_objects.PlayPawn.white_pawn_list
+                        elif game_controller.whoseturn == "black":
+                            type_of_piece_list = play_objects.PlayPawn.black_pawn_list
+                        grid_coordinate = move[-4:-2]
+                        piece = determine_piece(type_of_piece_list, move, grid_coordinate, game_controller)
+                        prior_moves_dict, captured_abb, special_abb, promoted_queen = MoveController.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller)
+                        check_abb = MoveController.game_status_check(game_controller)
+                        MoveController.record_move(game_controller, board.Grid.grid_dict[grid_coordinate], piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen)
                     else:
-                        grid_coordinate = move[-2:]
-                    piece = determine_piece(type_of_piece_list, move, grid_coordinate, game_controller)
-                    prior_moves_dict, captured_abb, special_abb, promoted_queen = MoveController.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller)
-                    check_abb = MoveController.game_status_check(game_controller)
-                    MoveController.record_move(game_controller, board.Grid.grid_dict[grid_coordinate], piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen)
-                PanelController.draw_move_rects_on_moves_pane(pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, initvar.MOVE_NOTATION_FONT_SIZE))
+                        # NORMAL MOVES
+                        # Last 2 characters are always the coordinate of the grid besides special exceptions above
+                        type_of_piece_list = determine_piece_list(move[0], game_controller.whoseturn)
+                        if move[-1] == "+" or move[-1] == "#":
+                            grid_coordinate = move[-3:-1]
+                        else:
+                            grid_coordinate = move[-2:]
+                        piece = determine_piece(type_of_piece_list, move, grid_coordinate, game_controller)
+                        prior_moves_dict, captured_abb, special_abb, promoted_queen = MoveController.make_move(board.Grid.grid_dict[grid_coordinate], piece, game_controller)
+                        check_abb = MoveController.game_status_check(game_controller)
+                        MoveController.record_move(game_controller, board.Grid.grid_dict[grid_coordinate], piece, prior_moves_dict, captured_abb, special_abb, check_abb, promoted_queen)
+                    PanelController.draw_move_rects_on_moves_pane(pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, initvar.MOVE_NOTATION_FONT_SIZE))
 
         def prior_move_grid_update(current_coord):
             for play_obj_list in play_objects.Piece_Lists_Shortcut.all_pieces():
@@ -1612,41 +1616,51 @@ class MoveController():
             
         return prior_moves_dict, captured_abb, special_abb, promoted_queen
     @staticmethod
-    def game_status_check(game_controller):
-        check_abb = ""
-        def stalemate_check(whoseturn):
-            for subgrid in board.Grid.grid_list:
-                if len(subgrid.coords_of_available_pieces[whoseturn]) > 0:
-                    # No check, no checkmate, no stalemate
-                    TextController.check_checkmate_text = ""
-                    return "*"
-            TextController.check_checkmate_text = "Stalemate"
-            return "1/2-1/2"
-        def checkmate_check(whoseturn):
-            for subgrid in board.Grid.grid_list:
-                if len(subgrid.coords_of_available_pieces[whoseturn]) > 0:
-                    # If able to detect that a grid can be available, that means it's NOT checkmate
-                    return "+", "*"
-            if whoseturn == 'black':
-                TextController.check_checkmate_text = "White wins"
-                game_result = "#", "1-0"
-            elif whoseturn == 'white':
-                TextController.check_checkmate_text = "Black wins"
-                game_result = "#", "0-1"
-            return game_result
-        if game_controller.color_in_check == "black":
-            TextController.check_checkmate_text = "Black King checked"
-            check_abb, game_controller.result_abb = checkmate_check('black')
-        elif game_controller.color_in_check == "white":
-            TextController.check_checkmate_text = "White King checked"
-            check_abb, game_controller.result_abb = checkmate_check('white')
-        elif game_controller.color_in_check == "" and game_controller.whoseturn == "white":
-            game_controller.result_abb = stalemate_check('white')
-        elif game_controller.color_in_check == "" and game_controller.whoseturn == "black":
-            game_controller.result_abb = stalemate_check('black')
-        else:
-            # No checks
-            TextController.check_checkmate_text = ""
+    def game_status_check(game_controller, imported_game_status=False):
+        if imported_game_status==False:
+            check_abb = ""
+            def stalemate_check(whoseturn):
+                for subgrid in board.Grid.grid_list:
+                    if len(subgrid.coords_of_available_pieces[whoseturn]) > 0:
+                        # No check, no checkmate, no stalemate
+                        TextController.check_checkmate_text = ""
+                        return "*"
+                TextController.check_checkmate_text = "Stalemate"
+                return "1/2-1/2"
+            def checkmate_check(whoseturn):
+                for subgrid in board.Grid.grid_list:
+                    if len(subgrid.coords_of_available_pieces[whoseturn]) > 0:
+                        # If able to detect that a grid can be available, that means it's NOT checkmate
+                        return "+", "*"
+                if whoseturn == 'black':
+                    TextController.check_checkmate_text = "White wins"
+                    game_result = "#", "1-0"
+                elif whoseturn == 'white':
+                    TextController.check_checkmate_text = "Black wins"
+                    game_result = "#", "0-1"
+                return game_result
+            if game_controller.color_in_check == "black":
+                TextController.check_checkmate_text = "Black King checked"
+                check_abb, game_controller.result_abb = checkmate_check('black')
+            elif game_controller.color_in_check == "white":
+                TextController.check_checkmate_text = "White King checked"
+                check_abb, game_controller.result_abb = checkmate_check('white')
+            elif game_controller.color_in_check == "" and game_controller.whoseturn == "white":
+                game_controller.result_abb = stalemate_check('white')
+            elif game_controller.color_in_check == "" and game_controller.whoseturn == "black":
+                game_controller.result_abb = stalemate_check('black')
+            else:
+                # No checks
+                TextController.check_checkmate_text = ""
+        elif imported_game_status=="1-0":
+            TextController.check_checkmate_text = "White wins"
+            check_abb, game_controller.result_abb = "#", "1-0"
+        elif imported_game_status=="0-1":
+            TextController.check_checkmate_text = "Black wins"
+            check_abb, game_controller.result_abb = "#", "0-1"
+        elif imported_game_status=="1/2-1/2":
+            TextController.check_checkmate_text = "Draw"
+            check_abb, game_controller.result_abb = "", "1/2-1/2"
         for grid in board.Grid.grid_list:
             grid.no_highlight()
         GameProperties.Result = game_controller.result_abb
