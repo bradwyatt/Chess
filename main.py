@@ -152,7 +152,6 @@ def pos_save_file():
         if save_file_name is not None:
             # Write the file to disk
             obj_locations = copy.deepcopy(get_dict_rect_positions())
-            print(str(obj_locations))
             save_file_name.write(str(obj_locations))
             save_file_name.close()
             log.info("File Saved Successfully.")
