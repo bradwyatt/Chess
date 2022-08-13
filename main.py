@@ -287,7 +287,7 @@ class PgnWriterAndLoader():
             else:
                 if row != '':
                     # Skip any lines that have empty spaces, we are only getting the chess game moves
-                    chess_game.append(row)
+                    chess_game.append(row + " ")
         try:
             GameProperties.Event = parameters['Event'].replace('"', '')
         except KeyError:
@@ -334,10 +334,13 @@ class PgnWriterAndLoader():
             GameProperties.TimeControl = "0"
 
         # Removes line breaks and formulates all elements into one element in the list
+        # Also if the PGN has no space after the move number, then include a space for easier parsing
         chess_game = "".join(chess_game).split("  ")
-
+        if chess_game[0][2] != " ":
+            chess_game[0] = chess_game[0].replace(".", ". ")
         number_move_splits = "".join(chess_game).split()
-
+        
+        print(number_move_splits)
         def determine_piece_list(piece_abb, whoseturn):
             piece_white_map_dict = {"N": play_objects.PlayKnight.white_knight_list,
                                     "B": play_objects.PlayBishop.white_bishop_list,
@@ -387,7 +390,6 @@ class PgnWriterAndLoader():
                     if piece.coordinate[0] == move[0]:
                         piece_determined = piece
             return piece_determined
-
         for row in number_move_splits:
             # Breakpoint for a specific move on PGN
             #if "14." in move:
