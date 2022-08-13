@@ -60,3 +60,4 @@ Sprites/Archive/
 *.stats
 .pylint.d/
 Test/
+__pycache__/
