@@ -3,11 +3,14 @@ import os
 import pygame
 from pygame.constants import RLEACCEL
 import initvar
+import tkinter as tk
 
 IMAGES = {}
 SOUNDS = {}
 
 #Init
+root = tk.Tk()
+root.withdraw()
 pygame.init()
 SCREEN = pygame.display.set_mode((initvar.SCREEN_WIDTH, initvar.SCREEN_HEIGHT)) #, pygame.FULLSCREEN for fullscreen
 

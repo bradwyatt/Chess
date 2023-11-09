@@ -9,7 +9,6 @@ import copy
 import datetime
 import logging
 import logging.handlers
-import tkinter as tk
 from tkinter.filedialog import asksaveasfilename, askopenfilename
 import ast
 import json
@@ -1779,12 +1778,7 @@ class PanelController:
             menu_buttons.MoveNumberRectangle.rectangle_dict[MoveTracker.move_counter()].kill()
 
 def main():
-    try:
-        # Tk box for when saving and loading
-        # Must include this so the TK window doesn't stay in the background
-        root = tk.Tk()
-        root.withdraw()
-        
+    try:        
         running, debug = 0, 1
         state = running
         debug_message = 0
@@ -1832,10 +1826,12 @@ def main():
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         pygame.quit()
+                        lis.root.destroy()
                         sys.exit()
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_ESCAPE:
                             pygame.quit()
+                            lis.root.destroy()
                             sys.exit()
                     # If user wants to debug
                     if event.type == pygame.KEYUP:
@@ -2133,6 +2129,7 @@ def main():
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         pygame.quit()
+                        lis.root.destroy()
                         sys.exit()
                     if event.type == pygame.KEYUP:
                         if event.key == pygame.K_SPACE:
