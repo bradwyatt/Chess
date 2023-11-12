@@ -92,12 +92,12 @@ class PlayPawn(ChessPiece, pygame.sprite.Sprite):
         if self.taken_off_board != True:
             if(self.color == "white"):
                 if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_WHITE_PAWN_PRIORMOVE"]
+                    self.image = IMAGES["SPR_WHITE_PAWN_PRIOR_MOVE"]
                 else:
                     self.image = IMAGES["SPR_WHITE_PAWN"]
             elif(self.color == "black"):
                 if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_BLACK_PAWN_PRIORMOVE"]
+                    self.image = IMAGES["SPR_BLACK_PAWN_PRIOR_MOVE"]
                 else:
                     self.image = IMAGES["SPR_BLACK_PAWN"]
             self.select = False
@@ -284,12 +284,12 @@ class PlayKnight(ChessPiece, pygame.sprite.Sprite):
         if self.taken_off_board != True:
             if(self.color == "white"):
                 if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_WHITE_KNIGHT_PRIORMOVE"]
+                    self.image = IMAGES["SPR_WHITE_KNIGHT_PRIOR_MOVE"]
                 else:
                     self.image = IMAGES["SPR_WHITE_KNIGHT"]
             elif(self.color == "black"):
                 if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_BLACK_KNIGHT_PRIORMOVE"]
+                    self.image = IMAGES["SPR_BLACK_KNIGHT_PRIOR_MOVE"]
                 else:
                     self.image = IMAGES["SPR_BLACK_KNIGHT"]
             self.select = False
@@ -449,12 +449,12 @@ class PlayBishop(ChessPiece, pygame.sprite.Sprite):
         if self.taken_off_board != True:
             if(self.color == "white"):
                 if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_WHITE_BISHOP_PRIORMOVE"]
+                    self.image = IMAGES["SPR_WHITE_BISHOP_PRIOR_MOVE"]
                 else:
                     self.image = IMAGES["SPR_WHITE_BISHOP"]
             elif(self.color == "black"):
                 if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_BLACK_BISHOP_PRIORMOVE"]
+                    self.image = IMAGES["SPR_BLACK_BISHOP_PRIOR_MOVE"]
                 else:
                     self.image = IMAGES["SPR_BLACK_BISHOP"]
             self.select = False
@@ -610,12 +610,12 @@ class PlayRook(ChessPiece, pygame.sprite.Sprite):
     def no_highlight(self):
         if(self.color == "white"):
             if(self.prior_move_color == True):
-                self.image = IMAGES["SPR_WHITE_ROOK_PRIORMOVE"]
+                self.image = IMAGES["SPR_WHITE_ROOK_PRIOR_MOVE"]
             else:
                 self.image = IMAGES["SPR_WHITE_ROOK"]
         elif(self.color == "black"):
             if(self.prior_move_color == True):
-                self.image = IMAGES["SPR_BLACK_ROOK_PRIORMOVE"]
+                self.image = IMAGES["SPR_BLACK_ROOK_PRIOR_MOVE"]
             else:
                 self.image = IMAGES["SPR_BLACK_ROOK"]
         self.select = False
@@ -674,12 +674,12 @@ class PlayQueen(ChessPiece, pygame.sprite.Sprite):
         if self.taken_off_board != True:
             if(self.color == "white"):
                 if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_WHITE_QUEEN_PRIORMOVE"]
+                    self.image = IMAGES["SPR_WHITE_QUEEN_PRIOR_MOVE"]
                 else:
                     self.image = IMAGES["SPR_WHITE_QUEEN"]
             if(self.color == "black"):
                 if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_BLACK_QUEEN_PRIORMOVE"]
+                    self.image = IMAGES["SPR_BLACK_QUEEN_PRIOR_MOVE"]
                 else:
                     self.image = IMAGES["SPR_BLACK_QUEEN"]
             self.select = False
@@ -811,12 +811,12 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
     def no_highlight(self):
         if(self.color == "white"):
             if(self.prior_move_color == True):
-                self.image = IMAGES["SPR_WHITE_KING_PRIORMOVE"]
+                self.image = IMAGES["SPR_WHITE_KING_PRIOR_MOVE"]
             else:
                 self.image = IMAGES["SPR_WHITE_KING"]
         elif(self.color == "black"):
             if(self.prior_move_color == True):
-                self.image = IMAGES["SPR_BLACK_KING_PRIORMOVE"]
+                self.image = IMAGES["SPR_BLACK_KING_PRIOR_MOVE"]
             else:
                 self.image = IMAGES["SPR_BLACK_KING"]
         self.select = 0

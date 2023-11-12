@@ -82,12 +82,12 @@ class ReplayedPawn(pygame.sprite.Sprite):
         if self.taken_off_board != True:
             if(self.color == "white"):
                 if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_WHITE_PAWN_PRIORMOVE"]
+                    self.image = IMAGES["SPR_WHITE_PAWN_PRIOR_MOVE"]
                 else:
                     self.image = IMAGES["SPR_WHITE_PAWN"]
             elif(self.color == "black"):
                 if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_BLACK_PAWN_PRIORMOVE"]
+                    self.image = IMAGES["SPR_BLACK_PAWN_PRIOR_MOVE"]
                 else:
                     self.image = IMAGES["SPR_BLACK_PAWN"]
 
@@ -130,12 +130,12 @@ class ReplayedBishop(pygame.sprite.Sprite):
         if self.taken_off_board != True:
             if(self.color == "white"):
                 if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_WHITE_BISHOP_PRIORMOVE"]
+                    self.image = IMAGES["SPR_WHITE_BISHOP_PRIOR_MOVE"]
                 else:
                     self.image = IMAGES["SPR_WHITE_BISHOP"]
             elif(self.color == "black"):
                 if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_BLACK_BISHOP_PRIORMOVE"]
+                    self.image = IMAGES["SPR_BLACK_BISHOP_PRIOR_MOVE"]
                 else:
                     self.image = IMAGES["SPR_BLACK_BISHOP"]
 
@@ -178,12 +178,12 @@ class ReplayedKnight(pygame.sprite.Sprite):
         if self.taken_off_board != True:
             if(self.color == "white"):
                 if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_WHITE_KNIGHT_PRIORMOVE"]
+                    self.image = IMAGES["SPR_WHITE_KNIGHT_PRIOR_MOVE"]
                 else:
                     self.image = IMAGES["SPR_WHITE_KNIGHT"]
             elif(self.color == "black"):
                 if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_BLACK_KNIGHT_PRIORMOVE"]
+                    self.image = IMAGES["SPR_BLACK_KNIGHT_PRIOR_MOVE"]
                 else:
                     self.image = IMAGES["SPR_BLACK_KNIGHT"]
         
@@ -226,12 +226,12 @@ class ReplayedRook(pygame.sprite.Sprite):
         if self.taken_off_board != True:
             if(self.color == "white"):
                 if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_WHITE_ROOK_PRIORMOVE"]
+                    self.image = IMAGES["SPR_WHITE_ROOK_PRIOR_MOVE"]
                 else:
                     self.image = IMAGES["SPR_WHITE_ROOK"]
             elif(self.color == "black"):
                 if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_BLACK_ROOK_PRIORMOVE"]
+                    self.image = IMAGES["SPR_BLACK_ROOK_PRIOR_MOVE"]
                 else:
                     self.image = IMAGES["SPR_BLACK_ROOK"]
         
@@ -274,12 +274,12 @@ class ReplayedQueen(pygame.sprite.Sprite):
         if self.taken_off_board != True:
             if(self.color == "white"):
                 if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_WHITE_QUEEN_PRIORMOVE"]
+                    self.image = IMAGES["SPR_WHITE_QUEEN_PRIOR_MOVE"]
                 else:
                     self.image = IMAGES["SPR_WHITE_QUEEN"]
             elif(self.color == "black"):
                 if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_BLACK_QUEEN_PRIORMOVE"]
+                    self.image = IMAGES["SPR_BLACK_QUEEN_PRIOR_MOVE"]
                 else:
                     self.image = IMAGES["SPR_BLACK_QUEEN"]
         
@@ -322,11 +322,11 @@ class ReplayedKing(pygame.sprite.Sprite):
         if self.taken_off_board != True:
             if(self.color == "white"):
                 if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_WHITE_KING_PRIORMOVE"]
+                    self.image = IMAGES["SPR_WHITE_KING_PRIOR_MOVE"]
                 else:
                     self.image = IMAGES["SPR_WHITE_KING"]
             elif(self.color == "black"):
                 if(self.prior_move_color == True):
-                    self.image = IMAGES["SPR_BLACK_KING_PRIORMOVE"]
+                    self.image = IMAGES["SPR_BLACK_KING_PRIOR_MOVE"]
                 else:
                     self.image = IMAGES["SPR_BLACK_KING"]

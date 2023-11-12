@@ -37,7 +37,7 @@ log.setLevel(logging.INFO)
 # Handlers for logging errors
 if not initvar.exe_mode:
     log_file_name = "{0}.log".format(today.strftime("%Y-%m-%d %H%M%S"))
-    log_file = os.path.join(initvar.log_path, log_file_name)
+    log_file = os.path.join(os.path.dirname(__file__), 'logs', log_file_name)
     file_handler = logging.FileHandler(log_file)
     log_file_formatter = logging.Formatter("%(levelname)s %(asctime)s %(funcName)s %(lineno)d %(message)s")
     file_handler.setFormatter(log_file_formatter)
@@ -1805,7 +1805,7 @@ def main():
         last_move_button = menu_buttons.LastMoveButton(initvar.LAST_MOVE_BUTTON_TOPLEFT)
         undo_move_button = menu_buttons.UndoMoveButton(initvar.UNDO_MOVE_BUTTON_TOPLEFT)
         # Window
-        gameicon = pygame.image.load("Sprites/chessico.png")
+        gameicon = pygame.image.load("sprites/chess_ico.png")
         pygame.display.set_icon(gameicon)
         pygame.display.set_caption('Chess')
         # Load the starting positions of chessboard first

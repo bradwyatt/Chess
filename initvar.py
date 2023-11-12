@@ -1,14 +1,11 @@
-import pygame
-
 #################
 # USER CAN SET BELOW PARAMETERS
 #################
 
 exe_mode = False
 test_mode = False
-log_path = "C:/Users/Brad/Documents/GitHub/Chess/logs/"
 
-SCREEN_WIDTH, SCREEN_HEIGHT = 1440, 960
+SCREEN_WIDTH, SCREEN_HEIGHT = 1300, 800
 
 MOVE_BG_IMAGE_X = 1150
 MOVE_BG_IMAGE_Y = 170
