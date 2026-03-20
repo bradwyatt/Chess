@@ -1,12 +1,11 @@
 import sys
 import os
 import pygame
-from pygame.constants import RLEACCEL
 import initvar
 
-try:
+if sys.platform != "emscripten":
     import tkinter as tk
-except ImportError:
+else:
     tk = None
 
 IMAGES = {}
@@ -21,6 +20,8 @@ pygame.init()
 SCREEN = pygame.display.set_mode((initvar.SCREEN_WIDTH, initvar.SCREEN_HEIGHT)) #, pygame.FULLSCREEN for fullscreen
 
 def adjust_to_correct_appdir():
+    if sys.platform == "emscripten":
+        return
     try:
         appdir = sys.argv[0] #feel free to use __file__
         if not appdir:
@@ -57,7 +58,7 @@ def load_image(file, name, transparent, alpha):
         new_image = new_image.convert()
     if transparent:
         colorkey = new_image.get_at((0, 0))
-        new_image.set_colorkey(colorkey, RLEACCEL)
+        new_image.set_colorkey(colorkey, pygame.RLEACCEL)
     IMAGES[name] = new_image
     
 #Sprites
