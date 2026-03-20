@@ -9,13 +9,13 @@ import copy
 import datetime
 import logging
 import logging.handlers
+import tkinter as tk
 from tkinter.filedialog import asksaveasfilename, askopenfilename
 import ast
 import json
 import pygame
 import pandas as pd
 import numpy as np
-import PySimpleGUI as sg
 import load_images_sounds as lis
 import menu_buttons
 import initvar
@@ -38,6 +38,7 @@ log.setLevel(logging.INFO)
 if not initvar.exe_mode:
     log_file_name = "{0}.log".format(today.strftime("%Y-%m-%d %H%M%S"))
     log_file = os.path.join(initvar.log_path, log_file_name)
+    os.makedirs(initvar.log_path, exist_ok=True)
     file_handler = logging.FileHandler(log_file)
     log_file_formatter = logging.Formatter("%(levelname)s %(asctime)s %(funcName)s %(lineno)d %(message)s")
     file_handler.setFormatter(log_file_formatter)
@@ -189,40 +190,77 @@ class GameProperties():
     BlackElo = ""
     ECO = ""
     TimeControl = "0"
+
     @classmethod
     def game_properties_popup(cls):
-        layout = [
-            [sg.Text('Please enter the information for the game below (all fields are optional)')],
-            [sg.Text('Event', size=(9, 0)), sg.InputText(default_text=cls.Event)],
-            [sg.Text('Site', size=(9, 0)), sg.InputText(default_text=cls.Site)],
-            [sg.Text('Date', size=(9, 0)), sg.InputText(default_text=cls.Date)],
-            [sg.Text('Round', size=(9, 0)), sg.InputText(default_text=cls.Round)],
-            [sg.Text('White', size=(9, 0)), sg.InputText(default_text=cls.White)],
-            [sg.Text('Black', size=(9, 0)), sg.InputText(default_text=cls.Black)],
-            [sg.Text('Result', size=(9, 0)), sg.InputText(default_text=cls.Result)],
-            [sg.Text('WhiteElo', size=(9, 0)), sg.InputText(default_text=cls.WhiteElo)],
-            [sg.Text('BlackElo', size=(9, 0)), sg.InputText(default_text=cls.BlackElo)],
-            [sg.Text('ECO', size=(9, 0)), sg.InputText(default_text=cls.ECO)],
-            [sg.Text('TimeControl', size=(9, 0)), sg.InputText(default_text=cls.TimeControl)],
-            [sg.Submit("Ok"), sg.Cancel("Cancel")]
+        field_names = [
+            "Event",
+            "Site",
+            "Date",
+            "Round",
+            "White",
+            "Black",
+            "Result",
+            "WhiteElo",
+            "BlackElo",
+            "ECO",
+            "TimeControl",
         ]
-        #Please enter the information for the game below. All fields are optional.
-        window = sg.Window('Game Properties', layout, element_justification='center')
-        event, values = window.read()
-        window.close()
-        if event == 'Cancel' or event is None:
+        window = tk.Tk()
+        window.title("Game Properties")
+        window.resizable(False, False)
+        window.lift()
+        window.attributes("-topmost", True)
+        window.after(100, lambda: window.attributes("-topmost", False))
+
+        tk.Label(
+            window,
+            text="Please enter the information for the game below (all fields are optional)",
+            wraplength=360,
+            justify="left"
+        ).grid(row=0, column=0, columnspan=2, padx=12, pady=(12, 8), sticky="w")
+
+        entries = {}
+        for row_index, field_name in enumerate(field_names, start=1):
+            tk.Label(window, text=field_name, width=10, anchor="w").grid(
+                row=row_index, column=0, padx=(12, 8), pady=4, sticky="w"
+            )
+            entry = tk.Entry(window, width=36)
+            entry.insert(0, str(getattr(cls, field_name)))
+            entry.grid(row=row_index, column=1, padx=(0, 12), pady=4, sticky="ew")
+            entries[field_name] = entry
+
+        result = {"confirmed": False, "values": {}}
+
+        def submit():
+            result["values"] = {
+                field_name: entry.get()
+                for field_name, entry in entries.items()
+            }
+            result["confirmed"] = True
+            window.quit()
+            window.destroy()
+
+        def cancel():
+            window.quit()
+            window.destroy()
+
+        button_frame = tk.Frame(window)
+        button_frame.grid(row=len(field_names) + 1, column=0, columnspan=2, pady=(8, 12))
+        tk.Button(button_frame, text="Ok", width=10, command=submit).pack(side="left", padx=6)
+        tk.Button(button_frame, text="Cancel", width=10, command=cancel).pack(side="left", padx=6)
+
+        window.protocol("WM_DELETE_WINDOW", cancel)
+        first_entry = entries[field_names[0]]
+        first_entry.focus_set()
+        window.bind("<Return>", lambda _event: submit())
+        window.bind("<Escape>", lambda _event: cancel())
+        window.mainloop()
+
+        if not result["confirmed"]:
             return
-        cls.Event = values[0]
-        cls.Site = values[1]
-        cls.Date = values[2]
-        cls.Round = values[3]
-        cls.White = values[4]
-        cls.Black = values[5]
-        cls.Result = values[6]
-        cls.WhiteElo = values[7]
-        cls.BlackElo = values[8]
-        cls.ECO = values[9]
-        cls.TimeControl = values[10]
+        for field_name, value in result["values"].items():
+            setattr(cls, field_name, value)
 
 class PgnWriterAndLoader():
     @staticmethod

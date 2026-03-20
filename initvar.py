@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pygame
 
 #################
@@ -6,7 +8,8 @@ import pygame
 
 exe_mode = False
 test_mode = False
-log_path = "C:/Users/Brad/Documents/GitHub/Chess/logs/"
+BASE_DIR = Path(__file__).resolve().parent
+log_path = BASE_DIR / "logs"
 
 SCREEN_WIDTH, SCREEN_HEIGHT = 1440, 960
 
