@@ -7,18 +7,26 @@ import sys
 import os
 import copy
 import datetime
+import asyncio
 import logging
 import logging.handlers
-import tkinter as tk
-from tkinter.filedialog import asksaveasfilename, askopenfilename
 import ast
 import json
 import pygame
 import pandas as pd
 import numpy as np
+import initvar
+
+try:
+    import tkinter as tk
+    from tkinter.filedialog import asksaveasfilename, askopenfilename
+except ImportError:
+    tk = None
+    asksaveasfilename = None
+    askopenfilename = None
+
 import load_images_sounds as lis
 import menu_buttons
-import initvar
 import board
 import start_objects
 import placed_objects
@@ -55,10 +63,19 @@ log.addHandler(console_handler)
 # Functions
 #############
 
+def native_file_dialogs_available():
+    return not initvar.ITCH_MODE and tk is not None and asksaveasfilename is not None and askopenfilename is not None
+
+def itch_mode_blocked(action_name):
+    log.info("%s is unavailable in itch/browser mode.", action_name)
+
 def pos_load_file(reset=False):
     """
     Load positions of the pieces
     """
+    if initvar.ITCH_MODE and not reset:
+        itch_mode_blocked("Loading saved positions")
+        return
     open_file = None
     if reset:
         loaded_dict = {'white_pawn': ['a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'],
@@ -68,6 +85,9 @@ def pos_load_file(reset=False):
                        'black_bishop': ['c8', 'f8'], 'black_knight': ['b8', 'g8'],
                        'black_rook': ['a8', 'h8'], 'black_queen': ['d8'], 'black_king': ['e8']}
     else:
+        if not native_file_dialogs_available():
+            itch_mode_blocked("Loading saved positions")
+            return
         request_file_name = askopenfilename(defaultextension=".json")
         try:
             open_file = open(request_file_name, "r")
@@ -146,6 +166,9 @@ def pos_save_file():
     """
     Save positions of the pieces
     """
+    if not native_file_dialogs_available():
+        itch_mode_blocked("Saving positions")
+        return
     try:
         save_file_prompt = asksaveasfilename(defaultextension=".json")
         save_file_name = open(save_file_prompt, "w")
@@ -193,6 +216,9 @@ class GameProperties():
 
     @classmethod
     def game_properties_popup(cls):
+        if initvar.ITCH_MODE or tk is None:
+            itch_mode_blocked("Game properties")
+            return
         field_names = [
             "Event",
             "Site",
@@ -265,6 +291,9 @@ class GameProperties():
 class PgnWriterAndLoader():
     @staticmethod
     def write_moves(df_moves, result_abb):
+        if not native_file_dialogs_available():
+            itch_mode_blocked("Saving PGN")
+            return
         try:
             df = df_moves.copy()
             save_file_prompt = asksaveasfilename(defaultextension=".pgn")
@@ -299,6 +328,9 @@ class PgnWriterAndLoader():
             log.info("Save File Error (IOError)")
     @staticmethod
     def pgn_load(play_edit_switch_button):
+        if not native_file_dialogs_available():
+            itch_mode_blocked("Loading PGN")
+            return None
         open_file = None
         request_file_name = askopenfilename(defaultextension=".pgn")
         log.info("Loading " + os.path.basename(request_file_name))
@@ -1815,24 +1847,33 @@ class PanelController:
             menu_buttons.MoveNumberRectangle.rectangle_dict[MoveTracker.move_counter()].text = ""
             menu_buttons.MoveNumberRectangle.rectangle_dict[MoveTracker.move_counter()].kill()
 
-def main():
+async def main():
     try:        
         running, debug = 0, 1
         state = running
         debug_message = 0
+        app_running = True
         
         clock = pygame.time.Clock()
         
         play_edit_switch_button = menu_buttons.PlayEditSwitchButton(initvar.PLAY_EDIT_SWITCH_BUTTON_TOPLEFT)
         flip_board_button = menu_buttons.FlipBoardButton(initvar.FLIP_BOARD_BUTTON_TOPLEFT)
         cpu_button = menu_buttons.CPUButton(initvar.CPU_BUTTON_TOPLEFT, CpuController.cpu_mode)
-        game_properties_button = menu_buttons.GamePropertiesButton(initvar.GAME_PROPERTIES_BUTTON_TOPLEFT)
-        pos_load_file_button = menu_buttons.PosLoadFileButton(initvar.POS_LOAD_FILE_BUTTON_TOPLEFT)
-        pos_save_file_button = menu_buttons.PosSaveFileButton(initvar.POS_SAVE_FILE_BUTTON_TOPLEFT)
-        pgn_load_file_button = menu_buttons.PGNLoadFileButton(initvar.PGN_LOAD_FILE_BUTTON_TOPLEFT)
-        pgn_save_file_button = menu_buttons.PGNSaveFileButton(initvar.PGN_SAVE_FILE_BUTTON_TOPLEFT)
-        load_file_placeholder = menu_buttons.LoadFilePlaceholder(initvar.LOAD_FILE_PLACEHOLDER_TOPLEFT)
-        save_file_placeholder = menu_buttons.SaveFilePlaceholder(initvar.SAVE_FILE_PLACEHOLDER_TOPLEFT)
+        game_properties_button = None
+        pos_load_file_button = None
+        pos_save_file_button = None
+        pgn_load_file_button = None
+        pgn_save_file_button = None
+        load_file_placeholder = None
+        save_file_placeholder = None
+        if not initvar.ITCH_MODE:
+            game_properties_button = menu_buttons.GamePropertiesButton(initvar.GAME_PROPERTIES_BUTTON_TOPLEFT)
+            pos_load_file_button = menu_buttons.PosLoadFileButton(initvar.POS_LOAD_FILE_BUTTON_TOPLEFT)
+            pos_save_file_button = menu_buttons.PosSaveFileButton(initvar.POS_SAVE_FILE_BUTTON_TOPLEFT)
+            pgn_load_file_button = menu_buttons.PGNLoadFileButton(initvar.PGN_LOAD_FILE_BUTTON_TOPLEFT)
+            pgn_save_file_button = menu_buttons.PGNSaveFileButton(initvar.PGN_SAVE_FILE_BUTTON_TOPLEFT)
+            load_file_placeholder = menu_buttons.LoadFilePlaceholder(initvar.LOAD_FILE_PLACEHOLDER_TOPLEFT)
+            save_file_placeholder = menu_buttons.SaveFilePlaceholder(initvar.SAVE_FILE_PLACEHOLDER_TOPLEFT)
         reset_board_button = menu_buttons.ResetBoardButton(initvar.RESET_BOARD_BUTTON_TOPLEFT)
         clear_button = menu_buttons.ClearButton(initvar.CLEAR_BUTTON_TOPLEFT)
         scroll_up_button = menu_buttons.ScrollUpButton(initvar.SCROLL_UP_BUTTON_TOPLEFT)
@@ -1843,7 +1884,7 @@ def main():
         last_move_button = menu_buttons.LastMoveButton(initvar.LAST_MOVE_BUTTON_TOPLEFT)
         undo_move_button = menu_buttons.UndoMoveButton(initvar.UNDO_MOVE_BUTTON_TOPLEFT)
         # Window
-        gameicon = pygame.image.load("Sprites/chessico.png")
+        gameicon = pygame.image.load("sprites/chessico.png")
         pygame.display.set_icon(gameicon)
         pygame.display.set_caption('Chess')
         # Load the starting positions of chessboard first
@@ -1856,34 +1897,33 @@ def main():
                     mouse_coord = grid.coordinate
                     return mouse_coord
             return mouse_coord
-        while True:
+        while app_running:
             clock.tick(60)
             mousepos = pygame.mouse.get_pos()
             mouse_coord = mouse_coordinate(mousepos)
             if state == running: # Initiate room
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
-                        pygame.quit()
-                        lis.root.destroy()
-                        sys.exit()
+                        app_running = False
+                        break
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_ESCAPE:
-                            pygame.quit()
-                            lis.root.destroy()
-                            sys.exit()
+                            app_running = False
+                            break
                     # If user wants to debug
                     if event.type == pygame.KEYUP:
                         if event.key == pygame.K_SPACE:
                             debug_message = 1
                             state = debug
-                    if save_file_placeholder.rect.collidepoint(mousepos):
-                        save_file_placeholder.hover = True
-                    else:
-                        save_file_placeholder.hover = False
-                    if load_file_placeholder.rect.collidepoint(mousepos):
-                        load_file_placeholder.hover = True
-                    else:
-                        load_file_placeholder.hover = False
+                    if not initvar.ITCH_MODE:
+                        if save_file_placeholder.rect.collidepoint(mousepos):
+                            save_file_placeholder.hover = True
+                        else:
+                            save_file_placeholder.hover = False
+                        if load_file_placeholder.rect.collidepoint(mousepos):
+                            load_file_placeholder.hover = True
+                        else:
+                            load_file_placeholder.hover = False
                     # Menu, inanimate buttons at top, and on right side of game board
                     if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] \
                         and (mousepos[0] > board.X_GRID_END or mousepos[1] < initvar.Y_GRID_START \
@@ -1895,7 +1935,7 @@ def main():
                         if scroll_down_button.rect.collidepoint(mousepos) and len(menu_buttons.MoveNumberRectangle.rectangle_list) > initvar.MOVES_PANE_MAX_MOVES and menu_buttons.PanelRectangles.scroll_range[1] < len(menu_buttons.MoveNumberRectangle.rectangle_list): # Scroll down
                             if scroll_down_button.activate:  
                                 PanelController.update_scroll_range(1)
-                        if pgn_load_file_button.rect.collidepoint(mousepos) and pgn_load_file_button.clickable:
+                        if pgn_load_file_button and pgn_load_file_button.rect.collidepoint(mousepos) and pgn_load_file_button.clickable:
                             if CpuController.cpu_mode:
                                 CpuController.cpu_mode_toggle()
                                 cpu_button.toggle(CpuController.cpu_mode)
@@ -1903,7 +1943,7 @@ def main():
                             for grid in board.Grid.grid_list:
                                 grid.no_highlight()
                             GridController.update_grid_occupied_detection()
-                        if pgn_save_file_button.rect.collidepoint(mousepos) and pgn_save_file_button.clickable:
+                        if pgn_save_file_button and pgn_save_file_button.rect.collidepoint(mousepos) and pgn_save_file_button.clickable:
                             GameProperties.game_properties_popup()
                             PgnWriterAndLoader.write_moves(MoveTracker.df_moves, game_controller.result_abb)
                         if flip_board_button.rect.collidepoint(mousepos):
@@ -1988,13 +2028,13 @@ def main():
                         # Editing mode only
                         if SwitchModesController.GAME_MODE == SwitchModesController.EDIT_MODE:
                             #BUTTONS
-                            if pos_save_file_button.rect.collidepoint(mousepos) and pos_save_file_button.clickable:
+                            if pos_save_file_button and pos_save_file_button.rect.collidepoint(mousepos) and pos_save_file_button.clickable:
                                 pos_save_file()
-                            if pos_load_file_button.rect.collidepoint(mousepos) and pos_load_file_button.clickable:
+                            if pos_load_file_button and pos_load_file_button.rect.collidepoint(mousepos) and pos_load_file_button.clickable:
                                 pos_load_file()
                             if reset_board_button.rect.collidepoint(mousepos) and reset_board_button.clickable:
                                 pos_load_file(reset=True)
-                            if game_properties_button.rect.collidepoint(mousepos) and game_properties_button.clickable:
+                            if game_properties_button and game_properties_button.rect.collidepoint(mousepos) and game_properties_button.clickable:
                                 GameProperties.game_properties_popup()
                             # DRAG OBJECTS
                             # Goes through each of the types of pieces
@@ -2064,6 +2104,8 @@ def main():
                     #%% Middle Mouse Debugger
                     if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[1]:
                         print(board.Grid.grid_dict[mouse_coord].coords_of_protecting_pieces)
+                if not app_running:
+                    continue
                 ##################
                 # ALL EDIT ACTIONS
                 ##################
@@ -2080,12 +2122,13 @@ def main():
                 lis.SCREEN.blit(lis.GAME_BACKGROUND, (0, 0))
                 # Individual sprites update
                 flip_board_button.draw(lis.SCREEN)
-                save_file_placeholder.draw(lis.SCREEN)
-                pos_save_file_button.draw(lis.SCREEN, SwitchModesController.GAME_MODE, save_file_placeholder.hover)
-                pgn_save_file_button.draw(lis.SCREEN, SwitchModesController.GAME_MODE, save_file_placeholder.hover)
-                load_file_placeholder.draw(lis.SCREEN)
-                pos_load_file_button.draw(lis.SCREEN, SwitchModesController.GAME_MODE, load_file_placeholder.hover)
-                pgn_load_file_button.draw(lis.SCREEN, SwitchModesController.GAME_MODE, load_file_placeholder.hover)
+                if not initvar.ITCH_MODE:
+                    save_file_placeholder.draw(lis.SCREEN)
+                    pos_save_file_button.draw(lis.SCREEN, SwitchModesController.GAME_MODE, save_file_placeholder.hover)
+                    pgn_save_file_button.draw(lis.SCREEN, SwitchModesController.GAME_MODE, save_file_placeholder.hover)
+                    load_file_placeholder.draw(lis.SCREEN)
+                    pos_load_file_button.draw(lis.SCREEN, SwitchModesController.GAME_MODE, load_file_placeholder.hover)
+                    pgn_load_file_button.draw(lis.SCREEN, SwitchModesController.GAME_MODE, load_file_placeholder.hover)
                 cpu_button.draw(lis.SCREEN, SwitchModesController.GAME_MODE)
                 # Group sprites update
                 menu_buttons.GAME_MODE_SPRITES.draw(lis.SCREEN)
@@ -2166,16 +2209,19 @@ def main():
                     log.info("Use breakpoint here")
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
-                        pygame.quit()
-                        lis.root.destroy()
-                        sys.exit()
+                        app_running = False
+                        break
                     if event.type == pygame.KEYUP:
                         if event.key == pygame.K_SPACE:
                             state = running
                             log.info("back to Running")
-    except SystemExit:
-        pass
+                if not app_running:
+                    continue
+            await asyncio.sleep(0)
     except:
         log.exception("Error out of main")
+    finally:
+        pygame.quit()
+        lis.destroy_root()
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

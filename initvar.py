@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pygame
+import sys
 
 #################
 # USER CAN SET BELOW PARAMETERS
@@ -8,6 +9,7 @@ import pygame
 
 exe_mode = False
 test_mode = False
+ITCH_MODE = "--itch" in sys.argv or sys.platform == "emscripten"
 BASE_DIR = Path(__file__).resolve().parent
 log_path = BASE_DIR / "logs"
 
