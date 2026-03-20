@@ -65,3 +65,5 @@ ChessPositions/Testing/
 PGN_Sample_Games/Testing/
 /.history
 /.venv
+/sprites/pieces/Archive
+
