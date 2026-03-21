@@ -6,154 +6,61 @@ import load_images_sounds as lis
 PLAY_PANEL_SPRITES = pygame.sprite.Group()
 GAME_MODE_SPRITES = pygame.sprite.Group()
 
-class ClearButton(pygame.sprite.Sprite):
-    def __init__(self, pos):
+class Button(pygame.sprite.Sprite):
+    def __init__(self, image_key, pos, sprite_group=None,
+                 active_in_mode=None, requires_hover=False):
         pygame.sprite.Sprite.__init__(self)
-        self.image = lis.IMAGES["SPR_CLEAR_BUTTON"]
+        self.image = lis.IMAGES[image_key]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
-        start_objects.START_SPRITES.add(self)
+        self._active_in_mode = active_in_mode
+        self._requires_hover = requires_hover
         self.clickable = True
-    def update(self, game_mode):
-        if game_mode == 0:
-            self.clickable = True
-        else:
-            self.clickable = False
-    
-class InfoButton(pygame.sprite.Sprite):
-    def __init__(self, pos):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = lis.IMAGES["SPR_INFO_BUTTON"]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        start_objects.START_SPRITES.add(self)
-        self.clickable = True
-    def update(self, game_mode):
-        if game_mode == 0:
-            self.clickable = True
-        else:
-            self.clickable = False
-    
-class ResetBoardButton(pygame.sprite.Sprite):
-    def __init__(self, pos):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = lis.IMAGES["SPR_RESET_BOARD_BUTTON"]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        start_objects.START_SPRITES.add(self)
-        self.clickable = True
-    def update(self, game_mode):
-        if game_mode == 0:
-            self.clickable = True
-        else:
-            self.clickable = False
-    
-class ColorButton(pygame.sprite.Sprite):
-    def __init__(self, pos):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = lis.IMAGES["SPR_COLOR_BUTTON"]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        start_objects.START_SPRITES.add(self)
-        self.clickable = True
-    def update(self, game_mode):
-        if game_mode == 0:
-            self.clickable = True
-        else:
-            self.clickable = False
-        
-class PosSaveFileButton(pygame.sprite.Sprite):
-    def __init__(self, pos):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = lis.IMAGES["SPR_POS_SAVE_FILE_BUTTON"]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        self.clickable = True
-    def draw(self, screen, game_mode, hover):
-        if game_mode == 0 and hover == True:
-            self.clickable = True
-            screen.blit(self.image, (self.rect.topleft))
-        else:
-            self.clickable = False
-    
-class PosLoadFileButton(pygame.sprite.Sprite):
-    def __init__(self, pos):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = lis.IMAGES["SPR_POS_LOAD_FILE_BUTTON"]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        self.clickable = True
-    def draw(self, screen, game_mode, hover):
-        if game_mode == 0 and hover == True:
-            self.clickable = True
-            screen.blit(self.image, (self.rect.topleft))
-        else:
-            self.clickable = False
-        
-class PGNSaveFileButton(pygame.sprite.Sprite):
-    def __init__(self, pos):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = lis.IMAGES["SPR_PGN_SAVE_FILE_BUTTON"]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        self.clickable = False
-    def draw(self, screen, game_mode, hover):
-        if game_mode == 1 and hover == True:
-            self.clickable = True
-            screen.blit(self.image, (self.rect.topleft))
-        else:
-            self.clickable = False
-    
-class PGNLoadFileButton(pygame.sprite.Sprite):
-    def __init__(self, pos):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = lis.IMAGES["SPR_PGN_LOAD_FILE_BUTTON"]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        self.clickable = True
-    def draw(self, screen, game_mode, hover):
-        if game_mode == 0 and hover == True:
-            self.clickable = True
-            screen.blit(self.image, (self.rect.topleft))
-        else:
-            self.clickable = False
-
-class SaveFilePlaceholder(pygame.sprite.Sprite):
-    def __init__(self, pos):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = lis.IMAGES["SPR_SAVE_FILE_PLACEHOLDER"]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
         self.hover = False
-    def draw(self, screen):
-        screen.blit(self.image, (self.rect.topleft))
-        
-class LoadFilePlaceholder(pygame.sprite.Sprite):
-    def __init__(self, pos):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = lis.IMAGES["SPR_LOAD_FILE_PLACEHOLDER"]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        self.hover = False
-    def draw(self, screen):
-        screen.blit(self.image, (self.rect.topleft))
+        if sprite_group:
+            sprite_group.add(self)
 
-class FlipBoardButton(pygame.sprite.Sprite):
-    def __init__(self, pos):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = lis.IMAGES["SPR_FLIP_BOARD_BUTTON"]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-    def draw(self, screen):
-        screen.blit(self.image, (self.rect.topleft))
+    def update(self, game_mode):
+        self.clickable = (self._active_in_mode is None
+                          or game_mode == self._active_in_mode)
 
-class PlayEditSwitchButton(pygame.sprite.Sprite):
+    def draw(self, screen, game_mode=None, hover=False):
+        if self._requires_hover:
+            if game_mode == self._active_in_mode and hover:
+                self.clickable = True
+                screen.blit(self.image, self.rect.topleft)
+            else:
+                self.clickable = False
+        else:
+            screen.blit(self.image, self.rect.topleft)
+
+# — Shims: preserve old call sites in main.py —
+def ClearButton(pos):           return Button("SPR_CLEAR_BUTTON",            pos, start_objects.START_SPRITES, active_in_mode=0)
+def InfoButton(pos):            return Button("SPR_INFO_BUTTON",             pos, start_objects.START_SPRITES, active_in_mode=0)
+def ResetBoardButton(pos):      return Button("SPR_RESET_BOARD_BUTTON",      pos, start_objects.START_SPRITES, active_in_mode=0)
+def ColorButton(pos):           return Button("SPR_COLOR_BUTTON",            pos, start_objects.START_SPRITES, active_in_mode=0)
+def GamePropertiesButton(pos):  return Button("SPR_GAME_PROPERTIES_BUTTON",  pos, start_objects.START_SPRITES, active_in_mode=0)
+
+def BeginningMoveButton(pos):   return Button("SPR_BEGINNING_MOVE_BUTTON",   pos, PLAY_PANEL_SPRITES, active_in_mode=1)
+def LastMoveButton(pos):        return Button("SPR_LAST_MOVE_BUTTON",         pos, PLAY_PANEL_SPRITES, active_in_mode=1)
+def NextMoveButton(pos):        return Button("SPR_NEXT_MOVE_BUTTON",         pos, PLAY_PANEL_SPRITES, active_in_mode=1)
+def PrevMoveButton(pos):        return Button("SPR_PREV_MOVE_BUTTON",         pos, PLAY_PANEL_SPRITES, active_in_mode=1)
+def UndoMoveButton(pos):        return Button("SPR_UNDO_MOVE_BUTTON",         pos, PLAY_PANEL_SPRITES, active_in_mode=1)
+
+def PosSaveFileButton(pos):     return Button("SPR_POS_SAVE_FILE_BUTTON",     pos, active_in_mode=0, requires_hover=True)
+def PosLoadFileButton(pos):     return Button("SPR_POS_LOAD_FILE_BUTTON",     pos, active_in_mode=0, requires_hover=True)
+def PGNSaveFileButton(pos):     return Button("SPR_PGN_SAVE_FILE_BUTTON",     pos, active_in_mode=1, requires_hover=True)
+def PGNLoadFileButton(pos):     return Button("SPR_PGN_LOAD_FILE_BUTTON",     pos, active_in_mode=0, requires_hover=True)
+
+def SaveFilePlaceholder(pos):   return Button("SPR_SAVE_FILE_PLACEHOLDER",    pos)
+def LoadFilePlaceholder(pos):   return Button("SPR_LOAD_FILE_PLACEHOLDER",    pos)
+def FlipBoardButton(pos):       return Button("SPR_FLIP_BOARD_BUTTON",        pos)
+
+# — Subclasses with genuinely different behaviour —
+
+class PlayEditSwitchButton(Button):
     def __init__(self, pos):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = lis.IMAGES["SPR_PLAY_BUTTON"]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        GAME_MODE_SPRITES.add(self)
+        super().__init__("SPR_PLAY_BUTTON", pos, GAME_MODE_SPRITES)
     def game_mode_button(self, game_mode):
         if game_mode == 0:
             self.image = lis.IMAGES["SPR_PLAY_BUTTON"]
@@ -161,131 +68,41 @@ class PlayEditSwitchButton(pygame.sprite.Sprite):
             self.image = lis.IMAGES["SPR_STOP_BUTTON"]
         return self.image
 
-class CPUButton(pygame.sprite.Sprite):
+class CPUButton(Button):
     def __init__(self, pos, cpu_mode):
-        pygame.sprite.Sprite.__init__(self)
+        super().__init__("SPR_CPU_BUTTON_OFF", pos)
         self.toggle(cpu_mode)
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
     def draw(self, screen, game_mode):
         if game_mode == 0:
             self.clickable = True
-            screen.blit(self.image, (self.rect.topleft))
+            screen.blit(self.image, self.rect.topleft)
         else:
             self.clickable = False
     def toggle(self, cpu_mode):
-        if cpu_mode == True:
-            self.image = lis.IMAGES["SPR_CPU_BUTTON_ON"]
-        elif cpu_mode == False:
-            self.image = lis.IMAGES["SPR_CPU_BUTTON_OFF"]
-        
-class GamePropertiesButton(pygame.sprite.Sprite):
+        self.image = lis.IMAGES["SPR_CPU_BUTTON_ON" if cpu_mode else "SPR_CPU_BUTTON_OFF"]
+
+class ScrollUpButton(Button):
     def __init__(self, pos):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = lis.IMAGES["SPR_GAME_PROPERTIES_BUTTON"]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        start_objects.START_SPRITES.add(self)
-        self.clickable = True
-    def update(self, game_mode):
-        if game_mode == 0:
-            self.clickable = True
-        else:
-            self.clickable = False
-        
-class ScrollUpButton(pygame.sprite.Sprite):
-    def __init__(self, pos):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = lis.IMAGES["SPR_SCROLL_UP_BUTTON"]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
+        super().__init__("SPR_SCROLL_UP_BUTTON", pos)
         self.activate = False
     def draw(self, screen):
         if PanelRectangles.scroll_range[0] != 1:
             self.activate = True
-            screen.blit(self.image, (self.rect.topleft))
+            screen.blit(self.image, self.rect.topleft)
         else:
             self.activate = False
-        
-class ScrollDownButton(pygame.sprite.Sprite):
+
+class ScrollDownButton(Button):
     def __init__(self, pos):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = lis.IMAGES["SPR_SCROLL_DOWN_BUTTON"]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
+        super().__init__("SPR_SCROLL_DOWN_BUTTON", pos)
         self.activate = False
     def draw(self, screen, latest_move_number):
         if PanelRectangles.scroll_range[1] != latest_move_number and latest_move_number > initvar.MOVES_PANE_MAX_MOVES:
             self.activate = True
-            screen.blit(self.image, (self.rect.topleft))
+            screen.blit(self.image, self.rect.topleft)
         else:
             self.activate = False
 
-class BeginningMoveButton(pygame.sprite.Sprite):
-    def __init__(self, pos):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = lis.IMAGES["SPR_BEGINNING_MOVE_BUTTON"]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        PLAY_PANEL_SPRITES.add(self)
-    def update(self, game_mode):
-        if game_mode == 1:
-            self.clickable = True
-        else:
-            self.clickable = False
-        
-class LastMoveButton(pygame.sprite.Sprite):
-    def __init__(self, pos):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = lis.IMAGES["SPR_LAST_MOVE_BUTTON"]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        PLAY_PANEL_SPRITES.add(self)
-    def update(self, game_mode):
-        if game_mode == 1:
-            self.clickable = True
-        else:
-            self.clickable = False
-            
-class NextMoveButton(pygame.sprite.Sprite):
-    def __init__(self, pos):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = lis.IMAGES["SPR_NEXT_MOVE_BUTTON"]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        PLAY_PANEL_SPRITES.add(self)
-    def update(self, game_mode):
-        if game_mode == 1:
-            self.clickable = True
-        else:
-            self.clickable = False
-            
-class PrevMoveButton(pygame.sprite.Sprite):
-    def __init__(self, pos):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = lis.IMAGES["SPR_PREV_MOVE_BUTTON"]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        PLAY_PANEL_SPRITES.add(self)
-    def update(self, game_mode):
-        if game_mode == 1:
-            self.clickable = True
-        else:
-            self.clickable = False
-            
-class UndoMoveButton(pygame.sprite.Sprite):
-    def __init__(self, pos):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = lis.IMAGES["SPR_UNDO_MOVE_BUTTON"]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        PLAY_PANEL_SPRITES.add(self)
-    def update(self, game_mode):
-        if game_mode == 1:
-            self.clickable = True
-        else:
-            self.clickable = False
-        
 class PanelRectangles(pygame.sprite.Sprite):
     scroll_range = [1, initvar.MOVES_PANE_MAX_MOVES]
     def __init__(self, move_number, x, y, width, height):
@@ -319,7 +136,7 @@ class MoveNumberRectangle(PanelRectangles, pygame.sprite.Sprite):
         self.text = str(self.move_number) + "."
         MoveNumberRectangle.rectangle_list.append(self)
         MoveNumberRectangle.rectangle_dict[move_number] = self
-        
+
 class PieceMoveRectangle(PanelRectangles, pygame.sprite.Sprite):
     # Rectangles behind the moves themselves
     rectangle_list = []
