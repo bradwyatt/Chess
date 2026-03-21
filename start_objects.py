@@ -17,7 +17,7 @@ class StartPiecesBehind(pygame.sprite.Sprite):
         START_SPRITES.add(self)
     def draw(self, screen):
         screen.blit(self.image, (self.rect.topleft))
-        
+
 StartPiecesBehind(lis.IMAGES["SPR_WHITE_PAWN"], initvar.STARTPOS['white_pawn'])
 StartPiecesBehind(lis.IMAGES["SPR_WHITE_BISHOP"], initvar.STARTPOS['white_bishop'])
 StartPiecesBehind(lis.IMAGES["SPR_WHITE_KNIGHT"], initvar.STARTPOS['white_knight'])
@@ -31,128 +31,32 @@ StartPiecesBehind(lis.IMAGES["SPR_BLACK_ROOK"], initvar.STARTPOS['black_rook'])
 StartPiecesBehind(lis.IMAGES["SPR_BLACK_QUEEN"], initvar.STARTPOS['black_queen'])
 StartPiecesBehind(lis.IMAGES["SPR_BLACK_KING"], initvar.STARTPOS['black_king'])
 
-class StartPawn(pygame.sprite.Sprite):
-    def __init__(self, color, pos):
+class StartPiece(pygame.sprite.Sprite):
+    def __init__(self, piece_type, color, pos):
         pygame.sprite.Sprite.__init__(self)
         self.color = color
-        if self.color == "white":
-            self.image = lis.IMAGES["SPR_WHITE_PAWN"]
-        elif self.color == "black":
-            self.image = lis.IMAGES["SPR_BLACK_PAWN"]
-        self.rect = self.image.get_rect() 
+        self.image = lis.IMAGES[f"SPR_{color.upper()}_{piece_type.upper()}"]
+        self.rect = self.image.get_rect()
         self.rect.topleft = pos
         START_SPRITES.add(self)
         self.clickable = True
     def update(self, game_mode):
-        if game_mode == 0:
-            self.clickable = True
-        else:
-            self.clickable = False
+        self.clickable = (game_mode == 0)
 
-class StartBishop(pygame.sprite.Sprite):
-    def __init__(self, color, pos):
-        pygame.sprite.Sprite.__init__(self)
-        self.color = color
-        if self.color == "white":
-            self.image = lis.IMAGES["SPR_WHITE_BISHOP"]
-        elif self.color == "black":
-            self.image = lis.IMAGES["SPR_BLACK_BISHOP"]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        START_SPRITES.add(self)
-        self.clickable = True
-    def update(self, game_mode):
-        if game_mode == 0:
-            self.clickable = True
-        else:
-            self.clickable = False
-    
-class StartKnight(pygame.sprite.Sprite):
-    def __init__(self, color, pos):
-        pygame.sprite.Sprite.__init__(self)
-        self.color = color
-        if self.color == "white":
-            self.image = lis.IMAGES["SPR_WHITE_KNIGHT"]
-        elif self.color == "black":
-            self.image = lis.IMAGES["SPR_BLACK_KNIGHT"]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        START_SPRITES.add(self)
-        self.clickable = True
-    def update(self, game_mode):
-        if game_mode == 0:
-            self.clickable = True
-        else:
-            self.clickable = False
-
-class StartRook(pygame.sprite.Sprite):
-    def __init__(self, color, pos):
-        pygame.sprite.Sprite.__init__(self)
-        self.color = color
-        if self.color == "white":
-            self.image = lis.IMAGES["SPR_WHITE_ROOK"]
-        elif self.color == "black":
-            self.image = lis.IMAGES["SPR_BLACK_ROOK"]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        START_SPRITES.add(self)
-        self.clickable = True
-    def update(self, game_mode):
-        if game_mode == 0:
-            self.clickable = True
-        else:
-            self.clickable = False
-    
-class StartQueen(pygame.sprite.Sprite):
-    def __init__(self, color, pos):
-        pygame.sprite.Sprite.__init__(self)
-        self.color = color
-        if self.color == "white":
-            self.image = lis.IMAGES["SPR_WHITE_QUEEN"]
-        elif self.color == "black":
-            self.image = lis.IMAGES["SPR_BLACK_QUEEN"]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        START_SPRITES.add(self)
-        self.clickable = True
-    def update(self, game_mode):
-        if game_mode == 0:
-            self.clickable = True
-        else:
-            self.clickable = False
-
-class StartKing(pygame.sprite.Sprite):
-    def __init__(self, color, pos):
-        pygame.sprite.Sprite.__init__(self)
-        self.color = color
-        if self.color == "white":
-            self.image = lis.IMAGES["SPR_WHITE_KING"]
-        elif self.color == "black":
-            self.image = lis.IMAGES["SPR_BLACK_KING"]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = pos
-        START_SPRITES.add(self)
-        self.clickable = True
-    def update(self, game_mode):
-        if game_mode == 0:
-            self.clickable = True
-        else:
-            self.clickable = False
-    
 class Start():
     start_dict = {}
-    start_dict['white_pawn'] = StartPawn("white", initvar.STARTPOS['white_pawn'])
-    start_dict['white_bishop'] = StartBishop("white", initvar.STARTPOS['white_bishop'])
-    start_dict['white_knight'] = StartKnight("white", initvar.STARTPOS['white_knight'])        
-    start_dict['white_rook'] = StartRook("white", initvar.STARTPOS['white_rook'])      
-    start_dict['white_queen'] = StartQueen("white", initvar.STARTPOS['white_queen'])      
-    start_dict['white_king'] = StartKing("white", initvar.STARTPOS['white_king'])      
-    start_dict['black_pawn'] = StartPawn("black", initvar.STARTPOS['black_pawn'])
-    start_dict['black_bishop'] = StartBishop("black", initvar.STARTPOS['black_bishop'])
-    start_dict['black_knight'] = StartKnight("black", initvar.STARTPOS['black_knight'])      
-    start_dict['black_rook'] = StartRook("black", initvar.STARTPOS['black_rook'])      
-    start_dict['black_queen'] = StartQueen("black", initvar.STARTPOS['black_queen'])      
-    start_dict['black_king'] = StartKing("black", initvar.STARTPOS['black_king'])
+    start_dict['white_pawn']   = StartPiece("pawn",   "white", initvar.STARTPOS['white_pawn'])
+    start_dict['white_bishop'] = StartPiece("bishop", "white", initvar.STARTPOS['white_bishop'])
+    start_dict['white_knight'] = StartPiece("knight", "white", initvar.STARTPOS['white_knight'])
+    start_dict['white_rook']   = StartPiece("rook",   "white", initvar.STARTPOS['white_rook'])
+    start_dict['white_queen']  = StartPiece("queen",  "white", initvar.STARTPOS['white_queen'])
+    start_dict['white_king']   = StartPiece("king",   "white", initvar.STARTPOS['white_king'])
+    start_dict['black_pawn']   = StartPiece("pawn",   "black", initvar.STARTPOS['black_pawn'])
+    start_dict['black_bishop'] = StartPiece("bishop", "black", initvar.STARTPOS['black_bishop'])
+    start_dict['black_knight'] = StartPiece("knight", "black", initvar.STARTPOS['black_knight'])
+    start_dict['black_rook']   = StartPiece("rook",   "black", initvar.STARTPOS['black_rook'])
+    start_dict['black_queen']  = StartPiece("queen",  "black", initvar.STARTPOS['black_queen'])
+    start_dict['black_king']   = StartPiece("king",   "black", initvar.STARTPOS['black_king'])
     def restart_start_positions():
         Start.start_dict['white_pawn'].rect.topleft = initvar.STARTPOS['white_pawn']
         Start.start_dict['white_bishop'].rect.topleft = initvar.STARTPOS['white_bishop']
@@ -166,7 +70,7 @@ class Start():
         Start.start_dict['black_rook'].rect.topleft = initvar.STARTPOS['black_rook']
         Start.start_dict['black_queen'].rect.topleft = initvar.STARTPOS['black_queen']
         Start.start_dict['black_king'].rect.topleft = initvar.STARTPOS['black_king']
-        
+
 class Dragging():
     drag_piece_name = ""
     def dragging_all_false():
@@ -193,13 +97,13 @@ class Dragging():
         drag_and_replace_start_obj_image("black_knight", mousepos)
         drag_and_replace_start_obj_image("black_rook", mousepos)
         drag_and_replace_start_obj_image("black_queen", mousepos)
-        drag_and_replace_start_obj_image("black_king", mousepos)   
+        drag_and_replace_start_obj_image("black_king", mousepos)
     def dragging_to_placed_no_dups(mouse_coord):
-        for piece_list in [placed_objects.PlacedPawn.white_pawn_list, placed_objects.PlacedBishop.white_bishop_list, 
-                           placed_objects.PlacedKnight.white_knight_list, placed_objects.PlacedRook.white_rook_list, 
+        for piece_list in [placed_objects.PlacedPawn.white_pawn_list, placed_objects.PlacedBishop.white_bishop_list,
+                           placed_objects.PlacedKnight.white_knight_list, placed_objects.PlacedRook.white_rook_list,
                            placed_objects.PlacedQueen.white_queen_list, placed_objects.PlacedKing.white_king_list,
-                           placed_objects.PlacedPawn.black_pawn_list, placed_objects.PlacedBishop.black_bishop_list, 
-                           placed_objects.PlacedKnight.black_knight_list, placed_objects.PlacedRook.black_rook_list, 
+                           placed_objects.PlacedPawn.black_pawn_list, placed_objects.PlacedBishop.black_bishop_list,
+                           placed_objects.PlacedKnight.black_knight_list, placed_objects.PlacedRook.black_rook_list,
                            placed_objects.PlacedQueen.black_queen_list, placed_objects.PlacedKing.black_king_list]:
             # If there is already a piece on grid then don't create new Placed object
             for piece in piece_list:

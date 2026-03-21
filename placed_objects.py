@@ -20,8 +20,8 @@ def remove_placed_object(mousepos):
 def remove_all_placed():
     for spr_list in [PlacedPawn.white_pawn_list, PlacedBishop.white_bishop_list,
                      PlacedKnight.white_knight_list, PlacedRook.white_rook_list,
-                     PlacedQueen.white_queen_list, PlacedKing.white_king_list, 
-                     PlacedPawn.black_pawn_list, PlacedBishop.black_bishop_list, 
+                     PlacedQueen.white_queen_list, PlacedKing.white_king_list,
+                     PlacedPawn.black_pawn_list, PlacedBishop.black_bishop_list,
                      PlacedKnight.black_knight_list, PlacedRook.black_rook_list,
                      PlacedQueen.black_queen_list, PlacedKing.black_king_list]:
         for obj in spr_list:
@@ -39,170 +39,63 @@ def remove_all_placed():
     PlacedQueen.black_queen_list = []
     PlacedKing.black_king_list = []
 
-class PlacedPawn(pygame.sprite.Sprite):
+class PlacedPiece(pygame.sprite.Sprite):
+    def __init__(self, piece_type, coord, color, own_list):
+        pygame.sprite.Sprite.__init__(self)
+        self.color = color
+        self.image = lis.IMAGES[f"SPR_{color.upper()}_{piece_type.upper()}"]
+        PLACED_SPRITES.add(self)
+        own_list.append(self)
+        self._own_list = own_list
+        self.coordinate = coord
+        self.rect = self.image.get_rect()
+        for grid in board.Grid.grid_list:
+            if grid.coordinate == self.coordinate:
+                self.rect.topleft = grid.rect.topleft
+    def update(self):
+        self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
+    def destroy(self):
+        self._own_list.remove(self)
+        self.kill()
+
+class PlacedPawn(PlacedPiece):
     white_pawn_list = []
     black_pawn_list = []
     def __init__(self, coord, color):
-        pygame.sprite.Sprite.__init__(self)
-        self.color = color
-        if self.color == "white":
-            self.image = lis.IMAGES["SPR_WHITE_PAWN"]
-            PLACED_SPRITES.add(self)
-            PlacedPawn.white_pawn_list.append(self)
-        elif self.color == "black":
-            self.image = lis.IMAGES["SPR_BLACK_PAWN"]
-            PLACED_SPRITES.add(self)
-            PlacedPawn.black_pawn_list.append(self)
-        self.coordinate = coord
-        self.rect = self.image.get_rect()
-        for grid in board.Grid.grid_list:
-            if grid.coordinate == self.coordinate:
-                self.rect.topleft = grid.rect.topleft
-    def update(self):
-        self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
-    def destroy(self):
-        if self.color == "white":
-            PlacedPawn.white_pawn_list.remove(self)
-        elif self.color == "black":
-            PlacedPawn.black_pawn_list.remove(self)
-        self.kill()
+        lst = PlacedPawn.white_pawn_list if color == "white" else PlacedPawn.black_pawn_list
+        super().__init__("pawn", coord, color, lst)
 
-class PlacedBishop(pygame.sprite.Sprite):
+class PlacedBishop(PlacedPiece):
     white_bishop_list = []
     black_bishop_list = []
     def __init__(self, coord, color):
-        pygame.sprite.Sprite.__init__(self)
-        self.color = color
-        if self.color == "white":
-            self.image = lis.IMAGES["SPR_WHITE_BISHOP"]
-            PLACED_SPRITES.add(self)
-            PlacedBishop.white_bishop_list.append(self)
-        elif self.color == "black":
-            self.image = lis.IMAGES["SPR_BLACK_BISHOP"]
-            PLACED_SPRITES.add(self)
-            PlacedBishop.black_bishop_list.append(self)
-        self.coordinate = coord
-        self.rect = self.image.get_rect()
-        for grid in board.Grid.grid_list:
-            if grid.coordinate == self.coordinate:
-                self.rect.topleft = grid.rect.topleft
-    def update(self):
-        self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
-    def destroy(self):
-        if self.color == "white":
-            PlacedBishop.white_bishop_list.remove(self)
-        elif self.color == "black":
-            PlacedBishop.black_bishop_list.remove(self)
-        self.kill()
+        lst = PlacedBishop.white_bishop_list if color == "white" else PlacedBishop.black_bishop_list
+        super().__init__("bishop", coord, color, lst)
 
-class PlacedKnight(pygame.sprite.Sprite):
+class PlacedKnight(PlacedPiece):
     white_knight_list = []
     black_knight_list = []
     def __init__(self, coord, color):
-        pygame.sprite.Sprite.__init__(self)
-        self.color = color
-        if self.color == "white":
-            self.image = lis.IMAGES["SPR_WHITE_KNIGHT"]
-            PLACED_SPRITES.add(self)
-            PlacedKnight.white_knight_list.append(self)
-        elif self.color == "black":
-            self.image = lis.IMAGES["SPR_BLACK_KNIGHT"]
-            PLACED_SPRITES.add(self)
-            PlacedKnight.black_knight_list.append(self)
-        self.coordinate = coord
-        self.rect = self.image.get_rect()
-        for grid in board.Grid.grid_list:
-            if grid.coordinate == self.coordinate:
-                self.rect.topleft = grid.rect.topleft
-    def update(self):
-        self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
-    def destroy(self):
-        if self.color == "white":
-            PlacedKnight.white_knight_list.remove(self)
-        elif self.color == "black":
-            PlacedKnight.black_knight_list.remove(self)
-        self.kill()
-        
-class PlacedRook(pygame.sprite.Sprite):
+        lst = PlacedKnight.white_knight_list if color == "white" else PlacedKnight.black_knight_list
+        super().__init__("knight", coord, color, lst)
+
+class PlacedRook(PlacedPiece):
     white_rook_list = []
     black_rook_list = []
     def __init__(self, coord, color):
-        pygame.sprite.Sprite.__init__(self)
-        self.color = color
-        if self.color == "white":
-            self.image = lis.IMAGES["SPR_WHITE_ROOK"]
-            PLACED_SPRITES.add(self)
-            PlacedRook.white_rook_list.append(self)
-        elif self.color == "black":
-            self.image = lis.IMAGES["SPR_BLACK_ROOK"]
-            PLACED_SPRITES.add(self)
-            PlacedRook.black_rook_list.append(self)
-        self.coordinate = coord
-        self.rect = self.image.get_rect()
-        for grid in board.Grid.grid_list:
-            if grid.coordinate == self.coordinate:
-                self.rect.topleft = grid.rect.topleft
-    def update(self):
-        self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
-    def destroy(self):
-        if self.color == "white":
-            PlacedRook.white_rook_list.remove(self)
-        elif self.color == "black":
-            PlacedRook.black_rook_list.remove(self)
-        self.kill()
-        
-class PlacedQueen(pygame.sprite.Sprite):
+        lst = PlacedRook.white_rook_list if color == "white" else PlacedRook.black_rook_list
+        super().__init__("rook", coord, color, lst)
+
+class PlacedQueen(PlacedPiece):
     white_queen_list = []
     black_queen_list = []
     def __init__(self, coord, color):
-        pygame.sprite.Sprite.__init__(self)
-        self.color = color
-        if self.color == "white":
-            self.image = lis.IMAGES["SPR_WHITE_QUEEN"]
-            PLACED_SPRITES.add(self)
-            PlacedQueen.white_queen_list.append(self)
-        elif self.color == "black":
-            self.image = lis.IMAGES["SPR_BLACK_QUEEN"]
-            PLACED_SPRITES.add(self)
-            PlacedQueen.black_queen_list.append(self)
-        self.coordinate = coord
-        self.rect = self.image.get_rect()
-        for grid in board.Grid.grid_list:
-            if grid.coordinate == self.coordinate:
-                self.rect.topleft = grid.rect.topleft
-    def update(self):
-        self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
-    def destroy(self):
-        if self.color == "white":
-            PlacedQueen.white_queen_list.remove(self)
-        elif self.color == "black":
-            PlacedQueen.black_queen_list.remove(self)
-        self.kill()
-        
-class PlacedKing(pygame.sprite.Sprite):
+        lst = PlacedQueen.white_queen_list if color == "white" else PlacedQueen.black_queen_list
+        super().__init__("queen", coord, color, lst)
+
+class PlacedKing(PlacedPiece):
     white_king_list = []
     black_king_list = []
     def __init__(self, coord, color):
-        pygame.sprite.Sprite.__init__(self)
-        self.color = color
-        if self.color == "white":
-            self.image = lis.IMAGES["SPR_WHITE_KING"]
-            PLACED_SPRITES.add(self)
-            PlacedKing.white_king_list.append(self)
-        elif self.color == "black":
-            self.image = lis.IMAGES["SPR_BLACK_KING"]
-            PLACED_SPRITES.add(self)
-            PlacedKing.black_king_list.append(self)
-        self.coordinate = coord
-        self.rect = self.image.get_rect()
-        for grid in board.Grid.grid_list:
-            if grid.coordinate == self.coordinate:
-                self.rect.topleft = grid.rect.topleft
-    def update(self):
-        self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
-    def destroy(self):
-        if self.color == "white":
-            PlacedKing.white_king_list.remove(self)
-        elif self.color == "black":
-            PlacedKing.black_king_list.remove(self)
-        self.kill()
+        lst = PlacedKing.white_king_list if color == "white" else PlacedKing.black_king_list
+        super().__init__("king", coord, color, lst)
