@@ -1,7 +1,7 @@
 import pygame
 import initvar
 import placed_objects
-from load_images_sounds import *
+import load_images_sounds as lis
 import logging
 
 log = logging.getLogger(__name__)
@@ -18,27 +18,27 @@ class StartPiecesBehind(pygame.sprite.Sprite):
     def draw(self, screen):
         screen.blit(self.image, (self.rect.topleft))
         
-StartPiecesBehind(IMAGES["SPR_WHITE_PAWN"], initvar.STARTPOS['white_pawn'])
-StartPiecesBehind(IMAGES["SPR_WHITE_BISHOP"], initvar.STARTPOS['white_bishop'])
-StartPiecesBehind(IMAGES["SPR_WHITE_KNIGHT"], initvar.STARTPOS['white_knight'])
-StartPiecesBehind(IMAGES["SPR_WHITE_ROOK"], initvar.STARTPOS['white_rook'])
-StartPiecesBehind(IMAGES["SPR_WHITE_QUEEN"], initvar.STARTPOS['white_queen'])
-StartPiecesBehind(IMAGES["SPR_WHITE_KING"], initvar.STARTPOS['white_king'])
-StartPiecesBehind(IMAGES["SPR_BLACK_PAWN"], initvar.STARTPOS['black_pawn'])
-StartPiecesBehind(IMAGES["SPR_BLACK_BISHOP"], initvar.STARTPOS['black_bishop'])
-StartPiecesBehind(IMAGES["SPR_BLACK_KNIGHT"], initvar.STARTPOS['black_knight'])
-StartPiecesBehind(IMAGES["SPR_BLACK_ROOK"], initvar.STARTPOS['black_rook'])
-StartPiecesBehind(IMAGES["SPR_BLACK_QUEEN"], initvar.STARTPOS['black_queen'])
-StartPiecesBehind(IMAGES["SPR_BLACK_KING"], initvar.STARTPOS['black_king'])
+StartPiecesBehind(lis.IMAGES["SPR_WHITE_PAWN"], initvar.STARTPOS['white_pawn'])
+StartPiecesBehind(lis.IMAGES["SPR_WHITE_BISHOP"], initvar.STARTPOS['white_bishop'])
+StartPiecesBehind(lis.IMAGES["SPR_WHITE_KNIGHT"], initvar.STARTPOS['white_knight'])
+StartPiecesBehind(lis.IMAGES["SPR_WHITE_ROOK"], initvar.STARTPOS['white_rook'])
+StartPiecesBehind(lis.IMAGES["SPR_WHITE_QUEEN"], initvar.STARTPOS['white_queen'])
+StartPiecesBehind(lis.IMAGES["SPR_WHITE_KING"], initvar.STARTPOS['white_king'])
+StartPiecesBehind(lis.IMAGES["SPR_BLACK_PAWN"], initvar.STARTPOS['black_pawn'])
+StartPiecesBehind(lis.IMAGES["SPR_BLACK_BISHOP"], initvar.STARTPOS['black_bishop'])
+StartPiecesBehind(lis.IMAGES["SPR_BLACK_KNIGHT"], initvar.STARTPOS['black_knight'])
+StartPiecesBehind(lis.IMAGES["SPR_BLACK_ROOK"], initvar.STARTPOS['black_rook'])
+StartPiecesBehind(lis.IMAGES["SPR_BLACK_QUEEN"], initvar.STARTPOS['black_queen'])
+StartPiecesBehind(lis.IMAGES["SPR_BLACK_KING"], initvar.STARTPOS['black_king'])
 
 class StartPawn(pygame.sprite.Sprite):
     def __init__(self, color, pos):
         pygame.sprite.Sprite.__init__(self)
         self.color = color
         if self.color == "white":
-            self.image = IMAGES["SPR_WHITE_PAWN"]
+            self.image = lis.IMAGES["SPR_WHITE_PAWN"]
         elif self.color == "black":
-            self.image = IMAGES["SPR_BLACK_PAWN"]
+            self.image = lis.IMAGES["SPR_BLACK_PAWN"]
         self.rect = self.image.get_rect() 
         self.rect.topleft = pos
         START_SPRITES.add(self)
@@ -54,9 +54,9 @@ class StartBishop(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.color = color
         if self.color == "white":
-            self.image = IMAGES["SPR_WHITE_BISHOP"]
+            self.image = lis.IMAGES["SPR_WHITE_BISHOP"]
         elif self.color == "black":
-            self.image = IMAGES["SPR_BLACK_BISHOP"]
+            self.image = lis.IMAGES["SPR_BLACK_BISHOP"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         START_SPRITES.add(self)
@@ -72,9 +72,9 @@ class StartKnight(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.color = color
         if self.color == "white":
-            self.image = IMAGES["SPR_WHITE_KNIGHT"]
+            self.image = lis.IMAGES["SPR_WHITE_KNIGHT"]
         elif self.color == "black":
-            self.image = IMAGES["SPR_BLACK_KNIGHT"]
+            self.image = lis.IMAGES["SPR_BLACK_KNIGHT"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         START_SPRITES.add(self)
@@ -90,9 +90,9 @@ class StartRook(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.color = color
         if self.color == "white":
-            self.image = IMAGES["SPR_WHITE_ROOK"]
+            self.image = lis.IMAGES["SPR_WHITE_ROOK"]
         elif self.color == "black":
-            self.image = IMAGES["SPR_BLACK_ROOK"]
+            self.image = lis.IMAGES["SPR_BLACK_ROOK"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         START_SPRITES.add(self)
@@ -108,9 +108,9 @@ class StartQueen(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.color = color
         if self.color == "white":
-            self.image = IMAGES["SPR_WHITE_QUEEN"]
+            self.image = lis.IMAGES["SPR_WHITE_QUEEN"]
         elif self.color == "black":
-            self.image = IMAGES["SPR_BLACK_QUEEN"]
+            self.image = lis.IMAGES["SPR_BLACK_QUEEN"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         START_SPRITES.add(self)
@@ -126,9 +126,9 @@ class StartKing(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.color = color
         if self.color == "white":
-            self.image = IMAGES["SPR_WHITE_KING"]
+            self.image = lis.IMAGES["SPR_WHITE_KING"]
         elif self.color == "black":
-            self.image = IMAGES["SPR_BLACK_KING"]
+            self.image = lis.IMAGES["SPR_BLACK_KING"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         START_SPRITES.add(self)

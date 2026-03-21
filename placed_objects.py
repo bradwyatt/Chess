@@ -1,5 +1,5 @@
 import pygame
-from load_images_sounds import *
+import load_images_sounds as lis
 import board
 
 PLACED_SPRITES = pygame.sprite.Group()
@@ -46,11 +46,11 @@ class PlacedPawn(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.color = color
         if self.color == "white":
-            self.image = IMAGES["SPR_WHITE_PAWN"]
+            self.image = lis.IMAGES["SPR_WHITE_PAWN"]
             PLACED_SPRITES.add(self)
             PlacedPawn.white_pawn_list.append(self)
         elif self.color == "black":
-            self.image = IMAGES["SPR_BLACK_PAWN"]
+            self.image = lis.IMAGES["SPR_BLACK_PAWN"]
             PLACED_SPRITES.add(self)
             PlacedPawn.black_pawn_list.append(self)
         self.coordinate = coord
@@ -74,11 +74,11 @@ class PlacedBishop(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.color = color
         if self.color == "white":
-            self.image = IMAGES["SPR_WHITE_BISHOP"]
+            self.image = lis.IMAGES["SPR_WHITE_BISHOP"]
             PLACED_SPRITES.add(self)
             PlacedBishop.white_bishop_list.append(self)
         elif self.color == "black":
-            self.image = IMAGES["SPR_BLACK_BISHOP"]
+            self.image = lis.IMAGES["SPR_BLACK_BISHOP"]
             PLACED_SPRITES.add(self)
             PlacedBishop.black_bishop_list.append(self)
         self.coordinate = coord
@@ -102,11 +102,11 @@ class PlacedKnight(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.color = color
         if self.color == "white":
-            self.image = IMAGES["SPR_WHITE_KNIGHT"]
+            self.image = lis.IMAGES["SPR_WHITE_KNIGHT"]
             PLACED_SPRITES.add(self)
             PlacedKnight.white_knight_list.append(self)
         elif self.color == "black":
-            self.image = IMAGES["SPR_BLACK_KNIGHT"]
+            self.image = lis.IMAGES["SPR_BLACK_KNIGHT"]
             PLACED_SPRITES.add(self)
             PlacedKnight.black_knight_list.append(self)
         self.coordinate = coord
@@ -130,11 +130,11 @@ class PlacedRook(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.color = color
         if self.color == "white":
-            self.image = IMAGES["SPR_WHITE_ROOK"]
+            self.image = lis.IMAGES["SPR_WHITE_ROOK"]
             PLACED_SPRITES.add(self)
             PlacedRook.white_rook_list.append(self)
         elif self.color == "black":
-            self.image = IMAGES["SPR_BLACK_ROOK"]
+            self.image = lis.IMAGES["SPR_BLACK_ROOK"]
             PLACED_SPRITES.add(self)
             PlacedRook.black_rook_list.append(self)
         self.coordinate = coord
@@ -158,11 +158,11 @@ class PlacedQueen(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.color = color
         if self.color == "white":
-            self.image = IMAGES["SPR_WHITE_QUEEN"]
+            self.image = lis.IMAGES["SPR_WHITE_QUEEN"]
             PLACED_SPRITES.add(self)
             PlacedQueen.white_queen_list.append(self)
         elif self.color == "black":
-            self.image = IMAGES["SPR_BLACK_QUEEN"]
+            self.image = lis.IMAGES["SPR_BLACK_QUEEN"]
             PLACED_SPRITES.add(self)
             PlacedQueen.black_queen_list.append(self)
         self.coordinate = coord
@@ -186,11 +186,11 @@ class PlacedKing(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.color = color
         if self.color == "white":
-            self.image = IMAGES["SPR_WHITE_KING"]
+            self.image = lis.IMAGES["SPR_WHITE_KING"]
             PLACED_SPRITES.add(self)
             PlacedKing.white_king_list.append(self)
         elif self.color == "black":
-            self.image = IMAGES["SPR_BLACK_KING"]
+            self.image = lis.IMAGES["SPR_BLACK_KING"]
             PLACED_SPRITES.add(self)
             PlacedKing.black_king_list.append(self)
         self.coordinate = coord
