@@ -45,10 +45,6 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
-<<<<<<< HEAD
-=======
-ChessPositions/testing.lvl
->>>>>>> 4afeae71f626bc92ee8a1c1db8d62ccb9b958b95
 *.pyc
 *.log
 *.ini
@@ -66,4 +62,5 @@ PGN_Sample_Games/Testing/
 /.history
 /.venv
 /build
+README.local.md
 README.local.md

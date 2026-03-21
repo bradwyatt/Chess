@@ -13,7 +13,7 @@ SOUNDS = {}
 
 #Init
 root = None
-if not initvar.ITCH_MODE and tk is not None:
+if not initvar.ITCH_MODE and tk is not None and not os.environ.get("HEADLESS_TEST"):
     root = tk.Tk()
     root.withdraw()
 pygame.init()
