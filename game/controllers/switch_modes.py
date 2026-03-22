@@ -161,18 +161,10 @@ class SwitchModesController():
             log.info("Play Mode Activated\n")
             cls.GAME_MODE = cls.PLAY_MODE
             play_edit_switch_button.image = play_edit_switch_button.game_mode_button(cls.GAME_MODE)
-            cls.placed_to_play(placed_objects.PlacedPawn.white_pawn_list, play_objects.PlayPawn, "white")
-            cls.placed_to_play(placed_objects.PlacedBishop.white_bishop_list, play_objects.PlayBishop, "white")
-            cls.placed_to_play(placed_objects.PlacedKnight.white_knight_list, play_objects.PlayKnight, "white")
-            cls.placed_to_play(placed_objects.PlacedRook.white_rook_list, play_objects.PlayRook, "white")
-            cls.placed_to_play(placed_objects.PlacedQueen.white_queen_list, play_objects.PlayQueen, "white")
-            cls.placed_to_play(placed_objects.PlacedKing.white_king_list, play_objects.PlayKing, "white")
-            cls.placed_to_play(placed_objects.PlacedPawn.black_pawn_list, play_objects.PlayPawn, "black")
-            cls.placed_to_play(placed_objects.PlacedBishop.black_bishop_list, play_objects.PlayBishop, "black")
-            cls.placed_to_play(placed_objects.PlacedKnight.black_knight_list, play_objects.PlayKnight, "black")
-            cls.placed_to_play(placed_objects.PlacedRook.black_rook_list, play_objects.PlayRook, "black")
-            cls.placed_to_play(placed_objects.PlacedQueen.black_queen_list, play_objects.PlayQueen, "black")
-            cls.placed_to_play(placed_objects.PlacedKing.black_king_list, play_objects.PlayKing, "black")
+            for color in ("white", "black"):
+                for piece_type, placed_cls in placed_objects.PLACED_PIECE_CLASS.items():
+                    placed_list = getattr(placed_cls, f"{color}_{piece_type}_list")
+                    cls.placed_to_play(placed_list, play_objects.PLAY_PIECE_CLASS[piece_type], color)
             MoveTracker.restart()
 
     @staticmethod
@@ -264,18 +256,10 @@ class SwitchModesController():
         cls.REPLAYED = replayed
         if cls.REPLAYED:
             replayed_objects.remove_all_replayed()
-            cls.play_to_replayed(play_objects.PlayPawn.white_pawn_list, replayed_objects.ReplayedPawn, "white")
-            cls.play_to_replayed(play_objects.PlayBishop.white_bishop_list, replayed_objects.ReplayedBishop, "white")
-            cls.play_to_replayed(play_objects.PlayKnight.white_knight_list, replayed_objects.ReplayedKnight, "white")
-            cls.play_to_replayed(play_objects.PlayRook.white_rook_list, replayed_objects.ReplayedRook, "white")
-            cls.play_to_replayed(play_objects.PlayQueen.white_queen_list, replayed_objects.ReplayedQueen, "white")
-            cls.play_to_replayed(play_objects.PlayKing.white_king_list, replayed_objects.ReplayedKing, "white")
-            cls.play_to_replayed(play_objects.PlayPawn.black_pawn_list, replayed_objects.ReplayedPawn, "black")
-            cls.play_to_replayed(play_objects.PlayBishop.black_bishop_list, replayed_objects.ReplayedBishop, "black")
-            cls.play_to_replayed(play_objects.PlayKnight.black_knight_list, replayed_objects.ReplayedKnight, "black")
-            cls.play_to_replayed(play_objects.PlayRook.black_rook_list, replayed_objects.ReplayedRook, "black")
-            cls.play_to_replayed(play_objects.PlayQueen.black_queen_list, replayed_objects.ReplayedQueen, "black")
-            cls.play_to_replayed(play_objects.PlayKing.black_king_list, replayed_objects.ReplayedKing, "black")
+            for color in ("white", "black"):
+                for piece_type, play_cls in play_objects.PLAY_PIECE_CLASS.items():
+                    play_list = getattr(play_cls, f"{color}_{piece_type}_list")
+                    cls.play_to_replayed(play_list, replayed_objects.REPLAYED_PIECE_CLASS[piece_type], color)
             cls.rewind_moves(start_beginning)
         else:
             replayed_objects.remove_all_replayed()

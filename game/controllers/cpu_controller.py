@@ -38,91 +38,14 @@ class CpuController():
 
     @classmethod
     def analyze_board(cls, grid, piece_to_move, piece_color):
-        white_score = 0
-        black_score = 0
-        for white_piece_list in play_objects.Piece_Lists_Shortcut.white_pieces():
-            for white_piece in white_piece_list:
-                if not white_piece.taken_off_board:
-                    if white_piece in play_objects.PlayPawn.white_pawn_list:
-                        if piece_to_move == white_piece:
-                            white_score += cls.white_pawn_pos_score_dict[grid.coordinate]
-                        else:
-                            white_score += cls.white_pawn_pos_score_dict[white_piece.coordinate]
-                        white_score += initvar.piece_values_dict['pawn']
-                    elif white_piece in play_objects.PlayKnight.white_knight_list:
-                        if piece_to_move == white_piece:
-                            white_score += cls.white_knight_pos_score_dict[grid.coordinate]
-                        else:
-                            white_score += cls.white_knight_pos_score_dict[white_piece.coordinate]
-                        white_score += initvar.piece_values_dict['knight']
-                    elif white_piece in play_objects.PlayBishop.white_bishop_list:
-                        if piece_to_move == white_piece:
-                            white_score += cls.white_bishop_pos_score_dict[grid.coordinate]
-                        else:
-                            white_score += cls.white_bishop_pos_score_dict[white_piece.coordinate]
-                        white_score += initvar.piece_values_dict['bishop']
-                    elif white_piece in play_objects.PlayKing.white_king_list:
-                        if piece_to_move == white_piece:
-                            white_score += cls.white_king_pos_score_dict[grid.coordinate]
-                        else:
-                            white_score += cls.white_king_pos_score_dict[white_piece.coordinate]
-                        white_score += initvar.piece_values_dict['king']
-                    elif white_piece in play_objects.PlayRook.white_rook_list:
-                        if piece_to_move == white_piece:
-                            white_score += cls.white_rook_pos_score_dict[grid.coordinate]
-                        else:
-                            white_score += cls.white_rook_pos_score_dict[white_piece.coordinate]
-                        white_score += initvar.piece_values_dict['rook']
-                    elif white_piece in play_objects.PlayQueen.white_queen_list:
-                        if piece_to_move == white_piece:
-                            white_score += cls.white_queen_pos_score_dict[grid.coordinate]
-                        else:
-                            white_score += cls.white_queen_pos_score_dict[white_piece.coordinate]
-                        white_score += initvar.piece_values_dict['queen']
-        for black_piece_list in play_objects.Piece_Lists_Shortcut.black_pieces():
-            for black_piece in black_piece_list:
-                if not black_piece.taken_off_board:
-                    if black_piece in play_objects.PlayPawn.black_pawn_list:
-                        if piece_to_move == black_piece:
-                            black_score += cls.black_pawn_pos_score_dict[grid.coordinate]
-                        else:
-                            black_score += cls.black_pawn_pos_score_dict[black_piece.coordinate]
-                        black_score += initvar.piece_values_dict['pawn']
-                    elif black_piece in play_objects.PlayKnight.black_knight_list:
-                        if piece_to_move == black_piece:
-                            black_score += cls.black_knight_pos_score_dict[grid.coordinate]
-                        else:
-                            black_score += cls.black_knight_pos_score_dict[black_piece.coordinate]
-                        black_score += initvar.piece_values_dict['knight']
-                    elif black_piece in play_objects.PlayBishop.black_bishop_list:
-                        if piece_to_move == black_piece:
-                            black_score += cls.black_bishop_pos_score_dict[grid.coordinate]
-                        else:
-                            black_score += cls.black_bishop_pos_score_dict[black_piece.coordinate]
-                        black_score += initvar.piece_values_dict['bishop']
-                    elif black_piece in play_objects.PlayKing.black_king_list:
-                        if piece_to_move == black_piece:
-                            black_score += cls.black_king_pos_score_dict[grid.coordinate]
-                        else:
-                            black_score += cls.black_king_pos_score_dict[black_piece.coordinate]
-                        black_score += initvar.piece_values_dict['king']
-                    elif black_piece in play_objects.PlayRook.black_rook_list:
-                        if piece_to_move == black_piece:
-                            black_score += cls.black_rook_pos_score_dict[grid.coordinate]
-                        else:
-                            black_score += cls.black_rook_pos_score_dict[black_piece.coordinate]
-                        black_score += initvar.piece_values_dict['rook']
-                    elif black_piece in play_objects.PlayQueen.black_queen_list:
-                        if piece_to_move == black_piece:
-                            black_score += cls.black_queen_pos_score_dict[grid.coordinate]
-                        else:
-                            black_score += cls.black_queen_pos_score_dict[black_piece.coordinate]
-                        black_score += initvar.piece_values_dict['queen']
-        if piece_color == "white":
-            total_score = white_score
-        elif piece_color == "black":
-            total_score = black_score
-        return total_score
+        color_score = {"white": 0, "black": 0}
+        for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
+            for piece in piece_list:
+                if not piece.taken_off_board:
+                    pos_dict = getattr(cls, f"{piece.color}_{piece.piece_type}_pos_score_dict")
+                    coord = grid.coordinate if piece_to_move == piece else piece.coordinate
+                    color_score[piece.color] += pos_dict[coord] + initvar.piece_values_dict[piece.piece_type]
+        return color_score[piece_color]
 
     @classmethod
     def total_possible_moves_update(cls):

@@ -131,3 +131,13 @@ class ReplayedKing(ReplayedPiece):
         lst = ReplayedKing.white_king_list if color == "white" else ReplayedKing.black_king_list
         super().__init__("king", color, coordinate_history, coord,
                          captured_move_number_and_coordinate, out_of_bounds_x_y, lst)
+
+
+REPLAYED_PIECE_CLASS = {
+    "pawn":   ReplayedPawn,
+    "bishop": ReplayedBishop,
+    "knight": ReplayedKnight,
+    "rook":   ReplayedRook,
+    "queen":  ReplayedQueen,
+    "king":   ReplayedKing,
+}

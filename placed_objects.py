@@ -97,3 +97,13 @@ class PlacedKing(PlacedPiece):
     def __init__(self, coord, color):
         lst = PlacedKing.white_king_list if color == "white" else PlacedKing.black_king_list
         super().__init__("king", coord, color, lst)
+
+
+PLACED_PIECE_CLASS = {
+    "pawn":   PlacedPawn,
+    "bishop": PlacedBishop,
+    "knight": PlacedKnight,
+    "rook":   PlacedRook,
+    "queen":  PlacedQueen,
+    "king":   PlacedKing,
+}

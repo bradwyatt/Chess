@@ -46,6 +46,7 @@ class ChessPiece:
         self.previous_coordinate = self.coordinate
         self.coordinate_history = {}
         self.prior_move_color = False
+        self.piece_type = piece_type
         self._image_keys = {
             "normal":      f"SPR_{col.upper()}_{piece_type.upper()}",
             "highlighted": f"SPR_{col.upper()}_{piece_type.upper()}_HIGHLIGHTED",
@@ -677,4 +678,14 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
             else:
                 self.image = lis.IMAGES["SPR_BLACK_KING"]
         self.select = 0
+
+
+PLAY_PIECE_CLASS = {
+    "pawn":   PlayPawn,
+    "bishop": PlayBishop,
+    "knight": PlayKnight,
+    "rook":   PlayRook,
+    "queen":  PlayQueen,
+    "king":   PlayKing,
+}
 
