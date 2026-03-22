@@ -27,6 +27,88 @@ Chess GUI brings the traditional chess experience to your desktop. The game adhe
 
 - **Programming Language**: The game is developed in Python.
 
+### File Structure
+
+```
+Chess/
+├── main.py                   # Entry point — re-exports all submodule names; async game loop
+├── board.py                  # Grid squares, coordinate system
+├── initvar.py                # Constants (re-exports from game/constants.py + game/ai_tables.py)
+├── load_images_sounds.py     # Asset loading (sprites, sounds)
+├── menu_buttons.py           # UI button sprites
+├── placed_objects.py         # Piece sprites in edit mode
+├── play_objects.py           # Piece sprites in play mode (with move logic)
+├── replayed_objects.py       # Piece sprites in replay mode
+├── start_objects.py          # Drag-tray pieces (edit mode sidebar)
+├── test_smoke.py             # Headless smoke test suite (60 checks)
+└── game/
+    ├── constants.py          # Numeric/color constants
+    ├── ai_tables.py          # CPU positional scoring tables
+    ├── controllers/
+    │   ├── move_tracker.py       # MoveTracker — move history & undo data
+    │   ├── text_controller.py    # TextController — board coordinate labels, check text
+    │   ├── cpu_controller.py     # CpuController — minimax-style CPU move selection
+    │   ├── panel_controller.py   # PanelController — moves-pane rectangles & scrolling
+    │   ├── switch_modes.py       # SwitchModesController (edit↔play↔replay) + GridController
+    │   ├── grid_controller.py    # Re-export of GridController from switch_modes
+    │   └── game_controller.py    # EditModeController, GameController, MoveController
+    └── io/
+        ├── positions.py          # pos_load/save_file, GameProperties, pos_lists_to_coord
+        └── pgn.py                # PgnWriterAndLoader — PGN import/export
+```
+
+### Architecture Diagram
+
+```mermaid
+flowchart TD
+
+    %% Entry Point
+    A["main.py / main()"] --> B[Game Loop]
+
+    %% UI Layer
+    B --> UI[UI Layer]
+    UI --> Buttons[Menu Buttons]
+    UI --> Pygame[Pygame Rendering]
+
+    %% Controllers Layer
+    B --> Controllers[Controllers Layer]
+    Controllers --> GameController["GameController / MoveController"]
+    Controllers --> CpuController[CpuController]
+    Controllers --> PanelController[PanelController]
+    Controllers --> TextController[TextController]
+    Controllers --> MoveTracker[MoveTracker]
+
+    %% Game Objects
+    Controllers --> Objects[Game Objects]
+    Objects --> Board[Board]
+    Objects --> StartObjects[start_objects]
+    Objects --> PlacedObjects[placed_objects]
+    Objects --> PlayObjects[play_objects]
+    Objects --> ReplayObjects[replayed_objects]
+
+    %% IO Layer
+    Controllers --> IO[IO Layer]
+    IO --> Positions["Positions (load/save)"]
+    IO --> PGN[PGN Reader/Writer]
+
+    %% Assets
+    B --> Assets[Assets]
+    Assets --> ImagesSounds[load_images_sounds]
+
+    %% Config
+    B --> Config["initvar (Config / Constants)"]
+
+    %% Flow relationships
+    Buttons --> Controllers
+    Controllers --> Board
+    Board --> Controllers
+```
+
+**Key design points:**
+- `MoveTracker` and `TextController` are leaf nodes — they have no controller dependencies.
+- `SwitchModesController` and `GridController` live in the same file (`switch_modes.py`) to avoid a circular import; each references the other directly.
+- `main.py` re-exports every controller name so `test_smoke.py` and the game loop can access them as `main.MoveController`, `main.GameController`, etc. without knowing the submodule paths.
+
 
 
 ## Installation and Running the Game

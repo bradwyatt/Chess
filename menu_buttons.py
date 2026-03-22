@@ -17,7 +17,7 @@ class Button(pygame.sprite.Sprite):
         self._requires_hover = requires_hover
         self.clickable = True
         self.hover = False
-        if sprite_group:
+        if sprite_group is not None:
             sprite_group.add(self)
 
     def update(self, game_mode):
