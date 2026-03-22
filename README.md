@@ -154,3 +154,13 @@ For collaboration and more detailed discussions:
 - Contact me at **GitHub**: [bradwyatt](https://github.com/bradwyatt)
 
 
+---
+
+## 2026 Refactoring & Optimization with Claude AI
+
+In early 2026, the codebase underwent a comprehensive refactoring effort assisted by [Claude](https://claude.ai) (Anthropic's AI). The motivation was to lay a clean foundation for future improvements and to prepare the project for a potential release on [itch.io](https://itch.io). The goals were to improve maintainability, reduce duplication, and optimize performance — without altering any game behavior.
+
+### Summary of Impact
+
+- **Before**: A single monolithic `main.py` (~2,200 lines) with significant class duplication, repeated color-branching logic, and linear-time lookups throughout.
+- **After**: A modular architecture across focused files, a clean controller layer, O(1) piece lookups, and a unified asset-loading system.
