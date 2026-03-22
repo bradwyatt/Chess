@@ -61,9 +61,7 @@ class ReplayedPiece(pygame.sprite.Sprite):
         self.coordinate_history = coordinate_history
         self.rect = self.image.get_rect()
         if self.coordinate is not None:
-            for grid in board.Grid.grid_list:
-                if grid.coordinate == self.coordinate:
-                    self.rect.topleft = grid.rect.topleft
+            self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
         else:
             self.rect.topleft = out_of_bounds_x_y
         self.prior_move_color = False

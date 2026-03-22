@@ -64,3 +64,5 @@ PGN_Sample_Games/Testing/
 /build
 README.local.md
 REFACTORING_PLAN.md
+BIG_O_REFERENCE.md
+PHASE4_PLAY_OBJECTS_CHANGES.md

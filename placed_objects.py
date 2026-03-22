@@ -49,9 +49,7 @@ class PlacedPiece(pygame.sprite.Sprite):
         self._own_list = own_list
         self.coordinate = coord
         self.rect = self.image.get_rect()
-        for grid in board.Grid.grid_list:
-            if grid.coordinate == self.coordinate:
-                self.rect.topleft = grid.rect.topleft
+        self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
     def update(self):
         self.rect.topleft = board.Grid.grid_dict[self.coordinate].rect.topleft
     def destroy(self):
