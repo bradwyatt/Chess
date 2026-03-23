@@ -156,7 +156,9 @@ class PieceMoveRectangle(PanelRectangles, pygame.sprite.Sprite):
         #PieceMoveRectangle.rectangle_dict[move_number].append(self)
     def draw(self, screen):
         if self.text_is_visible == True:
-            # Makes sure that all other rectangles overlapping this one that have invisible text are NOT selected
-            screen.blit(self.image, (self.rect.topleft))
+            highlight = pygame.Surface((self.rect.width, self.rect.height), pygame.SRCALPHA)
+            pygame.draw.rect(highlight, (138, 176, 235, 130), highlight.get_rect(), border_radius=7)
+            pygame.draw.rect(highlight, (207, 227, 255, 210), highlight.get_rect(), 1, border_radius=7)
+            screen.blit(highlight, self.rect.topleft)
         else:
             pass

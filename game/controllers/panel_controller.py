@@ -23,7 +23,7 @@ class PanelController:
         for piece_move_rect in menu_buttons.PieceMoveRectangle.rectangle_list:
             if piece_move_rect.text_is_visible:
                 move_notation_text = my_font.render(piece_move_rect.move_notation, True, initvar.MOVE_TEXT_COLOR_ON_PANE)
-                surface.blit(move_notation_text, (piece_move_rect.x, piece_move_rect.y))
+                surface.blit(move_notation_text, (piece_move_rect.x + initvar.MOVE_PILL_TEXT_PADDING_X, piece_move_rect.y))
 
     @staticmethod
     def scroll_to_latest_move(latest_move_number):

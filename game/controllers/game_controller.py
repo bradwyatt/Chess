@@ -662,10 +662,10 @@ class MoveController():
                 return game_result
 
             if game_controller.color_in_check == "black":
-                TextController.check_checkmate_text = "Black King checked"
+                TextController.check_checkmate_text = "Black is in check"
                 check_abb, game_controller.result_abb = checkmate_check('black')
             elif game_controller.color_in_check == "white":
-                TextController.check_checkmate_text = "White King checked"
+                TextController.check_checkmate_text = "White is in check"
                 check_abb, game_controller.result_abb = checkmate_check('white')
             elif game_controller.color_in_check == "" and game_controller.whoseturn == "white":
                 game_controller.result_abb = stalemate_check('white')

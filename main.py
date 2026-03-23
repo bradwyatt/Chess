@@ -87,6 +87,15 @@ async def main():
         app_running = True
 
         clock = pygame.time.Clock()
+        pending_cpu_move_at = None
+
+        def cancel_pending_cpu_move():
+            nonlocal pending_cpu_move_at
+            pending_cpu_move_at = None
+
+        def schedule_cpu_move():
+            nonlocal pending_cpu_move_at
+            pending_cpu_move_at = pygame.time.get_ticks() + initvar.CPU_MOVE_DELAY_MS
 
         play_edit_switch_button = menu_buttons.PlayEditSwitchButton(initvar.PLAY_EDIT_SWITCH_BUTTON_TOPLEFT)
         flip_board_button = menu_buttons.FlipBoardButton(initvar.FLIP_BOARD_BUTTON_TOPLEFT)
@@ -127,10 +136,13 @@ async def main():
         _OVERLAY_COLOR = (15, 20, 35)
         _shared_x = initvar.X_GRID_START - 45
         _shared_y = initvar.BLACK_X_Y[1] - 5
+        _undo_bottom = initvar.UNDO_MOVE_BUTTON_TOPLEFT[1] + 78
+        _captured_row_bottom = initvar.BLACK_CAPTURED_Y + board.Y_GRID_HEIGHT
+        _shared_bottom = max(_undo_bottom, _captured_row_bottom) + 8
         # Width spans from the left of the board area to the right of the panel — one
         # continuous surface so board and panel read as the same zone, not two boxes.
         _shared_w = (initvar.MOVE_BG_IMAGE_X - 12 + 226) - _shared_x
-        _shared_h = initvar.WHITE_X_Y[1] - _shared_y + 30
+        _shared_h = _shared_bottom - _shared_y
         _main_bg_overlay = pygame.Surface((_shared_w, _shared_h))
         _main_bg_overlay.fill(_OVERLAY_COLOR)
         _main_bg_overlay.set_alpha(88)
@@ -147,6 +159,75 @@ async def main():
         pygame.draw.line(_sidebar_bg_overlay, _DIVIDER_COLOR, (8, 128), (200, 128), 1)
         pygame.draw.line(_sidebar_bg_overlay, _DIVIDER_COLOR, (8, 358), (200, 358), 1)
         _sidebar_bg_overlay.set_alpha(65)
+        _player_name_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 26, bold=True)
+        _player_rating_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 17)
+        _status_label_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 16, bold=True)
+        _status_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 28, bold=True)
+        _status_sub_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 20)
+        _label_color = (210, 220, 236)
+        _muted_text = (179, 196, 220)
+
+        def _fit_font(text, max_width, start_size, min_size, bold=False):
+            size = start_size
+            while size >= min_size:
+                font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, size, bold=bold)
+                if font.size(text)[0] <= max_width:
+                    return font
+                size -= 1
+            return pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, min_size, bold=bold)
+
+        def _draw_player_identity(name, rating, side):
+            board_right_x = board.X_GRID_END
+            panel_left_x = initvar.MOVE_BG_IMAGE_X
+            badge_right_padding = 12
+            box_width = panel_left_x - board_right_x - badge_right_padding
+            box_height = 62
+            box_x = board_right_x
+            if side == "top":
+                box_y = initvar.Y_GRID_START - box_height
+            else:
+                box_y = board.Y_GRID_END
+            badge = pygame.Surface((box_width, box_height), pygame.SRCALPHA)
+            pygame.draw.rect(badge, (10, 22, 42, 132), badge.get_rect(), border_radius=14)
+            pygame.draw.rect(badge, (82, 108, 150, 165), badge.get_rect(), 1, border_radius=14)
+            safe_name = name or "Player"
+            name_font = _fit_font(safe_name, box_width - 52, 26, 20, bold=True)
+            name_text = name_font.render(safe_name, True, (242, 247, 255))
+            rating_text = _player_rating_font.render(rating, True, (187, 201, 222)) if rating else None
+            indicator_color = (244, 246, 250) if side == "bottom" else (88, 108, 138)
+            pygame.draw.circle(badge, indicator_color, (22, 31), 8)
+            pygame.draw.circle(badge, (214, 224, 239), (22, 31), 8, 1)
+            badge.blit(name_text, (40, 10))
+            if rating_text:
+                badge.blit(rating_text, (40, 34))
+            lis.SCREEN.blit(badge, (box_x, box_y))
+
+        def _draw_panel_status(turn_text, detail_text):
+            if not turn_text and not detail_text:
+                return
+            card_x = initvar.MOVE_BG_IMAGE_X + 16
+            card_y = initvar.MOVE_BG_IMAGE_Y + 14
+            card_width = 170
+            card_height = 74 if detail_text else 52
+            card = pygame.Surface((card_width, card_height), pygame.SRCALPHA)
+            status_label = _status_label_font.render("STATUS", True, _label_color)
+            card.blit(status_label, (0, 0))
+            if turn_text:
+                turn_font = _fit_font(turn_text, card_width, 24, 16, bold=True)
+                turn_surface = turn_font.render(turn_text, True, (244, 248, 255))
+                card.blit(turn_surface, (0, 22))
+            if detail_text:
+                detail_font = _fit_font(detail_text, card_width, 17, 14)
+                detail_surface = detail_font.render(detail_text, True, (255, 214, 166) if "check" in detail_text.lower() else (206, 220, 238))
+                card.blit(detail_surface, (0, 50 if turn_text else 24))
+            lis.SCREEN.blit(card, (card_x, card_y))
+            pygame.draw.line(
+                lis.SCREEN,
+                (76, 101, 144),
+                (initvar.MOVE_BG_IMAGE_X + 14, initvar.MOVE_BG_IMAGE_Y + 136),
+                (initvar.MOVE_BG_IMAGE_X + 188, initvar.MOVE_BG_IMAGE_Y + 136),
+                1,
+            )
         mouse_coord = ""
         def mouse_coordinate(mousepos):
             mouse_coord = ""
@@ -194,6 +275,7 @@ async def main():
                             if scroll_down_button.activate:
                                 PanelController.update_scroll_range(1)
                         if pgn_load_file_button and pgn_load_file_button.rect.collidepoint(mousepos) and pgn_load_file_button.clickable:
+                            cancel_pending_cpu_move()
                             if CpuController.cpu_mode:
                                 CpuController.cpu_mode_toggle()
                                 cpu_button.toggle(CpuController.cpu_mode)
@@ -213,20 +295,28 @@ async def main():
                             if SwitchModesController.GAME_MODE == SwitchModesController.PLAY_MODE:
                                 game_controller.captured_pieces_flip(GridController.flipped)
                         if undo_move_button.rect.collidepoint(mousepos) and undo_move_button.clickable:
+                            cancel_pending_cpu_move()
                             if CpuController.cpu_mode:
                                 CpuController.cpu_mode_toggle()
                                 cpu_button.toggle(CpuController.cpu_mode)
                             MoveController.undo_move(game_controller)
                         if cpu_button.rect.collidepoint(mousepos) and cpu_button.clickable:
+                            cancel_pending_cpu_move()
                             CpuController.cpu_mode_toggle()
                             cpu_button.toggle(CpuController.cpu_mode)
+                            if (CpuController.cpu_mode and SwitchModesController.GAME_MODE == SwitchModesController.PLAY_MODE
+                                and game_controller.whoseturn == CpuController.cpu_color and game_controller.result_abb == "*"
+                                and not SwitchModesController.REPLAYED):
+                                schedule_cpu_move()
                         if beginning_move_button.rect.collidepoint(mousepos) and beginning_move_button.clickable:
+                            cancel_pending_cpu_move()
                             MoveTracker.selected_move = 1, "white_move"
                             SwitchModesController.replayed_game(True, game_controller, True)
                             GridController.update_prior_move_color()
                             MoveTracker.selected_move = (0, "black_move")
                             PanelController.scroll_to_first_move()
                         if prev_move_button.rect.collidepoint(mousepos) and prev_move_button.clickable:
+                            cancel_pending_cpu_move()
                             if MoveTracker.selected_move == (0, "black_move"):
                                 pass
                             elif MoveTracker.selected_move == (1, "white_move"):
@@ -242,6 +332,7 @@ async def main():
                                     PanelController.update_scroll_range(-1)
                                 SwitchModesController.replayed_game(True, game_controller)
                         if next_move_button.rect.collidepoint(mousepos) and next_move_button.clickable:
+                            cancel_pending_cpu_move()
                             if MoveTracker.selected_move[0] != MoveTracker.move_counter():
                                 # When selected move is not at the last move number
                                 if MoveTracker.selected_move[1] == "black_move":
@@ -269,6 +360,7 @@ async def main():
                                 # Last move
                                 SwitchModesController.replayed_game(False, game_controller)
                         if last_move_button.rect.collidepoint(mousepos) and last_move_button.clickable:
+                            cancel_pending_cpu_move()
                             if MoveTracker.df_moves[MoveTracker.move_counter()]["black_move"] == "":
                                 MoveTracker.selected_move = MoveTracker.move_counter(), "white_move"
                             else:
@@ -319,18 +411,17 @@ async def main():
                         # Drag piece to board (initialize placed piece)
                         start_objects.Dragging.dragging_to_placed_no_dups(mouse_coord)
                         if SwitchModesController.GAME_MODE == SwitchModesController.PLAY_MODE:
+                            if pending_cpu_move_at is not None:
+                                continue
                             # Moves piece
+                            prior_turn = game_controller.whoseturn
                             MoveController.complete_move(mouse_coord, game_controller)
                             # Selects piece
                             MoveController.select_piece_unselect_all_others(mouse_coord, game_controller)
-                            if CpuController.cpu_mode and game_controller.whoseturn == CpuController.cpu_color:
-                                CpuController.total_possible_moves_update()
-                                if CpuController.total_possible_moves:
-                                    cpu_move = CpuController.choose_move()
-                                    cpu_grid = cpu_move[0]
-                                    cpu_piece = cpu_move[1]
-                                    cpu_piece.select = True
-                                    MoveController.complete_move(cpu_grid.coordinate, game_controller)
+                            if (prior_turn != game_controller.whoseturn and CpuController.cpu_mode
+                                and game_controller.whoseturn == CpuController.cpu_color
+                                and game_controller.result_abb == "*"):
+                                schedule_cpu_move()
                     if event.type == pygame.MOUSEBUTTONDOWN and (event.button == 4 or event.button == 5):
                         #scroll wheel
                         if event.button == 4: # Scroll up
@@ -351,6 +442,7 @@ async def main():
                         #################
                         if play_edit_switch_button.rect.collidepoint(mousepos) and SwitchModesController.GAME_MODE == SwitchModesController.EDIT_MODE:
                             # Makes clicking play again unclickable
+                            cancel_pending_cpu_move()
                             SwitchModesController.switch_mode(SwitchModesController.PLAY_MODE, play_edit_switch_button)
                             game_controller = GameController(GridController.flipped)
                             game_controller.refresh_objects()
@@ -359,6 +451,7 @@ async def main():
                         # LEFT CLICK (RELEASE) STOP BUTTON
                         #################
                         elif play_edit_switch_button.rect.collidepoint(mousepos) and SwitchModesController.GAME_MODE == SwitchModesController.PLAY_MODE:
+                            cancel_pending_cpu_move()
                             SwitchModesController.switch_mode(SwitchModesController.EDIT_MODE, play_edit_switch_button)
                             del game_controller
                         if clear_button.rect.collidepoint(mousepos):
@@ -382,6 +475,19 @@ async def main():
                 ##################
                 # IN-GAME ACTIONS
                 ##################
+                if (pending_cpu_move_at is not None and SwitchModesController.GAME_MODE == SwitchModesController.PLAY_MODE
+                    and not SwitchModesController.REPLAYED):
+                    if not CpuController.cpu_mode or game_controller.whoseturn != CpuController.cpu_color or game_controller.result_abb != "*":
+                        cancel_pending_cpu_move()
+                    elif pygame.time.get_ticks() >= pending_cpu_move_at:
+                        CpuController.total_possible_moves_update()
+                        if CpuController.total_possible_moves:
+                            cpu_move = CpuController.choose_move()
+                            cpu_grid = cpu_move[0]
+                            cpu_piece = cpu_move[1]
+                            cpu_piece.select = True
+                            MoveController.complete_move(cpu_grid.coordinate, game_controller)
+                        cancel_pending_cpu_move()
                 #%% Test code below for debugging purposes
 
                 # Set background
@@ -428,7 +534,6 @@ async def main():
                     # Update objects that aren't in a sprite group
                     scroll_up_button.draw(lis.SCREEN)
                     scroll_down_button.draw(lis.SCREEN, len(MoveTracker.df_moves))
-                render_text = lambda x: TextController.universal_font.render(x, 1, initvar.UNIVERSAL_TEXT_COLOR)
                 # Board Coordinates Drawing
                 for text in range(0,len(TextController.coor_letter_text_list)):
                     lis.SCREEN.blit(TextController.coor_letter_text_list[text], (initvar.X_GRID_START+board.X_GRID_WIDTH/3+(board.X_GRID_WIDTH*text), initvar.Y_GRID_START-(board.Y_GRID_HEIGHT*0.75)))
@@ -437,40 +542,24 @@ async def main():
                     lis.SCREEN.blit(TextController.coor_number_text_list[text], (initvar.X_GRID_START-board.X_GRID_WIDTH/2, initvar.Y_GRID_START+board.Y_GRID_HEIGHT/4+(board.Y_GRID_HEIGHT*text)))
                     lis.SCREEN.blit(TextController.coor_number_text_list[text], (board.X_GRID_END+board.X_GRID_WIDTH/3, initvar.Y_GRID_START+board.Y_GRID_HEIGHT/4+(board.Y_GRID_HEIGHT*text)))
                 if SwitchModesController.GAME_MODE == SwitchModesController.PLAY_MODE:
-                    check_checkmate_text_render = TextController.universal_font.render(TextController.check_checkmate_text, 1, initvar.UNIVERSAL_TEXT_COLOR)
+                    current_turn_text = ""
                     if GridController.flipped:
                         if game_controller.whoseturn == "white" and game_controller.result_abb == "*":
-                            whose_turn_text = TextController.universal_font.render("White's move", 1, initvar.UNIVERSAL_TEXT_COLOR)
-                            lis.SCREEN.blit(whose_turn_text, initvar.BLACK_MOVE_X_Y)
+                            current_turn_text = "White to move"
                         elif game_controller.whoseturn == "black" and game_controller.result_abb == "*":
-                            whose_turn_text = TextController.universal_font.render("Black's move", 1, initvar.UNIVERSAL_TEXT_COLOR)
-                            lis.SCREEN.blit(whose_turn_text, initvar.WHITE_MOVE_X_Y)
+                            current_turn_text = "Black to move"
                     else:
                         if game_controller.whoseturn == "white" and game_controller.result_abb == "*":
-                            whose_turn_text = TextController.universal_font.render("White's move", 1, initvar.UNIVERSAL_TEXT_COLOR)
-                            lis.SCREEN.blit(whose_turn_text, initvar.WHITE_MOVE_X_Y)
+                            current_turn_text = "White to move"
                         elif game_controller.whoseturn == "black" and game_controller.result_abb == "*":
-                            whose_turn_text = TextController.universal_font.render("Black's move", 1, initvar.UNIVERSAL_TEXT_COLOR)
-                            lis.SCREEN.blit(whose_turn_text, initvar.BLACK_MOVE_X_Y)
-                    lis.SCREEN.blit(check_checkmate_text_render, initvar.CHECK_CHECKMATE_X_Y)
+                            current_turn_text = "Black to move"
+                    _draw_panel_status(current_turn_text, TextController.check_checkmate_text)
                 if GridController.flipped:
-                    if GameProperties.WhiteElo != "":
-                        lis.SCREEN.blit(render_text(GameProperties.White + " (" + GameProperties.WhiteElo + ")"), initvar.BLACK_X_Y)
-                    else:
-                        lis.SCREEN.blit(render_text(GameProperties.White), initvar.BLACK_X_Y)
-                    if GameProperties.BlackElo != "":
-                        lis.SCREEN.blit(render_text(GameProperties.Black + " (" + GameProperties.BlackElo + ")"), initvar.WHITE_X_Y)
-                    else:
-                        lis.SCREEN.blit(render_text(GameProperties.Black), initvar.WHITE_X_Y)
+                    _draw_player_identity(GameProperties.White, GameProperties.WhiteElo, "top")
+                    _draw_player_identity(GameProperties.Black, GameProperties.BlackElo, "bottom")
                 else:
-                    if GameProperties.WhiteElo != "":
-                        lis.SCREEN.blit(render_text(GameProperties.White + " (" + GameProperties.WhiteElo + ")"), initvar.WHITE_X_Y)
-                    else:
-                        lis.SCREEN.blit(render_text(GameProperties.White), initvar.WHITE_X_Y)
-                    if GameProperties.BlackElo != "":
-                        lis.SCREEN.blit(render_text(GameProperties.Black + " (" + GameProperties.BlackElo + ")"), initvar.BLACK_X_Y)
-                    else:
-                        lis.SCREEN.blit(render_text(GameProperties.Black), initvar.BLACK_X_Y)
+                    _draw_player_identity(GameProperties.Black, GameProperties.BlackElo, "top")
+                    _draw_player_identity(GameProperties.White, GameProperties.WhiteElo, "bottom")
                 pygame.display.update()
             elif state == debug:
                 if debug_message == 1:
