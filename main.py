@@ -121,6 +121,32 @@ async def main():
         pygame.display.set_caption('Chess')
         # Load the starting positions of chessboard first
         pos_load_file(reset=True)
+        # Pre-create dark overlays for visual contrast.
+        # (15, 20, 35): dark navy rather than near-black — the blue channel is visible at
+        # lower opacities and keeps the overlay in the space background's color family.
+        _OVERLAY_COLOR = (15, 20, 35)
+        _shared_x = initvar.X_GRID_START - 45
+        _shared_y = initvar.BLACK_X_Y[1] - 5
+        # Width spans from the left of the board area to the right of the panel — one
+        # continuous surface so board and panel read as the same zone, not two boxes.
+        _shared_w = (initvar.MOVE_BG_IMAGE_X - 12 + 226) - _shared_x
+        _shared_h = initvar.WHITE_X_Y[1] - _shared_y + 30
+        _main_bg_overlay = pygame.Surface((_shared_w, _shared_h))
+        _main_bg_overlay.fill(_OVERLAY_COLOR)
+        _main_bg_overlay.set_alpha(88)
+        # Panel colors drawn programmatically each frame — gives full control over
+        # fill and border without fighting the PNG's hard-coded white/bright-blue.
+        _PANEL_FILL   = (22, 48, 90)   # dark muted navy — feels like a card surface
+        _PANEL_BORDER = (65, 88, 128)  # steel blue, 1px — defines the edge quietly
+        _PANEL_RECT   = (initvar.MOVE_BG_IMAGE_X, initvar.MOVE_BG_IMAGE_Y, 202, 628)
+        # Sidebar: same color family at a clearly lighter weight so it reads as secondary.
+        # Divider lines are baked in once at startup — no per-frame cost.
+        _sidebar_bg_overlay = pygame.Surface((210, initvar.SCREEN_HEIGHT))
+        _sidebar_bg_overlay.fill(_OVERLAY_COLOR)
+        _DIVIDER_COLOR = (80, 100, 140)  # muted steel blue — visible but not harsh
+        pygame.draw.line(_sidebar_bg_overlay, _DIVIDER_COLOR, (8, 128), (200, 128), 1)
+        pygame.draw.line(_sidebar_bg_overlay, _DIVIDER_COLOR, (8, 358), (200, 358), 1)
+        _sidebar_bg_overlay.set_alpha(65)
         mouse_coord = ""
         def mouse_coordinate(mousepos):
             mouse_coord = ""
@@ -176,6 +202,10 @@ async def main():
                                 grid.no_highlight()
                             GridController.update_grid_occupied_detection()
                         if pgn_save_file_button and pgn_save_file_button.rect.collidepoint(mousepos) and pgn_save_file_button.clickable:
+                            _dim = pygame.Surface(lis.SCREEN.get_size(), pygame.SRCALPHA)
+                            _dim.fill((0, 0, 0, 140))
+                            lis.SCREEN.blit(_dim, (0, 0))
+                            pygame.display.flip()
                             GameProperties.game_properties_popup()
                             PgnWriterAndLoader.write_moves(MoveTracker.df_moves, game_controller.result_abb)
                         if flip_board_button.rect.collidepoint(mousepos):
@@ -267,6 +297,10 @@ async def main():
                             if reset_board_button.rect.collidepoint(mousepos) and reset_board_button.clickable:
                                 pos_load_file(reset=True)
                             if game_properties_button and game_properties_button.rect.collidepoint(mousepos) and game_properties_button.clickable:
+                                _dim = pygame.Surface(lis.SCREEN.get_size(), pygame.SRCALPHA)
+                                _dim.fill((0, 0, 0, 140))
+                                lis.SCREEN.blit(_dim, (0, 0))
+                                pygame.display.flip()
                                 GameProperties.game_properties_popup()
                             # DRAG OBJECTS
                             # Goes through each of the types of pieces
@@ -352,6 +386,9 @@ async def main():
 
                 # Set background
                 lis.SCREEN.blit(lis.GAME_BACKGROUND, (0, 0))
+                # Dark overlays: reduce background noise, make board and panel pop
+                lis.SCREEN.blit(_sidebar_bg_overlay, (0, 0))
+                lis.SCREEN.blit(_main_bg_overlay, (_shared_x, _shared_y))
                 # Individual sprites update
                 flip_board_button.draw(lis.SCREEN)
                 if not initvar.ITCH_MODE:
@@ -368,7 +405,8 @@ async def main():
                 GridController.update_grid_occupied_detection()
                 start_objects.START_SPRITES.update(SwitchModesController.GAME_MODE)
                 menu_buttons.PLAY_PANEL_SPRITES.update(SwitchModesController.GAME_MODE)
-                lis.SCREEN.blit(lis.MOVE_BG_IMAGE, (initvar.MOVE_BG_IMAGE_X,initvar.MOVE_BG_IMAGE_Y))
+                pygame.draw.rect(lis.SCREEN, _PANEL_FILL, _PANEL_RECT)
+                pygame.draw.rect(lis.SCREEN, _PANEL_BORDER, _PANEL_RECT, 1)
                 if SwitchModesController.GAME_MODE == SwitchModesController.EDIT_MODE: #Only draw placed sprites in editing mode
                     start_objects.START_SPRITES.draw(lis.SCREEN)
                     placed_objects.PLACED_SPRITES.update()

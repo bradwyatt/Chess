@@ -249,6 +249,12 @@ class GameProperties():
         first_entry.focus_set()
         window.bind("<Return>", lambda _event: submit())
         window.bind("<Escape>", lambda _event: cancel())
+        window.update_idletasks()
+        _sw = window.winfo_screenwidth()
+        _sh = window.winfo_screenheight()
+        _w = window.winfo_reqwidth()
+        _h = window.winfo_reqheight()
+        window.geometry(f"+{(_sw - _w) // 2}+{(_sh - _h) // 2}")
         window.mainloop()
 
         if not result["confirmed"]:

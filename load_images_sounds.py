@@ -1,5 +1,6 @@
 import sys
 import os
+import math
 import pygame
 import initvar
 
@@ -87,7 +88,22 @@ load_image("sprites/reset_board.png", "SPR_RESET_BOARD_BUTTON", True, True)
 load_image("sprites/savepositions.png", "SPR_POS_SAVE_FILE_BUTTON", True, True)
 load_image("sprites/loadpositions.png", "SPR_POS_LOAD_FILE_BUTTON", True, True)
 load_image("sprites/flipboard.png", "SPR_FLIP_BOARD_BUTTON", True, True)
-load_image("sprites/gameproperties.png", "SPR_GAME_PROPERTIES_BUTTON", True, True)
+_sz = 80
+_s = pygame.Surface((_sz, _sz), pygame.SRCALPHA)
+pygame.draw.circle(_s, (40, 65, 110), (_sz // 2, _sz // 2), _sz // 2 - 1)
+pygame.draw.circle(_s, (80, 110, 160), (_sz // 2, _sz // 2), _sz // 2 - 1, 2)
+_cx, _cy = _sz // 2, _sz // 2
+_gc = (210, 225, 255)
+_n, _ro, _ri, _rh, _tw = 8, 26, 19, 8, math.radians(8)
+_pts = []
+for _i in range(_n):
+    _ba = math.radians(_i * 360 / _n)
+    for _a, _r in [(_ba - _tw, _ri), (_ba - _tw, _ro), (_ba + _tw, _ro), (_ba + _tw, _ri)]:
+        _pts.append((_cx + math.cos(_a) * _r, _cy + math.sin(_a) * _r))
+pygame.draw.polygon(_s, _gc, _pts)
+pygame.draw.circle(_s, (40, 65, 110), (_cx, _cy), _rh)
+pygame.draw.circle(_s, _gc, (_cx, _cy), _rh, 2)
+IMAGES["SPR_GAME_PROPERTIES_BUTTON"] = _s
 load_image("sprites/beginning_move_button.png", "SPR_BEGINNING_MOVE_BUTTON", True, True)
 load_image("sprites/undoMove.png", "SPR_UNDO_MOVE_BUTTON", True, True)
 load_image("sprites/last_move_button.png", "SPR_LAST_MOVE_BUTTON", True, True)
