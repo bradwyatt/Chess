@@ -1,5 +1,5 @@
 import pygame
-from load_images_sounds import *
+import load_images_sounds as lis
 import initvar
 
 GRID_SPRITES = pygame.sprite.Group()
@@ -11,9 +11,9 @@ class Grid(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.color = color
         if(self.color == "green"):
-            self.image = IMAGES["SPR_GREEN_GRID"]
+            self.image = lis.IMAGES["SPR_GREEN_GRID"]
         elif(self.color == "white"):
-            self.image = IMAGES["SPR_WHITE_GRID"]
+            self.image = lis.IMAGES["SPR_WHITE_GRID"]
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         GRID_SPRITES.add(self)
@@ -49,22 +49,22 @@ class Grid(pygame.sprite.Sprite):
             self.coords_of_available_pieces['black'].append(piece_coord)
     def highlight(self, color, piece_coord):
         if initvar.test_mode == True:
-            self.image = IMAGES["SPR_HIGHLIGHT"]
+            self.image = lis.IMAGES["SPR_HIGHLIGHT"]
         self.highlighted = True
         self.available_count_increment(color, piece_coord)
     def no_highlight(self):
         if(self.prior_move_color == True):
-            self.image = IMAGES["SPR_PRIOR_MOVE_GRID"]
+            self.image = lis.IMAGES["SPR_PRIOR_MOVE_GRID"]
         elif(self.color == "green"):
-            self.image = IMAGES["SPR_GREEN_GRID"]
+            self.image = lis.IMAGES["SPR_GREEN_GRID"]
         elif(self.color == "white"):
-            self.image = IMAGES["SPR_WHITE_GRID"]
+            self.image = lis.IMAGES["SPR_WHITE_GRID"]
         self.highlighted = False
 
 # Retrieve Width and Height
-assert IMAGES["SPR_GREEN_GRID"].get_size() == IMAGES["SPR_WHITE_GRID"].get_size()
-X_GRID_WIDTH = IMAGES["SPR_GREEN_GRID"].get_width()
-Y_GRID_HEIGHT = IMAGES["SPR_GREEN_GRID"].get_height()
+assert lis.IMAGES["SPR_GREEN_GRID"].get_size() == lis.IMAGES["SPR_WHITE_GRID"].get_size()
+X_GRID_WIDTH = lis.IMAGES["SPR_GREEN_GRID"].get_width()
+Y_GRID_HEIGHT = lis.IMAGES["SPR_GREEN_GRID"].get_height()
 X_GRID_END = initvar.X_GRID_START+(X_GRID_WIDTH*8)
 Y_GRID_END = initvar.Y_GRID_START+(Y_GRID_HEIGHT*8)
 XGRIDRANGE = [initvar.X_GRID_START, X_GRID_END, X_GRID_WIDTH] # 1st num: begin 2nd: end 3rd: step

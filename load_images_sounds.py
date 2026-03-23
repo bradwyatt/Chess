@@ -13,7 +13,7 @@ SOUNDS = {}
 
 #Init
 root = None
-if not initvar.ITCH_MODE and tk is not None:
+if not initvar.ITCH_MODE and tk is not None and not os.environ.get("HEADLESS_TEST"):
     root = tk.Tk()
     root.withdraw()
 pygame.init()
@@ -62,42 +62,18 @@ def load_image(file, name, transparent, alpha):
     IMAGES[name] = new_image
     
 #Sprites
-load_image("sprites/pieces/white_pawn.png", "SPR_WHITE_PAWN", True, True)
-load_image("sprites/pieces/white_pawn_highlighted.png", "SPR_WHITE_PAWN_HIGHLIGHTED", True, True)
-load_image("sprites/pieces/white_pawn_priormove.png", "SPR_WHITE_PAWN_PRIORMOVE", True, True)
-load_image("sprites/pieces/white_bishop.png", "SPR_WHITE_BISHOP", True, True)
-load_image("sprites/pieces/white_bishop_highlighted.png", "SPR_WHITE_BISHOP_HIGHLIGHTED", True, True)
-load_image("sprites/pieces/white_bishop_priormove.png", "SPR_WHITE_BISHOP_PRIORMOVE", True, True)
-load_image("sprites/pieces/white_knight.png", "SPR_WHITE_KNIGHT", True, True)
-load_image("sprites/pieces/white_knight_highlighted.png", "SPR_WHITE_KNIGHT_HIGHLIGHTED", True, True)
-load_image("sprites/pieces/white_knight_priormove.png", "SPR_WHITE_KNIGHT_PRIORMOVE", True, True)
-load_image("sprites/pieces/white_rook.png", "SPR_WHITE_ROOK", True, True)
-load_image("sprites/pieces/white_rook_highlighted.png", "SPR_WHITE_ROOK_HIGHLIGHTED", True, True)
-load_image("sprites/pieces/white_rook_priormove.png", "SPR_WHITE_ROOK_PRIORMOVE", True, True)
-load_image("sprites/pieces/white_queen.png", "SPR_WHITE_QUEEN", True, True)
-load_image("sprites/pieces/white_queen_highlighted.png", "SPR_WHITE_QUEEN_HIGHLIGHTED", True, True)
-load_image("sprites/pieces/white_queen_priormove.png", "SPR_WHITE_QUEEN_PRIORMOVE", True, True)
-load_image("sprites/pieces/white_king.png", "SPR_WHITE_KING", True, True)
-load_image("sprites/pieces/white_king_highlighted.png", "SPR_WHITE_KING_HIGHLIGHTED", True, True)
-load_image("sprites/pieces/white_king_priormove.png", "SPR_WHITE_KING_PRIORMOVE", True, True)
-load_image("sprites/pieces/black_pawn.png", "SPR_BLACK_PAWN", True, True)
-load_image("sprites/pieces/black_pawn_highlighted.png", "SPR_BLACK_PAWN_HIGHLIGHTED", True, True)
-load_image("sprites/pieces/black_pawn_priormove.png", "SPR_BLACK_PAWN_PRIORMOVE", True, True)
-load_image("sprites/pieces/black_bishop.png", "SPR_BLACK_BISHOP", True, True)
-load_image("sprites/pieces/black_bishop_highlighted.png", "SPR_BLACK_BISHOP_HIGHLIGHTED", True, True)
-load_image("sprites/pieces/black_bishop_priormove.png", "SPR_BLACK_BISHOP_PRIORMOVE", True, True)
-load_image("sprites/pieces/black_knight.png", "SPR_BLACK_KNIGHT", True, True)
-load_image("sprites/pieces/black_knight_highlighted.png", "SPR_BLACK_KNIGHT_HIGHLIGHTED", True, True)
-load_image("sprites/pieces/black_knight_priormove.png", "SPR_BLACK_KNIGHT_PRIORMOVE", True, True)
-load_image("sprites/pieces/black_rook.png", "SPR_BLACK_ROOK", True, True)
-load_image("sprites/pieces/black_rook_highlighted.png", "SPR_BLACK_ROOK_HIGHLIGHTED", True, True)
-load_image("sprites/pieces/black_rook_priormove.png", "SPR_BLACK_ROOK_PRIORMOVE", True, True)
-load_image("sprites/pieces/black_queen.png", "SPR_BLACK_QUEEN", True, True)
-load_image("sprites/pieces/black_queen_highlighted.png", "SPR_BLACK_QUEEN_HIGHLIGHTED", True, True)
-load_image("sprites/pieces/black_queen_priormove.png", "SPR_BLACK_QUEEN_PRIORMOVE", True, True)
-load_image("sprites/pieces/black_king.png", "SPR_BLACK_KING", True, True)
-load_image("sprites/pieces/black_king_highlighted.png", "SPR_BLACK_KING_HIGHLIGHTED", True, True)
-load_image("sprites/pieces/black_king_priormove.png", "SPR_BLACK_KING_PRIORMOVE", True, True)
+_PIECE_COLORS   = ["white", "black"]
+_PIECE_TYPES    = ["pawn", "bishop", "knight", "rook", "queen", "king"]
+_PIECE_VARIANTS = [("", ""), ("_highlighted", "_HIGHLIGHTED"), ("_priormove", "_PRIORMOVE")]
+
+for _color in _PIECE_COLORS:
+    for _piece in _PIECE_TYPES:
+        for _file_suffix, _key_suffix in _PIECE_VARIANTS:
+            load_image(
+                f"sprites/pieces/{_color}_{_piece}{_file_suffix}.png",
+                f"SPR_{_color.upper()}_{_piece.upper()}{_key_suffix}",
+                True, True,
+            )
 load_image("sprites/grid.png", "SPR_GRID", True, True)
 load_image("sprites/whiteGrid.png", "SPR_WHITE_GRID", True, True)
 load_image("sprites/greenGrid.png", "SPR_GREEN_GRID", True, True)
