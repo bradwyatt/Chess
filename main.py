@@ -69,7 +69,7 @@ from game.controllers.switch_modes import SwitchModesController, GridController
 from game.controllers.game_controller import EditModeController, GameController, MoveController
 from game.io.positions import (
     native_file_dialogs_available, itch_mode_blocked,
-    pos_load_file, get_dict_rect_positions, pos_save_file, pos_lists_to_coord,
+    pos_load_file, load_position_from_json, get_dict_rect_positions, pos_save_file, pos_lists_to_coord,
     GameProperties,
 )
 from game.io.pgn import PgnWriterAndLoader
@@ -97,32 +97,88 @@ async def main():
             nonlocal pending_cpu_move_at
             pending_cpu_move_at = pygame.time.get_ticks() + initvar.CPU_MOVE_DELAY_MS
 
-        def start_game():
+        def start_game(whoseturn=None):
             nonlocal game_controller
             cancel_pending_cpu_move()
             start_objects.Dragging.dragging_all_false()
             SwitchModesController.switch_mode(SwitchModesController.PLAY_MODE, play_edit_switch_button)
-            game_controller = GameController(GridController.flipped)
+            if whoseturn is None:
+                whoseturn = pending_start_whoseturn
+            game_controller = GameController(GridController.flipped, whoseturn=whoseturn)
             game_controller.refresh_objects()
             if CpuController.cpu_mode and game_controller.whoseturn == CpuController.cpu_color:
                 schedule_cpu_move()
 
+        def reset_to_default_setup():
+            nonlocal pending_start_whoseturn
+            if GridController.flipped:
+                GridController.flip_grids()
+            CpuController.cpu_mode = False
+            CpuController.cpu_color = "black"
+            CpuController.enemy_color = "white"
+            GameProperties.Event = ""
+            GameProperties.Site = ""
+            GameProperties.Date = ""
+            GameProperties.Round = ""
+            GameProperties.White = ""
+            GameProperties.Black = ""
+            GameProperties.Result = ""
+            GameProperties.WhiteElo = ""
+            GameProperties.BlackElo = ""
+            GameProperties.ECO = ""
+            GameProperties.TimeControl = "0"
+            start_objects.Start.restart_start_positions()
+            pos_load_file(reset=True)
+            pending_start_whoseturn = "white"
+
         def stop_game():
-            nonlocal game_controller
+            nonlocal game_controller, restore_default_setup_on_stop
             cancel_pending_cpu_move()
             start_objects.Dragging.dragging_all_false()
             SwitchModesController.switch_mode(SwitchModesController.EDIT_MODE, play_edit_switch_button)
             del game_controller
+            if restore_default_setup_on_stop:
+                reset_to_default_setup()
+                restore_default_setup_on_stop = False
 
         play_edit_switch_button = menu_buttons.PlayEditSwitchButton(initvar.PLAY_EDIT_SWITCH_BUTTON_TOPLEFT)
+        features_panel = menu_buttons.SidebarSectionPanel(
+            (
+                initvar.FEATURES_SECTION_X,
+                initvar.FEATURES_SECTION_Y,
+                initvar.FEATURES_SECTION_W,
+                initvar.FEATURES_SECTION_H,
+            ),
+            "LIBRARY",
+        )
+        puzzles_button = menu_buttons.SidebarActionButton(initvar.PUZZLES_BUTTON_TOPLEFT, "Puzzles")
+        pgn_games_button = menu_buttons.SidebarActionButton(initvar.PGN_GAMES_BUTTON_TOPLEFT, "PGN Games")
         help_button = menu_buttons.HelpButton(initvar.HELP_BUTTON_TOPLEFT)
         flip_board_button = menu_buttons.FlipBoardButton(initvar.FLIP_BOARD_BUTTON_TOPLEFT)
         game_mode_selector = menu_buttons.GameModeSelector(initvar.GAME_MODE_SELECTOR_TOPLEFT)
         help_overlay_open = False
+        puzzles_modal_open = False
+        pgn_games_modal_open = False
+        restore_default_setup_on_stop = False
+        pending_start_whoseturn = "white"
         show_help_hint = True
         hint_expire_at = pygame.time.get_ticks() + 4200
         help_panel_width = 430
         help_panel_rect = pygame.Rect(help_button.rect.right - help_panel_width, help_button.rect.bottom + 14, help_panel_width, 320)
+        modal_panel_rect = pygame.Rect(0, 0, 0, 0)
+        modal_close_rect = pygame.Rect(0, 0, 0, 0)
+        puzzle_button_rects = {}
+        puzzle_options = [
+            ("puzzle1", "Puzzle 1 - White to Checkmate", "ChessPositions/puzzle1_whitetocheckmate.json", "white"),
+            ("puzzle2", "Puzzle 2 - White to Checkmate", "ChessPositions/puzzle2_whitetocheckmate.json", "white"),
+            ("puzzle3", "Puzzle 3 - White to Checkmate", "ChessPositions/puzzle3_whitetocheckmate.json", "white"),
+        ]
+        pgn_game_button_rects = {}
+        pgn_game_options = [
+            ("carlsen_kasparov", "Carlsen vs Kasparov (2004)", "pgn_sample_games/carlsen_kasparov_2004.pgn"),
+            ("de_los_santos_polgar", "De los Santos vs Polgar (1990)", "pgn_sample_games/de_los_santos_polgar_1990.pgn"),
+            ("deep_blue_kasparov", "Deep Blue vs Kasparov (1996)", "pgn_sample_games/DeepBlue_GarryKasparov_02101996.pgn"),
+        ]
         game_properties_button = None
         load_file_placeholder = None
         save_file_placeholder = None
@@ -368,6 +424,141 @@ async def main():
             lis.SCREEN.blit(panel, help_panel_rect.topleft)
             return help_panel_rect
 
+        def _load_puzzle_position(json_path, whoseturn):
+            nonlocal puzzles_modal_open, restore_default_setup_on_stop, pending_start_whoseturn
+            cancel_pending_cpu_move()
+            start_objects.Dragging.dragging_all_false()
+            start_objects.Start.restart_start_positions()
+            if CpuController.cpu_mode:
+                CpuController.cpu_mode_toggle()
+            if SwitchModesController.GAME_MODE == SwitchModesController.PLAY_MODE:
+                stop_game()
+            load_position_from_json(json_path)
+            pending_start_whoseturn = whoseturn
+            puzzles_modal_open = False
+            restore_default_setup_on_stop = False
+
+        def _load_sample_pgn(pgn_path):
+            nonlocal game_controller, puzzles_modal_open, pgn_games_modal_open, restore_default_setup_on_stop, pending_start_whoseturn
+            cancel_pending_cpu_move()
+            start_objects.Dragging.dragging_all_false()
+            start_objects.Start.restart_start_positions()
+            if CpuController.cpu_mode:
+                CpuController.cpu_mode_toggle()
+            if SwitchModesController.GAME_MODE == SwitchModesController.PLAY_MODE:
+                stop_game()
+            game_controller = PgnWriterAndLoader.pgn_load_from_path(play_edit_switch_button, pgn_path)
+            puzzles_modal_open = False
+            pgn_games_modal_open = False
+            restore_default_setup_on_stop = game_controller is not None
+            pending_start_whoseturn = "white"
+
+        def _draw_puzzle_modal():
+            nonlocal modal_panel_rect, modal_close_rect, puzzle_button_rects
+            _dim = pygame.Surface(lis.SCREEN.get_size(), pygame.SRCALPHA)
+            _dim.fill((5, 10, 24, 185))
+            lis.SCREEN.blit(_dim, (0, 0))
+
+            panel_w = 520
+            panel_h = 310
+            panel_x = (lis.SCREEN.get_width() - panel_w) // 2
+            panel_y = (lis.SCREEN.get_height() - panel_h) // 2
+            modal_panel_rect = pygame.Rect(panel_x, panel_y, panel_w, panel_h)
+            modal_close_rect = pygame.Rect(panel_x + panel_w - 52, panel_y + 14, 36, 36)
+
+            panel = pygame.Surface((panel_w, panel_h), pygame.SRCALPHA)
+            pygame.draw.rect(panel, (*_PANEL_FILL, 240), panel.get_rect(), border_radius=18)
+            pygame.draw.rect(panel, (*_PANEL_BORDER, 220), panel.get_rect(), 1, border_radius=18)
+
+            title_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 28, bold=True)
+            option_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 20, bold=True)
+            close_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 22, bold=True)
+
+            title = title_font.render("Chess Puzzles", True, (242, 247, 255))
+            panel.blit(title, (28, 24))
+
+            close_hovered = modal_close_rect.collidepoint(mousepos)
+            close_bg = (24, 50, 96, 210) if close_hovered else (16, 34, 72, 180)
+            close_border = (110, 150, 210, 230) if close_hovered else (82, 110, 158, 190)
+            close_local_rect = pygame.Rect(panel_w - 52, 14, 36, 36)
+            pygame.draw.rect(panel, close_bg, close_local_rect, border_radius=10)
+            pygame.draw.rect(panel, close_border, close_local_rect, 1, border_radius=10)
+            close_text = close_font.render("X", True, (242, 247, 255))
+            panel.blit(close_text, (close_local_rect.centerx - close_text.get_width() // 2,
+                                    close_local_rect.centery - close_text.get_height() // 2 - 1))
+
+            puzzle_button_rects = {}
+            button_w = panel_w - 56
+            button_h = 58
+            first_y = 86
+            gap = 16
+            for index, (puzzle_key, label, _, _) in enumerate(puzzle_options):
+                local_rect = pygame.Rect(28, first_y + index * (button_h + gap), button_w, button_h)
+                absolute_rect = local_rect.move(panel_x, panel_y)
+                puzzle_button_rects[puzzle_key] = absolute_rect
+                hovered = absolute_rect.collidepoint(mousepos)
+                btn_bg = (26, 58, 110, 224) if hovered else (18, 42, 86, 192)
+                btn_border = (150, 204, 255, 235) if hovered else (104, 142, 194, 190)
+                pygame.draw.rect(panel, btn_bg, local_rect, border_radius=12)
+                pygame.draw.rect(panel, btn_border, local_rect, 1, border_radius=12)
+                label_surf = option_font.render(label, True, (244, 248, 255))
+                panel.blit(label_surf, (local_rect.x + 18, local_rect.centery - label_surf.get_height() // 2))
+
+            lis.SCREEN.blit(panel, modal_panel_rect.topleft)
+
+        def _draw_pgn_games_modal():
+            nonlocal modal_panel_rect, modal_close_rect, pgn_game_button_rects
+            _dim = pygame.Surface(lis.SCREEN.get_size(), pygame.SRCALPHA)
+            _dim.fill((5, 10, 24, 185))
+            lis.SCREEN.blit(_dim, (0, 0))
+
+            panel_w = 520
+            panel_h = 310
+            panel_x = (lis.SCREEN.get_width() - panel_w) // 2
+            panel_y = (lis.SCREEN.get_height() - panel_h) // 2
+            modal_panel_rect = pygame.Rect(panel_x, panel_y, panel_w, panel_h)
+            modal_close_rect = pygame.Rect(panel_x + panel_w - 52, panel_y + 14, 36, 36)
+
+            panel = pygame.Surface((panel_w, panel_h), pygame.SRCALPHA)
+            pygame.draw.rect(panel, (*_PANEL_FILL, 240), panel.get_rect(), border_radius=18)
+            pygame.draw.rect(panel, (*_PANEL_BORDER, 220), panel.get_rect(), 1, border_radius=18)
+
+            title_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 28, bold=True)
+            option_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 20, bold=True)
+            close_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 22, bold=True)
+
+            title = title_font.render("PGN Games", True, (242, 247, 255))
+            panel.blit(title, (28, 24))
+
+            close_hovered = modal_close_rect.collidepoint(mousepos)
+            close_bg = (24, 50, 96, 210) if close_hovered else (16, 34, 72, 180)
+            close_border = (110, 150, 210, 230) if close_hovered else (82, 110, 158, 190)
+            close_local_rect = pygame.Rect(panel_w - 52, 14, 36, 36)
+            pygame.draw.rect(panel, close_bg, close_local_rect, border_radius=10)
+            pygame.draw.rect(panel, close_border, close_local_rect, 1, border_radius=10)
+            close_text = close_font.render("X", True, (242, 247, 255))
+            panel.blit(close_text, (close_local_rect.centerx - close_text.get_width() // 2,
+                                    close_local_rect.centery - close_text.get_height() // 2 - 1))
+
+            pgn_game_button_rects = {}
+            button_w = panel_w - 56
+            button_h = 58
+            first_y = 86
+            gap = 16
+            for index, (game_key, label, _) in enumerate(pgn_game_options):
+                local_rect = pygame.Rect(28, first_y + index * (button_h + gap), button_w, button_h)
+                absolute_rect = local_rect.move(panel_x, panel_y)
+                pgn_game_button_rects[game_key] = absolute_rect
+                hovered = absolute_rect.collidepoint(mousepos)
+                btn_bg = (26, 58, 110, 224) if hovered else (18, 42, 86, 192)
+                btn_border = (150, 204, 255, 235) if hovered else (104, 142, 194, 190)
+                pygame.draw.rect(panel, btn_bg, local_rect, border_radius=12)
+                pygame.draw.rect(panel, btn_border, local_rect, 1, border_radius=12)
+                label_surf = option_font.render(label, True, (244, 248, 255))
+                panel.blit(label_surf, (local_rect.x + 18, local_rect.centery - label_surf.get_height() // 2))
+
+            lis.SCREEN.blit(panel, modal_panel_rect.topleft)
+
         def _draw_player_identity(name, rating, side):
             board_right_x = board.X_GRID_END
             panel_left_x = initvar.MOVE_BG_IMAGE_X
@@ -442,6 +633,12 @@ async def main():
                     if event.type in (pygame.MOUSEBUTTONDOWN, pygame.KEYDOWN):
                         show_help_hint = False
                     if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_ESCAPE and pgn_games_modal_open:
+                            pgn_games_modal_open = False
+                            continue
+                        if event.key == pygame.K_ESCAPE and puzzles_modal_open:
+                            puzzles_modal_open = False
+                            continue
                         if event.key == pygame.K_ESCAPE and help_overlay_open:
                             help_overlay_open = False
                             continue
@@ -453,6 +650,30 @@ async def main():
                         if event.key == pygame.K_SPACE:
                             debug_message = 1
                             state = debug
+                    if (event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0]
+                            and pgn_games_modal_open):
+                        if modal_close_rect.collidepoint(mousepos):
+                            pgn_games_modal_open = False
+                        elif not modal_panel_rect.collidepoint(mousepos):
+                            pgn_games_modal_open = False
+                        else:
+                            for game_key, _label, pgn_path in pgn_game_options:
+                                if pgn_game_button_rects.get(game_key) and pgn_game_button_rects[game_key].collidepoint(mousepos):
+                                    _load_sample_pgn(pgn_path)
+                                    break
+                        continue
+                    if (event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0]
+                            and puzzles_modal_open):
+                        if modal_close_rect.collidepoint(mousepos):
+                            puzzles_modal_open = False
+                        elif not modal_panel_rect.collidepoint(mousepos):
+                            puzzles_modal_open = False
+                        else:
+                            for puzzle_key, _label, json_path, whoseturn in puzzle_options:
+                                if puzzle_button_rects.get(puzzle_key) and puzzle_button_rects[puzzle_key].collidepoint(mousepos):
+                                    _load_puzzle_position(json_path, whoseturn)
+                                    break
+                        continue
                     if (event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0]
                             and help_overlay_open
                             and not help_panel_rect.collidepoint(mousepos)
@@ -510,6 +731,22 @@ async def main():
                         #%% Left click buttons
                         if help_button.rect.collidepoint(mousepos):
                             help_overlay_open = not help_overlay_open
+                            continue
+                        if (SwitchModesController.GAME_MODE == SwitchModesController.EDIT_MODE
+                                and puzzles_button.rect.collidepoint(mousepos)):
+                            puzzles_modal_open = True
+                            pgn_games_modal_open = False
+                            help_overlay_open = False
+                            _load_menu_open = False
+                            _save_menu_open = False
+                            continue
+                        if (SwitchModesController.GAME_MODE == SwitchModesController.EDIT_MODE
+                                and pgn_games_button.rect.collidepoint(mousepos)):
+                            pgn_games_modal_open = True
+                            puzzles_modal_open = False
+                            help_overlay_open = False
+                            _load_menu_open = False
+                            _save_menu_open = False
                             continue
                         if scroll_up_button.rect.collidepoint(mousepos) and menu_buttons.PanelRectangles.scroll_range[0] > 1: # Scroll up
                             if scroll_up_button.activate:
@@ -757,6 +994,10 @@ async def main():
                 )
                 game_mode_selector.draw(lis.SCREEN, SwitchModesController.GAME_MODE, CpuController.cpu_mode, CpuController.cpu_color, mousepos)
                 play_edit_switch_button.draw(lis.SCREEN, game_setup_state, mousepos)
+                features_panel.draw(lis.SCREEN)
+                features_enabled = (SwitchModesController.GAME_MODE == SwitchModesController.EDIT_MODE)
+                puzzles_button.draw(lis.SCREEN, mousepos, enabled=features_enabled)
+                pgn_games_button.draw(lis.SCREEN, mousepos, enabled=features_enabled)
                 # Group sprites update
                 menu_buttons.GAME_MODE_SPRITES.draw(lis.SCREEN)
                 board.GRID_SPRITES.draw(lis.SCREEN)
@@ -839,6 +1080,10 @@ async def main():
                 _draw_help_hint()
                 if help_overlay_open:
                     help_panel_rect = _draw_help_overlay()
+                if puzzles_modal_open:
+                    _draw_puzzle_modal()
+                if pgn_games_modal_open:
+                    _draw_pgn_games_modal()
                 elif initvar.ITCH_MODE:
                     _draw_itch_notice()
                 pygame.display.update()

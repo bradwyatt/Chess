@@ -2,6 +2,7 @@ import copy
 import logging
 import os
 import sys
+from pathlib import Path
 
 import board
 import initvar
@@ -9,9 +10,10 @@ import play_objects
 import pygame
 
 from game.controllers.game_controller import GameController, MoveController
+from game.controllers.move_tracker import MoveTracker
 from game.controllers.panel_controller import PanelController
 from game.controllers.switch_modes import GridController, SwitchModesController
-from game.io.positions import GameProperties, itch_mode_blocked, native_file_dialogs_available
+from game.io.positions import GameProperties, itch_mode_blocked, native_file_dialogs_available, pos_load_file
 
 if sys.platform != "emscripten":
     from tkinter.filedialog import asksaveasfilename, askopenfilename
@@ -63,23 +65,12 @@ class PgnWriterAndLoader():
             log.info("Save File Error (IOError)")
 
     @staticmethod
-    def pgn_load(play_edit_switch_button):
-        if not native_file_dialogs_available():
-            itch_mode_blocked("Loading PGN")
-            return None
-        open_file = None
-        request_file_name = askopenfilename(defaultextension=".pgn")
-        log.info("Loading " + os.path.basename(request_file_name))
-        try:
-            open_file = open(request_file_name, "r")
-        except FileNotFoundError:
-            log.info("File not found")
-            return None
+    def _load_from_pgn_text(play_edit_switch_button, loaded_file):
+        pos_load_file(reset=True)
         SwitchModesController.switch_mode(SwitchModesController.PLAY_MODE, play_edit_switch_button)
         game_controller = GameController(GridController.flipped)
         game_controller.refresh_objects()
 
-        loaded_file = open_file.read()
         all_components_split = loaded_file.split("\n")
         parameters = {}
         chess_game = []
@@ -272,5 +263,39 @@ class PgnWriterAndLoader():
             for piece in piece_list:
                 piece.spaces_available(game_controller)
 
+        if MoveTracker.move_counter() >= 1:
+            MoveTracker.selected_move = (1, "white_move")
+            SwitchModesController.replayed_game(True, game_controller, True)
+            GridController.update_prior_move_color()
+            MoveTracker.selected_move = (0, "black_move")
+            PanelController.scroll_to_first_move()
+
         log.info("PGN Finished Loading")
         return game_controller
+
+    @staticmethod
+    def pgn_load(play_edit_switch_button):
+        if not native_file_dialogs_available():
+            itch_mode_blocked("Loading PGN")
+            return None
+        request_file_name = askopenfilename(defaultextension=".pgn")
+        log.info("Loading " + os.path.basename(request_file_name))
+        try:
+            with open(request_file_name, "r", encoding="utf-8") as open_file:
+                return PgnWriterAndLoader._load_from_pgn_text(play_edit_switch_button, open_file.read())
+        except FileNotFoundError:
+            log.info("File not found")
+            return None
+
+    @staticmethod
+    def pgn_load_from_path(play_edit_switch_button, pgn_path):
+        resolved_path = Path(pgn_path)
+        if not resolved_path.is_absolute():
+            resolved_path = (initvar.BASE_DIR / resolved_path).resolve()
+        log.info("Loading " + resolved_path.name)
+        try:
+            with open(resolved_path, "r", encoding="utf-8") as open_file:
+                return PgnWriterAndLoader._load_from_pgn_text(play_edit_switch_button, open_file.read())
+        except FileNotFoundError:
+            log.info("File not found")
+            return None

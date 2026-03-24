@@ -155,6 +155,60 @@ class PlayEditSwitchButton:
         _draw_scaled_surface(screen, surf, self.rect, 0.98 if is_pressed else 1.0)
 
 
+class SidebarActionButton:
+    BTN_W = 160
+    BTN_H = 52
+
+    def __init__(self, top_left, label):
+        x, y = top_left
+        self.rect = pygame.Rect(x, y, self.BTN_W, self.BTN_H)
+        font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 14, bold=True)
+        self._text = font.render(label, True, (242, 247, 255))
+
+    def draw(self, screen, mousepos, enabled=True):
+        is_hovered = enabled and self.rect.collidepoint(mousepos)
+        is_pressed = is_hovered and pygame.mouse.get_pressed()[0]
+
+        bg = (16, 34, 72, 168) if enabled else (10, 18, 38, 120)
+        border = (64, 90, 132, 190) if enabled else (46, 58, 84, 130)
+        text = self._text.copy()
+        if is_hovered:
+            bg = (24, 50, 96, 188)
+            border = (82, 110, 158, 214)
+        if not enabled:
+            text.set_alpha(150)
+
+        surf = pygame.Surface((self.BTN_W, self.BTN_H), pygame.SRCALPHA)
+        pygame.draw.rect(surf, bg, surf.get_rect(), border_radius=10)
+        pygame.draw.rect(surf, border, surf.get_rect(), 1, border_radius=10)
+        surf.blit(text, ((self.BTN_W - text.get_width()) // 2, (self.BTN_H - text.get_height()) // 2))
+        _draw_scaled_surface(screen, surf, self.rect, 0.98 if is_pressed else 1.0)
+
+
+class SidebarSectionPanel:
+    def __init__(self, rect, label):
+        self.rect = pygame.Rect(rect)
+        font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 11, bold=True)
+        self._label = font.render(label, True, (165, 195, 230))
+
+    def draw(self, screen):
+        shadow = pygame.Surface((self.rect.width + 8, self.rect.height + 8), pygame.SRCALPHA)
+        pygame.draw.rect(shadow, (0, 0, 0, 60), shadow.get_rect(), border_radius=15)
+        screen.blit(shadow, (self.rect.x - 2, self.rect.y + 4))
+
+        panel = pygame.Surface(self.rect.size, pygame.SRCALPHA)
+        pygame.draw.rect(panel, (10, 22, 52, 185), panel.get_rect(), border_radius=12)
+        pygame.draw.rect(panel, (72, 100, 148, 210), panel.get_rect(), 1, border_radius=12)
+        panel.blit(self._label, (14, 12))
+
+        sep_y = 12 + self._label.get_height() + 6
+        sep = pygame.Surface((self.rect.width - 24, 1), pygame.SRCALPHA)
+        sep.fill((90, 125, 178, 90))
+        panel.blit(sep, (12, sep_y))
+
+        screen.blit(panel, self.rect.topleft)
+
+
 class RadioOption:
     TRANSITION_MS = 180
     PRESS_SCALE = 0.98

@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import sys
+from pathlib import Path
 
 import initvar
 import placed_objects
@@ -40,7 +41,6 @@ def pos_load_file(reset=False):
     if initvar.ITCH_MODE and not reset:
         itch_mode_blocked("Loading saved positions")
         return
-    open_file = None
     if reset:
         loaded_dict = {'white_pawn': ['a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'],
                        'white_bishop': ['c1', 'f1'], 'white_knight': ['b1', 'g1'],
@@ -60,12 +60,18 @@ def pos_load_file(reset=False):
             return
         loaded_file = open_file.read()
         loaded_dict = ast.literal_eval(loaded_file)
+        open_file.close()
 
+    load_position_from_dict(loaded_dict)
+
+    log.info("Positioning Loaded Successfully")
+    return
+
+
+def load_position_from_dict(loaded_dict):
     for obj_list in play_objects.Piece_Lists_Shortcut.all_pieces():
         for obj in obj_list:
             obj.destroy()
-    if open_file:
-        open_file.close()
 
     log.info("Removing sprites and loading piece positions...")
 
@@ -97,8 +103,18 @@ def pos_load_file(reset=False):
     for black_king_pos in loaded_dict['black_king']:
         placed_objects.PlacedKing(black_king_pos, "black")
 
+    return loaded_dict
+
+
+def load_position_from_json(json_path):
+    position_path = Path(json_path)
+    if not position_path.is_absolute():
+        position_path = (initvar.BASE_DIR / position_path).resolve()
+    with open(position_path, "r", encoding="utf-8") as position_file:
+        loaded_dict = json.load(position_file)
+    load_position_from_dict(loaded_dict)
     log.info("Positioning Loaded Successfully")
-    return
+    return loaded_dict
 
 
 def get_dict_rect_positions():
