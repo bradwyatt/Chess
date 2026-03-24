@@ -110,10 +110,10 @@ class PlayEditSwitchButton:
         half = size // 2
         pygame.draw.rect(surf, color, (cx - half, cy - half, size, size))
 
-    def draw(self, screen, game_mode, mousepos):
+    def draw(self, screen, game_state, mousepos):
         is_hovered = self.rect.collidepoint(mousepos)
         is_pressed = is_hovered and pygame.mouse.get_pressed()[0]
-        is_start   = (game_mode == 0)
+        is_start   = (game_state == "setup")
         text_surf  = self._start_text if is_start else self._stop_text
 
         if is_start:
@@ -127,11 +127,12 @@ class PlayEditSwitchButton:
             pygame.draw.rect(glow, (80, 150, 255, glow_alpha), glow.get_rect(), border_radius=13)
             screen.blit(glow, (self.rect.x - 5, self.rect.y - 5))
         else:
-            bg     = (10,  22,  52, 140)
-            border = (45,  65, 105, 165)
+            # Same component styling, with a slightly darker tone while active.
+            bg     = (16,  34,  72, 168)
+            border = (64,  90, 132, 190)
             if is_hovered:
-                bg     = (22,  48,  98, 165)
-                border = (68,  92, 138, 205)
+                bg     = (24,  50,  96, 188)
+                border = (82,  110, 158, 214)
 
         surf = pygame.Surface((self.BTN_W, self.BTN_H), pygame.SRCALPHA)
         pygame.draw.rect(surf, bg,     surf.get_rect(), border_radius=10)
@@ -280,9 +281,6 @@ class GameModeSelector:
         return None
 
     def draw(self, screen, game_mode, cpu_mode, cpu_color, mousepos):
-        if game_mode != 0:
-            return
-
         now = pygame.time.get_ticks()
         delta_ms = now - self._last_tick
         self._last_tick = now
@@ -319,11 +317,20 @@ class GameModeSelector:
         screen.blit(group, self._group_rect.topleft)
 
         selected = self._selected_mode(cpu_mode, cpu_color)
-        for option in self._options:
-            is_selected = (option.mode == selected)
-            is_hovered = option.rect.collidepoint(mousepos)
-            option.update(delta_ms, is_hovered, is_selected)
-            option.draw(screen, mousepos)
+        if game_mode == 0:
+            for option in self._options:
+                is_selected = (option.mode == selected)
+                is_hovered = option.rect.collidepoint(mousepos)
+                option.update(delta_ms, is_hovered, is_selected)
+                option.draw(screen, mousepos)
+        else:
+            # Draw radio options frozen (no hover) then dim with an overlay.
+            for option in self._options:
+                option.update(delta_ms, False, option.mode == selected)
+                option.draw(screen, (-9999, -9999))
+            dim = pygame.Surface(self._group_rect.size, pygame.SRCALPHA)
+            dim.fill((0, 0, 0, 140))
+            screen.blit(dim, self._group_rect.topleft)
 
         # Divider between the radio group and the primary action.
         divider = pygame.Surface((sw - 28, 1), pygame.SRCALPHA)

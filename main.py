@@ -97,6 +97,21 @@ async def main():
             nonlocal pending_cpu_move_at
             pending_cpu_move_at = pygame.time.get_ticks() + initvar.CPU_MOVE_DELAY_MS
 
+        def start_game():
+            nonlocal game_controller
+            cancel_pending_cpu_move()
+            SwitchModesController.switch_mode(SwitchModesController.PLAY_MODE, play_edit_switch_button)
+            game_controller = GameController(GridController.flipped)
+            game_controller.refresh_objects()
+            if CpuController.cpu_mode and game_controller.whoseturn == CpuController.cpu_color:
+                schedule_cpu_move()
+
+        def stop_game():
+            nonlocal game_controller
+            cancel_pending_cpu_move()
+            SwitchModesController.switch_mode(SwitchModesController.EDIT_MODE, play_edit_switch_button)
+            del game_controller
+
         play_edit_switch_button = menu_buttons.PlayEditSwitchButton(initvar.PLAY_EDIT_SWITCH_BUTTON_TOPLEFT)
         flip_board_button = menu_buttons.FlipBoardButton(initvar.FLIP_BOARD_BUTTON_TOPLEFT)
         game_mode_selector = menu_buttons.GameModeSelector(initvar.GAME_MODE_SELECTOR_TOPLEFT)
@@ -524,25 +539,11 @@ async def main():
                         if(event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[2]):
                             EditModeController.right_click_destroy(mousepos)
                     if event.type == pygame.MOUSEBUTTONUP: #Release Drag
-                        #################
-                        # PLAY BUTTON
-                        #################
-                        if play_edit_switch_button.rect.collidepoint(mousepos) and SwitchModesController.GAME_MODE == SwitchModesController.EDIT_MODE:
-                            # Makes clicking play again unclickable
-                            cancel_pending_cpu_move()
-                            SwitchModesController.switch_mode(SwitchModesController.PLAY_MODE, play_edit_switch_button)
-                            game_controller = GameController(GridController.flipped)
-                            game_controller.refresh_objects()
-                            if CpuController.cpu_mode and game_controller.whoseturn == CpuController.cpu_color:
-                                schedule_cpu_move()
-
-                        #################
-                        # LEFT CLICK (RELEASE) STOP BUTTON
-                        #################
-                        elif play_edit_switch_button.rect.collidepoint(mousepos) and SwitchModesController.GAME_MODE == SwitchModesController.PLAY_MODE:
-                            cancel_pending_cpu_move()
-                            SwitchModesController.switch_mode(SwitchModesController.EDIT_MODE, play_edit_switch_button)
-                            del game_controller
+                        if play_edit_switch_button.rect.collidepoint(mousepos):
+                            if SwitchModesController.GAME_MODE == SwitchModesController.EDIT_MODE:
+                                start_game()
+                            elif SwitchModesController.GAME_MODE == SwitchModesController.PLAY_MODE:
+                                stop_game()
                         if clear_button.rect.collidepoint(mousepos):
                             if SwitchModesController.GAME_MODE == SwitchModesController.EDIT_MODE: #Editing mode
                                 start_objects.Start.restart_start_positions()
@@ -620,8 +621,11 @@ async def main():
                                     pygame.draw.rect(_lm_hi, (255, 255, 255, 28), _lm_hi.get_rect(), border_radius=6)
                                     lis.SCREEN.blit(_lm_hi, _rect.topleft)
                                 lis.SCREEN.blit(_img, _rect.topleft)
+                game_setup_state = (
+                    "setup" if SwitchModesController.GAME_MODE == SwitchModesController.EDIT_MODE else "playing"
+                )
                 game_mode_selector.draw(lis.SCREEN, SwitchModesController.GAME_MODE, CpuController.cpu_mode, CpuController.cpu_color, mousepos)
-                play_edit_switch_button.draw(lis.SCREEN, SwitchModesController.GAME_MODE, mousepos)
+                play_edit_switch_button.draw(lis.SCREEN, game_setup_state, mousepos)
                 # Group sprites update
                 menu_buttons.GAME_MODE_SPRITES.draw(lis.SCREEN)
                 board.GRID_SPRITES.draw(lis.SCREEN)
