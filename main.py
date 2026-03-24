@@ -181,6 +181,7 @@ async def main():
         pygame.display.set_caption('Chess')
         # Load the starting positions of chessboard first
         pos_load_file(reset=True)
+        start_game()
         # Pre-create dark overlays for visual contrast.
         # (15, 20, 35): dark navy rather than near-black — the blue channel is visible at
         # lower opacities and keeps the overlay in the space background's color family.
@@ -404,12 +405,13 @@ async def main():
                             cancel_pending_cpu_move()
                             if hit_mode == "cpu_white":
                                 CpuController.cpu_mode = True
-                                CpuController.cpu_color = "white"
-                                CpuController.enemy_color = "black"
-                            elif hit_mode == "cpu_black":
-                                CpuController.cpu_mode = True
+                                # Button labels describe the human player's side.
                                 CpuController.cpu_color = "black"
                                 CpuController.enemy_color = "white"
+                            elif hit_mode == "cpu_black":
+                                CpuController.cpu_mode = True
+                                CpuController.cpu_color = "white"
+                                CpuController.enemy_color = "black"
                             else:
                                 CpuController.cpu_mode = False
                             # Auto-flip so the human is always at the bottom

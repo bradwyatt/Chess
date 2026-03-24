@@ -268,7 +268,8 @@ class GameModeSelector:
     def _selected_mode(cpu_mode, cpu_color):
         if not cpu_mode:
             return "two_players"
-        if cpu_color == "white":
+        # Option ids are named for the human player's color, not the CPU's color.
+        if cpu_color == "black":
             return "cpu_white"
         return "cpu_black"
 
