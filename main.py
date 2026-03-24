@@ -185,13 +185,10 @@ async def main():
         _PANEL_FILL   = (22, 48, 90)   # dark muted navy — feels like a card surface
         _PANEL_BORDER = (65, 88, 128)  # steel blue, 1px — defines the edge quietly
         _PANEL_RECT   = (initvar.MOVE_BG_IMAGE_X, initvar.MOVE_BG_IMAGE_Y, 202, 628)
-        # Sidebar: same color family at a clearly lighter weight so it reads as secondary.
-        # Divider lines are baked in once at startup — no per-frame cost.
+        # Sidebar: one continuous overlay in the same color family so the left rail reads
+        # as a cohesive panel instead of several stacked sections.
         _sidebar_bg_overlay = pygame.Surface((210, initvar.SCREEN_HEIGHT))
         _sidebar_bg_overlay.fill(_OVERLAY_COLOR)
-        _DIVIDER_COLOR = (80, 100, 140)  # muted steel blue — visible but not harsh
-        pygame.draw.line(_sidebar_bg_overlay, _DIVIDER_COLOR, (8, 128), (200, 128), 1)
-        pygame.draw.line(_sidebar_bg_overlay, _DIVIDER_COLOR, (8, 358), (200, 358), 1)
         _sidebar_bg_overlay.set_alpha(65)
         _player_name_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 26, bold=True)
         _player_rating_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 17)
