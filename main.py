@@ -227,6 +227,7 @@ async def main():
         _status_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 28, bold=True)
         _status_sub_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 20)
         _tooltip_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 18)
+        _itch_notice_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 12, bold=False)
         _label_color = (165, 195, 230)  # matches "GAME SETUP" label — consistent across panels
         _muted_text  = (150, 175, 210)
 
@@ -284,6 +285,18 @@ async def main():
             ]
             pygame.draw.polygon(lis.SCREEN, (*_PANEL_FILL, 208), pointer)
             pygame.draw.polygon(lis.SCREEN, (*_PANEL_BORDER, 190), pointer, 1)
+
+        def _draw_itch_notice():
+            notice_text = "Best experienced on desktop. If playing on itch.io, please use landscape mode."
+            notice_surf = _itch_notice_font.render(notice_text, True, (255, 255, 255))
+            notice_surf.set_alpha(204)
+            shadow_surf = _itch_notice_font.render(notice_text, True, (0, 0, 0))
+            shadow_surf.set_alpha(178)
+            notice_x = (lis.SCREEN.get_width() - notice_surf.get_width()) // 2
+            notice_y = lis.SCREEN.get_height() - notice_surf.get_height() - 16
+            lis.SCREEN.blit(shadow_surf, (notice_x, notice_y + 1))
+            lis.SCREEN.blit(shadow_surf, (notice_x, notice_y + 2))
+            lis.SCREEN.blit(notice_surf, (notice_x, notice_y))
 
         def _draw_help_overlay():
             _dim = pygame.Surface(lis.SCREEN.get_size(), pygame.SRCALPHA)
@@ -826,6 +839,8 @@ async def main():
                 _draw_help_hint()
                 if help_overlay_open:
                     help_panel_rect = _draw_help_overlay()
+                elif initvar.ITCH_MODE:
+                    _draw_itch_notice()
                 pygame.display.update()
             elif state == debug:
                 if debug_message == 1:
