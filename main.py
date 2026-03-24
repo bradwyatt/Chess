@@ -164,6 +164,7 @@ async def main():
         _status_label_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 16, bold=True)
         _status_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 28, bold=True)
         _status_sub_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 20)
+        _tooltip_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 18)
         _label_color = (210, 220, 236)
         _muted_text = (179, 196, 220)
 
@@ -176,10 +177,33 @@ async def main():
                 size -= 1
             return pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, min_size, bold=bold)
 
+        _player_badge_hover_info = []  # [(pygame.Rect, full_name), ...] — populated each frame
+
+        def _truncate_name(text, font, max_width):
+            if font.size(text)[0] <= max_width:
+                return text
+            ellipsis = "\u2026"
+            while text and font.size(text + ellipsis)[0] > max_width:
+                text = text[:-1]
+            return text + ellipsis
+
+        def _draw_tooltip(text, pos):
+            tip_surf = _tooltip_font.render(text, True, (242, 247, 255))
+            pad = 6
+            tip_w = tip_surf.get_width() + pad * 2
+            tip_h = tip_surf.get_height() + pad * 2
+            tip_bg = pygame.Surface((tip_w, tip_h), pygame.SRCALPHA)
+            pygame.draw.rect(tip_bg, (10, 22, 42, 210), tip_bg.get_rect(), border_radius=6)
+            pygame.draw.rect(tip_bg, (82, 108, 150, 180), tip_bg.get_rect(), 1, border_radius=6)
+            tip_bg.blit(tip_surf, (pad, pad))
+            tx = min(pos[0] + 12, lis.SCREEN.get_width() - tip_w - 4)
+            ty = max(pos[1] - tip_h - 4, 4)
+            lis.SCREEN.blit(tip_bg, (tx, ty))
+
         def _draw_player_identity(name, rating, side):
             board_right_x = board.X_GRID_END
             panel_left_x = initvar.MOVE_BG_IMAGE_X
-            badge_right_padding = 12
+            badge_right_padding = 6
             box_width = panel_left_x - board_right_x - badge_right_padding
             box_height = 62
             box_x = board_right_x
@@ -191,8 +215,9 @@ async def main():
             pygame.draw.rect(badge, (10, 22, 42, 132), badge.get_rect(), border_radius=14)
             pygame.draw.rect(badge, (82, 108, 150, 165), badge.get_rect(), 1, border_radius=14)
             safe_name = name or "Player"
-            name_font = _fit_font(safe_name, box_width - 52, 26, 20, bold=True)
-            name_text = name_font.render(safe_name, True, (242, 247, 255))
+            max_name_width = box_width - 48  # 40px left margin + 8px right inner padding
+            display_name = _truncate_name(safe_name, _player_name_font, max_name_width)
+            name_text = _player_name_font.render(display_name, True, (242, 247, 255))
             rating_text = _player_rating_font.render(rating, True, (187, 201, 222)) if rating else None
             indicator_color = (244, 246, 250) if side == "bottom" else (88, 108, 138)
             pygame.draw.circle(badge, indicator_color, (22, 31), 8)
@@ -201,6 +226,7 @@ async def main():
             if rating_text:
                 badge.blit(rating_text, (40, 34))
             lis.SCREEN.blit(badge, (box_x, box_y))
+            _player_badge_hover_info.append((pygame.Rect(box_x, box_y, box_width, box_height), safe_name))
 
         def _draw_panel_status(turn_text, detail_text):
             if not turn_text and not detail_text:
@@ -554,12 +580,17 @@ async def main():
                         elif game_controller.whoseturn == "black" and game_controller.result_abb == "*":
                             current_turn_text = "Black to move"
                     _draw_panel_status(current_turn_text, TextController.check_checkmate_text)
+                _player_badge_hover_info.clear()
                 if GridController.flipped:
                     _draw_player_identity(GameProperties.White, GameProperties.WhiteElo, "top")
                     _draw_player_identity(GameProperties.Black, GameProperties.BlackElo, "bottom")
                 else:
                     _draw_player_identity(GameProperties.Black, GameProperties.BlackElo, "top")
                     _draw_player_identity(GameProperties.White, GameProperties.WhiteElo, "bottom")
+                for _badge_rect, _full_name in _player_badge_hover_info:
+                    if _badge_rect.collidepoint(mousepos):
+                        _draw_tooltip(_full_name, mousepos)
+                        break
                 pygame.display.update()
             elif state == debug:
                 if debug_message == 1:
