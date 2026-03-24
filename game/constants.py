@@ -35,9 +35,18 @@ WHITE_MOVE_X_Y = (950, 645)
 BLACK_MOVE_X_Y = (950, 300)
 CHECK_CHECKMATE_X_Y = (950, 270)
 
-PLAY_EDIT_SWITCH_BUTTON_TOPLEFT = (10, 370)
+# Game Setup section — mode selector first, Start Game below
+# Section container: x=6, y=355, w=188
+#   12px top-pad → "GAME SETUP" label (~14px) → 12px gap
+#   → mode buttons (3×52 + 2×8 = 172px) → 22px gap/divider
+#   → Start Game (52px) → extra bottom breathing room  → total h=296
+GAME_SETUP_SECTION_X = 6
+GAME_SETUP_SECTION_Y = 355
+GAME_SETUP_SECTION_W = 188
+GAME_SETUP_SECTION_H = 296
+GAME_MODE_SELECTOR_TOPLEFT = (20, 393)       # centered within the 188px section
+PLAY_EDIT_SWITCH_BUTTON_TOPLEFT = (20, 587)  # centered within the 188px section
 FLIP_BOARD_BUTTON_TOPLEFT = (880, 21)
-GAME_MODE_SELECTOR_TOPLEFT = (10, 470)
 GAME_PROPERTIES_BUTTON_TOPLEFT = (10, 29)
 INFO_BUTTON_TOPLEFT = (SCREEN_WIDTH-360, 10)
 POS_SAVE_FILE_BUTTON_TOPLEFT = (10, 260)

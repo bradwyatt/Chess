@@ -155,12 +155,10 @@ class SwitchModesController():
         if game_mode == cls.EDIT_MODE:
             log.info("\nEditing Mode Activated\n")
             cls.GAME_MODE = cls.EDIT_MODE
-            play_edit_switch_button.image = play_edit_switch_button.game_mode_button(cls.GAME_MODE)
             TextController.check_checkmate_text = ""
         elif game_mode == cls.PLAY_MODE:
             log.info("Play Mode Activated\n")
             cls.GAME_MODE = cls.PLAY_MODE
-            play_edit_switch_button.image = play_edit_switch_button.game_mode_button(cls.GAME_MODE)
             for color in ("white", "black"):
                 for piece_type, placed_cls in placed_objects.PLACED_PIECE_CLASS.items():
                     placed_list = getattr(placed_cls, f"{color}_{piece_type}_list")

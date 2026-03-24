@@ -6,6 +6,31 @@ import load_images_sounds as lis
 PLAY_PANEL_SPRITES = pygame.sprite.Group()
 GAME_MODE_SPRITES = pygame.sprite.Group()
 
+
+def _clamp(value, lower=0.0, upper=1.0):
+    return max(lower, min(upper, value))
+
+
+def _lerp(a, b, t):
+    return a + (b - a) * t
+
+
+def _mix_color(a, b, t):
+    return tuple(int(_lerp(a[i], b[i], t)) for i in range(len(a)))
+
+
+def _draw_scaled_surface(screen, surf, rect, scale):
+    if abs(scale - 1.0) < 0.001:
+        screen.blit(surf, rect.topleft)
+        return
+    scaled_size = (
+        max(1, int(round(rect.width * scale))),
+        max(1, int(round(rect.height * scale))),
+    )
+    scaled = pygame.transform.smoothscale(surf, scaled_size)
+    scaled_rect = scaled.get_rect(center=rect.center)
+    screen.blit(scaled, scaled_rect.topleft)
+
 class Button(pygame.sprite.Sprite):
     def __init__(self, image_key, pos, sprite_group=None,
                  active_in_mode=None, requires_hover=False):
@@ -56,15 +81,137 @@ def FlipBoardButton(pos):       return Button("SPR_FLIP_BOARD_BUTTON",        po
 
 # — Subclasses with genuinely different behaviour —
 
-class PlayEditSwitchButton(Button):
-    def __init__(self, pos):
-        super().__init__("SPR_PLAY_BUTTON", pos, GAME_MODE_SPRITES)
+class PlayEditSwitchButton:
+    BTN_W = 160
+    BTN_H = 52
+
+    _ICON_SIZE = 10  # icon bounding box size in pixels
+
+    def __init__(self, top_left):
+        x, y = top_left
+        self.rect = pygame.Rect(x, y, self.BTN_W, self.BTN_H)
+        font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 14, bold=True)
+        self._start_text = font.render("Start Game", True, (242, 247, 255))
+        self._stop_text  = font.render("Stop Game",  True, (242, 247, 255))
+
     def game_mode_button(self, game_mode):
-        if game_mode == 0:
-            self.image = lis.IMAGES["SPR_PLAY_BUTTON"]
-        elif game_mode == 1:
-            self.image = lis.IMAGES["SPR_STOP_BUTTON"]
-        return self.image
+        pass  # kept for switch_modes compatibility; no longer image-based
+
+    @staticmethod
+    def _draw_play_icon(surf, cx, cy, size, color):
+        """Draw a right-pointing triangle centred at (cx, cy)."""
+        half = size // 2
+        points = [(cx - half + 2, cy - half), (cx - half + 2, cy + half), (cx + half, cy)]
+        pygame.draw.polygon(surf, color, points)
+
+    @staticmethod
+    def _draw_stop_icon(surf, cx, cy, size, color):
+        """Draw a filled square centred at (cx, cy)."""
+        half = size // 2
+        pygame.draw.rect(surf, color, (cx - half, cy - half, size, size))
+
+    def draw(self, screen, game_mode, mousepos):
+        is_hovered = self.rect.collidepoint(mousepos)
+        is_pressed = is_hovered and pygame.mouse.get_pressed()[0]
+        is_start   = (game_mode == 0)
+        text_surf  = self._start_text if is_start else self._stop_text
+
+        if is_start:
+            bg     = (52, 110, 195, 230)
+            border = (125, 180, 255, 255)
+            if is_hovered:
+                bg     = (68, 132, 220, 242)
+                border = (162, 205, 255, 255)
+            glow = pygame.Surface((self.BTN_W + 10, self.BTN_H + 10), pygame.SRCALPHA)
+            glow_alpha = 54 if is_hovered else 36
+            pygame.draw.rect(glow, (80, 150, 255, glow_alpha), glow.get_rect(), border_radius=13)
+            screen.blit(glow, (self.rect.x - 5, self.rect.y - 5))
+        else:
+            bg     = (10,  22,  52, 140)
+            border = (45,  65, 105, 165)
+            if is_hovered:
+                bg     = (22,  48,  98, 165)
+                border = (68,  92, 138, 205)
+
+        surf = pygame.Surface((self.BTN_W, self.BTN_H), pygame.SRCALPHA)
+        pygame.draw.rect(surf, bg,     surf.get_rect(), border_radius=10)
+        pygame.draw.rect(surf, border, surf.get_rect(), 1, border_radius=10)
+
+        icon_gap = 6
+        total_w  = self._ICON_SIZE + icon_gap + text_surf.get_width()
+        x0 = (self.BTN_W - total_w) // 2
+        cy = self.BTN_H // 2
+        icon_color = (242, 247, 255)
+
+        if is_start:
+            self._draw_play_icon(surf, x0 + self._ICON_SIZE // 2, cy, self._ICON_SIZE, icon_color)
+        else:
+            self._draw_stop_icon(surf, x0 + self._ICON_SIZE // 2, cy, self._ICON_SIZE, icon_color)
+
+        surf.blit(text_surf, (x0 + self._ICON_SIZE + icon_gap,
+                              cy - text_surf.get_height() // 2))
+        _draw_scaled_surface(screen, surf, self.rect, 0.98 if is_pressed else 1.0)
+
+
+class RadioOption:
+    TRANSITION_MS = 180
+    PRESS_SCALE = 0.98
+
+    def __init__(self, rect, mode, label_surface, label_x, indicator_color):
+        self.rect = rect
+        self.mode = mode
+        self.label_surface = label_surface
+        self.label_x = label_x
+        self.indicator_color = indicator_color
+        self._selected_t = 0.0
+        self._hover_t = 0.0
+
+    def update(self, delta_ms, is_hovered, is_selected):
+        step = delta_ms / self.TRANSITION_MS if self.TRANSITION_MS else 1.0
+        self._selected_t = _lerp(self._selected_t, 1.0 if is_selected else 0.0, _clamp(step))
+        self._hover_t = _lerp(self._hover_t, 1.0 if is_hovered else 0.0, _clamp(step))
+
+    def draw(self, screen, mousepos):
+        is_hovered = self.rect.collidepoint(mousepos)
+        is_pressed = is_hovered and pygame.mouse.get_pressed()[0]
+
+        selected_bg = (44, 96, 182, 224)
+        idle_bg = (12, 24, 54, 150)
+        hover_bg = (22, 44, 90, 176)
+        bg = _mix_color(idle_bg, hover_bg, self._hover_t)
+        bg = _mix_color(bg, selected_bg, self._selected_t)
+
+        selected_border = (145, 194, 255, 245)
+        idle_border = (42, 62, 102, 150)
+        hover_border = (72, 100, 148, 210)
+        border = _mix_color(idle_border, hover_border, self._hover_t)
+        border = _mix_color(border, selected_border, self._selected_t)
+
+        text_idle = (212, 223, 240)
+        text_selected = (244, 248, 255)
+        text_color = _mix_color(text_idle, text_selected, self._selected_t)
+        label = self.label_surface.copy()
+        label.fill((*text_color, 255), special_flags=pygame.BLEND_RGBA_MULT)
+
+        surf = pygame.Surface(self.rect.size, pygame.SRCALPHA)
+        pygame.draw.rect(surf, bg, surf.get_rect(), border_radius=10)
+        pygame.draw.rect(surf, border, surf.get_rect(), 1, border_radius=10)
+
+        indicator_center = (16, self.rect.height // 2)
+        if self._selected_t > 0.02:
+            ring_alpha = int(180 * self._selected_t)
+            ring_color = (*_mix_color((95, 125, 170), (220, 235, 255), self._selected_t), ring_alpha)
+            pygame.draw.circle(surf, ring_color, indicator_center, 9, 2)
+
+            fill_radius = max(1, int(round(_lerp(2, 5, self._selected_t))))
+            fill_alpha = int(_lerp(0, 255, self._selected_t))
+            fill_color = self.indicator_color if self.indicator_color is not None else (170, 205, 255)
+            fill = pygame.Surface((20, 20), pygame.SRCALPHA)
+            pygame.draw.circle(fill, (*fill_color, fill_alpha), (10, 10), fill_radius)
+            surf.blit(fill, (indicator_center[0] - 10, indicator_center[1] - 10))
+
+        surf.blit(label, (self.label_x, (self.rect.height - label.get_height()) // 2))
+        _draw_scaled_surface(screen, surf, self.rect, self.PRESS_SCALE if is_pressed else 1.0)
 
 class GameModeSelector:
     """Three-option selector: vs CPU (White) / vs CPU (Black) / Two Players.
@@ -72,79 +219,116 @@ class GameModeSelector:
 
     BTN_W = 160
     BTN_H = 52
-    GAP = 10
+    GAP = 8
+    LABEL_X = 28
 
     _MODES = [
         ("cpu_white",   "vs CPU (White)",      (230, 230, 230)),
         ("cpu_black",   "vs CPU (Black)",      (30,  30,  30)),
-        ("two_players", "Two Human Players",   None),
+        ("two_players", "Two Human Players",   (170, 205, 255)),
     ]
 
     def __init__(self, top_left):
         x, y = top_left
-        self._rects = [
-            pygame.Rect(x, y + i * (self.BTN_H + self.GAP), self.BTN_W, self.BTN_H)
-            for i in range(len(self._MODES))
-        ]
-        # Pre-render labels, shrinking font until the text fits inside the pill
-        self._label_surfs = []
-        for _, label, swatch in self._MODES:
-            text_x = 36 if swatch is not None else 14
-            avail_w = self.BTN_W - text_x - 8
-            for sz in (14, 13, 12, 11):
-                f = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, sz, bold=True)
-                s = f.render(label, True, (242, 247, 255))
-                if s.get_width() <= avail_w:
-                    break
-            self._label_surfs.append((s, text_x))
+        # Section container drawn behind mode buttons + Start Game button
+        self._section_rect = pygame.Rect(
+            initvar.GAME_SETUP_SECTION_X, initvar.GAME_SETUP_SECTION_Y,
+            initvar.GAME_SETUP_SECTION_W, initvar.GAME_SETUP_SECTION_H,
+        )
+        self._group_rect = pygame.Rect(
+            x - 2,
+            y - 4,
+            self.BTN_W + 4,
+            len(self._MODES) * self.BTN_H + (len(self._MODES) - 1) * self.GAP + 8,
+        )
+        self._divider_y = initvar.PLAY_EDIT_SWITCH_BUTTON_TOPLEFT[1] - 11
+        lf = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 11, bold=True)
+        self._section_label = lf.render("GAME SETUP", True, (165, 195, 230))
+        # Find the largest font size where every label fits its pill, then render all at that size
+        chosen_sz = 14
+        for sz in (14, 13, 12, 11, 10):
+            f = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, sz, bold=True)
+            if all(
+                f.render(label, True, (242, 247, 255)).get_width()
+                    <= self.BTN_W - self.LABEL_X - 10
+                for _, label, _ in self._MODES
+            ):
+                chosen_sz = sz
+                break
+        f = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, chosen_sz, bold=True)
+        self._options = []
+        for i, (mode, label, indicator_color) in enumerate(self._MODES):
+            rect = pygame.Rect(x, y + i * (self.BTN_H + self.GAP), self.BTN_W, self.BTN_H)
+            label_surface = f.render(label, True, (242, 247, 255))
+            self._options.append(RadioOption(rect, mode, label_surface, self.LABEL_X, indicator_color))
+        self._last_tick = pygame.time.get_ticks()
+
+    @staticmethod
+    def _selected_mode(cpu_mode, cpu_color):
+        if not cpu_mode:
+            return "two_players"
+        if cpu_color == "white":
+            return "cpu_white"
+        return "cpu_black"
 
     def hit(self, mousepos, game_mode):
         if game_mode != 0:
             return None
-        for i, r in enumerate(self._rects):
-            if r.collidepoint(mousepos):
-                return self._MODES[i][0]
+        for option in self._options:
+            if option.rect.collidepoint(mousepos):
+                return option.mode
         return None
 
     def draw(self, screen, game_mode, cpu_mode, cpu_color, mousepos):
         if game_mode != 0:
             return
 
-        if not cpu_mode:
-            selected = "two_players"
-        else:
-            selected = "cpu_" + cpu_color
+        now = pygame.time.get_ticks()
+        delta_ms = now - self._last_tick
+        self._last_tick = now
 
-        for i, (mode, label, swatch) in enumerate(self._MODES):
-            r = self._rects[i]
-            is_selected = (mode == selected)
-            is_hovered  = r.collidepoint(mousepos)
+        sx, sy = self._section_rect.x, self._section_rect.y
+        sw, sh = self._section_rect.width, self._section_rect.height
 
-            surf = pygame.Surface((r.width, r.height), pygame.SRCALPHA)
+        # ── Soft drop-shadow (drawn before the panel) ──
+        shadow = pygame.Surface((sw + 8, sh + 8), pygame.SRCALPHA)
+        pygame.draw.rect(shadow, (0, 0, 0, 60), shadow.get_rect(), border_radius=15)
+        screen.blit(shadow, (sx - 2, sy + 4))
 
-            if is_selected:
-                bg     = (50, 105, 190, 225)
-                border = (120, 175, 255, 255)
-            elif is_hovered:
-                bg     = (30,  60, 120, 180)
-                border = (82,  108, 150, 220)
-            else:
-                bg     = (15,  30,  65, 155)
-                border = (55,  78, 118, 180)
+        # ── Section container ──
+        sec = pygame.Surface((sw, sh), pygame.SRCALPHA)
+        pygame.draw.rect(sec, (10, 22, 52, 185), sec.get_rect(), border_radius=12)
+        pygame.draw.rect(sec, (72, 100, 148, 210), sec.get_rect(), 1, border_radius=12)
+        screen.blit(sec, (sx, sy))
 
-            pygame.draw.rect(surf, bg, surf.get_rect(), border_radius=10)
-            pygame.draw.rect(surf, border, surf.get_rect(), 1, border_radius=10)
+        # ── "GAME SETUP" label ──
+        label_x = sx + 14
+        label_y = sy + 12
+        screen.blit(self._section_label, (label_x, label_y))
 
-            if swatch is not None:
-                cx, cy = 20, r.height // 2
-                pygame.draw.circle(surf, swatch, (cx, cy), 8)
-                if swatch[0] > 180:  # white circle needs a visible border
-                    pygame.draw.circle(surf, (100, 100, 100), (cx, cy), 8, 1)
+        # Thin separator line below the label
+        sep_y = label_y + self._section_label.get_height() + 6
+        sep = pygame.Surface((sw - 24, 1), pygame.SRCALPHA)
+        sep.fill((90, 125, 178, 90))
+        screen.blit(sep, (sx + 12, sep_y))
 
-            txt, text_x = self._label_surfs[i]
-            surf.blit(txt, (text_x, (r.height - txt.get_height()) // 2))
+        # Group shell so the three options read as a single control.
+        group = pygame.Surface(self._group_rect.size, pygame.SRCALPHA)
+        pygame.draw.rect(group, (7, 16, 40, 90), group.get_rect(), border_radius=12)
+        pygame.draw.rect(group, (66, 92, 138, 70), group.get_rect(), 1, border_radius=12)
+        screen.blit(group, self._group_rect.topleft)
 
-            screen.blit(surf, r.topleft)
+        selected = self._selected_mode(cpu_mode, cpu_color)
+        for option in self._options:
+            is_selected = (option.mode == selected)
+            is_hovered = option.rect.collidepoint(mousepos)
+            option.update(delta_ms, is_hovered, is_selected)
+            option.draw(screen, mousepos)
+
+        # Divider between the radio group and the primary action.
+        divider = pygame.Surface((sw - 28, 1), pygame.SRCALPHA)
+        divider.fill((90, 125, 178, 100))
+        screen.blit(divider, (sx + 14, self._divider_y))
 
 
 class ScrollUpButton(Button):

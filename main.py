@@ -180,24 +180,31 @@ async def main():
         _main_bg_overlay = pygame.Surface((_shared_w, _shared_h))
         _main_bg_overlay.fill(_OVERLAY_COLOR)
         _main_bg_overlay.set_alpha(88)
-        # Panel colors drawn programmatically each frame — gives full control over
-        # fill and border without fighting the PNG's hard-coded white/bright-blue.
-        _PANEL_FILL   = (22, 48, 90)   # dark muted navy — feels like a card surface
-        _PANEL_BORDER = (65, 88, 128)  # steel blue, 1px — defines the edge quietly
+        # ── Design-system tokens ────────────────────────────────────────────
+        # Shared across ALL panels (right move-list, Game Setup, player badges,
+        # popovers) so every surface feels like part of the same system.
+        _PANEL_FILL   = (10, 22, 52)    # unified dark navy
+        _PANEL_BORDER = (72, 100, 148)  # steel-blue edge — same as Game Setup
+        _PANEL_RADIUS = 12              # consistent corner radius
         _PANEL_RECT   = (initvar.MOVE_BG_IMAGE_X, initvar.MOVE_BG_IMAGE_Y, 202, 628)
-        # Sidebar: one continuous overlay in the same color family so the left rail reads
-        # as a cohesive panel instead of several stacked sections.
+        # Pre-render the right panel surface once — avoids rebuilding each frame.
+        _rp_surf = pygame.Surface((_PANEL_RECT[2], _PANEL_RECT[3]), pygame.SRCALPHA)
+        pygame.draw.rect(_rp_surf, (*_PANEL_FILL, 210), _rp_surf.get_rect(), border_radius=_PANEL_RADIUS)
+        pygame.draw.rect(_rp_surf, (*_PANEL_BORDER, 215), _rp_surf.get_rect(), 1, border_radius=_PANEL_RADIUS)
+        _rp_shadow = pygame.Surface((_PANEL_RECT[2] + 8, _PANEL_RECT[3] + 8), pygame.SRCALPHA)
+        pygame.draw.rect(_rp_shadow, (0, 0, 0, 55), _rp_shadow.get_rect(), border_radius=_PANEL_RADIUS + 3)
+        # Sidebar: slightly more opaque so the column reads as a grounded panel.
         _sidebar_bg_overlay = pygame.Surface((210, initvar.SCREEN_HEIGHT))
         _sidebar_bg_overlay.fill(_OVERLAY_COLOR)
-        _sidebar_bg_overlay.set_alpha(65)
+        _sidebar_bg_overlay.set_alpha(85)
         _player_name_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 26, bold=True)
         _player_rating_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 17)
         _status_label_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 16, bold=True)
         _status_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 28, bold=True)
         _status_sub_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 20)
         _tooltip_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 18)
-        _label_color = (210, 220, 236)
-        _muted_text = (179, 196, 220)
+        _label_color = (165, 195, 230)  # matches "GAME SETUP" label — consistent across panels
+        _muted_text  = (150, 175, 210)
 
         def _fit_font(text, max_width, start_size, min_size, bold=False):
             size = start_size
@@ -224,8 +231,8 @@ async def main():
             tip_w = tip_surf.get_width() + pad * 2
             tip_h = tip_surf.get_height() + pad * 2
             tip_bg = pygame.Surface((tip_w, tip_h), pygame.SRCALPHA)
-            pygame.draw.rect(tip_bg, (10, 22, 42, 210), tip_bg.get_rect(), border_radius=6)
-            pygame.draw.rect(tip_bg, (82, 108, 150, 180), tip_bg.get_rect(), 1, border_radius=6)
+            pygame.draw.rect(tip_bg, (*_PANEL_FILL, 220), tip_bg.get_rect(), border_radius=8)
+            pygame.draw.rect(tip_bg, (*_PANEL_BORDER, 190), tip_bg.get_rect(), 1, border_radius=8)
             tip_bg.blit(tip_surf, (pad, pad))
             tx = min(pos[0] + 12, lis.SCREEN.get_width() - tip_w - 4)
             ty = max(pos[1] - tip_h - 4, 4)
@@ -243,8 +250,8 @@ async def main():
             else:
                 box_y = board.Y_GRID_END
             badge = pygame.Surface((box_width, box_height), pygame.SRCALPHA)
-            pygame.draw.rect(badge, (10, 22, 42, 132), badge.get_rect(), border_radius=14)
-            pygame.draw.rect(badge, (82, 108, 150, 165), badge.get_rect(), 1, border_radius=14)
+            pygame.draw.rect(badge, (*_PANEL_FILL, 185), badge.get_rect(), border_radius=_PANEL_RADIUS)
+            pygame.draw.rect(badge, (*_PANEL_BORDER, 205), badge.get_rect(), 1, border_radius=_PANEL_RADIUS)
             safe_name = name or "Player"
             max_name_width = box_width - 48  # 40px left margin + 8px right inner padding
             display_name = _truncate_name(safe_name, _player_name_font, max_name_width)
@@ -280,7 +287,7 @@ async def main():
             lis.SCREEN.blit(card, (card_x, card_y))
             pygame.draw.line(
                 lis.SCREEN,
-                (76, 101, 144),
+                _PANEL_BORDER,
                 (initvar.MOVE_BG_IMAGE_X + 14, initvar.MOVE_BG_IMAGE_Y + 136),
                 (initvar.MOVE_BG_IMAGE_X + 188, initvar.MOVE_BG_IMAGE_Y + 136),
                 1,
@@ -583,8 +590,8 @@ async def main():
                     save_file_placeholder.draw(lis.SCREEN)
                     if _save_menu_open:
                         _sm_surf = pygame.Surface((_sm_panel_w, _sm_panel_h), pygame.SRCALPHA)
-                        pygame.draw.rect(_sm_surf, (10, 22, 42, 230), _sm_surf.get_rect(), border_radius=10)
-                        pygame.draw.rect(_sm_surf, (82, 108, 150, 200), _sm_surf.get_rect(), 1, border_radius=10)
+                        pygame.draw.rect(_sm_surf, (*_PANEL_FILL, 230), _sm_surf.get_rect(), border_radius=_PANEL_RADIUS)
+                        pygame.draw.rect(_sm_surf, (*_PANEL_BORDER, 210), _sm_surf.get_rect(), 1, border_radius=_PANEL_RADIUS)
                         lis.SCREEN.blit(_sm_surf, (_sm_panel_x, _sm_panel_y))
                         for _rect, _img, _enabled in (
                             (_sm_item1_rect, _sm_pos_img, SwitchModesController.GAME_MODE == SwitchModesController.EDIT_MODE),
@@ -604,8 +611,8 @@ async def main():
                         load_file_placeholder.draw(lis.SCREEN)
                         if _load_menu_open:
                             _lm_surf = pygame.Surface((_lm_panel_w, _lm_panel_h), pygame.SRCALPHA)
-                            pygame.draw.rect(_lm_surf, (10, 22, 42, 230), _lm_surf.get_rect(), border_radius=10)
-                            pygame.draw.rect(_lm_surf, (82, 108, 150, 200), _lm_surf.get_rect(), 1, border_radius=10)
+                            pygame.draw.rect(_lm_surf, (*_PANEL_FILL, 230), _lm_surf.get_rect(), border_radius=_PANEL_RADIUS)
+                            pygame.draw.rect(_lm_surf, (*_PANEL_BORDER, 210), _lm_surf.get_rect(), 1, border_radius=_PANEL_RADIUS)
                             lis.SCREEN.blit(_lm_surf, (_lm_panel_x, _lm_panel_y))
                             for _rect, _img in ((_lm_item1_rect, _lm_pos_img), (_lm_item2_rect, _lm_pgn_img)):
                                 if _rect.collidepoint(mousepos):
@@ -614,14 +621,15 @@ async def main():
                                     lis.SCREEN.blit(_lm_hi, _rect.topleft)
                                 lis.SCREEN.blit(_img, _rect.topleft)
                 game_mode_selector.draw(lis.SCREEN, SwitchModesController.GAME_MODE, CpuController.cpu_mode, CpuController.cpu_color, mousepos)
+                play_edit_switch_button.draw(lis.SCREEN, SwitchModesController.GAME_MODE, mousepos)
                 # Group sprites update
                 menu_buttons.GAME_MODE_SPRITES.draw(lis.SCREEN)
                 board.GRID_SPRITES.draw(lis.SCREEN)
                 GridController.update_grid_occupied_detection()
                 start_objects.START_SPRITES.update(SwitchModesController.GAME_MODE)
                 menu_buttons.PLAY_PANEL_SPRITES.update(SwitchModesController.GAME_MODE)
-                pygame.draw.rect(lis.SCREEN, _PANEL_FILL, _PANEL_RECT)
-                pygame.draw.rect(lis.SCREEN, _PANEL_BORDER, _PANEL_RECT, 1)
+                lis.SCREEN.blit(_rp_shadow, (_PANEL_RECT[0] - 2, _PANEL_RECT[1] + 4))
+                lis.SCREEN.blit(_rp_surf,   (_PANEL_RECT[0],     _PANEL_RECT[1]))
                 if SwitchModesController.GAME_MODE == SwitchModesController.EDIT_MODE: #Only draw placed sprites in editing mode
                     start_objects.START_SPRITES.draw(lis.SCREEN)
                     placed_objects.PLACED_SPRITES.update()
