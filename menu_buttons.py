@@ -215,7 +215,7 @@ class RadioOption:
         _draw_scaled_surface(screen, surf, self.rect, self.PRESS_SCALE if is_pressed else 1.0)
 
 class GameModeSelector:
-    """Three-option selector: vs CPU (White) / vs CPU (Black) / Two Players.
+    """Three-option selector: Play as White vs CPU / Play as Black vs CPU / Two Players.
     Replaces the old CPU-on/off and Black/White toggles. Only active in EDIT_MODE."""
 
     BTN_W = 160
@@ -224,8 +224,8 @@ class GameModeSelector:
     LABEL_X = 28
 
     _MODES = [
-        ("cpu_white",   "vs CPU (White)",      (230, 230, 230)),
-        ("cpu_black",   "vs CPU (Black)",      (30,  30,  30)),
+        ("cpu_white",   "Play as White vs CPU", (230, 230, 230)),
+        ("cpu_black",   "Play as Black vs CPU", (30,  30,  30)),
         ("two_players", "Two Human Players",   (170, 205, 255)),
     ]
 
