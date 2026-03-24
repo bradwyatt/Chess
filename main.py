@@ -115,8 +115,14 @@ async def main():
             del game_controller
 
         play_edit_switch_button = menu_buttons.PlayEditSwitchButton(initvar.PLAY_EDIT_SWITCH_BUTTON_TOPLEFT)
+        help_button = menu_buttons.HelpButton(initvar.HELP_BUTTON_TOPLEFT)
         flip_board_button = menu_buttons.FlipBoardButton(initvar.FLIP_BOARD_BUTTON_TOPLEFT)
         game_mode_selector = menu_buttons.GameModeSelector(initvar.GAME_MODE_SELECTOR_TOPLEFT)
+        help_overlay_open = False
+        show_help_hint = True
+        hint_expire_at = pygame.time.get_ticks() + 4200
+        help_panel_width = 430
+        help_panel_rect = pygame.Rect(help_button.rect.right - help_panel_width, help_button.rect.bottom + 14, help_panel_width, 320)
         game_properties_button = None
         load_file_placeholder = None
         save_file_placeholder = None
@@ -256,6 +262,99 @@ async def main():
             ty = max(pos[1] - tip_h - 4, 4)
             lis.SCREEN.blit(tip_bg, (tx, ty))
 
+        def _draw_help_hint():
+            if not show_help_hint or pygame.time.get_ticks() >= hint_expire_at or help_overlay_open:
+                return
+            hint_text = _tooltip_font.render("Need help?", True, (242, 247, 255))
+            pad_x = 12
+            pad_y = 8
+            hint_w = hint_text.get_width() + pad_x * 2
+            hint_h = hint_text.get_height() + pad_y * 2
+            hint_x = help_button.rect.left - hint_w - 12
+            hint_y = help_button.rect.centery - hint_h // 2
+            hint_bg = pygame.Surface((hint_w, hint_h), pygame.SRCALPHA)
+            pygame.draw.rect(hint_bg, (*_PANEL_FILL, 208), hint_bg.get_rect(), border_radius=10)
+            pygame.draw.rect(hint_bg, (*_PANEL_BORDER, 190), hint_bg.get_rect(), 1, border_radius=10)
+            hint_bg.blit(hint_text, (pad_x, pad_y))
+            lis.SCREEN.blit(hint_bg, (hint_x, hint_y))
+            pointer = [
+                (hint_x + hint_w, help_button.rect.centery - 6),
+                (hint_x + hint_w + 8, help_button.rect.centery),
+                (hint_x + hint_w, help_button.rect.centery + 6),
+            ]
+            pygame.draw.polygon(lis.SCREEN, (*_PANEL_FILL, 208), pointer)
+            pygame.draw.polygon(lis.SCREEN, (*_PANEL_BORDER, 190), pointer, 1)
+
+        def _draw_help_overlay():
+            _dim = pygame.Surface(lis.SCREEN.get_size(), pygame.SRCALPHA)
+            _dim.fill((5, 10, 24, 165))
+            lis.SCREEN.blit(_dim, (0, 0))
+            title_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 24, bold=True)
+            body_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 18)
+            muted_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 16)
+            content = [
+                ("Quick Help", title_font, (242, 247, 255), 20, False),
+                ("Drag pieces in setup mode to build a position.", body_font, (226, 235, 248), 72, True),
+                ("Use Start Game to switch into play mode.", body_font, (226, 235, 248), None, True),
+                ("Flip rotates the board. Undo and replay controls work in play mode.", body_font, (226, 235, 248), None, True),
+                ("Undo Move also turns off CPU mode for the current game.", body_font, (226, 235, 248), None, True),
+            ]
+            if initvar.ITCH_MODE:
+                content.extend([
+                    ("This itch build focuses on board setup and play.", body_font, (226, 235, 248), None, True),
+                    ("Press Esc or click outside to close.", muted_font, (165, 195, 230), None, True),
+                ])
+            else:
+                content.extend([
+                    ("In play mode, you can save the PGN of the game you're playing.", body_font, (226, 235, 248), None, True),
+                    ("In edit mode, you can load PGN, save positions, and load positions.", body_font, (226, 235, 248), None, True),
+                    ("Press Esc or click outside to close.", muted_font, (165, 195, 230), None, True),
+                ])
+
+            def _wrap_text(text, font, max_width):
+                words = text.split()
+                lines = []
+                current = ""
+                for word in words:
+                    candidate = word if not current else f"{current} {word}"
+                    if font.size(candidate)[0] <= max_width:
+                        current = candidate
+                    else:
+                        if current:
+                            lines.append(current)
+                        current = word
+                if current:
+                    lines.append(current)
+                return lines
+
+            wrapped_content = []
+            y = 20
+            max_width = help_panel_width - 40
+            line_gap = 8
+            section_gap = 12
+            for text, font, color, explicit_y, wrap in content:
+                if explicit_y is not None:
+                    y = explicit_y
+                wrapped_lines = _wrap_text(text, font, max_width) if wrap else [text]
+                wrapped_content.append((wrapped_lines, font, color, y))
+                for wrapped_line in wrapped_lines:
+                    y += font.get_linesize() + line_gap
+                y += section_gap
+            panel_height = y + 12
+            panel_x = help_button.rect.right - help_panel_width
+            panel_y = help_button.rect.bottom + 14
+            panel_y = min(panel_y, lis.SCREEN.get_height() - panel_height - 20)
+            help_panel_rect = pygame.Rect(panel_x, panel_y, help_panel_width, panel_height)
+            panel = pygame.Surface(help_panel_rect.size, pygame.SRCALPHA)
+            pygame.draw.rect(panel, (*_PANEL_FILL, 238), panel.get_rect(), border_radius=16)
+            pygame.draw.rect(panel, (*_PANEL_BORDER, 220), panel.get_rect(), 1, border_radius=16)
+            for wrapped_lines, font, color, y in wrapped_content:
+                for wrapped_line in wrapped_lines:
+                    panel.blit(font.render(wrapped_line, True, color), (20, y))
+                    y += font.get_linesize() + line_gap
+            lis.SCREEN.blit(panel, help_panel_rect.topleft)
+            return help_panel_rect
+
         def _draw_player_identity(name, rating, side):
             board_right_x = board.X_GRID_END
             panel_left_x = initvar.MOVE_BG_IMAGE_X
@@ -327,7 +426,12 @@ async def main():
                     if event.type == pygame.QUIT:
                         app_running = False
                         break
+                    if event.type in (pygame.MOUSEBUTTONDOWN, pygame.KEYDOWN):
+                        show_help_hint = False
                     if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_ESCAPE and help_overlay_open:
+                            help_overlay_open = False
+                            continue
                         if event.key == pygame.K_ESCAPE:
                             app_running = False
                             break
@@ -336,6 +440,12 @@ async def main():
                         if event.key == pygame.K_SPACE:
                             debug_message = 1
                             state = debug
+                    if (event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0]
+                            and help_overlay_open
+                            and not help_panel_rect.collidepoint(mousepos)
+                            and not help_button.rect.collidepoint(mousepos)):
+                        help_overlay_open = False
+                        continue
                     # Load/save popovers: click icon to toggle, click item to act, click outside to close
                     if (event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0]
                             and not initvar.ITCH_MODE
@@ -385,6 +495,9 @@ async def main():
                         and (mousepos[0] > board.X_GRID_END or mousepos[1] < initvar.Y_GRID_START \
                              or mousepos[0] < initvar.X_GRID_START or mousepos[1] > board.Y_GRID_END):
                         #%% Left click buttons
+                        if help_button.rect.collidepoint(mousepos):
+                            help_overlay_open = not help_overlay_open
+                            continue
                         if scroll_up_button.rect.collidepoint(mousepos) and menu_buttons.PanelRectangles.scroll_range[0] > 1: # Scroll up
                             if scroll_up_button.activate:
                                 PanelController.update_scroll_range(-1)
@@ -590,6 +703,7 @@ async def main():
                 lis.SCREEN.blit(_sidebar_bg_overlay, (0, 0))
                 lis.SCREEN.blit(_main_bg_overlay, (_shared_x, _shared_y))
                 # Individual sprites update
+                help_button.draw(lis.SCREEN)
                 flip_board_button.draw(lis.SCREEN)
                 if not initvar.ITCH_MODE:
                     save_file_placeholder.draw(lis.SCREEN)
@@ -702,6 +816,16 @@ async def main():
                     if _badge_rect.collidepoint(mousepos):
                         _draw_tooltip(_full_name, mousepos)
                         break
+                else:
+                    if help_button.rect.collidepoint(mousepos):
+                        _draw_tooltip("Help", mousepos)
+                    elif flip_board_button.rect.collidepoint(mousepos):
+                        _draw_tooltip("Flip Board", mousepos)
+                    elif game_properties_button and game_properties_button.rect.collidepoint(mousepos):
+                        _draw_tooltip("Game Settings", mousepos)
+                _draw_help_hint()
+                if help_overlay_open:
+                    help_panel_rect = _draw_help_overlay()
                 pygame.display.update()
             elif state == debug:
                 if debug_message == 1:

@@ -77,6 +77,7 @@ def PGNSaveFileButton(pos):     return Button("SPR_PGN_SAVE_FILE_BUTTON",     po
 
 def SaveFilePlaceholder(pos):   return Button("SPR_SAVE_FILE_PLACEHOLDER",    pos)
 def LoadFilePlaceholder(pos):   return Button("SPR_LOAD_FILE_PLACEHOLDER",    pos)
+def HelpButton(pos):            return Button("SPR_HELP_BUTTON",              pos)
 def FlipBoardButton(pos):       return Button("SPR_FLIP_BOARD_BUTTON",        pos)
 
 # — Subclasses with genuinely different behaviour —

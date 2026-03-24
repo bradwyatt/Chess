@@ -125,6 +125,14 @@ def build_icon_button(size, icon_surface, fill_top, fill_bottom, border, shadow)
     icon_rect = scaled_icon.get_rect(center=body_rect.center)
     button_surface.blit(scaled_icon, icon_rect)
     return button_surface
+
+
+def build_text_icon(text, font_size, text_color):
+    font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, font_size, bold=True)
+    text_surface = font.render(text, True, text_color)
+    icon_surface = pygame.Surface((text_surface.get_width() + 12, text_surface.get_height() + 12), pygame.SRCALPHA)
+    icon_surface.blit(text_surface, (6, 6))
+    return icon_surface
     
 #Sprites
 _PIECE_COLORS   = ["white", "black"]
@@ -174,6 +182,14 @@ _flip_icon = IMAGES["SPR_FLIP_BOARD_BUTTON"]
 IMAGES["SPR_FLIP_BOARD_BUTTON"] = build_icon_button(
     (120, 78),
     _flip_icon,
+    (36, 99, 176),
+    (36, 99, 176),
+    (155, 212, 255),
+    (8, 18, 44, 130),
+)
+IMAGES["SPR_HELP_BUTTON"] = build_icon_button(
+    (120, 78),
+    build_text_icon("?", 40, (243, 248, 255)),
     (36, 99, 176),
     (36, 99, 176),
     (155, 212, 255),
