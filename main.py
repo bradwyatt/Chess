@@ -70,7 +70,7 @@ from game.controllers.game_controller import EditModeController, GameController,
 from game.io.positions import (
     native_file_dialogs_available, itch_mode_blocked,
     pos_load_file, load_position_from_json, get_dict_rect_positions, pos_save_file, pos_lists_to_coord,
-    GameProperties,
+    GameProperties, POSITION_METADATA_DEFAULTS,
 )
 from game.io.pgn import PgnWriterAndLoader
 
@@ -108,6 +108,68 @@ async def main():
             game_controller.refresh_objects()
             if CpuController.cpu_mode and game_controller.whoseturn == CpuController.cpu_color:
                 schedule_cpu_move()
+
+        def _normalize_game_mode_label(game_mode):
+            normalized = str(game_mode).strip().lower().replace("-", " ").replace("_", " ")
+            if normalized == "play as white vs cpu":
+                return "Play as White vs CPU"
+            if normalized == "play as black vs cpu":
+                return "Play as Black vs CPU"
+            return "Two Human Players"
+
+        def _normalize_board_orientation_label(board_orientation):
+            normalized = str(board_orientation).strip().lower().replace("-", " ").replace("_", " ")
+            if normalized == "black on bottom":
+                return "Black on Bottom"
+            return "White on Bottom"
+
+        def _normalize_starting_turn(whoseturn):
+            return "black" if str(whoseturn).strip().lower() == "black" else "white"
+
+        def _current_position_config():
+            if not CpuController.cpu_mode:
+                game_mode = "Two Human Players"
+            elif CpuController.cpu_color == "black":
+                game_mode = "Play as White vs CPU"
+            else:
+                game_mode = "Play as Black vs CPU"
+            return {
+                "game_mode": game_mode,
+                "board_orientation": "Black on Bottom" if GridController.flipped else "White on Bottom",
+                "starting_turn": pending_start_whoseturn,
+            }
+
+        def _apply_position_config(config, fallback_whoseturn="white"):
+            nonlocal pending_start_whoseturn
+            merged_config = POSITION_METADATA_DEFAULTS.copy()
+            if config:
+                merged_config.update(config)
+
+            game_mode = _normalize_game_mode_label(merged_config["game_mode"])
+            if game_mode == "Play as White vs CPU":
+                CpuController.cpu_mode = True
+                CpuController.cpu_color = "black"
+                CpuController.enemy_color = "white"
+            elif game_mode == "Play as Black vs CPU":
+                CpuController.cpu_mode = True
+                CpuController.cpu_color = "white"
+                CpuController.enemy_color = "black"
+            else:
+                CpuController.cpu_mode = False
+                CpuController.cpu_color = "black"
+                CpuController.enemy_color = "white"
+
+            board_orientation = _normalize_board_orientation_label(merged_config["board_orientation"])
+            should_be_flipped = (board_orientation == "Black on Bottom")
+            if GridController.flipped != should_be_flipped:
+                GridController.flip_grids()
+
+            starting_turn = fallback_whoseturn
+            if config and "starting_turn" in config:
+                starting_turn = config["starting_turn"]
+            elif fallback_whoseturn is None:
+                starting_turn = merged_config["starting_turn"]
+            pending_start_whoseturn = _normalize_starting_turn(starting_turn)
 
         def reset_to_default_setup():
             nonlocal pending_start_whoseturn
@@ -169,9 +231,9 @@ async def main():
         modal_close_rect = pygame.Rect(0, 0, 0, 0)
         puzzle_button_rects = {}
         puzzle_options = [
-            ("puzzle1", "Puzzle 1 - White to Checkmate", "ChessPositions/puzzle1_whitetocheckmate.json", "white"),
-            ("puzzle2", "Puzzle 2 - White to Checkmate", "ChessPositions/puzzle2_whitetocheckmate.json", "white"),
-            ("puzzle3", "Puzzle 3 - White to Checkmate", "ChessPositions/puzzle3_whitetocheckmate.json", "white"),
+            ("puzzle1", "Puzzle 1 - White to Checkmate", "chess_positions/puzzle1_whitetocheckmate.json", "white"),
+            ("puzzle2", "Puzzle 2 - White to Checkmate", "chess_positions/puzzle2_whitetocheckmate.json", "white"),
+            ("puzzle3", "Puzzle 3 - White to Checkmate", "chess_positions/puzzle3_whitetocheckmate.json", "white"),
         ]
         pgn_game_button_rects = {}
         pgn_game_options = [
@@ -429,12 +491,10 @@ async def main():
             cancel_pending_cpu_move()
             start_objects.Dragging.dragging_all_false()
             start_objects.Start.restart_start_positions()
-            if CpuController.cpu_mode:
-                CpuController.cpu_mode_toggle()
             if SwitchModesController.GAME_MODE == SwitchModesController.PLAY_MODE:
                 stop_game()
-            load_position_from_json(json_path)
-            pending_start_whoseturn = whoseturn
+            loaded_position = load_position_from_json(json_path)
+            _apply_position_config(loaded_position["config"], fallback_whoseturn=whoseturn)
             puzzles_modal_open = False
             restore_default_setup_on_stop = False
 
@@ -696,7 +756,9 @@ async def main():
                         elif _load_menu_open:
                             if _lm_item1_rect.collidepoint(mousepos):
                                 _load_menu_open = False
-                                pos_load_file()
+                                loaded_position = pos_load_file()
+                                if loaded_position is not None:
+                                    _apply_position_config(loaded_position["config"])
                             elif _lm_item2_rect.collidepoint(mousepos):
                                 _load_menu_open = False
                                 cancel_pending_cpu_move()
@@ -712,7 +774,7 @@ async def main():
                             if _sm_item1_rect.collidepoint(mousepos):
                                 _save_menu_open = False
                                 if SwitchModesController.GAME_MODE == SwitchModesController.EDIT_MODE:
-                                    pos_save_file()
+                                    pos_save_file(_current_position_config())
                             elif _sm_item2_rect.collidepoint(mousepos):
                                 _save_menu_open = False
                                 if SwitchModesController.GAME_MODE == SwitchModesController.PLAY_MODE:

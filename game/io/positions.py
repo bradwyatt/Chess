@@ -20,6 +20,52 @@ else:
 
 log = logging.getLogger("log_guy")
 
+POSITION_PIECE_KEYS = (
+    "white_pawn",
+    "white_bishop",
+    "white_knight",
+    "white_rook",
+    "white_queen",
+    "white_king",
+    "black_pawn",
+    "black_bishop",
+    "black_knight",
+    "black_rook",
+    "black_queen",
+    "black_king",
+)
+
+POSITION_METADATA_DEFAULTS = {
+    "game_mode": "Two Human Players",
+    "board_orientation": "White on Bottom",
+    "starting_turn": "white",
+}
+
+
+def normalize_position_payload(payload):
+    pieces_payload = payload.get("pieces", payload)
+    pieces = {}
+    for piece_key in POSITION_PIECE_KEYS:
+        pieces[piece_key] = list(pieces_payload.get(piece_key, []))
+
+    config = POSITION_METADATA_DEFAULTS.copy()
+    config.update({
+        "game_mode": payload.get("game_mode", config["game_mode"]),
+        "board_orientation": payload.get("board_orientation", config["board_orientation"]),
+        "starting_turn": payload.get("starting_turn", config["starting_turn"]),
+    })
+    return pieces, config
+
+
+def read_position_payload(position_path):
+    with open(position_path, "r", encoding="utf-8") as position_file:
+        raw_contents = position_file.read()
+    try:
+        payload = json.loads(raw_contents)
+    except json.JSONDecodeError:
+        payload = ast.literal_eval(raw_contents)
+    return normalize_position_payload(payload)
+
 
 def native_file_dialogs_available():
     return (
@@ -48,24 +94,22 @@ def pos_load_file(reset=False):
                        'black_pawn': ['a7', 'b7', 'c7', 'd7', 'e7', 'f7', 'g7', 'h7'],
                        'black_bishop': ['c8', 'f8'], 'black_knight': ['b8', 'g8'],
                        'black_rook': ['a8', 'h8'], 'black_queen': ['d8'], 'black_king': ['e8']}
+        loaded_dict, config = normalize_position_payload(loaded_dict)
     else:
         if not native_file_dialogs_available():
             itch_mode_blocked("Loading saved positions")
             return
         request_file_name = askopenfilename(defaultextension=".json")
         try:
-            open_file = open(request_file_name, "r")
+            loaded_dict, config = read_position_payload(request_file_name)
         except FileNotFoundError:
             log.info("File not found")
             return
-        loaded_file = open_file.read()
-        loaded_dict = ast.literal_eval(loaded_file)
-        open_file.close()
 
     load_position_from_dict(loaded_dict)
 
     log.info("Positioning Loaded Successfully")
-    return
+    return {"pieces": loaded_dict, "config": config}
 
 
 def load_position_from_dict(loaded_dict):
@@ -110,11 +154,10 @@ def load_position_from_json(json_path):
     position_path = Path(json_path)
     if not position_path.is_absolute():
         position_path = (initvar.BASE_DIR / position_path).resolve()
-    with open(position_path, "r", encoding="utf-8") as position_file:
-        loaded_dict = json.load(position_file)
+    loaded_dict, config = read_position_payload(position_path)
     load_position_from_dict(loaded_dict)
     log.info("Positioning Loaded Successfully")
-    return loaded_dict
+    return {"pieces": loaded_dict, "config": config}
 
 
 def get_dict_rect_positions():
@@ -144,7 +187,7 @@ def get_dict_rect_positions():
     return all_obj_coord_json
 
 
-def pos_save_file():
+def pos_save_file(position_config=None):
     """
     Save positions of the pieces
     """
@@ -156,8 +199,12 @@ def pos_save_file():
         save_file_name = open(save_file_prompt, "w")
         if save_file_name is not None:
             # Write the file to disk
-            obj_locations = copy.deepcopy(get_dict_rect_positions())
-            save_file_name.write(str(obj_locations))
+            obj_locations = json.loads(copy.deepcopy(get_dict_rect_positions()))
+            payload = {"pieces": obj_locations}
+            payload.update(POSITION_METADATA_DEFAULTS)
+            if position_config is not None:
+                payload.update(position_config)
+            save_file_name.write(json.dumps(payload))
             save_file_name.close()
             log.info("File Saved Successfully.")
         else:
