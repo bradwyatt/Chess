@@ -7,7 +7,7 @@ Chess GUI brings the traditional chess experience to your desktop. The game adhe
 ### Key Features:
 - **Pure Python Implementation**: Developed from scratch in Python, ensuring a lightweight and standalone chess experience without the reliance on external chess libraries.
 - **Standard Chess Rules**: Supports all traditional chess rules, including piece-specific movements, checks, checkmates, and stalemates.
-- **Versatile Play Options**: Engage in chess matches against the computer or opt for a human opponent, offering flexibility in gameplay.
+- **Versatile Play Options**: Choose from three game modes via a sidebar selector — *vs CPU (White)*, *vs CPU (Black)*, or *Two Human Players*. The board automatically flips so the human always plays from the bottom, and player badges display "CPU" for the computer's side.
 - **Undo Move**: Revert the last move to correct mistakes or reconsider strategies.
 - **PGN Support**: Save and load game positions and manage Portable Game Notation (PGN) files, making it easy to review games and learn from past plays.
 - **Game Properties Management**: Track player names, ratings, and game results, enhancing the competitive aspect of chess.
