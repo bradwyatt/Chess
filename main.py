@@ -99,7 +99,7 @@ async def main():
 
         play_edit_switch_button = menu_buttons.PlayEditSwitchButton(initvar.PLAY_EDIT_SWITCH_BUTTON_TOPLEFT)
         flip_board_button = menu_buttons.FlipBoardButton(initvar.FLIP_BOARD_BUTTON_TOPLEFT)
-        cpu_button = menu_buttons.CPUButton(initvar.CPU_BUTTON_TOPLEFT, CpuController.cpu_mode)
+        game_mode_selector = menu_buttons.GameModeSelector(initvar.GAME_MODE_SELECTOR_TOPLEFT)
         game_properties_button = None
         load_file_placeholder = None
         save_file_placeholder = None
@@ -333,7 +333,6 @@ async def main():
                                 cancel_pending_cpu_move()
                                 if CpuController.cpu_mode:
                                     CpuController.cpu_mode_toggle()
-                                    cpu_button.toggle(CpuController.cpu_mode)
                                 game_controller = PgnWriterAndLoader.pgn_load(play_edit_switch_button)
                                 for grid in board.Grid.grid_list:
                                     grid.no_highlight()
@@ -375,16 +374,24 @@ async def main():
                             cancel_pending_cpu_move()
                             if CpuController.cpu_mode:
                                 CpuController.cpu_mode_toggle()
-                                cpu_button.toggle(CpuController.cpu_mode)
                             MoveController.undo_move(game_controller)
-                        if cpu_button.rect.collidepoint(mousepos) and cpu_button.clickable:
+                        hit_mode = game_mode_selector.hit(mousepos, SwitchModesController.GAME_MODE)
+                        if hit_mode is not None:
                             cancel_pending_cpu_move()
-                            CpuController.cpu_mode_toggle()
-                            cpu_button.toggle(CpuController.cpu_mode)
-                            if (CpuController.cpu_mode and SwitchModesController.GAME_MODE == SwitchModesController.PLAY_MODE
-                                and game_controller.whoseturn == CpuController.cpu_color and game_controller.result_abb == "*"
-                                and not SwitchModesController.REPLAYED):
-                                schedule_cpu_move()
+                            if hit_mode == "cpu_white":
+                                CpuController.cpu_mode = True
+                                CpuController.cpu_color = "white"
+                                CpuController.enemy_color = "black"
+                            elif hit_mode == "cpu_black":
+                                CpuController.cpu_mode = True
+                                CpuController.cpu_color = "black"
+                                CpuController.enemy_color = "white"
+                            else:
+                                CpuController.cpu_mode = False
+                            # Auto-flip so the human is always at the bottom
+                            new_flipped = CpuController.cpu_mode and CpuController.cpu_color == "white"
+                            if GridController.flipped != new_flipped:
+                                GridController.flip_grids()
                         if beginning_move_button.rect.collidepoint(mousepos) and beginning_move_button.clickable:
                             cancel_pending_cpu_move()
                             MoveTracker.selected_move = 1, "white_move"
@@ -519,6 +526,8 @@ async def main():
                             SwitchModesController.switch_mode(SwitchModesController.PLAY_MODE, play_edit_switch_button)
                             game_controller = GameController(GridController.flipped)
                             game_controller.refresh_objects()
+                            if CpuController.cpu_mode and game_controller.whoseturn == CpuController.cpu_color:
+                                schedule_cpu_move()
 
                         #################
                         # LEFT CLICK (RELEASE) STOP BUTTON
@@ -604,7 +613,7 @@ async def main():
                                     pygame.draw.rect(_lm_hi, (255, 255, 255, 28), _lm_hi.get_rect(), border_radius=6)
                                     lis.SCREEN.blit(_lm_hi, _rect.topleft)
                                 lis.SCREEN.blit(_img, _rect.topleft)
-                cpu_button.draw(lis.SCREEN, SwitchModesController.GAME_MODE)
+                game_mode_selector.draw(lis.SCREEN, SwitchModesController.GAME_MODE, CpuController.cpu_mode, CpuController.cpu_color, mousepos)
                 # Group sprites update
                 menu_buttons.GAME_MODE_SPRITES.draw(lis.SCREEN)
                 board.GRID_SPRITES.draw(lis.SCREEN)
@@ -655,12 +664,18 @@ async def main():
                             current_turn_text = "Black to move"
                     _draw_panel_status(current_turn_text, TextController.check_checkmate_text)
                 _player_badge_hover_info.clear()
+                # Use "CPU" / "Player" as fallback when the name hasn't been set in Game
+                # Properties; never override a name the user has explicitly entered.
+                _white_is_cpu = CpuController.cpu_mode and CpuController.cpu_color == "white"
+                _black_is_cpu = CpuController.cpu_mode and CpuController.cpu_color == "black"
+                _white_name = GameProperties.White or ("CPU" if _white_is_cpu else "Player")
+                _black_name = GameProperties.Black or ("CPU" if _black_is_cpu else "Player")
                 if GridController.flipped:
-                    _draw_player_identity(GameProperties.White, GameProperties.WhiteElo, "top")
-                    _draw_player_identity(GameProperties.Black, GameProperties.BlackElo, "bottom")
+                    _draw_player_identity(_white_name, GameProperties.WhiteElo, "top")
+                    _draw_player_identity(_black_name, GameProperties.BlackElo, "bottom")
                 else:
-                    _draw_player_identity(GameProperties.Black, GameProperties.BlackElo, "top")
-                    _draw_player_identity(GameProperties.White, GameProperties.WhiteElo, "bottom")
+                    _draw_player_identity(_black_name, GameProperties.BlackElo, "top")
+                    _draw_player_identity(_white_name, GameProperties.WhiteElo, "bottom")
                 for _badge_rect, _full_name in _player_badge_hover_info:
                     if _badge_rect.collidepoint(mousepos):
                         _draw_tooltip(_full_name, mousepos)

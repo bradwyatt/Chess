@@ -66,18 +66,86 @@ class PlayEditSwitchButton(Button):
             self.image = lis.IMAGES["SPR_STOP_BUTTON"]
         return self.image
 
-class CPUButton(Button):
-    def __init__(self, pos, cpu_mode):
-        super().__init__("SPR_CPU_BUTTON_OFF", pos)
-        self.toggle(cpu_mode)
-    def draw(self, screen, game_mode):
-        if game_mode == 0:
-            self.clickable = True
-            screen.blit(self.image, self.rect.topleft)
+class GameModeSelector:
+    """Three-option selector: vs CPU (White) / vs CPU (Black) / Two Players.
+    Replaces the old CPU-on/off and Black/White toggles. Only active in EDIT_MODE."""
+
+    BTN_W = 160
+    BTN_H = 52
+    GAP = 10
+
+    _MODES = [
+        ("cpu_white",   "vs CPU (White)",      (230, 230, 230)),
+        ("cpu_black",   "vs CPU (Black)",      (30,  30,  30)),
+        ("two_players", "Two Human Players",   None),
+    ]
+
+    def __init__(self, top_left):
+        x, y = top_left
+        self._rects = [
+            pygame.Rect(x, y + i * (self.BTN_H + self.GAP), self.BTN_W, self.BTN_H)
+            for i in range(len(self._MODES))
+        ]
+        # Pre-render labels, shrinking font until the text fits inside the pill
+        self._label_surfs = []
+        for _, label, swatch in self._MODES:
+            text_x = 36 if swatch is not None else 14
+            avail_w = self.BTN_W - text_x - 8
+            for sz in (14, 13, 12, 11):
+                f = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, sz, bold=True)
+                s = f.render(label, True, (242, 247, 255))
+                if s.get_width() <= avail_w:
+                    break
+            self._label_surfs.append((s, text_x))
+
+    def hit(self, mousepos, game_mode):
+        if game_mode != 0:
+            return None
+        for i, r in enumerate(self._rects):
+            if r.collidepoint(mousepos):
+                return self._MODES[i][0]
+        return None
+
+    def draw(self, screen, game_mode, cpu_mode, cpu_color, mousepos):
+        if game_mode != 0:
+            return
+
+        if not cpu_mode:
+            selected = "two_players"
         else:
-            self.clickable = False
-    def toggle(self, cpu_mode):
-        self.image = lis.IMAGES["SPR_CPU_BUTTON_ON" if cpu_mode else "SPR_CPU_BUTTON_OFF"]
+            selected = "cpu_" + cpu_color
+
+        for i, (mode, label, swatch) in enumerate(self._MODES):
+            r = self._rects[i]
+            is_selected = (mode == selected)
+            is_hovered  = r.collidepoint(mousepos)
+
+            surf = pygame.Surface((r.width, r.height), pygame.SRCALPHA)
+
+            if is_selected:
+                bg     = (50, 105, 190, 225)
+                border = (120, 175, 255, 255)
+            elif is_hovered:
+                bg     = (30,  60, 120, 180)
+                border = (82,  108, 150, 220)
+            else:
+                bg     = (15,  30,  65, 155)
+                border = (55,  78, 118, 180)
+
+            pygame.draw.rect(surf, bg, surf.get_rect(), border_radius=10)
+            pygame.draw.rect(surf, border, surf.get_rect(), 1, border_radius=10)
+
+            if swatch is not None:
+                cx, cy = 20, r.height // 2
+                pygame.draw.circle(surf, swatch, (cx, cy), 8)
+                if swatch[0] > 180:  # white circle needs a visible border
+                    pygame.draw.circle(surf, (100, 100, 100), (cx, cy), 8, 1)
+
+            txt, text_x = self._label_surfs[i]
+            surf.blit(txt, (text_x, (r.height - txt.get_height()) // 2))
+
+            screen.blit(surf, r.topleft)
+
 
 class ScrollUpButton(Button):
     def __init__(self, pos):
