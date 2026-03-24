@@ -48,9 +48,7 @@ def PrevMoveButton(pos):        return Button("SPR_PREV_MOVE_BUTTON",         po
 def UndoMoveButton(pos):        return Button("SPR_UNDO_MOVE_BUTTON",         pos, PLAY_PANEL_SPRITES, active_in_mode=1)
 
 def PosSaveFileButton(pos):     return Button("SPR_POS_SAVE_FILE_BUTTON",     pos, active_in_mode=0, requires_hover=True)
-def PosLoadFileButton(pos):     return Button("SPR_POS_LOAD_FILE_BUTTON",     pos, active_in_mode=0, requires_hover=True)
 def PGNSaveFileButton(pos):     return Button("SPR_PGN_SAVE_FILE_BUTTON",     pos, active_in_mode=1, requires_hover=True)
-def PGNLoadFileButton(pos):     return Button("SPR_PGN_LOAD_FILE_BUTTON",     pos, active_in_mode=0, requires_hover=True)
 
 def SaveFilePlaceholder(pos):   return Button("SPR_SAVE_FILE_PLACEHOLDER",    pos)
 def LoadFilePlaceholder(pos):   return Button("SPR_LOAD_FILE_PLACEHOLDER",    pos)
