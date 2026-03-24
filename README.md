@@ -41,6 +41,7 @@ Chess/
 ├── play_objects.py           # Piece sprites in play mode (with move logic)
 ├── replayed_objects.py       # Piece sprites in replay mode
 ├── start_objects.py          # Drag-tray pieces (edit mode sidebar)
+├── chess_positions/          # Built-in position / puzzle JSON files
 ├── test_smoke.py             # Headless smoke test suite (60 checks)
 └── game/
     ├── constants.py          # Numeric/color constants
@@ -140,6 +141,41 @@ python main.py
 ```
 
 Now you're all set to enjoy the Chess GUI game on your PC!
+
+## Position JSON Format
+
+Custom saved positions and built-in puzzles use JSON files. The project stores the bundled examples in [`chess_positions/`](./chess_positions).
+
+The current schema separates game metadata from board state:
+
+```json
+{
+  "game_mode": "Play as White vs CPU",
+  "board_orientation": "White on Bottom",
+  "starting_turn": "white",
+  "pieces": {
+    "white_pawn": ["f5", "f3"],
+    "white_bishop": ["d3"],
+    "white_knight": [],
+    "white_rook": ["e1"],
+    "white_queen": ["f7"],
+    "white_king": ["h1"],
+    "black_pawn": ["d6"],
+    "black_bishop": ["b7"],
+    "black_knight": ["g8"],
+    "black_rook": ["a8"],
+    "black_queen": ["d4"],
+    "black_king": ["h8"]
+  }
+}
+```
+
+When one of these JSON files is loaded, the game applies:
+- `game_mode`: `"Play as White vs CPU"`, `"Play as Black vs CPU"`, or `"Two Human Players"`
+- `board_orientation`: `"White on Bottom"` or `"Black on Bottom"`
+- `starting_turn`: `"white"` or `"black"`
+
+Older flat position JSON files are still accepted when loading, but newly saved files use the nested `pieces` format.
 
 
 ## Collaboration and Contributions
