@@ -82,8 +82,12 @@ class Dragging():
     def update_drag_piece_and_all_start_pieces_positions(mousepos):
         def drag_and_replace_start_obj_image(name_of_piece, mouse_pos):
             if Dragging.drag_piece_name == name_of_piece:
-                Start.start_dict[name_of_piece].rect.topleft = (mousepos[0]-(Start.start_dict[name_of_piece].image.get_width()/2),
-                                          mousepos[1]-(Start.start_dict[name_of_piece].image.get_height()/2))
+                if initvar.ITCH_MODE:
+                    # In itch mode, hide the piece while it's selected (don't show it following the cursor)
+                    Start.start_dict[name_of_piece].rect.topleft = (-200, -200)
+                else:
+                    Start.start_dict[name_of_piece].rect.topleft = (mousepos[0]-(Start.start_dict[name_of_piece].image.get_width()/2),
+                                              mousepos[1]-(Start.start_dict[name_of_piece].image.get_height()/2))
             else:
                 Start.start_dict[name_of_piece].rect.topleft = initvar.STARTPOS[name_of_piece]
         drag_and_replace_start_obj_image("white_pawn", mousepos)

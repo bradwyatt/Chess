@@ -100,6 +100,7 @@ async def main():
         def start_game():
             nonlocal game_controller
             cancel_pending_cpu_move()
+            start_objects.Dragging.dragging_all_false()
             SwitchModesController.switch_mode(SwitchModesController.PLAY_MODE, play_edit_switch_button)
             game_controller = GameController(GridController.flipped)
             game_controller.refresh_objects()
@@ -109,6 +110,7 @@ async def main():
         def stop_game():
             nonlocal game_controller
             cancel_pending_cpu_move()
+            start_objects.Dragging.dragging_all_false()
             SwitchModesController.switch_mode(SwitchModesController.EDIT_MODE, play_edit_switch_button)
             del game_controller
 
@@ -636,6 +638,12 @@ async def main():
                 lis.SCREEN.blit(_rp_surf,   (_PANEL_RECT[0],     _PANEL_RECT[1]))
                 if SwitchModesController.GAME_MODE == SwitchModesController.EDIT_MODE: #Only draw placed sprites in editing mode
                     start_objects.START_SPRITES.draw(lis.SCREEN)
+                    if initvar.ITCH_MODE and start_objects.Dragging.drag_piece_name:
+                        _sel = start_objects.Start.start_dict[start_objects.Dragging.drag_piece_name]
+                        _sel_pos = initvar.STARTPOS[start_objects.Dragging.drag_piece_name]
+                        _sel_w, _sel_h = _sel.image.get_size()
+                        pygame.draw.rect(lis.SCREEN, (255, 215, 0),
+                                         (_sel_pos[0], _sel_pos[1], _sel_w, _sel_h), 3)
                     placed_objects.PLACED_SPRITES.update()
                     placed_objects.PLACED_SPRITES.draw(lis.SCREEN)
                 elif SwitchModesController.GAME_MODE == SwitchModesController.PLAY_MODE: #Only draw play sprites in play mode
