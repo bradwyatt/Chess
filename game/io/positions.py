@@ -36,7 +36,7 @@ POSITION_PIECE_KEYS = (
 )
 
 POSITION_METADATA_DEFAULTS = {
-    "game_mode": "Two Human Players",
+    "game_mode": "Human vs Human",
     "board_orientation": "White on Bottom",
     "starting_turn": "white",
 }

@@ -127,7 +127,7 @@ async def main():
                 return "Play as White vs CPU"
             if normalized == "play as black vs cpu":
                 return "Play as Black vs CPU"
-            return "Two Human Players"
+            return "Human vs Human"
 
         def _normalize_board_orientation_label(board_orientation):
             normalized = str(board_orientation).strip().lower().replace("-", " ").replace("_", " ")
@@ -140,7 +140,7 @@ async def main():
 
         def _current_position_config():
             if not CpuController.cpu_mode:
-                game_mode = "Two Human Players"
+                game_mode = "Human vs Human"
             elif CpuController.cpu_color == "black":
                 game_mode = "Play as White vs CPU"
             else:

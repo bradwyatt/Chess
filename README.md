@@ -7,7 +7,7 @@ Chess GUI brings the traditional chess experience to your desktop. The game adhe
 ### Key Features:
 - **Pure Python Implementation**: Developed from scratch in Python, ensuring a lightweight and standalone chess experience without the reliance on external chess libraries.
 - **Standard Chess Rules**: Supports all traditional chess rules, including piece-specific movements, checks, checkmates, and stalemates.
-- **Versatile Play Options**: Choose from three game modes via a sidebar selector — *vs CPU (White)*, *vs CPU (Black)*, or *Two Human Players*. The board automatically flips so the human always plays from the bottom, and player badges display "CPU" for the computer's side.
+- **Versatile Play Options**: Choose from three game modes via a sidebar selector — *vs CPU (White)*, *vs CPU (Black)*, or *Human vs Human*. The board automatically flips so the human always plays from the bottom, and player badges display "CPU" for the computer's side.
 - **Undo Move**: Revert the last move to correct mistakes or reconsider strategies.
 - **PGN Support**: Save and load game positions and manage Portable Game Notation (PGN) files, making it easy to review games and learn from past plays.
 - **Game Properties Management**: Track player names, ratings, and game results, enhancing the competitive aspect of chess.
@@ -171,7 +171,7 @@ The current schema separates game metadata from board state:
 ```
 
 When one of these JSON files is loaded, the game applies:
-- `game_mode`: `"Play as White vs CPU"`, `"Play as Black vs CPU"`, or `"Two Human Players"`
+- `game_mode`: `"Play as White vs CPU"`, `"Play as Black vs CPU"`, or `"Human vs Human"`
 - `board_orientation`: `"White on Bottom"` or `"Black on Bottom"`
 - `starting_turn`: `"white"` or `"black"`
 

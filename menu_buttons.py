@@ -273,7 +273,7 @@ class GameModeSelector:
     _MODES = [
         ("cpu_white",   "Play as White vs CPU", (230, 230, 230)),
         ("cpu_black",   "Play as Black vs CPU", (30,  30,  30)),
-        ("two_players", "Two Human Players",   (170, 205, 255)),
+        ("two_players", "Human vs Human",      (170, 205, 255)),
     ]
 
     def __init__(self, top_left):
@@ -371,7 +371,7 @@ class GameModeSelector:
 
         # Divider between the radio group and the primary action.
         divider = pygame.Surface((sw - 28, 1), pygame.SRCALPHA)
-        divider.fill((90, 125, 178, 100))
+        divider.fill((90, 125, 178, 62))
         screen.blit(divider, (sx + 14, self._divider_y))
 
 
@@ -424,7 +424,7 @@ class StartingTurnSelector:
 
         screen.blit(self._section_label, (self._label_x, self._label_y))
         sep = pygame.Surface((initvar.GAME_SETUP_SECTION_W - 28, 1), pygame.SRCALPHA)
-        sep.fill((90, 125, 178, 100))
+        sep.fill((90, 125, 178, 90))
         screen.blit(sep, (self._label_x, self._separator_y))
 
         if game_mode == 0:
