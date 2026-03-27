@@ -904,6 +904,11 @@ async def main():
                             cancel_pending_cpu_move()
                             if MoveTracker.selected_move == (0, "black_move"):
                                 pass
+                            elif (MoveTracker.selected_move == (1, "black_move")
+                                  and MoveTracker.df_moves.get(1, {}).get("white_move", "") == ""):
+                                SwitchModesController.replayed_game(True, game_controller, True)
+                                GridController.update_prior_move_color()
+                                MoveTracker.selected_move = (0, "black_move")
                             elif MoveTracker.selected_move == (1, "white_move"):
                                 SwitchModesController.replayed_game(True, game_controller, True)
                                 GridController.update_prior_move_color()
@@ -922,7 +927,13 @@ async def main():
                                 # When selected move is not at the last move number
                                 if MoveTracker.selected_move[1] == "black_move":
                                     # When selected move is not at last move number and we are at black move
-                                    MoveTracker.selected_move = MoveTracker.selected_move[0]+1, "white_move"
+                                    next_move_number = MoveTracker.selected_move[0] + 1
+                                    if (next_move_number == 1
+                                            and MoveTracker.df_moves.get(1, {}).get("white_move", "") == ""
+                                            and MoveTracker.df_moves.get(1, {}).get("black_move", "") != ""):
+                                        MoveTracker.selected_move = (1, "black_move")
+                                    else:
+                                        MoveTracker.selected_move = (next_move_number, "white_move")
                                     if MoveTracker.selected_move[0] > menu_buttons.PanelRectangles.scroll_range[1] and menu_buttons.PanelRectangles.scroll_range[1] < MoveTracker.move_counter():
                                         PanelController.update_scroll_range(1)
                                     if MoveTracker.selected_move[0] == MoveTracker.move_counter() and \
