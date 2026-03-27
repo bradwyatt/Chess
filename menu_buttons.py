@@ -31,6 +31,19 @@ def _draw_scaled_surface(screen, surf, rect, scale):
     scaled_rect = scaled.get_rect(center=rect.center)
     screen.blit(scaled, scaled_rect.topleft)
 
+
+def _draw_sidebar_section(screen, rect, label_surface):
+    panel = pygame.Surface(rect.size, pygame.SRCALPHA)
+    pygame.draw.rect(panel, (14, 28, 60, 198), panel.get_rect(), border_radius=13)
+    pygame.draw.rect(panel, (88, 122, 176, 214), panel.get_rect(), 1, border_radius=13)
+    panel.blit(label_surface, (14, 13))
+
+    sep_y = 13 + label_surface.get_height() + 8
+    sep = pygame.Surface((rect.width - 28, 1), pygame.SRCALPHA)
+    sep.fill((98, 136, 190, 64))
+    panel.blit(sep, (14, sep_y))
+    screen.blit(panel, rect.topleft)
+
 class Button(pygame.sprite.Sprite):
     def __init__(self, image_key, pos, sprite_group=None,
                  active_in_mode=None, requires_hover=False):
@@ -84,14 +97,14 @@ def FlipBoardButton(pos):       return Button("SPR_FLIP_BOARD_BUTTON",        po
 
 class PlayEditSwitchButton:
     BTN_W = 160
-    BTN_H = 52
+    BTN_H = 60
 
     _ICON_SIZE = 10  # icon bounding box size in pixels
 
     def __init__(self, top_left):
         x, y = top_left
         self.rect = pygame.Rect(x, y, self.BTN_W, self.BTN_H)
-        font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 14, bold=True)
+        font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 15, bold=True)
         self._start_text = font.render("Start Game", True, (242, 247, 255))
         self._stop_text  = font.render("Stop Game",  True, (242, 247, 255))
 
@@ -118,18 +131,32 @@ class PlayEditSwitchButton:
         text_surf  = self._start_text if is_start else self._stop_text
 
         if is_start:
-            bg     = (52, 110, 195, 230)
-            border = (125, 180, 255, 255)
+            bg     = (64, 132, 228, 244)
+            border = (170, 214, 255, 255)
+            glow   = (78, 148, 245, 42)
             if is_hovered:
-                bg     = (68, 132, 220, 242)
-                border = (162, 205, 255, 255)
+                bg     = (78, 146, 240, 250)
+                border = (194, 226, 255, 255)
+                glow   = (104, 168, 255, 60)
         else:
             # Same component styling, with a slightly darker tone while active.
             bg     = (16,  34,  72, 168)
             border = (64,  90, 132, 190)
+            glow   = (0, 0, 0, 0)
             if is_hovered:
                 bg     = (24,  50,  96, 188)
                 border = (82,  110, 158, 214)
+
+        if glow[-1] > 0:
+            glow_rect = self.rect.inflate(10, 12)
+            glow_surf = pygame.Surface(glow_rect.size, pygame.SRCALPHA)
+            pygame.draw.rect(glow_surf, glow, glow_surf.get_rect(), border_radius=14)
+            screen.blit(glow_surf, glow_rect.topleft)
+
+        shadow_rect = self.rect.move(0, 4)
+        shadow = pygame.Surface((self.BTN_W, self.BTN_H), pygame.SRCALPHA)
+        pygame.draw.rect(shadow, (0, 0, 0, 36 if is_start else 24), shadow.get_rect(), border_radius=11)
+        screen.blit(shadow, shadow_rect.topleft)
 
         surf = pygame.Surface((self.BTN_W, self.BTN_H), pygame.SRCALPHA)
         pygame.draw.rect(surf, bg,     surf.get_rect(), border_radius=10)
@@ -148,7 +175,12 @@ class PlayEditSwitchButton:
 
         surf.blit(text_surf, (x0 + self._ICON_SIZE + icon_gap,
                               cy - text_surf.get_height() // 2))
-        _draw_scaled_surface(screen, surf, self.rect, 0.98 if is_pressed else 1.0)
+        scale = 1.0
+        if is_start and is_hovered:
+            scale = 1.02
+        if is_pressed:
+            scale = 0.995 if is_start else 0.98
+        _draw_scaled_surface(screen, surf, self.rect, scale)
 
 
 class SidebarActionButton:
@@ -188,17 +220,7 @@ class SidebarSectionPanel:
         self._label = font.render(label, True, (165, 195, 230))
 
     def draw(self, screen):
-        panel = pygame.Surface(self.rect.size, pygame.SRCALPHA)
-        pygame.draw.rect(panel, (10, 22, 52, 185), panel.get_rect(), border_radius=12)
-        pygame.draw.rect(panel, (72, 100, 148, 210), panel.get_rect(), 1, border_radius=12)
-        panel.blit(self._label, (14, 12))
-
-        sep_y = 12 + self._label.get_height() + 6
-        sep = pygame.Surface((self.rect.width - 24, 1), pygame.SRCALPHA)
-        sep.fill((90, 125, 178, 90))
-        panel.blit(sep, (12, sep_y))
-
-        screen.blit(panel, self.rect.topleft)
+        _draw_sidebar_section(screen, self.rect, self._label)
 
 
 class RadioOption:
@@ -235,7 +257,7 @@ class RadioOption:
         border = _mix_color(idle_border, hover_border, self._hover_t)
         border = _mix_color(border, selected_border, self._selected_t)
 
-        text_idle = (212, 223, 240)
+        text_idle = (226, 233, 246)
         text_selected = (244, 248, 255)
         text_color = _mix_color(text_idle, text_selected, self._selected_t)
         label = self.label_surface.copy()
@@ -278,10 +300,11 @@ class GameModeSelector:
 
     def __init__(self, top_left):
         x, y = top_left
-        # Section container drawn behind mode buttons + Start Game button
         self._section_rect = pygame.Rect(
-            initvar.GAME_SETUP_SECTION_X, initvar.GAME_SETUP_SECTION_Y,
-            initvar.GAME_SETUP_SECTION_W, initvar.GAME_SETUP_SECTION_H,
+            initvar.GAME_SETUP_SECTION_X,
+            initvar.GAME_SETUP_SECTION_Y - 8,
+            initvar.GAME_SETUP_SECTION_W,
+            224,
         )
         self._group_rect = pygame.Rect(
             x - 2,
@@ -289,7 +312,6 @@ class GameModeSelector:
             self.BTN_W + 4,
             len(self._MODES) * self.BTN_H + (len(self._MODES) - 1) * self.GAP + 8,
         )
-        self._divider_y = initvar.PLAY_EDIT_SWITCH_BUTTON_TOPLEFT[1] - 11
         lf = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 11, bold=True)
         self._section_label = lf.render("GAME SETUP", True, (165, 195, 230))
         # Find the largest font size where every label fits its pill, then render all at that size
@@ -333,25 +355,7 @@ class GameModeSelector:
         delta_ms = now - self._last_tick
         self._last_tick = now
 
-        sx, sy = self._section_rect.x, self._section_rect.y
-        sw, sh = self._section_rect.width, self._section_rect.height
-
-        # ── Section container ──
-        sec = pygame.Surface((sw, sh), pygame.SRCALPHA)
-        pygame.draw.rect(sec, (10, 22, 52, 185), sec.get_rect(), border_radius=12)
-        pygame.draw.rect(sec, (72, 100, 148, 210), sec.get_rect(), 1, border_radius=12)
-        screen.blit(sec, (sx, sy))
-
-        # ── "GAME SETUP" label ──
-        label_x = sx + 14
-        label_y = sy + 12
-        screen.blit(self._section_label, (label_x, label_y))
-
-        # Thin separator line below the label
-        sep_y = label_y + self._section_label.get_height() + 6
-        sep = pygame.Surface((sw - 24, 1), pygame.SRCALPHA)
-        sep.fill((90, 125, 178, 90))
-        screen.blit(sep, (sx + 12, sep_y))
+        _draw_sidebar_section(screen, self._section_rect, self._section_label)
 
         selected = self._selected_mode(cpu_mode, cpu_color)
         if game_mode == 0:
@@ -369,12 +373,6 @@ class GameModeSelector:
                 dim.fill((0, 0, 0, 80))
                 screen.blit(dim, option.rect.topleft)
 
-        # Divider between the radio group and the primary action.
-        divider = pygame.Surface((sw - 28, 1), pygame.SRCALPHA)
-        divider.fill((90, 125, 178, 62))
-        screen.blit(divider, (sx + 14, self._divider_y))
-
-
 class StartingTurnSelector:
     """Two-option selector for the side to move in setup mode."""
 
@@ -390,6 +388,12 @@ class StartingTurnSelector:
 
     def __init__(self, top_left):
         x, y = top_left
+        self._section_rect = pygame.Rect(
+            initvar.GAME_SETUP_SECTION_X,
+            y - 42,
+            initvar.GAME_SETUP_SECTION_W,
+            178,
+        )
         self._group_rect = pygame.Rect(
             x - 2,
             y - 4,
@@ -405,9 +409,6 @@ class StartingTurnSelector:
             label_surface = font.render(label, True, (242, 247, 255))
             self._options.append(RadioOption(rect, turn_key, label_surface, self.LABEL_X, indicator_color))
         self._last_tick = pygame.time.get_ticks()
-        self._label_x = x
-        self._label_y = y - 30
-        self._separator_y = y - 8
 
     def hit(self, mousepos, game_mode):
         if game_mode != 0:
@@ -422,10 +423,7 @@ class StartingTurnSelector:
         delta_ms = now - self._last_tick
         self._last_tick = now
 
-        screen.blit(self._section_label, (self._label_x, self._label_y))
-        sep = pygame.Surface((initvar.GAME_SETUP_SECTION_W - 28, 1), pygame.SRCALPHA)
-        sep.fill((90, 125, 178, 90))
-        screen.blit(sep, (self._label_x, self._separator_y))
+        _draw_sidebar_section(screen, self._section_rect, self._section_label)
 
         if game_mode == 0:
             for option in self._options:
