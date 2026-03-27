@@ -515,6 +515,66 @@ check(
 )
 
 # ---------------------------------------------------------------------------
+# Test 16: No castling out of check from a custom position
+# ---------------------------------------------------------------------------
+print("\nTest 16: No castling out of check from custom position")
+game_controller7 = setup_custom_game({
+    'white_queen': ['c5'],
+    'white_king':  ['h1'],
+    'black_rook':  ['a8', 'h8'],
+    'black_king':  ['b8'],
+})
+
+black_king = play_objects.PlayKing.black_king_list[0]
+
+check(
+    game_controller7.color_in_check == "black",
+    "Black king flagged in check on custom-position startup"
+)
+check(
+    black_king.queen_side_castle_ability is False,
+    "Black queenside castle disabled while in check"
+)
+check(
+    black_king.king_side_castle_ability is False,
+    "Black kingside castle disabled while in check"
+)
+check(
+    "b8" not in board.Grid.grid_dict["c8"].coords_of_available_pieces["black"],
+    "Black king does not list queenside castle as available while in check"
+)
+check(
+    "b8" not in board.Grid.grid_dict["g8"].coords_of_available_pieces["black"],
+    "Black king does not list kingside castle as available while in check"
+)
+
+# ---------------------------------------------------------------------------
+# Test 17: King move from non-start file must not trigger castling
+# ---------------------------------------------------------------------------
+print("\nTest 17: Non-start king move does not trigger castling")
+game_controller8 = setup_custom_game({
+    'white_king':  ['h1'],
+    'black_rook':  ['a8', 'h8'],
+    'black_king':  ['b8'],
+})
+
+_, _, special_abb, _ = make_move("b8", "c8", game_controller8)
+
+check(special_abb == "", "b8 to c8 is not recorded as castling")
+check(
+    play_objects.Piece_Lists_Shortcut.piece_on_coord("c8") is not None,
+    "Black king moved normally to c8"
+)
+check(
+    play_objects.Piece_Lists_Shortcut.piece_on_coord("a8") is not None,
+    "Queenside rook stays on a8 after normal king move"
+)
+check(
+    play_objects.Piece_Lists_Shortcut.piece_on_coord("d8") is None,
+    "d8 stays empty after normal king move"
+)
+
+# ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------
 print(f"\n=== Results: {PASSED} passed, {FAILED} failed ===")

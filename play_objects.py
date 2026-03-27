@@ -569,6 +569,8 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
         self.castled = False
         super().__init__(coord, self.image, col, "king")
     def castle_check(self, game_controller):
+        self.queen_side_castle_ability = False
+        self.king_side_castle_ability = False
         if(self.castled == False and game_controller.color_in_check != self.color):
             if self.color == "white":
                 for white_rook in PlayRook.white_rook_list:
@@ -688,4 +690,3 @@ PLAY_PIECE_CLASS = {
     "queen":  PlayQueen,
     "king":   PlayKing,
 }
-

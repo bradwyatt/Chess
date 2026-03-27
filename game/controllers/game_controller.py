@@ -57,13 +57,9 @@ class GameController():
                         piece.rect.topleft = piece.rect.topleft[0], self.black_captured_y
 
     def refresh_objects(self):
-        GridController.update_grid_occupied_detection()
-        self.projected_white_update()
-        self.projected_black_update()
-        for piece_list in play_objects.Piece_Lists_Shortcut.all_pieces():
-            for piece in piece_list:
-                piece.spaces_available(self)
-        GridController.update_grid_occupied_detection()
+        # Reuse the normal turn-refresh path so custom editor positions also
+        # recalculate checks, pins, and castle legality for the side to move.
+        self.switch_turn(self.whoseturn, undo=True)
         for grid in board.Grid.grid_list:
             grid.no_highlight()
 
@@ -572,7 +568,7 @@ class MoveController():
             piece.castled = True
             for rook in play_objects.PlayRook.white_rook_list:
                 if rook.allowed_to_castle:
-                    if rook.coordinate == 'a1' and piece.coordinate == 'c1':
+                    if rook.coordinate == 'a1' and piece.previous_coordinate == 'e1' and piece.coordinate == 'c1':
                         rook.coordinate_history[MoveTracker.move_counter()] = {}
                         rook.rect.topleft = board.Grid.grid_dict['d1'].rect.topleft
                         rook.coordinate = board.Grid.grid_dict['d1'].coordinate
@@ -582,7 +578,7 @@ class MoveController():
                         rook.coordinate_history[MoveTracker.move_counter()]['before'] = 'a1'
                         rook.coordinate_history[MoveTracker.move_counter()]['after'] = 'd1'
                         rook.coordinate_history[MoveTracker.move_counter()]['move_notation'] = 'O-O-O'
-                    elif rook.coordinate == 'h1' and piece.coordinate == 'g1':
+                    elif rook.coordinate == 'h1' and piece.previous_coordinate == 'e1' and piece.coordinate == 'g1':
                         rook.coordinate_history[MoveTracker.move_counter()] = {}
                         rook.rect.topleft = board.Grid.grid_dict['f1'].rect.topleft
                         rook.coordinate = board.Grid.grid_dict['f1'].coordinate
@@ -596,7 +592,7 @@ class MoveController():
             piece.castled = True
             for rook in play_objects.PlayRook.black_rook_list:
                 if rook.allowed_to_castle:
-                    if rook.coordinate == 'a8' and piece.coordinate == 'c8':
+                    if rook.coordinate == 'a8' and piece.previous_coordinate == 'e8' and piece.coordinate == 'c8':
                         rook.coordinate_history[MoveTracker.move_counter()] = {}
                         rook.rect.topleft = board.Grid.grid_dict['d8'].rect.topleft
                         rook.coordinate = board.Grid.grid_dict['d8'].coordinate
@@ -605,7 +601,7 @@ class MoveController():
                         rook.coordinate_history[MoveTracker.move_counter()]['before'] = 'a8'
                         rook.coordinate_history[MoveTracker.move_counter()]['after'] = 'd8'
                         rook.coordinate_history[MoveTracker.move_counter()]['move_notation'] = 'O-O-O'
-                    elif rook.coordinate == 'h8' and piece.coordinate == 'g8':
+                    elif rook.coordinate == 'h8' and piece.previous_coordinate == 'e8' and piece.coordinate == 'g8':
                         rook.coordinate_history[MoveTracker.move_counter()] = {}
                         rook.rect.topleft = board.Grid.grid_dict['f8'].rect.topleft
                         rook.coordinate = board.Grid.grid_dict['f8'].coordinate
