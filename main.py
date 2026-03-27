@@ -230,6 +230,7 @@ async def main():
         help_button = menu_buttons.HelpButton(initvar.HELP_BUTTON_TOPLEFT)
         flip_board_button = menu_buttons.FlipBoardButton(initvar.FLIP_BOARD_BUTTON_TOPLEFT)
         game_mode_selector = menu_buttons.GameModeSelector(initvar.GAME_MODE_SELECTOR_TOPLEFT)
+        starting_turn_selector = menu_buttons.StartingTurnSelector(initvar.TURN_SELECTOR_TOPLEFT)
         help_overlay_open = False
         puzzles_modal_open = False
         pgn_games_modal_open = False
@@ -265,7 +266,7 @@ async def main():
             # Load-popover geometry (precomputed; image sizes are constant)
             _lm_pad          = 10
             _lm_gap          = 6
-            _lm_shift_left   = 36
+            _lm_shift_right  = 36
             _lm_item_spacing = 8
             _lm_pos_img = lis.IMAGES["SPR_POS_LOAD_FILE_BUTTON"]
             _lm_pgn_img = lis.IMAGES["SPR_PGN_LOAD_FILE_BUTTON"]
@@ -273,7 +274,7 @@ async def main():
             _lm_panel_w = _lm_item_w + _lm_pad * 2
             _lm_panel_h = (_lm_pos_img.get_height() + _lm_pgn_img.get_height()
                            + _lm_item_spacing + _lm_pad * 2)
-            _lm_panel_x = load_file_placeholder.rect.right + _lm_gap - _lm_shift_left
+            _lm_panel_x = load_file_placeholder.rect.left - _lm_panel_w + _lm_shift_right
             _lm_panel_y = load_file_placeholder.rect.top
             _lm_panel_rect = pygame.Rect(_lm_panel_x, _lm_panel_y, _lm_panel_w, _lm_panel_h)
             _lm_item1_y = _lm_panel_y + _lm_pad
@@ -282,7 +283,7 @@ async def main():
                                          _lm_item_w, _lm_pos_img.get_height())
             _lm_item2_rect = pygame.Rect(_lm_panel_x + _lm_pad, _lm_item2_y,
                                          _lm_item_w, _lm_pgn_img.get_height())
-            # Save-popover geometry mirrors the load menu and opens to the right.
+            # Save-popover geometry opens to the right of the left-hand Save icon.
             _sm_pad          = 10
             _sm_gap          = 6
             _sm_shift_left   = 36
@@ -946,6 +947,9 @@ async def main():
                             if GridController.flipped != new_flipped:
                                 GridController.flip_grids()
                             _sync_cpu_turn_after_mode_change()
+                        hit_turn = starting_turn_selector.hit(mousepos, SwitchModesController.GAME_MODE)
+                        if hit_turn is not None:
+                            pending_start_whoseturn = _normalize_starting_turn(hit_turn)
                         if beginning_move_button.rect.collidepoint(mousepos) and beginning_move_button.clickable:
                             cancel_pending_cpu_move()
                             MoveTracker.selected_move = 1, "white_move"
@@ -1158,6 +1162,7 @@ async def main():
                     "setup" if SwitchModesController.GAME_MODE == SwitchModesController.EDIT_MODE else "playing"
                 )
                 game_mode_selector.draw(lis.SCREEN, SwitchModesController.GAME_MODE, CpuController.cpu_mode, CpuController.cpu_color, mousepos)
+                starting_turn_selector.draw(lis.SCREEN, SwitchModesController.GAME_MODE, pending_start_whoseturn, mousepos)
                 play_edit_switch_button.draw(lis.SCREEN, game_setup_state, mousepos)
                 features_panel.draw(lis.SCREEN)
                 features_enabled = (SwitchModesController.GAME_MODE == SwitchModesController.EDIT_MODE)

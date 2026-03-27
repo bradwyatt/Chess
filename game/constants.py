@@ -35,40 +35,33 @@ WHITE_MOVE_X_Y = (950, 645)
 BLACK_MOVE_X_Y = (950, 300)
 CHECK_CHECKMATE_X_Y = (950, 270)
 
-# Left sidebar layout — two-tier spacing system:
-#   Icon group (Settings/Load/Save): 10px between icons
-#   Gap to Game Setup panel: 28px
+# Left sidebar layout:
+#   Settings icon first, then Load/Save side-by-side to reclaim vertical space.
+#   That recovered height lets Game Setup and Library sit higher with more room.
 #
-#   Settings icon (80×80):  y=29  → bottom=109
-#   Load icon    (120×86):  y=119 → bottom=205  (gap=10px)
-#   Save icon    (120×86):  y=215 → bottom=301  (gap=10px)
-#   Panel:                  y=329               (gap=28px)
-#
-# Game Setup section — mode selector first, Start Game below
-# Section container: x=6, y=329, w=188
-#   12px top-pad → "GAME SETUP" label (~14px) → 12px gap
-#   → mode buttons (3×52 + 2×8 = 172px) → 22px gap/divider
-#   → Start Game (52px) → extra bottom breathing room  → total h=296
+# Game Setup section — matchup selector first, starting-turn selector second,
+# Start Game below.
 GAME_SETUP_SECTION_X = 6
-GAME_SETUP_SECTION_Y = 329
+GAME_SETUP_SECTION_Y = 223
 GAME_SETUP_SECTION_W = 188
-GAME_SETUP_SECTION_H = 296
-GAME_MODE_SELECTOR_TOPLEFT = (20, 367)       # centered within the 188px section
-PLAY_EDIT_SWITCH_BUTTON_TOPLEFT = (20, 561)  # centered within the 188px section
+GAME_SETUP_SECTION_H = 484
+GAME_MODE_SELECTOR_TOPLEFT = (20, 261)       # centered within the 188px section
+TURN_SELECTOR_TOPLEFT = (20, 495)
+PLAY_EDIT_SWITCH_BUTTON_TOPLEFT = (20, 637)  # centered within the 188px section
 FEATURES_SECTION_X = 6
-FEATURES_SECTION_Y = 625
+FEATURES_SECTION_Y = 719
 FEATURES_SECTION_W = 188
 FEATURES_SECTION_H = 180
-PUZZLES_BUTTON_TOPLEFT = (20, 663)
-PGN_GAMES_BUTTON_TOPLEFT = (20, 725)
+PUZZLES_BUTTON_TOPLEFT = (20, 757)
+PGN_GAMES_BUTTON_TOPLEFT = (20, 819)
 HELP_BUTTON_TOPLEFT = (740, 21)              # matches Flip button size and spacing
 FLIP_BOARD_BUTTON_TOPLEFT = (880, 21)
 GAME_PROPERTIES_BUTTON_TOPLEFT = (10, 29)
 INFO_BUTTON_TOPLEFT = (SCREEN_WIDTH-360, 10)
 POS_SAVE_FILE_BUTTON_TOPLEFT = (10, 215)
 PGN_SAVE_FILE_BUTTON_TOPLEFT = (10, 265)
-LOAD_FILE_PLACEHOLDER_TOPLEFT = (10, 119)
-SAVE_FILE_PLACEHOLDER_TOPLEFT = (10, 215)
+LOAD_FILE_PLACEHOLDER_TOPLEFT = (120, 119)
+SAVE_FILE_PLACEHOLDER_TOPLEFT = (10, 119)
 COLOR_BUTTON_TOPLEFT = (SCREEN_WIDTH-235, 10)
 RESET_BOARD_BUTTON_TOPLEFT = (1020, 21)  # 20px gap after flip (900-1000)
 CLEAR_BUTTON_TOPLEFT = (1230, 21)        # 20px gap after reset (1020-1210)

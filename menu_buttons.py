@@ -123,10 +123,6 @@ class PlayEditSwitchButton:
             if is_hovered:
                 bg     = (68, 132, 220, 242)
                 border = (162, 205, 255, 255)
-            glow = pygame.Surface((self.BTN_W + 10, self.BTN_H + 10), pygame.SRCALPHA)
-            glow_alpha = 54 if is_hovered else 36
-            pygame.draw.rect(glow, (80, 150, 255, glow_alpha), glow.get_rect(), border_radius=13)
-            screen.blit(glow, (self.rect.x - 5, self.rect.y - 5))
         else:
             # Same component styling, with a slightly darker tone while active.
             bg     = (16,  34,  72, 168)
@@ -192,10 +188,6 @@ class SidebarSectionPanel:
         self._label = font.render(label, True, (165, 195, 230))
 
     def draw(self, screen):
-        shadow = pygame.Surface((self.rect.width + 8, self.rect.height + 8), pygame.SRCALPHA)
-        pygame.draw.rect(shadow, (0, 0, 0, 60), shadow.get_rect(), border_radius=15)
-        screen.blit(shadow, (self.rect.x - 2, self.rect.y + 4))
-
         panel = pygame.Surface(self.rect.size, pygame.SRCALPHA)
         pygame.draw.rect(panel, (10, 22, 52, 185), panel.get_rect(), border_radius=12)
         pygame.draw.rect(panel, (72, 100, 148, 210), panel.get_rect(), 1, border_radius=12)
@@ -344,11 +336,6 @@ class GameModeSelector:
         sx, sy = self._section_rect.x, self._section_rect.y
         sw, sh = self._section_rect.width, self._section_rect.height
 
-        # ── Soft drop-shadow (drawn before the panel) ──
-        shadow = pygame.Surface((sw + 8, sh + 8), pygame.SRCALPHA)
-        pygame.draw.rect(shadow, (0, 0, 0, 60), shadow.get_rect(), border_radius=15)
-        screen.blit(shadow, (sx - 2, sy + 4))
-
         # ── Section container ──
         sec = pygame.Surface((sw, sh), pygame.SRCALPHA)
         pygame.draw.rect(sec, (10, 22, 52, 185), sec.get_rect(), border_radius=12)
@@ -366,12 +353,6 @@ class GameModeSelector:
         sep.fill((90, 125, 178, 90))
         screen.blit(sep, (sx + 12, sep_y))
 
-        # Group shell so the three options read as a single control.
-        group = pygame.Surface(self._group_rect.size, pygame.SRCALPHA)
-        pygame.draw.rect(group, (7, 16, 40, 90), group.get_rect(), border_radius=12)
-        pygame.draw.rect(group, (66, 92, 138, 70), group.get_rect(), 1, border_radius=12)
-        screen.blit(group, self._group_rect.topleft)
-
         selected = self._selected_mode(cpu_mode, cpu_color)
         if game_mode == 0:
             for option in self._options:
@@ -384,14 +365,81 @@ class GameModeSelector:
             for option in self._options:
                 option.update(delta_ms, False, option.mode == selected)
                 option.draw(screen, (-9999, -9999))
-            dim = pygame.Surface(self._group_rect.size, pygame.SRCALPHA)
-            dim.fill((0, 0, 0, 140))
-            screen.blit(dim, self._group_rect.topleft)
+                dim = pygame.Surface(option.rect.size, pygame.SRCALPHA)
+                dim.fill((0, 0, 0, 80))
+                screen.blit(dim, option.rect.topleft)
 
         # Divider between the radio group and the primary action.
         divider = pygame.Surface((sw - 28, 1), pygame.SRCALPHA)
         divider.fill((90, 125, 178, 100))
         screen.blit(divider, (sx + 14, self._divider_y))
+
+
+class StartingTurnSelector:
+    """Two-option selector for the side to move in setup mode."""
+
+    BTN_W = 160
+    BTN_H = 52
+    GAP = 8
+    LABEL_X = 28
+
+    _OPTIONS = [
+        ("white", "White to move", (230, 230, 230)),
+        ("black", "Black to move", (30, 30, 30)),
+    ]
+
+    def __init__(self, top_left):
+        x, y = top_left
+        self._group_rect = pygame.Rect(
+            x - 2,
+            y - 4,
+            self.BTN_W + 4,
+            len(self._OPTIONS) * self.BTN_H + (len(self._OPTIONS) - 1) * self.GAP + 8,
+        )
+        lf = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 11, bold=True)
+        self._section_label = lf.render("STARTING TURN", True, (165, 195, 230))
+        font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 13, bold=True)
+        self._options = []
+        for i, (turn_key, label, indicator_color) in enumerate(self._OPTIONS):
+            rect = pygame.Rect(x, y + i * (self.BTN_H + self.GAP), self.BTN_W, self.BTN_H)
+            label_surface = font.render(label, True, (242, 247, 255))
+            self._options.append(RadioOption(rect, turn_key, label_surface, self.LABEL_X, indicator_color))
+        self._last_tick = pygame.time.get_ticks()
+        self._label_x = x
+        self._label_y = y - 30
+        self._separator_y = y - 8
+
+    def hit(self, mousepos, game_mode):
+        if game_mode != 0:
+            return None
+        for option in self._options:
+            if option.rect.collidepoint(mousepos):
+                return option.mode
+        return None
+
+    def draw(self, screen, game_mode, starting_turn, mousepos):
+        now = pygame.time.get_ticks()
+        delta_ms = now - self._last_tick
+        self._last_tick = now
+
+        screen.blit(self._section_label, (self._label_x, self._label_y))
+        sep = pygame.Surface((initvar.GAME_SETUP_SECTION_W - 28, 1), pygame.SRCALPHA)
+        sep.fill((90, 125, 178, 100))
+        screen.blit(sep, (self._label_x, self._separator_y))
+
+        if game_mode == 0:
+            for option in self._options:
+                is_selected = (option.mode == starting_turn)
+                is_hovered = option.rect.collidepoint(mousepos)
+                option.update(delta_ms, is_hovered, is_selected)
+                option.draw(screen, mousepos)
+        else:
+            for option in self._options:
+                option.update(delta_ms, False, option.mode == starting_turn)
+                option.draw(screen, (-9999, -9999))
+                dim = pygame.Surface(option.rect.size, pygame.SRCALPHA)
+                dim.fill((0, 0, 0, 80))
+                screen.blit(dim, option.rect.topleft)
 
 
 class ScrollUpButton(Button):
