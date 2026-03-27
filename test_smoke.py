@@ -186,6 +186,40 @@ def setup_custom_game(position_dict):
     return game_ctrl
 
 
+def setup_custom_game_with_turn(position_dict, whoseturn):
+    """
+    Return a fresh GameController with a custom board position and explicit side to move.
+    """
+    _reset_state()
+    placed_objects.remove_all_placed()
+
+    piece_map = {
+        'white_pawn':   (placed_objects.PlacedPawn,   "white"),
+        'white_bishop': (placed_objects.PlacedBishop, "white"),
+        'white_knight': (placed_objects.PlacedKnight, "white"),
+        'white_rook':   (placed_objects.PlacedRook,   "white"),
+        'white_queen':  (placed_objects.PlacedQueen,  "white"),
+        'white_king':   (placed_objects.PlacedKing,   "white"),
+        'black_pawn':   (placed_objects.PlacedPawn,   "black"),
+        'black_bishop': (placed_objects.PlacedBishop, "black"),
+        'black_knight': (placed_objects.PlacedKnight, "black"),
+        'black_rook':   (placed_objects.PlacedRook,   "black"),
+        'black_queen':  (placed_objects.PlacedQueen,  "black"),
+        'black_king':   (placed_objects.PlacedKing,   "black"),
+    }
+    for key, (cls, color) in piece_map.items():
+        for coord in position_dict.get(key, []):
+            cls(coord, color)
+
+    mock_button = MockButton()
+    main.SwitchModesController.switch_mode(
+        main.SwitchModesController.PLAY_MODE, mock_button
+    )
+    game_ctrl = main.GameController(main.GridController.flipped, whoseturn=whoseturn)
+    game_ctrl.refresh_objects()
+    return game_ctrl
+
+
 # ---------------------------------------------------------------------------
 # Test 1: Import and initialization
 # ---------------------------------------------------------------------------
@@ -265,6 +299,24 @@ check(
     play_objects.Piece_Lists_Shortcut.piece_on_coord("e4") is None,
     "e4 is empty after undo"
 )
+
+# ---------------------------------------------------------------------------
+# Test 5b: Custom position with black to move
+# ---------------------------------------------------------------------------
+print("\nTest 5b: Custom position with black to move")
+game_controller_black_first = setup_custom_game_with_turn(
+    {
+        "white_king": ["e1"],
+        "black_king": ["e8"],
+        "black_pawn": ["e7"],
+    },
+    "black",
+)
+make_move("e7", "e6", game_controller_black_first)
+check(main.MoveTracker.move_counter() == 1, "Move counter becomes 1 after black-first move")
+check(main.MoveTracker.df_moves[1]["white_move"] == "", "White move stays empty when black starts")
+check(main.MoveTracker.df_moves[1]["black_move"] != "", "Black-first move is recorded in move 1")
+check(game_controller_black_first.whoseturn == "white", "Turn switches to white after black-first move")
 
 # ---------------------------------------------------------------------------
 # Test 6: En passant capture

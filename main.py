@@ -97,6 +97,18 @@ async def main():
             nonlocal pending_cpu_move_at
             pending_cpu_move_at = pygame.time.get_ticks() + initvar.CPU_MOVE_DELAY_MS
 
+        def _sync_cpu_turn_after_mode_change():
+            if SwitchModesController.GAME_MODE != SwitchModesController.PLAY_MODE:
+                cancel_pending_cpu_move()
+                return
+            if not CpuController.cpu_mode or game_controller.result_abb != "*":
+                cancel_pending_cpu_move()
+                return
+            if game_controller.whoseturn == CpuController.cpu_color:
+                schedule_cpu_move()
+            else:
+                cancel_pending_cpu_move()
+
         def start_game(whoseturn=None):
             nonlocal game_controller
             cancel_pending_cpu_move()
@@ -221,6 +233,7 @@ async def main():
         help_overlay_open = False
         puzzles_modal_open = False
         pgn_games_modal_open = False
+        save_position_modal_open = False
         restore_default_setup_on_stop = False
         pending_start_whoseturn = "white"
         show_help_hint = True
@@ -230,6 +243,7 @@ async def main():
         modal_panel_rect = pygame.Rect(0, 0, 0, 0)
         modal_close_rect = pygame.Rect(0, 0, 0, 0)
         puzzle_button_rects = {}
+        save_turn_button_rects = {}
         puzzle_options = [
             ("puzzle1", "Puzzle 1 - White to Checkmate", "chess_positions/puzzle1_whitetocheckmate.json", "white"),
             ("puzzle2", "Puzzle 2 - White to Checkmate", "chess_positions/puzzle2_whitetocheckmate.json", "white"),
@@ -513,6 +527,75 @@ async def main():
             restore_default_setup_on_stop = game_controller is not None
             pending_start_whoseturn = "white"
 
+        def _save_position_with_starting_turn(selected_turn):
+            nonlocal pending_start_whoseturn
+            pending_start_whoseturn = _normalize_starting_turn(selected_turn)
+            pos_save_file(_current_position_config())
+
+        def _draw_save_position_modal():
+            nonlocal modal_panel_rect, modal_close_rect, save_turn_button_rects
+            _dim = pygame.Surface(lis.SCREEN.get_size(), pygame.SRCALPHA)
+            _dim.fill((5, 10, 24, 185))
+            lis.SCREEN.blit(_dim, (0, 0))
+
+            panel_w = 520
+            panel_h = 280
+            panel_x = (lis.SCREEN.get_width() - panel_w) // 2
+            panel_y = (lis.SCREEN.get_height() - panel_h) // 2
+            modal_panel_rect = pygame.Rect(panel_x, panel_y, panel_w, panel_h)
+            modal_close_rect = pygame.Rect(panel_x + panel_w - 52, panel_y + 14, 36, 36)
+
+            panel = pygame.Surface((panel_w, panel_h), pygame.SRCALPHA)
+            pygame.draw.rect(panel, (*_PANEL_FILL, 240), panel.get_rect(), border_radius=18)
+            pygame.draw.rect(panel, (*_PANEL_BORDER, 220), panel.get_rect(), 1, border_radius=18)
+
+            title_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 28, bold=True)
+            body_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 19)
+            option_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 22, bold=True)
+            detail_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 17)
+            close_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 22, bold=True)
+
+            title = title_font.render("Save Position", True, (242, 247, 255))
+            subtitle = body_font.render("Choose who should move first when this position is loaded.", True, (198, 216, 238))
+            panel.blit(title, (28, 24))
+            panel.blit(subtitle, (28, 64))
+
+            close_hovered = modal_close_rect.collidepoint(mousepos)
+            close_bg = (24, 50, 96, 210) if close_hovered else (16, 34, 72, 180)
+            close_border = (110, 150, 210, 230) if close_hovered else (82, 110, 158, 190)
+            close_local_rect = pygame.Rect(panel_w - 52, 14, 36, 36)
+            pygame.draw.rect(panel, close_bg, close_local_rect, border_radius=10)
+            pygame.draw.rect(panel, close_border, close_local_rect, 1, border_radius=10)
+            close_text = close_font.render("X", True, (242, 247, 255))
+            panel.blit(close_text, (close_local_rect.centerx - close_text.get_width() // 2,
+                                    close_local_rect.centery - close_text.get_height() // 2 - 1))
+
+            save_turn_button_rects = {}
+            options = (
+                ("white", "White to move", "Save this setup with White starting."),
+                ("black", "Black to move", "Save this setup with Black starting."),
+            )
+            button_w = panel_w - 56
+            button_h = 62
+            first_y = 112
+            gap = 18
+            for index, (turn_key, label, description) in enumerate(options):
+                local_rect = pygame.Rect(28, first_y + index * (button_h + gap), button_w, button_h)
+                absolute_rect = local_rect.move(panel_x, panel_y)
+                save_turn_button_rects[turn_key] = absolute_rect
+                hovered = absolute_rect.collidepoint(mousepos)
+                is_selected = pending_start_whoseturn == turn_key
+                btn_bg = (30, 66, 122, 230) if hovered or is_selected else (18, 42, 86, 192)
+                btn_border = (170, 214, 255, 235) if hovered or is_selected else (104, 142, 194, 190)
+                pygame.draw.rect(panel, btn_bg, local_rect, border_radius=12)
+                pygame.draw.rect(panel, btn_border, local_rect, 1, border_radius=12)
+                label_surf = option_font.render(label, True, (244, 248, 255))
+                desc_surf = detail_font.render(description, True, (188, 208, 232))
+                panel.blit(label_surf, (local_rect.x + 18, local_rect.y + 12))
+                panel.blit(desc_surf, (local_rect.x + 18, local_rect.y + 36))
+
+            lis.SCREEN.blit(panel, modal_panel_rect.topleft)
+
         def _draw_puzzle_modal():
             nonlocal modal_panel_rect, modal_close_rect, puzzle_button_rects
             _dim = pygame.Surface(lis.SCREEN.get_size(), pygame.SRCALPHA)
@@ -693,6 +776,9 @@ async def main():
                     if event.type in (pygame.MOUSEBUTTONDOWN, pygame.KEYDOWN):
                         show_help_hint = False
                     if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_ESCAPE and save_position_modal_open:
+                            save_position_modal_open = False
+                            continue
                         if event.key == pygame.K_ESCAPE and pgn_games_modal_open:
                             pgn_games_modal_open = False
                             continue
@@ -710,6 +796,19 @@ async def main():
                         if event.key == pygame.K_SPACE:
                             debug_message = 1
                             state = debug
+                    if (event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0]
+                            and save_position_modal_open):
+                        if modal_close_rect.collidepoint(mousepos):
+                            save_position_modal_open = False
+                        elif not modal_panel_rect.collidepoint(mousepos):
+                            save_position_modal_open = False
+                        elif save_turn_button_rects.get("white") and save_turn_button_rects["white"].collidepoint(mousepos):
+                            save_position_modal_open = False
+                            _save_position_with_starting_turn("white")
+                        elif save_turn_button_rects.get("black") and save_turn_button_rects["black"].collidepoint(mousepos):
+                            save_position_modal_open = False
+                            _save_position_with_starting_turn("black")
+                        continue
                     if (event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0]
                             and pgn_games_modal_open):
                         if modal_close_rect.collidepoint(mousepos):
@@ -774,7 +873,10 @@ async def main():
                             if _sm_item1_rect.collidepoint(mousepos):
                                 _save_menu_open = False
                                 if SwitchModesController.GAME_MODE == SwitchModesController.EDIT_MODE:
-                                    pos_save_file(_current_position_config())
+                                    save_position_modal_open = True
+                                    help_overlay_open = False
+                                    puzzles_modal_open = False
+                                    pgn_games_modal_open = False
                             elif _sm_item2_rect.collidepoint(mousepos):
                                 _save_menu_open = False
                                 if SwitchModesController.GAME_MODE == SwitchModesController.PLAY_MODE:
@@ -843,6 +945,7 @@ async def main():
                             new_flipped = CpuController.cpu_mode and CpuController.cpu_color == "white"
                             if GridController.flipped != new_flipped:
                                 GridController.flip_grids()
+                            _sync_cpu_turn_after_mode_change()
                         if beginning_move_button.rect.collidepoint(mousepos) and beginning_move_button.clickable:
                             cancel_pending_cpu_move()
                             MoveTracker.selected_move = 1, "white_move"
@@ -1102,19 +1205,23 @@ async def main():
                 for text in range(0,len(TextController.coor_number_text_list)):
                     lis.SCREEN.blit(TextController.coor_number_text_list[text], (initvar.X_GRID_START-board.X_GRID_WIDTH/2, initvar.Y_GRID_START+board.Y_GRID_HEIGHT/4+(board.Y_GRID_HEIGHT*text)))
                     lis.SCREEN.blit(TextController.coor_number_text_list[text], (board.X_GRID_END+board.X_GRID_WIDTH/3, initvar.Y_GRID_START+board.Y_GRID_HEIGHT/4+(board.Y_GRID_HEIGHT*text)))
+                current_turn_text = ""
+                status_detail_text = TextController.check_checkmate_text
                 if SwitchModesController.GAME_MODE == SwitchModesController.PLAY_MODE:
-                    current_turn_text = ""
-                    if GridController.flipped:
-                        if game_controller.whoseturn == "white" and game_controller.result_abb == "*":
-                            current_turn_text = "White to move"
-                        elif game_controller.whoseturn == "black" and game_controller.result_abb == "*":
-                            current_turn_text = "Black to move"
+                    if game_controller.whoseturn == "white" and game_controller.result_abb == "*":
+                        current_turn_text = "White to move"
+                    elif game_controller.whoseturn == "black" and game_controller.result_abb == "*":
+                        current_turn_text = "Black to move"
+                else:
+                    current_turn_text = "White to move" if pending_start_whoseturn == "white" else "Black to move"
+                    if CpuController.cpu_mode:
+                        if pending_start_whoseturn == CpuController.cpu_color:
+                            status_detail_text = "CPU will move first"
+                        else:
+                            status_detail_text = "Player moves first"
                     else:
-                        if game_controller.whoseturn == "white" and game_controller.result_abb == "*":
-                            current_turn_text = "White to move"
-                        elif game_controller.whoseturn == "black" and game_controller.result_abb == "*":
-                            current_turn_text = "Black to move"
-                    _draw_panel_status(current_turn_text, TextController.check_checkmate_text)
+                        status_detail_text = "Starting turn for this setup"
+                _draw_panel_status(current_turn_text, status_detail_text)
                 _player_badge_hover_info.clear()
                 # Use "CPU" / "Player" as fallback when the name hasn't been set in Game
                 # Properties; never override a name the user has explicitly entered.
@@ -1142,6 +1249,8 @@ async def main():
                 _draw_help_hint()
                 if help_overlay_open:
                     help_panel_rect = _draw_help_overlay()
+                if save_position_modal_open:
+                    _draw_save_position_modal()
                 if puzzles_modal_open:
                     _draw_puzzle_modal()
                 if pgn_games_modal_open:

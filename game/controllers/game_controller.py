@@ -455,8 +455,9 @@ class MoveController():
         game_controller.result_abb = "*"
         promoted_queen = None
         prior_moves_dict = {}
-        # Update df_moves dictionary with a new record for the new move (when white's turn)
-        if piece.color == "white":
+        # Seed the first move row before any history/capture bookkeeping runs.
+        # This also supports custom positions that intentionally start with Black to move.
+        if piece.color == "white" or MoveTracker.move_counter() == 0:
             next_move = MoveTracker.move_counter()+1
             MoveTracker.df_moves[next_move] = {"white_move": "", "black_move": ""}
             MoveTracker.df_prior_moves[next_move] = {"white_move": "", "black_move": ""}
