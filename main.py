@@ -270,6 +270,12 @@ async def main():
         next_move_button = menu_buttons.NextMoveButton(initvar.NEXT_MOVE_BUTTON_TOPLEFT)
         last_move_button = menu_buttons.LastMoveButton(initvar.LAST_MOVE_BUTTON_TOPLEFT)
         undo_move_button = menu_buttons.UndoMoveButton(initvar.UNDO_MOVE_BUTTON_TOPLEFT)
+        replay_button_tooltips = (
+            (beginning_move_button, "Go to Beginning"),
+            (prev_move_button, "Previous Move"),
+            (next_move_button, "Next Move"),
+            (last_move_button, "Go to Last Move"),
+        )
         # Window
         gameicon = pygame.image.load("sprites/chessico.png")
         pygame.display.set_icon(gameicon)
@@ -1156,6 +1162,11 @@ async def main():
                         _draw_tooltip("Flip Board", mousepos)
                     elif game_properties_button and game_properties_button.rect.collidepoint(mousepos):
                         _draw_tooltip("Game Info", mousepos)
+                    elif SwitchModesController.GAME_MODE == SwitchModesController.PLAY_MODE:
+                        for button, label in replay_button_tooltips:
+                            if button.rect.collidepoint(mousepos):
+                                _draw_tooltip(label, mousepos)
+                                break
                 _draw_help_hint()
                 if help_overlay_open:
                     help_panel_rect = _draw_help_overlay()

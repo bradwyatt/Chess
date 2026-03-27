@@ -184,8 +184,11 @@ class SwitchModesController():
 
     @classmethod
     def rewind_moves(cls, start_beginning=False):
-        first_move = cls.list_of_moves_backwards(MoveTracker.df_prior_moves)[-1]
-        list_of_moves_backwards = cls.list_of_moves_backwards(MoveTracker.df_prior_moves)[:-1]
+        moves_backwards = cls.list_of_moves_backwards(MoveTracker.df_prior_moves)
+        if not moves_backwards:
+            return
+        first_move = moves_backwards[-1]
+        list_of_moves_backwards = moves_backwards[:-1]
         if start_beginning:
             list_of_moves_backwards.append(first_move)
         # list_of_moves_backwards list is ordered in descending order to the selected move
@@ -243,7 +246,7 @@ class SwitchModesController():
                                                     replayed_objects.ReplayedQueen.black_queen_list.remove(piece)
         # -1 in the list refers to the highlighted move in the pane
         # Retrieve the grids from the piece that we are replaying, and get the grid from the previous move to that one
-        prior_move_grid_and_piece_highlight_dict = cls.list_of_moves_backwards(MoveTracker.df_prior_moves)[-1]
+        prior_move_grid_and_piece_highlight_dict = moves_backwards[-1]
         old_grid_coordinate_before = ast.literal_eval(list(prior_move_grid_and_piece_highlight_dict.values())[0])['before']
         old_grid_coordinate_after = ast.literal_eval(list(prior_move_grid_and_piece_highlight_dict.values())[0])['after']
         old_piece = GridController.piece_on_grid(old_grid_coordinate_after)
@@ -272,8 +275,9 @@ class SwitchModesController():
             moves_backwards_dict = {}
             if limit_color == 'black_move' and move_num == limit_moves:
                 # Selected move is black, so ignore the white move on that same move number and break
-                moves_backwards_dict[move_num] = df_prior_moves[move_num]['black_move']
-                moves_backwards_list.append(moves_backwards_dict)
+                if df_prior_moves[move_num]['black_move'] != '':
+                    moves_backwards_dict[move_num] = df_prior_moves[move_num]['black_move']
+                    moves_backwards_list.append(moves_backwards_dict)
                 break
             if df_prior_moves[move_num]['black_move'] == '':
                 # Current move has no black move yet, so ignore adding that to list
@@ -282,7 +286,8 @@ class SwitchModesController():
                 moves_backwards_dict[move_num] = df_prior_moves[move_num]['black_move']
                 moves_backwards_list.append(moves_backwards_dict)
                 moves_backwards_dict = {}
-            moves_backwards_dict[move_num] = df_prior_moves[move_num]['white_move']
-            moves_backwards_list.append(moves_backwards_dict)
+            if df_prior_moves[move_num]['white_move'] != '':
+                moves_backwards_dict[move_num] = df_prior_moves[move_num]['white_move']
+                moves_backwards_list.append(moves_backwards_dict)
         # When select a move on pane, we take back the move right after that
         return moves_backwards_list
