@@ -256,55 +256,11 @@ async def main():
             ("de_los_santos_polgar", "De los Santos vs Polgar (1990)", "pgn_sample_games/de_los_santos_polgar_1990.pgn"),
             ("deep_blue_kasparov", "Deep Blue vs Kasparov (1996)", "pgn_sample_games/DeepBlue_GarryKasparov_02101996.pgn"),
         ]
+        file_actions_panel = None
         game_properties_button = None
-        load_file_placeholder = None
-        save_file_placeholder = None
         if not initvar.ITCH_MODE:
             game_properties_button = menu_buttons.GamePropertiesButton(initvar.GAME_PROPERTIES_BUTTON_TOPLEFT)
-            load_file_placeholder = menu_buttons.LoadFilePlaceholder(initvar.LOAD_FILE_PLACEHOLDER_TOPLEFT)
-            save_file_placeholder = menu_buttons.SaveFilePlaceholder(initvar.SAVE_FILE_PLACEHOLDER_TOPLEFT)
-            # Load-popover geometry (precomputed; image sizes are constant)
-            _lm_pad          = 10
-            _lm_gap          = 6
-            _lm_shift_right  = 36
-            _lm_item_spacing = 8
-            _lm_pos_img = lis.IMAGES["SPR_POS_LOAD_FILE_BUTTON"]
-            _lm_pgn_img = lis.IMAGES["SPR_PGN_LOAD_FILE_BUTTON"]
-            _lm_item_w  = max(_lm_pos_img.get_width(), _lm_pgn_img.get_width())
-            _lm_panel_w = _lm_item_w + _lm_pad * 2
-            _lm_panel_h = (_lm_pos_img.get_height() + _lm_pgn_img.get_height()
-                           + _lm_item_spacing + _lm_pad * 2)
-            _lm_panel_x = load_file_placeholder.rect.left - _lm_panel_w + _lm_shift_right
-            _lm_panel_y = load_file_placeholder.rect.top
-            _lm_panel_rect = pygame.Rect(_lm_panel_x, _lm_panel_y, _lm_panel_w, _lm_panel_h)
-            _lm_item1_y = _lm_panel_y + _lm_pad
-            _lm_item2_y = _lm_item1_y + _lm_pos_img.get_height() + _lm_item_spacing
-            _lm_item1_rect = pygame.Rect(_lm_panel_x + _lm_pad, _lm_item1_y,
-                                         _lm_item_w, _lm_pos_img.get_height())
-            _lm_item2_rect = pygame.Rect(_lm_panel_x + _lm_pad, _lm_item2_y,
-                                         _lm_item_w, _lm_pgn_img.get_height())
-            # Save-popover geometry opens to the right of the left-hand Save icon.
-            _sm_pad          = 10
-            _sm_gap          = 6
-            _sm_shift_left   = 36
-            _sm_item_spacing = 8
-            _sm_pos_img = lis.IMAGES["SPR_POS_SAVE_FILE_BUTTON"]
-            _sm_pgn_img = lis.IMAGES["SPR_PGN_SAVE_FILE_BUTTON"]
-            _sm_item_w  = max(_sm_pos_img.get_width(), _sm_pgn_img.get_width())
-            _sm_panel_w = _sm_item_w + _sm_pad * 2
-            _sm_panel_h = (_sm_pos_img.get_height() + _sm_pgn_img.get_height()
-                           + _sm_item_spacing + _sm_pad * 2)
-            _sm_panel_x = save_file_placeholder.rect.right + _sm_gap - _sm_shift_left
-            _sm_panel_y = save_file_placeholder.rect.top
-            _sm_panel_rect = pygame.Rect(_sm_panel_x, _sm_panel_y, _sm_panel_w, _sm_panel_h)
-            _sm_item1_y = _sm_panel_y + _sm_pad
-            _sm_item2_y = _sm_item1_y + _sm_pos_img.get_height() + _sm_item_spacing
-            _sm_item1_rect = pygame.Rect(_sm_panel_x + _sm_pad, _sm_item1_y,
-                                         _sm_item_w, _sm_pos_img.get_height())
-            _sm_item2_rect = pygame.Rect(_sm_panel_x + _sm_pad, _sm_item2_y,
-                                         _sm_item_w, _sm_pgn_img.get_height())
-        _load_menu_open = False
-        _save_menu_open = False
+            file_actions_panel = menu_buttons.FileActionsPanel()
         reset_board_button = menu_buttons.ResetBoardButton(initvar.RESET_BOARD_BUTTON_TOPLEFT)
         clear_button = menu_buttons.ClearButton(initvar.CLEAR_BUTTON_TOPLEFT)
         scroll_up_button = menu_buttons.ScrollUpButton(initvar.SCROLL_UP_BUTTON_TOPLEFT)
@@ -840,55 +796,40 @@ async def main():
                             and not help_button.rect.collidepoint(mousepos)):
                         help_overlay_open = False
                         continue
-                    # Load/save popovers: click icon to toggle, click item to act, click outside to close
+                    # Direct file actions: explicit buttons avoid the old save/load popover collisions.
                     if (event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0]
                             and not initvar.ITCH_MODE
                             and (SwitchModesController.GAME_MODE == SwitchModesController.EDIT_MODE
                                  or SwitchModesController.GAME_MODE == SwitchModesController.PLAY_MODE)):
-                        if save_file_placeholder.rect.collidepoint(mousepos):
-                            _save_menu_open = not _save_menu_open
-                            if _save_menu_open:
-                                _load_menu_open = False
-                        elif load_file_placeholder.rect.collidepoint(mousepos) and SwitchModesController.GAME_MODE == SwitchModesController.EDIT_MODE:
-                            _load_menu_open = not _load_menu_open
-                            if _load_menu_open:
-                                _save_menu_open = False
-                        elif _load_menu_open:
-                            if _lm_item1_rect.collidepoint(mousepos):
-                                _load_menu_open = False
-                                loaded_position = pos_load_file()
-                                if loaded_position is not None:
-                                    _apply_position_config(loaded_position["config"])
-                            elif _lm_item2_rect.collidepoint(mousepos):
-                                _load_menu_open = False
-                                cancel_pending_cpu_move()
-                                if CpuController.cpu_mode:
-                                    CpuController.cpu_mode_toggle()
-                                game_controller = PgnWriterAndLoader.pgn_load(play_edit_switch_button)
-                                for grid in board.Grid.grid_list:
-                                    grid.no_highlight()
-                                GridController.update_grid_occupied_detection()
-                            else:
-                                _load_menu_open = False
-                        elif _save_menu_open:
-                            if _sm_item1_rect.collidepoint(mousepos):
-                                _save_menu_open = False
-                                if SwitchModesController.GAME_MODE == SwitchModesController.EDIT_MODE:
-                                    save_position_modal_open = True
-                                    help_overlay_open = False
-                                    puzzles_modal_open = False
-                                    pgn_games_modal_open = False
-                            elif _sm_item2_rect.collidepoint(mousepos):
-                                _save_menu_open = False
-                                if SwitchModesController.GAME_MODE == SwitchModesController.PLAY_MODE:
-                                    _dim = pygame.Surface(lis.SCREEN.get_size(), pygame.SRCALPHA)
-                                    _dim.fill((0, 0, 0, 140))
-                                    lis.SCREEN.blit(_dim, (0, 0))
-                                    pygame.display.flip()
-                                    GameProperties.game_properties_popup()
-                                    PgnWriterAndLoader.write_moves(MoveTracker.df_moves, game_controller.result_abb)
-                            else:
-                                _save_menu_open = False
+                        file_action = file_actions_panel.hit(mousepos, SwitchModesController.GAME_MODE)
+                        if file_action == "save_position":
+                            save_position_modal_open = True
+                            help_overlay_open = False
+                            puzzles_modal_open = False
+                            pgn_games_modal_open = False
+                            continue
+                        if file_action == "save_pgn":
+                            _dim = pygame.Surface(lis.SCREEN.get_size(), pygame.SRCALPHA)
+                            _dim.fill((0, 0, 0, 140))
+                            lis.SCREEN.blit(_dim, (0, 0))
+                            pygame.display.flip()
+                            GameProperties.game_properties_popup()
+                            PgnWriterAndLoader.write_moves(MoveTracker.df_moves, game_controller.result_abb)
+                            continue
+                        if file_action == "load_position":
+                            loaded_position = pos_load_file()
+                            if loaded_position is not None:
+                                _apply_position_config(loaded_position["config"])
+                            continue
+                        if file_action == "load_pgn":
+                            cancel_pending_cpu_move()
+                            if CpuController.cpu_mode:
+                                CpuController.cpu_mode_toggle()
+                            game_controller = PgnWriterAndLoader.pgn_load(play_edit_switch_button)
+                            for grid in board.Grid.grid_list:
+                                grid.no_highlight()
+                            GridController.update_grid_occupied_detection()
+                            continue
                     # Menu, inanimate buttons at top, and on right side of game board
                     if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] \
                         and (mousepos[0] > board.X_GRID_END or mousepos[1] < initvar.Y_GRID_START \
@@ -902,16 +843,12 @@ async def main():
                             puzzles_modal_open = True
                             pgn_games_modal_open = False
                             help_overlay_open = False
-                            _load_menu_open = False
-                            _save_menu_open = False
                             continue
                         if (SwitchModesController.GAME_MODE == SwitchModesController.EDIT_MODE
                                 and pgn_games_button.rect.collidepoint(mousepos)):
                             pgn_games_modal_open = True
                             puzzles_modal_open = False
                             help_overlay_open = False
-                            _load_menu_open = False
-                            _save_menu_open = False
                             continue
                         if scroll_up_button.rect.collidepoint(mousepos) and menu_buttons.PanelRectangles.scroll_range[0] > 1: # Scroll up
                             if scroll_up_button.activate:
@@ -1125,39 +1062,7 @@ async def main():
                 help_button.draw(lis.SCREEN)
                 flip_board_button.draw(lis.SCREEN)
                 if not initvar.ITCH_MODE:
-                    save_file_placeholder.draw(lis.SCREEN)
-                    if _save_menu_open:
-                        _sm_surf = pygame.Surface((_sm_panel_w, _sm_panel_h), pygame.SRCALPHA)
-                        pygame.draw.rect(_sm_surf, (*_PANEL_FILL, 230), _sm_surf.get_rect(), border_radius=_PANEL_RADIUS)
-                        pygame.draw.rect(_sm_surf, (*_PANEL_BORDER, 210), _sm_surf.get_rect(), 1, border_radius=_PANEL_RADIUS)
-                        lis.SCREEN.blit(_sm_surf, (_sm_panel_x, _sm_panel_y))
-                        for _rect, _img, _enabled in (
-                            (_sm_item1_rect, _sm_pos_img, SwitchModesController.GAME_MODE == SwitchModesController.EDIT_MODE),
-                            (_sm_item2_rect, _sm_pgn_img, SwitchModesController.GAME_MODE == SwitchModesController.PLAY_MODE),
-                        ):
-                            if _enabled and _rect.collidepoint(mousepos):
-                                _sm_hi = pygame.Surface((_rect.width, _rect.height), pygame.SRCALPHA)
-                                pygame.draw.rect(_sm_hi, (255, 255, 255, 28), _sm_hi.get_rect(), border_radius=6)
-                                lis.SCREEN.blit(_sm_hi, _rect.topleft)
-                            if _enabled:
-                                lis.SCREEN.blit(_img, _rect.topleft)
-                            else:
-                                _disabled = _img.copy()
-                                _disabled.set_alpha(95)
-                                lis.SCREEN.blit(_disabled, _rect.topleft)
-                    if SwitchModesController.GAME_MODE != SwitchModesController.PLAY_MODE:
-                        load_file_placeholder.draw(lis.SCREEN)
-                        if _load_menu_open:
-                            _lm_surf = pygame.Surface((_lm_panel_w, _lm_panel_h), pygame.SRCALPHA)
-                            pygame.draw.rect(_lm_surf, (*_PANEL_FILL, 230), _lm_surf.get_rect(), border_radius=_PANEL_RADIUS)
-                            pygame.draw.rect(_lm_surf, (*_PANEL_BORDER, 210), _lm_surf.get_rect(), 1, border_radius=_PANEL_RADIUS)
-                            lis.SCREEN.blit(_lm_surf, (_lm_panel_x, _lm_panel_y))
-                            for _rect, _img in ((_lm_item1_rect, _lm_pos_img), (_lm_item2_rect, _lm_pgn_img)):
-                                if _rect.collidepoint(mousepos):
-                                    _lm_hi = pygame.Surface((_rect.width, _rect.height), pygame.SRCALPHA)
-                                    pygame.draw.rect(_lm_hi, (255, 255, 255, 28), _lm_hi.get_rect(), border_radius=6)
-                                    lis.SCREEN.blit(_lm_hi, _rect.topleft)
-                                lis.SCREEN.blit(_img, _rect.topleft)
+                    file_actions_panel.draw(lis.SCREEN, mousepos, SwitchModesController.GAME_MODE)
                 game_setup_state = (
                     "setup" if SwitchModesController.GAME_MODE == SwitchModesController.EDIT_MODE else "playing"
                 )
@@ -1250,7 +1155,7 @@ async def main():
                     elif flip_board_button.rect.collidepoint(mousepos):
                         _draw_tooltip("Flip Board", mousepos)
                     elif game_properties_button and game_properties_button.rect.collidepoint(mousepos):
-                        _draw_tooltip("Game Settings", mousepos)
+                        _draw_tooltip("Game Info", mousepos)
                 _draw_help_hint()
                 if help_overlay_open:
                     help_panel_rect = _draw_help_overlay()

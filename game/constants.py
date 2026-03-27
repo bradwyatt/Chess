@@ -36,27 +36,24 @@ BLACK_MOVE_X_Y = (950, 300)
 CHECK_CHECKMATE_X_Y = (950, 270)
 
 # Left sidebar layout:
-#   Settings icon first, then Load/Save side-by-side to reclaim vertical space.
-#   That recovered height lets Game Setup and Library sit higher with more room.
-#
-# Game Setup section — matchup selector first, starting-turn selector second,
-# Start Game below.
+#   Settings icon first, then the main setup flow, then Library, with
+#   file actions grouped at the bottom of the sidebar.
 GAME_SETUP_SECTION_X = 6
-GAME_SETUP_SECTION_Y = 227
+GAME_SETUP_SECTION_Y = 121
 GAME_SETUP_SECTION_W = 188
 GAME_SETUP_SECTION_H = 484
-GAME_MODE_SELECTOR_TOPLEFT = (20, 261)       # centered within the 188px section
-TURN_SELECTOR_TOPLEFT = (20, 509)
-PLAY_EDIT_SWITCH_BUTTON_TOPLEFT = (20, 661)  # centered within the 188px section
+GAME_MODE_SELECTOR_TOPLEFT = (20, 155)       # tighter icon-to-panel spacing; whole stack lifted evenly
+TURN_SELECTOR_TOPLEFT = (20, 395)
+PLAY_EDIT_SWITCH_BUTTON_TOPLEFT = (20, 549)
 FEATURES_SECTION_X = 6
-FEATURES_SECTION_Y = 733
+FEATURES_SECTION_Y = 627
 FEATURES_SECTION_W = 188
 FEATURES_SECTION_H = 172
-PUZZLES_BUTTON_TOPLEFT = (20, 775)
-PGN_GAMES_BUTTON_TOPLEFT = (20, 837)
+PUZZLES_BUTTON_TOPLEFT = (20, 669)
+PGN_GAMES_BUTTON_TOPLEFT = (20, 731)
 HELP_BUTTON_TOPLEFT = (740, 21)              # matches Flip button size and spacing
 FLIP_BOARD_BUTTON_TOPLEFT = (880, 21)
-GAME_PROPERTIES_BUTTON_TOPLEFT = (10, 29)
+GAME_PROPERTIES_BUTTON_TOPLEFT = (10, 21)
 INFO_BUTTON_TOPLEFT = (SCREEN_WIDTH-360, 10)
 POS_SAVE_FILE_BUTTON_TOPLEFT = (10, 215)
 PGN_SAVE_FILE_BUTTON_TOPLEFT = (10, 265)

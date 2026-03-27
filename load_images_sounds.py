@@ -199,17 +199,21 @@ _sz = 80
 _s = pygame.Surface((_sz, _sz), pygame.SRCALPHA)
 pygame.draw.circle(_s, (40, 65, 110), (_sz // 2, _sz // 2), _sz // 2 - 1)
 pygame.draw.circle(_s, (80, 110, 160), (_sz // 2, _sz // 2), _sz // 2 - 1, 2)
-_cx, _cy = _sz // 2, _sz // 2
 _gc = (210, 225, 255)
-_n, _ro, _ri, _rh, _tw = 8, 26, 19, 8, math.radians(8)
-_pts = []
-for _i in range(_n):
-    _ba = math.radians(_i * 360 / _n)
-    for _a, _r in [(_ba - _tw, _ri), (_ba - _tw, _ro), (_ba + _tw, _ro), (_ba + _tw, _ri)]:
-        _pts.append((_cx + math.cos(_a) * _r, _cy + math.sin(_a) * _r))
-pygame.draw.polygon(_s, _gc, _pts)
-pygame.draw.circle(_s, (40, 65, 110), (_cx, _cy), _rh)
-pygame.draw.circle(_s, _gc, (_cx, _cy), _rh, 2)
+_paper = pygame.Rect(24, 17, 32, 42)
+pygame.draw.rect(_s, _gc, _paper, border_radius=4)
+pygame.draw.rect(_s, (40, 65, 110), _paper, 2, border_radius=4)
+
+# Folded top-right corner so the glyph reads as a document rather than a plain card.
+_fold = [(47, 17), (56, 17), (56, 26)]
+pygame.draw.polygon(_s, (165, 190, 235), _fold)
+pygame.draw.line(_s, (40, 65, 110), (47, 17), (56, 26), 2)
+pygame.draw.line(_s, (40, 65, 110), (47, 17), (56, 17), 2)
+pygame.draw.line(_s, (40, 65, 110), (56, 17), (56, 26), 2)
+
+# A few interior rows suggest readable game metadata.
+for _y, _w in [(30, 18), (37, 22), (44, 20)]:
+    pygame.draw.line(_s, (88, 122, 176), (29, _y), (29 + _w, _y), 3)
 IMAGES["SPR_GAME_PROPERTIES_BUTTON"] = _s
 load_image("sprites/beginning_move_button.png", "SPR_BEGINNING_MOVE_BUTTON", True, True)
 load_image("sprites/undoMove.png", "SPR_UNDO_MOVE_BUTTON", True, True)

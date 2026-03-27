@@ -264,7 +264,7 @@ class GameProperties():
             "TimeControl",
         ]
         window = tk.Tk()
-        window.title("Game Properties")
+        window.title("Game Info")
         window.resizable(False, False)
         window.lift()
         window.attributes("-topmost", True)

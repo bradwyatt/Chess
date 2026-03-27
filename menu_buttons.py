@@ -133,30 +133,16 @@ class PlayEditSwitchButton:
         if is_start:
             bg     = (64, 132, 228, 244)
             border = (170, 214, 255, 255)
-            glow   = (78, 148, 245, 42)
             if is_hovered:
                 bg     = (78, 146, 240, 250)
                 border = (194, 226, 255, 255)
-                glow   = (104, 168, 255, 60)
         else:
             # Same component styling, with a slightly darker tone while active.
             bg     = (16,  34,  72, 168)
             border = (64,  90, 132, 190)
-            glow   = (0, 0, 0, 0)
             if is_hovered:
                 bg     = (24,  50,  96, 188)
                 border = (82,  110, 158, 214)
-
-        if glow[-1] > 0:
-            glow_rect = self.rect.inflate(10, 12)
-            glow_surf = pygame.Surface(glow_rect.size, pygame.SRCALPHA)
-            pygame.draw.rect(glow_surf, glow, glow_surf.get_rect(), border_radius=14)
-            screen.blit(glow_surf, glow_rect.topleft)
-
-        shadow_rect = self.rect.move(0, 4)
-        shadow = pygame.Surface((self.BTN_W, self.BTN_H), pygame.SRCALPHA)
-        pygame.draw.rect(shadow, (0, 0, 0, 36 if is_start else 24), shadow.get_rect(), border_radius=11)
-        screen.blit(shadow, shadow_rect.topleft)
 
         surf = pygame.Surface((self.BTN_W, self.BTN_H), pygame.SRCALPHA)
         pygame.draw.rect(surf, bg,     surf.get_rect(), border_radius=10)
@@ -221,6 +207,90 @@ class SidebarSectionPanel:
 
     def draw(self, screen):
         _draw_sidebar_section(screen, self.rect, self._label)
+
+
+class FileActionsPanel:
+    PANEL_RECT = pygame.Rect(6, 813, 188, 126)
+    BUTTON_W = 76
+    BUTTON_H = 36
+    GAP_X = 8
+    GAP_Y = 6
+
+    _BUTTONS = (
+        ("save_position", "Save", "Position"),
+        ("save_pgn", "Save", "PGN"),
+        ("load_position", "Load", "Position"),
+        ("load_pgn", "Load", "PGN"),
+    )
+
+    def __init__(self):
+        label_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 11, bold=True)
+        self._section_label = label_font.render("FILE ACTIONS", True, (165, 195, 230))
+        line1_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 11, bold=True)
+        line2_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 10, bold=True)
+        self._buttons = []
+        x0 = self.PANEL_RECT.x + 14
+        y0 = self.PANEL_RECT.y + 39
+        for index, (action, line1, line2) in enumerate(self._BUTTONS):
+            row = index // 2
+            col = index % 2
+            rect = pygame.Rect(
+                x0 + col * (self.BUTTON_W + self.GAP_X),
+                y0 + row * (self.BUTTON_H + self.GAP_Y),
+                self.BUTTON_W,
+                self.BUTTON_H,
+            )
+            self._buttons.append(
+                {
+                    "action": action,
+                    "rect": rect,
+                    "line1": line1_font.render(line1, True, (242, 247, 255)),
+                    "line2": line2_font.render(line2, True, (214, 228, 246)),
+                }
+            )
+
+    @staticmethod
+    def _enabled_actions(game_mode):
+        if game_mode == 0:
+            return {"save_position", "load_position", "load_pgn"}
+        return {"save_pgn"}
+
+    def hit(self, mousepos, game_mode):
+        enabled_actions = self._enabled_actions(game_mode)
+        for button in self._buttons:
+            if button["rect"].collidepoint(mousepos) and button["action"] in enabled_actions:
+                return button["action"]
+        return None
+
+    def draw(self, screen, mousepos, game_mode):
+        _draw_sidebar_section(screen, self.PANEL_RECT, self._section_label)
+        enabled_actions = self._enabled_actions(game_mode)
+        for button in self._buttons:
+            rect = button["rect"]
+            enabled = button["action"] in enabled_actions
+            is_hovered = enabled and rect.collidepoint(mousepos)
+            is_pressed = is_hovered and pygame.mouse.get_pressed()[0]
+
+            bg = (16, 34, 72, 168) if enabled else (10, 18, 38, 120)
+            border = (64, 90, 132, 190) if enabled else (46, 58, 84, 130)
+            line1 = button["line1"].copy()
+            line2 = button["line2"].copy()
+            if is_hovered:
+                bg = (24, 50, 96, 188)
+                border = (82, 110, 158, 214)
+            if not enabled:
+                line1.set_alpha(145)
+                line2.set_alpha(120)
+
+            surf = pygame.Surface(rect.size, pygame.SRCALPHA)
+            pygame.draw.rect(surf, bg, surf.get_rect(), border_radius=10)
+            pygame.draw.rect(surf, border, surf.get_rect(), 1, border_radius=10)
+
+            total_h = line1.get_height() + 2 + line2.get_height()
+            y0 = (rect.height - total_h) // 2
+            surf.blit(line1, ((rect.width - line1.get_width()) // 2, y0))
+            surf.blit(line2, ((rect.width - line2.get_width()) // 2, y0 + line1.get_height() + 2))
+            _draw_scaled_surface(screen, surf, rect, 0.98 if is_pressed else 1.0)
 
 
 class RadioOption:
