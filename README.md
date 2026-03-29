@@ -1,153 +1,169 @@
 # Chess
-Chess GUI is a fully interactive chess game built entirely in Python. It offers a rich set of features allowing players to experience the classic game of chess without the need for external chess libraries. Whether you're looking to play against the computer, challenge a friend, or simply explore chess strategies, Chess GUI provides an accessible and comprehensive platform for all your chess needs.
 
-## Game Description
-Chess GUI brings the traditional chess experience to your desktop. The game adheres to the standard rules of chess, including piece movements, checks, and checkmate scenarios, offering an authentic chess-playing experience. With its intuitive interface, players can easily interact with the game, making it suitable for chess enthusiasts of all levels.
+Desktop chess GUI written in Python with `pygame`. The project implements gameplay, move validation, PGN import/export, position editing, replay controls, and a small library of built-in puzzles and variants without depending on an external chess engine library.
 
-### Key Features:
-- **Pure Python Implementation**: Developed from scratch in Python, ensuring a lightweight and standalone chess experience without the reliance on external chess libraries.
-- **Standard Chess Rules**: Supports all traditional chess rules, including piece-specific movements, checks, checkmates, and stalemates.
-- **Versatile Play Options**: Choose from three game modes via a sidebar selector — *vs CPU (White)*, *vs CPU (Black)*, or *Human vs Human*. The board automatically flips so the human always plays from the bottom, and player badges display "CPU" for the computer's side.
-- **Undo Move**: Revert the last move to correct mistakes or reconsider strategies.
-- **PGN Support**: Save and load game positions and manage Portable Game Notation (PGN) files, making it easy to review games and learn from past plays.
-- **Game Properties Management**: Track player names, ratings, and game results, enhancing the competitive aspect of chess.
-- **Board Editor**: Set up any custom position by dragging pieces from the sidebar onto the board — useful for studying endgames or specific scenarios.
-- **Game Modes Library**: Open the `Game Modes` sidebar menu in setup mode to browse separate `Puzzles` and `Variants` sections. The puzzles section includes `Mate in 1`, `Mate in 2`, `Mate in 3`, and `Mate in 4`, while the variants section includes `Pawns Only`, `Random Setup`, `Chaos Setup`, `Peasant's Revolt`, and `Charge of the Light Brigade` and can be collapsed as the library grows. The mate setups allow free play from curated positions, with `Mate in 1`, `Mate in 2`, and `Mate in 3` loading black-to-move checkmate puzzles and `Mate in 4` loading a white-to-move checkmate puzzle. `Pawns Only` leaves just kings and pawns on their standard files, `Random Setup` generates a Chess960-style back rank while keeping pawns in place, `Chaos Setup` randomizes each side's back rank while keeping standard pawn lines and disabling castling for the variant, `Peasant's Revolt` sets up an asymmetric battle with White's king and eight pawns against Black's king, three knights, and one pawn, and `Charge of the Light Brigade` starts White with a king, three queens, and a full pawn line against Black's king, seven knights, and a full pawn line. When one of these library modes is active, the selected mode title is shown beneath the main board panel until you change the setup in edit mode, clear the board, or load another position/PGN.
-- **Board Customization**:
-  - Flip Board: Reverse the board's perspective to suit player preference.
-  - Reset Board: Easily reset the game to its initial state.
-  - Drag-and-Drop Movement: Intuitive piece movement by dragging and dropping on the board.
+## Highlights
+
+- Play in `Human vs Human`, `Play as White vs CPU`, or `Play as Black vs CPU`.
+- Use edit mode to drag pieces onto the board and create custom study positions.
+- Save and load board positions as JSON.
+- Save and load full games as PGN.
+- Browse built-in game modes, including mate puzzles and chess variants.
+- Step through replayed games with move navigation controls.
+- Undo moves during live play.
+- Flip the board and automatically orient it so the human side stays on the bottom in CPU games.
+
+## Built-in Game Modes
+
+The `Game Modes` sidebar groups presets into `Puzzles` and `Variants`.
+
+### Puzzles
+
+- `Mate in 1`
+- `Mate in 2`
+- `Mate in 3`
+- `Mate in 4`
+
+The bundled mate positions load curated study setups from [`chess_positions/`](./chess_positions).
+
+### Variants
+
+- `Pawns Only`: Standard pawn lines with only the two kings left on the back rank (`e1` and `e8`).
+- `Random Setup`: A Chess960-style start where each side keeps its full pawn line, but the back-rank pieces are reshuffled into a legal randomized layout.
+- `Chaos Setup`: Each side keeps its pawns on the usual second and seventh ranks, but the back rank is filled from a randomized mix of queens, rooks, bishops, knights, and one king. Castling is disabled in this mode.
+- `Peasant's Revolt`: White starts with a king and eight pawns against Black's king, three knights, and a single pawn.
+- `Charge of the Light Brigade`: White starts with a king, eight pawns, and three queens against Black's king, eight pawns, and seven knights.
+
+When a library mode is active, its title is shown beneath the board until you change the setup, clear the board, or load another position or PGN.
 
 ## Demo
-<p align="center">
-<img src="https://github.com/bradwyatt/Chess/blob/master/Docs/demo.gif?raw=true" width="500" height="400"></img>
-</p>
 
-## Technical Details
+![Desktop demo](docs/demo.gif)
 
-- **Programming Language**: Python 3.11+
-- **Key Dependencies**: pygame, PySimpleGUI, pygbag (web export), numpy, pandas
+## Requirements
 
-### File Structure
+- Python `3.11+`
+- A local environment with the packages from [`requirements.txt`](./requirements.txt)
 
-```
-Chess/
-├── main.py                   # Entry point — re-exports all submodule names; async game loop
-├── board.py                  # Grid squares, coordinate system
-├── info_screen.py            # Info/about screen UI
-├── initvar.py                # Constants (re-exports from game/constants.py + game/ai_tables.py)
-├── load_images_sounds.py     # Asset loading (sprites, sounds)
-├── menu_buttons.py           # UI button sprites
-├── placed_objects.py         # Piece sprites in edit mode
-├── play_objects.py           # Piece sprites in play mode (with move logic)
-├── replayed_objects.py       # Piece sprites in replay mode
-├── start_objects.py          # Drag-tray pieces (edit mode sidebar)
-├── chess_positions/          # Built-in position / game-mode JSON files
-├── test_smoke.py             # Headless smoke test suite (60 checks)
-└── game/
-    ├── constants.py          # Numeric/color constants
-    ├── ai_tables.py          # CPU positional scoring tables
-    ├── controllers/
-    │   ├── move_tracker.py       # MoveTracker — move history & undo data
-    │   ├── text_controller.py    # TextController — board coordinate labels, check text
-    │   ├── cpu_controller.py     # CpuController — minimax-style CPU move selection
-    │   ├── panel_controller.py   # PanelController — moves-pane rectangles & scrolling
-    │   ├── switch_modes.py       # SwitchModesController (edit↔play↔replay) + GridController
-    │   ├── grid_controller.py    # Re-export of GridController from switch_modes
-    │   └── game_controller.py    # EditModeController, GameController, MoveController
-    └── io/
-        ├── positions.py          # pos_load/save_file, GameProperties, pos_lists_to_coord
-        └── pgn.py                # PgnWriterAndLoader — PGN import/export
+Current Python dependencies:
+
+- `pygame`
+- `PySimpleGUI`
+- `numpy`
+- `pandas`
+- `pygbag`
+
+## Getting Started
+
+Clone the repo and install the dependencies:
+
+```bash
+git clone https://github.com/bradwyatt/Chess.git
+cd Chess
+python3 -m pip install -r requirements.txt
 ```
 
-### Architecture Diagram
+Run the game:
+
+```bash
+python3 main.py
+```
+
+If your machine exposes `python` instead of `python3`, that works too, but `python3` is the safer command on macOS and Linux.
+
+## How To Use
 
 ```mermaid
-flowchart TD
+stateDiagram-v2
+    direction LR
 
-    %% Entry Point
-    A["main.py / main()"] --> B[Game Loop]
+    [*] --> Edit
 
-    %% UI Layer
-    B --> UI[UI Layer]
-    UI --> Buttons[Menu Buttons]
-    UI --> Pygame[Pygame Rendering]
+    state "Setup / Edit Mode" as Edit
+    note right of Edit
+      Drag pieces
+      Save Positions (JSON)
+      Load Positions (JSON)
+      Load PGN
+      Set Game Mode (Puzzles / Variants)
+      Flip / Reset / Clear
+    end note
 
-    %% Controllers Layer
-    B --> Controllers[Controllers Layer]
-    Controllers --> GameController["GameController / MoveController"]
-    Controllers --> CpuController[CpuController]
-    Controllers --> PanelController[PanelController]
-    Controllers --> TextController[TextController]
-    Controllers --> MoveTracker[MoveTracker]
+    state "Play Mode" as Play
+    note right of Play
+      Make move
+      Undo move
+      Save PGN
+    end note
 
-    %% Game Objects
-    Controllers --> Objects[Game Objects]
-    Objects --> Board[Board]
-    Objects --> StartObjects[start_objects]
-    Objects --> PlacedObjects[placed_objects]
-    Objects --> PlayObjects[play_objects]
-    Objects --> ReplayObjects[replayed_objects]
+    state "Replay Mode" as Replay
+    note right of Replay
+      Prev move / Next move
+    end note
 
-    %% IO Layer
-    Controllers --> IO[IO Layer]
-    IO --> Positions["Positions (load/save)"]
-    IO --> PGN[PGN Reader/Writer]
 
-    %% Assets
-    B --> Assets[Assets]
-    Assets --> ImagesSounds[load_images_sounds]
+    Edit --> Play: Start Game
+    Play --> Edit: Stop Game
+    Replay --> Edit: Stop Game
 
-    %% Config
-    B --> Config["initvar (Config / Constants)"]
-
-    %% Flow relationships
-    Buttons --> Controllers
-    Controllers --> Board
-    Board --> Controllers
+    Play --> Replay: Jump to earlier move (Beginning / Prev / move-list click)
+    Replay --> Play: Return to current position (Last / Next)
 ```
 
-**Key design points:**
-- `MoveTracker` and `TextController` are leaf nodes — they have no controller dependencies.
-- `SwitchModesController` and `GridController` live in the same file (`switch_modes.py`) to avoid a circular import; each references the other directly.
-- `main.py` re-exports every controller name so `test_smoke.py` and the game loop can access them as `main.MoveController`, `main.GameController`, etc. without knowing the submodule paths.
+### Setup Mode
 
+Setup mode is where you prepare a board before starting play.
 
+- Drag pieces from the sidebar tray onto the board.
+- Set a game mode from `Game Modes` (`Puzzles` / `Variants`).
+- Choose the game mode selector: white vs CPU, black vs CPU, or human vs human.
+- Choose the starting side to move when saving a custom position.
+- Use `Flip Board`, `Reset Board`, or `Clear Board` to adjust the setup.
+- Save positions as JSON from the file actions panel.
+- Load positions JSON from the file actions panel.
+- Load a PGN file from the file actions panel.
 
-## Installation and Running the Game
+Press `Start Game` to switch from setup mode into play mode.
 
-### Running Locally on Your PC
+### Play Mode
 
-If you want to run the Chess GUI on your local machine, follow these steps:
+- Drag and drop pieces to make moves.
+- Use `Undo Move` to revert the last move.
+- Save the current game as PGN.
+- Use replay navigation buttons to move through recorded games.
 
-#### Prerequisites
-Ensure you have Python 3.11 or later installed. You can download Python from [python.org](https://www.python.org/downloads/).
+### Sample PGNs
 
-#### Clone the Repository
-Clone the Chess repository from GitHub to your local machine:
-```git clone https://github.com/bradwyatt/Chess.git```
+Bundled sample games live in [`pgn_sample_games/`](./pgn_sample_games).
 
-#### Install Dependencies
-Navigate to the cloned repository directory and install the required dependencies:
+The current repository includes:
+
+- `Carlsen vs Kasparov (2004)`
+- `De los Santos vs Polgar (1990)`
+- `Deep Blue vs Garry Kasparov (1996)`
+
+## Testing
+
+Run the headless smoke suite:
+
+```bash
+python3 test_smoke.py
 ```
-cd Chess
-pip install -r requirements.txt
-```
-This will install all the necessary Python packages listed in `requirements.txt`.
 
-#### Run the Game
-Finally, run the game using Python:
-```
-python main.py
+Run the visual smoke test:
+
+```bash
+python3 visual_test.py
 ```
 
-Now you're all set to enjoy the Chess GUI game on your PC!
+Notes:
+
+- `test_smoke.py` sets SDL dummy drivers so it can run without opening a window.
+- Both test scripts still require the project dependencies to be installed first.
 
 ## Position JSON Format
 
-Custom saved positions and built-in game modes use JSON files. The project stores the bundled examples in [`chess_positions/`](./chess_positions).
-
-The current schema separates game metadata from board state:
+Saved positions and bundled game-mode files use JSON with separate metadata and board state:
 
 ```json
 {
@@ -171,39 +187,124 @@ The current schema separates game metadata from board state:
 }
 ```
 
-When one of these JSON files is loaded, the game applies:
-- `game_mode`: `"Play as White vs CPU"`, `"Play as Black vs CPU"`, or `"Human vs Human"`
-- `board_orientation`: `"White on Bottom"` or `"Black on Bottom"`
-- `starting_turn`: `"white"` or `"black"`
+Metadata fields:
 
-Older flat position JSON files are still accepted when loading, but newly saved files use the nested `pieces` format.
+- `game_mode`: `Play as White vs CPU`, `Play as Black vs CPU`, or `Human vs Human`
+- `board_orientation`: `White on Bottom` or `Black on Bottom`
+- `starting_turn`: `white` or `black`
 
+Older flat JSON payloads are still accepted when loading, but newly saved files use the nested `pieces` schema.
 
-## Collaboration and Contributions
+## Browser / Itch Notes
 
-I warmly welcome contributions to the Chess GUI and am open to collaboration. Whether you have suggestions for improvements, bug fixes, or new features, please feel free to open an issue or submit a pull request on GitHub.
+The codebase includes browser-oriented paths for `pygbag` / `emscripten`, but desktop is still the primary experience.
 
-Additionally, I'm eager to collaborate with other developers and enthusiasts. If you're interested in working together to expand features, optimize code, brainstorm new game ideas, or even embark on new projects, I'd be delighted to hear from you. 
+In browser mode:
 
-For contributions to the Chess GUI:
-- Open an issue or submit a pull request on GitHub repository: [Chess](https://github.com/bradwyatt/Chess)
+- Native file dialogs are unavailable.
+- Saving and loading custom positions is disabled.
+- Saving and loading PGN is disabled.
+- Some UI messaging recommends landscape mode for itch.io.
 
-For collaboration and more detailed discussions:
-- Contact me at **GitHub**: [bradwyatt](https://github.com/bradwyatt)
+## Project Layout
 
+```text
+Chess/
+├── main.py
+├── board.py
+├── load_images_sounds.py
+├── menu_buttons.py
+├── placed_objects.py
+├── play_objects.py
+├── replayed_objects.py
+├── start_objects.py
+├── test_smoke.py
+├── visual_test.py
+├── chess_positions/
+├── pgn_sample_games/
+├── sprites/
+└── game/
+    ├── constants.py
+    ├── ai_tables.py
+    ├── controllers/
+    │   ├── cpu_controller.py
+    │   ├── game_controller.py
+    │   ├── grid_controller.py
+    │   ├── move_tracker.py
+    │   ├── panel_controller.py
+    │   ├── switch_modes.py
+    │   └── text_controller.py
+    └── io/
+        ├── pgn.py
+        └── positions.py
+```
 
----
+## Architecture Notes
 
-## 2026 Refactoring
+```mermaid
+flowchart LR
+    classDef entry fill:#e9f7ef,stroke:#1f6f43,color:#123524,stroke-width:2px;
+    classDef core fill:#eaf2ff,stroke:#2f5fa7,color:#1a3260;
+    classDef io fill:#fff4e6,stroke:#b86e00,color:#603200;
+    classDef ui fill:#f4ecff,stroke:#6a3fa0,color:#3f2164;
 
-The codebase I originally wrote had grown into a single 2,200-line `main.py` — functional, but hard to extend. In early 2026, I used [Claude](https://claude.ai) as a refactoring assistant to work through a structured cleanup across 8 phases, with a strict constraint of no behavior changes throughout.
+    subgraph App["Application Shell"]
+        Main["main.py (App Entry)"]
+        Assets["Assets (Sprites, Constants, Loaders)"]
+    end
 
-### What changed
+    subgraph Runtime["Runtime / Game Logic"]
+        Controllers["Controllers Layer"]
+        GameState["Game State & Move Logic"]
+        CPU["CPU Controller"]
+    end
 
-| Area | Before | After |
-|------|--------|-------|
-| Structure | Monolithic `main.py` (~2,200 lines) | Focused modules under `game/controllers/` and `game/io/` |
-| Piece lookups | O(n) grid scan on every move | O(1) dict-based lookup |
-| Color branching | Duplicated if/else per controller | Unified per-color dispatch |
-| Asset loading | 36 explicit `load_image` calls | Loop-driven from a single mapping |
-| Test coverage | None | 60-check headless smoke suite (`test_smoke.py`) |
+    subgraph Interfaces["Presentation + Persistence"]
+        UI["UI Layer"]
+        IO["I/O (PGN + JSON)"]
+    end
+
+    Main -->|initializes| UI
+    Main -->|wires| Controllers
+    Main -->|loads| Assets
+    Main -->|triggers file actions| IO
+
+    UI -->|user input| Controllers
+
+    Controllers -->|updates| GameState
+    Controllers -->|requests move| CPU
+    Controllers -->|save / load| IO
+
+    CPU -->|evaluates board| GameState
+    IO -->|import / export| GameState
+    IO -->|loads into runtime state| Controllers
+
+    GameState -->|render state| UI
+    IO -->|replay data| UI
+
+    class Main entry;
+    class Controllers,GameState,CPU core;
+    class IO io;
+    class UI ui;
+```
+
+- [`main.py`](./main.py) is the application entry point and re-exports controller classes for backward compatibility.
+- [`game/controllers/game_controller.py`](./game/controllers/game_controller.py) contains the main gameplay and move execution flow.
+- [`game/controllers/cpu_controller.py`](./game/controllers/cpu_controller.py) handles CPU move selection.
+- [`game/controllers/switch_modes.py`](./game/controllers/switch_modes.py) holds both `SwitchModesController` and `GridController` to avoid a circular import.
+- [`game/io/positions.py`](./game/io/positions.py) manages JSON position serialization and loading.
+- [`game/io/pgn.py`](./game/io/pgn.py) manages PGN import and export.
+
+## Refactoring Note
+
+The original project began as a much larger monolithic `main.py`. The 2026 refactor split gameplay, UI, and I/O responsibilities into focused modules under [`game/controllers/`](./game/controllers) and [`game/io/`](./game/io) without changing the core user-facing behavior.
+
+## Contributing
+
+Issues and pull requests are welcome at the GitHub repository:
+
+- https://github.com/bradwyatt/Chess
+
+If you want to collaborate directly, the project owner is also on GitHub:
+
+- https://github.com/bradwyatt
