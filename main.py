@@ -13,6 +13,7 @@ import logging.handlers
 import ast
 import json
 import pygame
+import pygame.freetype
 import initvar
 
 if sys.platform != "emscripten":
@@ -70,7 +71,7 @@ from game.controllers.game_controller import EditModeController, GameController,
 from game.io.positions import (
     native_file_dialogs_available, itch_mode_blocked,
     pos_load_file, load_position_from_json, get_dict_rect_positions, pos_save_file, pos_lists_to_coord,
-    GameProperties, POSITION_METADATA_DEFAULTS,
+    GameProperties, POSITION_METADATA_DEFAULTS, load_position_from_dict,
 )
 from game.io.pgn import PgnWriterAndLoader
 
@@ -184,7 +185,7 @@ async def main():
             pending_start_whoseturn = _normalize_starting_turn(starting_turn)
 
         def reset_to_default_setup():
-            nonlocal pending_start_whoseturn
+            nonlocal pending_start_whoseturn, active_game_mode_key
             if GridController.flipped:
                 GridController.flip_grids()
             CpuController.cpu_mode = False
@@ -204,6 +205,99 @@ async def main():
             start_objects.Start.restart_start_positions()
             pos_load_file(reset=True)
             pending_start_whoseturn = "white"
+            TextController.remove_check_checkmate_text()
+            active_game_mode_key = None
+
+        def _build_current_orientation_config(starting_turn="white"):
+            return {
+                "game_mode": "Human vs Human",
+                "board_orientation": "Black on Bottom" if GridController.flipped else "White on Bottom",
+                "starting_turn": _normalize_starting_turn(starting_turn),
+            }
+
+        def _reset_board_for_game_mode_load():
+            cancel_pending_cpu_move()
+            start_objects.Dragging.dragging_all_false()
+            start_objects.Start.restart_start_positions()
+            TextController.remove_check_checkmate_text()
+            GameProperties.Result = ""
+            if SwitchModesController.GAME_MODE == SwitchModesController.PLAY_MODE:
+                stop_game()
+
+        def _generate_random_setup_position():
+            back_rank = [None] * 8
+            even_files = [0, 2, 4, 6]
+            odd_files = [1, 3, 5, 7]
+
+            light_bishop_index = random.choice(even_files)
+            dark_bishop_index = random.choice(odd_files)
+            back_rank[light_bishop_index] = "bishop"
+            back_rank[dark_bishop_index] = "bishop"
+
+            remaining = [index for index, piece in enumerate(back_rank) if piece is None]
+            queen_index = random.choice(remaining)
+            back_rank[queen_index] = "queen"
+
+            remaining = [index for index, piece in enumerate(back_rank) if piece is None]
+            knight_indices = random.sample(remaining, 2)
+            for knight_index in knight_indices:
+                back_rank[knight_index] = "knight"
+
+            remaining = sorted(index for index, piece in enumerate(back_rank) if piece is None)
+            back_rank[remaining[0]] = "rook"
+            back_rank[remaining[1]] = "king"
+            back_rank[remaining[2]] = "rook"
+
+            files = "abcdefgh"
+
+            def _coords_for(piece_name, rank):
+                return [f"{files[index]}{rank}" for index, piece in enumerate(back_rank) if piece == piece_name]
+
+            return {
+                "white_pawn": [f"{file_name}2" for file_name in files],
+                "white_bishop": _coords_for("bishop", 1),
+                "white_knight": _coords_for("knight", 1),
+                "white_rook": _coords_for("rook", 1),
+                "white_queen": _coords_for("queen", 1),
+                "white_king": _coords_for("king", 1),
+                "black_pawn": [f"{file_name}7" for file_name in files],
+                "black_bishop": _coords_for("bishop", 8),
+                "black_knight": _coords_for("knight", 8),
+                "black_rook": _coords_for("rook", 8),
+                "black_queen": _coords_for("queen", 8),
+                "black_king": _coords_for("king", 8),
+            }
+
+        def loadPawnsOnly():
+            nonlocal game_modes_modal_open, restore_default_setup_on_stop, pending_start_whoseturn, active_game_mode_key
+            _reset_board_for_game_mode_load()
+            load_position_from_dict({
+                "white_pawn": [f"{file_name}2" for file_name in "abcdefgh"],
+                "white_bishop": [],
+                "white_knight": [],
+                "white_rook": [],
+                "white_queen": [],
+                "white_king": ["e1"],
+                "black_pawn": [f"{file_name}7" for file_name in "abcdefgh"],
+                "black_bishop": [],
+                "black_knight": [],
+                "black_rook": [],
+                "black_queen": [],
+                "black_king": ["e8"],
+            })
+            _apply_position_config(_build_current_orientation_config("white"))
+            game_modes_modal_open = False
+            restore_default_setup_on_stop = False
+            active_game_mode_key = "pawns_only"
+
+        def loadRandomSetup():
+            nonlocal game_modes_modal_open, restore_default_setup_on_stop, pending_start_whoseturn, active_game_mode_key
+            _reset_board_for_game_mode_load()
+            load_position_from_dict(_generate_random_setup_position())
+            _apply_position_config(_build_current_orientation_config("white"))
+            game_modes_modal_open = False
+            restore_default_setup_on_stop = False
+            active_game_mode_key = "random_setup"
 
         def stop_game():
             nonlocal game_controller, restore_default_setup_on_stop
@@ -225,14 +319,14 @@ async def main():
             ),
             "LIBRARY",
         )
-        puzzles_button = menu_buttons.SidebarActionButton(initvar.PUZZLES_BUTTON_TOPLEFT, "Puzzles")
+        game_modes_button = menu_buttons.SidebarActionButton(initvar.PUZZLES_BUTTON_TOPLEFT, "Game Modes")
         pgn_games_button = menu_buttons.SidebarActionButton(initvar.PGN_GAMES_BUTTON_TOPLEFT, "PGN Games")
         help_button = menu_buttons.HelpButton(initvar.HELP_BUTTON_TOPLEFT)
         flip_board_button = menu_buttons.FlipBoardButton(initvar.FLIP_BOARD_BUTTON_TOPLEFT)
         game_mode_selector = menu_buttons.GameModeSelector(initvar.GAME_MODE_SELECTOR_TOPLEFT)
         starting_turn_selector = menu_buttons.StartingTurnSelector(initvar.TURN_SELECTOR_TOPLEFT)
         help_overlay_open = False
-        puzzles_modal_open = False
+        game_modes_modal_open = False
         pgn_games_modal_open = False
         save_position_modal_open = False
         restore_default_setup_on_stop = False
@@ -243,13 +337,26 @@ async def main():
         help_panel_rect = pygame.Rect(help_button.rect.right - help_panel_width, help_button.rect.bottom + 14, help_panel_width, 320)
         modal_panel_rect = pygame.Rect(0, 0, 0, 0)
         modal_close_rect = pygame.Rect(0, 0, 0, 0)
-        puzzle_button_rects = {}
+        game_mode_button_rects = {}
         save_turn_button_rects = {}
-        puzzle_options = [
-            ("puzzle1", "Puzzle 1 - White to Checkmate", "chess_positions/puzzle1_whitetocheckmate.json", "white"),
-            ("puzzle2", "Puzzle 2 - White to Checkmate", "chess_positions/puzzle2_whitetocheckmate.json", "white"),
-            ("puzzle3", "Puzzle 3 - White to Checkmate", "chess_positions/puzzle3_whitetocheckmate.json", "white"),
+        game_mode_options = [
+            ("mate_in_1", "🧩", "Mate in 1", "Puzzle", "Find the forced checkmate in one move.", "chess_positions/puzzle1_whitetocheckmate.json", "white"),
+            ("mate_in_2", "🧩", "Mate in 2", "Puzzle", "Play through a position with a forced mate in two.", "chess_positions/puzzle2_whitetocheckmate.json", "white"),
+            ("pawns_only", "♟️", "Pawns Only", "Variant", "Strip the board down to kings and pawns on their standard files.", None, "white"),
+            ("random_setup", "🎲", "Random Setup", "Variant", "Generate a fresh Chess960-style back rank while keeping pawns in place.", None, "white"),
         ]
+        active_game_mode_key = None
+        emoji_font = None
+        for candidate_font_path in (
+            "/System/Library/Fonts/Apple Color Emoji.ttc",
+            "/System/Library/Fonts/Supplemental/Arial Unicode.ttf",
+        ):
+            if os.path.exists(candidate_font_path):
+                try:
+                    emoji_font = pygame.freetype.Font(candidate_font_path, 32)
+                    break
+                except (FileNotFoundError, OSError, pygame.error):
+                    emoji_font = None
         pgn_game_button_rects = {}
         pgn_game_options = [
             ("carlsen_kasparov", "Carlsen vs Kasparov (2004)", "pgn_sample_games/carlsen_kasparov_2004.pgn"),
@@ -334,6 +441,22 @@ async def main():
                     return font
                 size -= 1
             return pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, min_size, bold=bold)
+
+        def _wrap_text_lines(text, font, max_width):
+            words = text.split()
+            if not words:
+                return []
+            lines = []
+            current_line = words[0]
+            for word in words[1:]:
+                candidate = f"{current_line} {word}"
+                if font.size(candidate)[0] <= max_width:
+                    current_line = candidate
+                else:
+                    lines.append(current_line)
+                    current_line = word
+            lines.append(current_line)
+            return lines
 
         _player_badge_hover_info = []  # [(pygame.Rect, full_name), ...] — populated each frame
 
@@ -463,20 +586,17 @@ async def main():
             lis.SCREEN.blit(panel, help_panel_rect.topleft)
             return help_panel_rect
 
-        def _load_puzzle_position(json_path, whoseturn):
-            nonlocal puzzles_modal_open, restore_default_setup_on_stop, pending_start_whoseturn
-            cancel_pending_cpu_move()
-            start_objects.Dragging.dragging_all_false()
-            start_objects.Start.restart_start_positions()
-            if SwitchModesController.GAME_MODE == SwitchModesController.PLAY_MODE:
-                stop_game()
+        def _load_game_mode_position(game_mode_key, json_path, whoseturn):
+            nonlocal game_modes_modal_open, restore_default_setup_on_stop, pending_start_whoseturn, active_game_mode_key
+            _reset_board_for_game_mode_load()
             loaded_position = load_position_from_json(json_path)
             _apply_position_config(loaded_position["config"], fallback_whoseturn=whoseturn)
-            puzzles_modal_open = False
+            game_modes_modal_open = False
             restore_default_setup_on_stop = False
+            active_game_mode_key = game_mode_key
 
         def _load_sample_pgn(pgn_path):
-            nonlocal game_controller, puzzles_modal_open, pgn_games_modal_open, restore_default_setup_on_stop, pending_start_whoseturn
+            nonlocal game_controller, game_modes_modal_open, pgn_games_modal_open, restore_default_setup_on_stop, pending_start_whoseturn, active_game_mode_key
             cancel_pending_cpu_move()
             start_objects.Dragging.dragging_all_false()
             start_objects.Start.restart_start_positions()
@@ -485,10 +605,11 @@ async def main():
             if SwitchModesController.GAME_MODE == SwitchModesController.PLAY_MODE:
                 stop_game()
             game_controller = PgnWriterAndLoader.pgn_load_from_path(play_edit_switch_button, pgn_path)
-            puzzles_modal_open = False
+            game_modes_modal_open = False
             pgn_games_modal_open = False
             restore_default_setup_on_stop = game_controller is not None
             pending_start_whoseturn = "white"
+            active_game_mode_key = None
 
         def _save_position_with_starting_turn(selected_turn):
             nonlocal pending_start_whoseturn
@@ -559,14 +680,31 @@ async def main():
 
             lis.SCREEN.blit(panel, modal_panel_rect.topleft)
 
-        def _draw_puzzle_modal():
-            nonlocal modal_panel_rect, modal_close_rect, puzzle_button_rects
+        def _draw_game_modes_modal():
+            nonlocal modal_panel_rect, modal_close_rect, game_mode_button_rects
+
+            def _wrap_text_lines(text, font, max_width):
+                words = text.split()
+                if not words:
+                    return [""]
+                lines = []
+                current_line = words[0]
+                for word in words[1:]:
+                    candidate = f"{current_line} {word}"
+                    if font.size(candidate)[0] <= max_width:
+                        current_line = candidate
+                    else:
+                        lines.append(current_line)
+                        current_line = word
+                lines.append(current_line)
+                return lines
+
             _dim = pygame.Surface(lis.SCREEN.get_size(), pygame.SRCALPHA)
             _dim.fill((5, 10, 24, 185))
             lis.SCREEN.blit(_dim, (0, 0))
 
             panel_w = 520
-            panel_h = 310
+            panel_h = 620
             panel_x = (lis.SCREEN.get_width() - panel_w) // 2
             panel_y = (lis.SCREEN.get_height() - panel_h) // 2
             modal_panel_rect = pygame.Rect(panel_x, panel_y, panel_w, panel_h)
@@ -578,9 +716,51 @@ async def main():
 
             title_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 28, bold=True)
             option_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 20, bold=True)
+            detail_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 16)
             close_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 22, bold=True)
 
-            title = title_font.render("Chess Puzzles", True, (242, 247, 255))
+            def _draw_mode_icon(target_surface, mode_key, emoji_text, icon_rect):
+                style_by_mode = {
+                    "mate_in_1": ((118, 86, 20, 245), (255, 219, 122, 235)),
+                    "mate_in_2": ((118, 86, 20, 245), (255, 219, 122, 235)),
+                    "pawns_only": ((33, 87, 72, 240), (120, 218, 186, 225)),
+                    "random_setup": ((67, 69, 138, 240), (165, 180, 255, 225)),
+                }
+                badge_fill, badge_border = style_by_mode[mode_key]
+                pygame.draw.rect(target_surface, badge_fill, icon_rect, border_radius=12)
+                pygame.draw.rect(target_surface, badge_border, icon_rect, 1, border_radius=12)
+
+                if emoji_font is not None:
+                    try:
+                        icon_surface, icon_bounds = emoji_font.render(emoji_text)
+                    except (OSError, pygame.error):
+                        icon_surface = None
+                        icon_bounds = None
+                    if icon_surface is not None and icon_surface.get_width() > 0 and icon_surface.get_height() > 0:
+                        icon_pos = (
+                            icon_rect.centerx - icon_surface.get_width() // 2,
+                            icon_rect.centery - icon_surface.get_height() // 2,
+                        )
+                        target_surface.blit(icon_surface, icon_pos)
+                        return
+
+                fallback_labels = {
+                    "mate_in_1": "P1",
+                    "mate_in_2": "P2",
+                    "pawns_only": "PA",
+                    "random_setup": "RD",
+                }
+                fallback_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 13, bold=True)
+                fallback_surface = fallback_font.render(fallback_labels[mode_key], True, (242, 247, 255))
+                target_surface.blit(
+                    fallback_surface,
+                    (
+                        icon_rect.centerx - fallback_surface.get_width() // 2,
+                        icon_rect.centery - fallback_surface.get_height() // 2 - 1,
+                    ),
+                )
+
+            title = title_font.render("Game Modes", True, (242, 247, 255))
             panel.blit(title, (28, 24))
 
             close_hovered = modal_close_rect.collidepoint(mousepos)
@@ -593,23 +773,66 @@ async def main():
             panel.blit(close_text, (close_local_rect.centerx - close_text.get_width() // 2,
                                     close_local_rect.centery - close_text.get_height() // 2 - 1))
 
-            puzzle_button_rects = {}
+            subtitle_lines = _wrap_text_lines(
+                "Load mate puzzles or quick variants, including a kings-and-pawns setup.",
+                detail_font,
+                panel_w - 92,
+            )
+            subtitle_y = 58
+            for line in subtitle_lines:
+                subtitle = detail_font.render(line, True, (188, 208, 232))
+                panel.blit(subtitle, (28, subtitle_y))
+                subtitle_y += 18
+
+            game_mode_button_rects = {}
             button_w = panel_w - 56
-            button_h = 58
-            first_y = 86
-            gap = 16
-            for index, (puzzle_key, label, _, _) in enumerate(puzzle_options):
-                local_rect = pygame.Rect(28, first_y + index * (button_h + gap), button_w, button_h)
+            button_padding_top = 14
+            button_padding_bottom = 16
+            detail_y_offset = 40
+            description_line_height = 18
+            first_y = subtitle_y + 18
+            gap = 14
+            for index, (mode_key, emoji_text, label, mode_type, mode_description, _, _) in enumerate(game_mode_options):
+                description_lines = _wrap_text_lines(mode_description, detail_font, button_w - 96)
+                button_h = button_padding_top + detail_y_offset + (len(description_lines) * description_line_height) + button_padding_bottom
+                local_y = first_y + sum(
+                    button_padding_top + detail_y_offset + (len(_wrap_text_lines(prev_description, detail_font, button_w - 96)) * description_line_height) + button_padding_bottom + gap
+                    for _, _, _, _, prev_description, _, _ in game_mode_options[:index]
+                )
+                local_rect = pygame.Rect(28, local_y, button_w, button_h)
                 absolute_rect = local_rect.move(panel_x, panel_y)
-                puzzle_button_rects[puzzle_key] = absolute_rect
+                game_mode_button_rects[mode_key] = absolute_rect
                 hovered = absolute_rect.collidepoint(mousepos)
-                btn_bg = (26, 58, 110, 224) if hovered else (18, 42, 86, 192)
-                btn_border = (150, 204, 255, 235) if hovered else (104, 142, 194, 190)
+                selected = active_game_mode_key == mode_key
+                btn_bg = (30, 66, 122, 230) if hovered or selected else (18, 42, 86, 192)
+                btn_border = (170, 214, 255, 235) if hovered or selected else (104, 142, 194, 190)
                 pygame.draw.rect(panel, btn_bg, local_rect, border_radius=12)
                 pygame.draw.rect(panel, btn_border, local_rect, 1, border_radius=12)
                 label_surf = option_font.render(label, True, (244, 248, 255))
-                panel.blit(label_surf, (local_rect.x + 18, local_rect.centery - label_surf.get_height() // 2))
+                detail_surf = detail_font.render(mode_type, True, (188, 208, 232))
+                content_x = local_rect.x + 70
+                icon_rect = pygame.Rect(local_rect.x + 14, local_rect.y + 12, 40, 40)
+                _draw_mode_icon(panel, mode_key, emoji_text, icon_rect)
+                panel.blit(label_surf, (content_x, local_rect.y + 14))
+                panel.blit(detail_surf, (content_x, local_rect.y + 40))
+                description_y = local_rect.y + 58
+                for line in description_lines:
+                    description_surf = detail_font.render(line, True, (216, 231, 248))
+                    panel.blit(description_surf, (content_x, description_y))
+                    description_y += description_line_height
 
+            if active_game_mode_key == "random_setup":
+                footer_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 17, bold=True)
+                footer_lines = _wrap_text_lines(
+                    "Open this menu and click Random Setup again to regenerate.",
+                    footer_font,
+                    panel_w - 56,
+                )
+                footer_y = panel_h - 26 - (len(footer_lines) * 18)
+                for line in footer_lines:
+                    footer_text = footer_font.render(line, True, (188, 208, 232))
+                    panel.blit(footer_text, (28, footer_y))
+                    footer_y += 18
             lis.SCREEN.blit(panel, modal_panel_rect.topleft)
 
         def _draw_pgn_games_modal():
@@ -698,8 +921,13 @@ async def main():
                 return
             card_x = initvar.MOVE_BG_IMAGE_X + 16
             card_y = initvar.MOVE_BG_IMAGE_Y + 14
-            card_width = 170
-            card_height = 74 if detail_text else 52
+            card_width = _PANEL_RECT[2] - ((card_x - _PANEL_RECT[0]) * 2)
+            detail_lines = []
+            detail_font = None
+            if detail_text:
+                detail_font = _fit_font(detail_text, card_width, 17, 14)
+                detail_lines = _wrap_text_lines(detail_text, detail_font, card_width)
+            card_height = 52 + (len(detail_lines) * 18 if detail_lines else 0)
             card = pygame.Surface((card_width, card_height), pygame.SRCALPHA)
             status_label = _status_label_font.render("STATUS", True, _label_color)
             card.blit(status_label, (0, 0))
@@ -707,16 +935,19 @@ async def main():
                 turn_font = _fit_font(turn_text, card_width, 24, 16, bold=True)
                 turn_surface = turn_font.render(turn_text, True, (244, 248, 255))
                 card.blit(turn_surface, (0, 22))
-            if detail_text:
-                detail_font = _fit_font(detail_text, card_width, 17, 14)
-                detail_surface = detail_font.render(detail_text, True, (255, 214, 166) if "check" in detail_text.lower() else (206, 220, 238))
-                card.blit(detail_surface, (0, 50 if turn_text else 24))
+            if detail_lines and detail_font:
+                detail_color = (255, 214, 166) if "check" in detail_text.lower() else (206, 220, 238)
+                detail_y = 50 if turn_text else 24
+                for detail_line in detail_lines:
+                    detail_surface = detail_font.render(detail_line, True, detail_color)
+                    card.blit(detail_surface, (0, detail_y))
+                    detail_y += 18
             lis.SCREEN.blit(card, (card_x, card_y))
             pygame.draw.line(
                 lis.SCREEN,
                 _PANEL_BORDER,
                 (initvar.MOVE_BG_IMAGE_X + 14, initvar.MOVE_BG_IMAGE_Y + 136),
-                (initvar.MOVE_BG_IMAGE_X + 188, initvar.MOVE_BG_IMAGE_Y + 136),
+                (initvar.MOVE_BG_IMAGE_X + _PANEL_RECT[2] - 14, initvar.MOVE_BG_IMAGE_Y + 136),
                 1,
             )
         mouse_coord = ""
@@ -745,8 +976,8 @@ async def main():
                         if event.key == pygame.K_ESCAPE and pgn_games_modal_open:
                             pgn_games_modal_open = False
                             continue
-                        if event.key == pygame.K_ESCAPE and puzzles_modal_open:
-                            puzzles_modal_open = False
+                        if event.key == pygame.K_ESCAPE and game_modes_modal_open:
+                            game_modes_modal_open = False
                             continue
                         if event.key == pygame.K_ESCAPE and help_overlay_open:
                             help_overlay_open = False
@@ -785,15 +1016,20 @@ async def main():
                                     break
                         continue
                     if (event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0]
-                            and puzzles_modal_open):
+                            and game_modes_modal_open):
                         if modal_close_rect.collidepoint(mousepos):
-                            puzzles_modal_open = False
+                            game_modes_modal_open = False
                         elif not modal_panel_rect.collidepoint(mousepos):
-                            puzzles_modal_open = False
+                            game_modes_modal_open = False
                         else:
-                            for puzzle_key, _label, json_path, whoseturn in puzzle_options:
-                                if puzzle_button_rects.get(puzzle_key) and puzzle_button_rects[puzzle_key].collidepoint(mousepos):
-                                    _load_puzzle_position(json_path, whoseturn)
+                            for mode_key, _emoji_text, _label, _mode_type, _mode_description, json_path, whoseturn in game_mode_options:
+                                if game_mode_button_rects.get(mode_key) and game_mode_button_rects[mode_key].collidepoint(mousepos):
+                                    if mode_key == "pawns_only":
+                                        loadPawnsOnly()
+                                    elif mode_key == "random_setup":
+                                        loadRandomSetup()
+                                    else:
+                                        _load_game_mode_position(mode_key, json_path, whoseturn)
                                     break
                         continue
                     if (event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0]
@@ -811,7 +1047,7 @@ async def main():
                         if file_action == "save_position":
                             save_position_modal_open = True
                             help_overlay_open = False
-                            puzzles_modal_open = False
+                            game_modes_modal_open = False
                             pgn_games_modal_open = False
                             continue
                         if file_action == "save_pgn":
@@ -826,6 +1062,7 @@ async def main():
                             loaded_position = pos_load_file()
                             if loaded_position is not None:
                                 _apply_position_config(loaded_position["config"])
+                                active_game_mode_key = None
                             continue
                         if file_action == "load_pgn":
                             cancel_pending_cpu_move()
@@ -845,15 +1082,15 @@ async def main():
                             help_overlay_open = not help_overlay_open
                             continue
                         if (SwitchModesController.GAME_MODE == SwitchModesController.EDIT_MODE
-                                and puzzles_button.rect.collidepoint(mousepos)):
-                            puzzles_modal_open = True
+                                and game_modes_button.rect.collidepoint(mousepos)):
+                            game_modes_modal_open = True
                             pgn_games_modal_open = False
                             help_overlay_open = False
                             continue
                         if (SwitchModesController.GAME_MODE == SwitchModesController.EDIT_MODE
                                 and pgn_games_button.rect.collidepoint(mousepos)):
                             pgn_games_modal_open = True
-                            puzzles_modal_open = False
+                            game_modes_modal_open = False
                             help_overlay_open = False
                             continue
                         if scroll_up_button.rect.collidepoint(mousepos) and menu_buttons.PanelRectangles.scroll_range[0] > 1: # Scroll up
@@ -980,6 +1217,7 @@ async def main():
                             #BUTTONS
                             if reset_board_button.rect.collidepoint(mousepos) and reset_board_button.clickable:
                                 pos_load_file(reset=True)
+                                active_game_mode_key = None
                             if game_properties_button and game_properties_button.rect.collidepoint(mousepos) and game_properties_button.clickable:
                                 _dim = pygame.Surface(lis.SCREEN.get_size(), pygame.SRCALPHA)
                                 _dim.fill((0, 0, 0, 140))
@@ -1039,6 +1277,8 @@ async def main():
                                 start_objects.Start.restart_start_positions()
                                 # REMOVE ALL SPRITES
                                 placed_objects.remove_all_placed()
+                                TextController.remove_check_checkmate_text()
+                                active_game_mode_key = None
 
                     #%% Middle Mouse Debugger
                     if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[1]:
@@ -1088,7 +1328,7 @@ async def main():
                 play_edit_switch_button.draw(lis.SCREEN, game_setup_state, mousepos)
                 features_panel.draw(lis.SCREEN)
                 features_enabled = (SwitchModesController.GAME_MODE == SwitchModesController.EDIT_MODE)
-                puzzles_button.draw(lis.SCREEN, mousepos, enabled=features_enabled)
+                game_modes_button.draw(lis.SCREEN, mousepos, enabled=features_enabled)
                 pgn_games_button.draw(lis.SCREEN, mousepos, enabled=features_enabled)
                 # Group sprites update
                 menu_buttons.GAME_MODE_SPRITES.draw(lis.SCREEN)
@@ -1147,7 +1387,7 @@ async def main():
                         else:
                             status_detail_text = "Player moves first"
                     else:
-                        status_detail_text = "Starting turn for this setup"
+                        status_detail_text = "Player moves first"
                 _draw_panel_status(current_turn_text, status_detail_text)
                 _player_badge_hover_info.clear()
                 # Use "CPU" / "Player" as fallback when the name hasn't been set in Game
@@ -1183,8 +1423,8 @@ async def main():
                     help_panel_rect = _draw_help_overlay()
                 if save_position_modal_open:
                     _draw_save_position_modal()
-                if puzzles_modal_open:
-                    _draw_puzzle_modal()
+                if game_modes_modal_open:
+                    _draw_game_modes_modal()
                 if pgn_games_modal_open:
                     _draw_pgn_games_modal()
                 elif initvar.ITCH_MODE:

@@ -12,6 +12,7 @@ Chess GUI brings the traditional chess experience to your desktop. The game adhe
 - **PGN Support**: Save and load game positions and manage Portable Game Notation (PGN) files, making it easy to review games and learn from past plays.
 - **Game Properties Management**: Track player names, ratings, and game results, enhancing the competitive aspect of chess.
 - **Board Editor**: Set up any custom position by dragging pieces from the sidebar onto the board — useful for studying endgames or specific scenarios.
+- **Game Modes Library**: Open the `Game Modes` sidebar menu in setup mode to load built-in `Mate in 1`, `Mate in 2`, `Pawns Only`, or `Random Setup` positions. The mate setups allow free play from curated positions, `Pawns Only` leaves just kings and pawns on their standard files, and Random Setup generates a Chess960-style back rank while keeping pawns on their standard files.
 - **Board Customization**:
   - Flip Board: Reverse the board's perspective to suit player preference.
   - Reset Board: Easily reset the game to its initial state.
@@ -41,7 +42,7 @@ Chess/
 ├── play_objects.py           # Piece sprites in play mode (with move logic)
 ├── replayed_objects.py       # Piece sprites in replay mode
 ├── start_objects.py          # Drag-tray pieces (edit mode sidebar)
-├── chess_positions/          # Built-in position / puzzle JSON files
+├── chess_positions/          # Built-in position / game-mode JSON files
 ├── test_smoke.py             # Headless smoke test suite (60 checks)
 └── game/
     ├── constants.py          # Numeric/color constants
@@ -144,7 +145,7 @@ Now you're all set to enjoy the Chess GUI game on your PC!
 
 ## Position JSON Format
 
-Custom saved positions and built-in puzzles use JSON files. The project stores the bundled examples in [`chess_positions/`](./chess_positions).
+Custom saved positions and built-in game modes use JSON files. The project stores the bundled examples in [`chess_positions/`](./chess_positions).
 
 The current schema separates game metadata from board state:
 
