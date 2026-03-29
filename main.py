@@ -453,8 +453,10 @@ async def main():
                 "collapsible": True,
                 "expanded": True,
                 "modes": [
-                    ("mate_in_1", "🧩", "Mate in 1", "Puzzle", "Find the forced checkmate in one move for Black.", "chess_positions/black_to_move_mate_in_1.json", "black"),
-                    ("mate_in_2", "🧩", "Mate in 2", "Puzzle", "Play through a position with a forced mate in two.", "chess_positions/puzzle2_whitetocheckmate.json", "white"),
+                    ("mate_in_1", "🧩", "Mate in 1", "Puzzle", "Play as Black vs CPU and find the forced mate in one.", "chess_positions/black_to_move_mate_in_1.json", "black"),
+                    ("mate_in_2", "🧩", "Mate in 2", "Puzzle", "Play as Black vs CPU and find the forced mate in two.", "chess_positions/black_to_move_mate_in_2.json", "black"),
+                    ("mate_in_3", "🧩", "Mate in 3", "Puzzle", "Play as Black vs CPU and find the forced mate in three.", "chess_positions/black_to_move_mate_in_3.json", "black"),
+                    ("mate_in_4", "🧩", "Mate in 4", "Puzzle", "Play as White vs CPU and find the forced mate in four.", "chess_positions/white_to_move_mate_in_4.json", "white"),
                 ],
             },
             {
@@ -569,6 +571,8 @@ async def main():
         _game_mode_title_by_key = {
             "mate_in_1": "Mate in 1",
             "mate_in_2": "Mate in 2",
+            "mate_in_3": "Mate in 3",
+            "mate_in_4": "Mate in 4",
             "pawns_only": "Pawns Only",
             "random_setup": "Random Setup",
             "chaos_setup": "Chaos Setup",
@@ -901,6 +905,8 @@ async def main():
                 style_by_mode = {
                     "mate_in_1": ((118, 86, 20, 245), (255, 219, 122, 235)),
                     "mate_in_2": ((118, 86, 20, 245), (255, 219, 122, 235)),
+                    "mate_in_3": ((118, 86, 20, 245), (255, 219, 122, 235)),
+                    "mate_in_4": ((118, 86, 20, 245), (255, 219, 122, 235)),
                     "pawns_only": ((33, 87, 72, 240), (120, 218, 186, 225)),
                     "random_setup": ((67, 69, 138, 240), (165, 180, 255, 225)),
                     "chaos_setup": ((122, 64, 28, 240), (255, 184, 125, 225)),
@@ -928,6 +934,8 @@ async def main():
                 fallback_labels = {
                     "mate_in_1": "P1",
                     "mate_in_2": "P2",
+                    "mate_in_3": "P3",
+                    "mate_in_4": "P4",
                     "pawns_only": "PA",
                     "random_setup": "RD",
                     "chaos_setup": "CH",
