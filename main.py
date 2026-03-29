@@ -453,7 +453,7 @@ async def main():
                 "collapsible": True,
                 "expanded": True,
                 "modes": [
-                    ("mate_in_1", "🧩", "Mate in 1", "Puzzle", "Find the forced checkmate in one move.", "chess_positions/puzzle1_whitetocheckmate.json", "white"),
+                    ("mate_in_1", "🧩", "Mate in 1", "Puzzle", "Find the forced checkmate in one move for Black.", "chess_positions/black_to_move_mate_in_1.json", "black"),
                     ("mate_in_2", "🧩", "Mate in 2", "Puzzle", "Play through a position with a forced mate in two.", "chess_positions/puzzle2_whitetocheckmate.json", "white"),
                 ],
             },
@@ -653,11 +653,21 @@ async def main():
             notice_surf.set_alpha(204)
             shadow_surf = _itch_notice_font.render(notice_text, True, (0, 0, 0))
             shadow_surf.set_alpha(178)
-            notice_x = (lis.SCREEN.get_width() - notice_surf.get_width()) // 2
+            notice_x = _shared_x
             notice_y = lis.SCREEN.get_height() - notice_surf.get_height() - 16
             lis.SCREEN.blit(shadow_surf, (notice_x, notice_y + 1))
             lis.SCREEN.blit(shadow_surf, (notice_x, notice_y + 2))
             lis.SCREEN.blit(notice_surf, (notice_x, notice_y))
+
+        def _get_itch_notice_rect():
+            if not initvar.ITCH_MODE or pgn_games_modal_open:
+                return None
+
+            notice_text = "Best experienced on desktop. If playing on itch.io, please use landscape mode."
+            notice_w, notice_h = _itch_notice_font.size(notice_text)
+            notice_x = _shared_x
+            notice_y = lis.SCREEN.get_height() - notice_h - 16
+            return pygame.Rect(notice_x, notice_y, notice_w, notice_h)
 
         def _draw_active_game_mode_title():
             if not active_game_mode_key:
@@ -672,8 +682,12 @@ async def main():
 
             badge_w = title_surf.get_width() + (_game_mode_badge_pad_x * 2)
             badge_h = title_surf.get_height() + (_game_mode_badge_pad_y * 2)
-            badge_x = _shared_x + (_shared_w - badge_w) // 2
             badge_y = initvar.SCREEN_HEIGHT - badge_h - _game_mode_badge_bottom_margin
+            badge_x = _shared_x + (_shared_w - badge_w) // 2
+            itch_notice_rect = _get_itch_notice_rect()
+            if itch_notice_rect is not None:
+                min_badge_x = itch_notice_rect.right + 16
+                badge_x = max(badge_x, min_badge_x)
             badge_rect = pygame.Rect(badge_x, badge_y, badge_w, badge_h)
 
             badge_surf = pygame.Surface((badge_w, badge_h), pygame.SRCALPHA)
