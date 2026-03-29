@@ -20,6 +20,10 @@ log = logging.getLogger("log_guy")
 class EditModeController():
     @staticmethod
     def right_click_destroy(mousepos):
+        if start_objects.Dragging.drag_piece_name:
+            start_objects.Dragging.dragging_all_false()
+            start_objects.Start.restart_start_positions()
+            return
         start_objects.Dragging.dragging_all_false()
         start_objects.Start.restart_start_positions()
         placed_objects.remove_placed_object(mousepos)

@@ -23,6 +23,7 @@ import initvar
 import board
 import play_objects
 import placed_objects
+import start_objects
 import menu_buttons
 import main
 import gc
@@ -261,9 +262,23 @@ check(len(board.Grid.grid_list) == 64, "Board has 64 squares")
 check("e4" in board.Grid.grid_dict, "Grid dict contains e4")
 
 # ---------------------------------------------------------------------------
-# Test 2: Default position setup
+# Test 2: Edit mode right-click behavior
 # ---------------------------------------------------------------------------
-print("\nTest 2: Default position setup")
+print("\nTest 2: Edit mode right-click behavior")
+_reset_state()
+placed_objects.remove_all_placed()
+placed_objects.PlacedQueen("e4", "white")
+start_objects.Dragging.start_drag("black_rook")
+main.EditModeController.right_click_destroy(board.Grid.grid_dict["e4"].rect.center)
+check(start_objects.Dragging.drag_piece_name == "", "Right-click clears active drag")
+check(len(placed_objects.PlacedQueen.white_queen_list) == 1, "Right-click while dragging leaves board piece in place")
+main.EditModeController.right_click_destroy(board.Grid.grid_dict["e4"].rect.center)
+check(len(placed_objects.PlacedQueen.white_queen_list) == 0, "Right-click without drag deletes placed piece")
+
+# ---------------------------------------------------------------------------
+# Test 3: Default position setup
+# ---------------------------------------------------------------------------
+print("\nTest 3: Default position setup")
 main.pos_load_file(reset=True)
 check(len(placed_objects.PlacedPawn.white_pawn_list) == 8, "8 white pawns placed")
 check(len(placed_objects.PlacedPawn.black_pawn_list) == 8, "8 black pawns placed")
@@ -271,9 +286,9 @@ check(len(placed_objects.PlacedKing.white_king_list) == 1, "1 white king placed"
 check(len(placed_objects.PlacedKing.black_king_list) == 1, "1 black king placed")
 
 # ---------------------------------------------------------------------------
-# Test 3: Switch to play mode
+# Test 4: Switch to play mode
 # ---------------------------------------------------------------------------
-print("\nTest 3: Switch to play mode")
+print("\nTest 4: Switch to play mode")
 game_controller = setup_game()
 check(
     main.SwitchModesController.GAME_MODE == main.SwitchModesController.PLAY_MODE,
