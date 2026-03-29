@@ -220,6 +220,37 @@ def setup_custom_game_with_turn(position_dict, whoseturn):
     return game_ctrl
 
 
+PEASANTS_REVOLT_POSITION = {
+    "white_pawn": ["a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2"],
+    "white_bishop": [],
+    "white_knight": [],
+    "white_rook": [],
+    "white_queen": [],
+    "white_king": ["e1"],
+    "black_pawn": ["e7"],
+    "black_bishop": [],
+    "black_knight": ["b8", "d8", "g8"],
+    "black_rook": [],
+    "black_queen": [],
+    "black_king": ["e8"],
+}
+
+LIGHT_BRIGADE_POSITION = {
+    "white_pawn": ["a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2"],
+    "white_bishop": [],
+    "white_knight": [],
+    "white_rook": [],
+    "white_queen": ["b1", "d1", "g1"],
+    "white_king": ["e1"],
+    "black_pawn": ["a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7"],
+    "black_bishop": [],
+    "black_knight": ["a8", "b8", "c8", "d8", "f8", "g8", "h8"],
+    "black_rook": [],
+    "black_queen": [],
+    "black_king": ["e8"],
+}
+
+
 # ---------------------------------------------------------------------------
 # Test 1: Import and initialization
 # ---------------------------------------------------------------------------
@@ -518,6 +549,88 @@ check(
 check(
     game_controller5.color_in_check == "white",
     "White king flagged in check after Fool's Mate"
+)
+
+# ---------------------------------------------------------------------------
+# Test 14: Peasant's Revolt setup
+# ---------------------------------------------------------------------------
+print("\nTest 14: Peasant's Revolt setup")
+peasants_revolt_game = setup_custom_game_with_turn(PEASANTS_REVOLT_POSITION, "white")
+check(len(play_objects.PlayPawn.white_pawn_list) == 8, "Peasant's Revolt has 8 white pawns")
+check(len(play_objects.PlayKing.white_king_list) == 1, "Peasant's Revolt has 1 white king")
+check(len(play_objects.PlayPawn.black_pawn_list) == 1, "Peasant's Revolt has 1 black pawn")
+check(len(play_objects.PlayKnight.black_knight_list) == 3, "Peasant's Revolt has 3 black knights")
+check(len(play_objects.PlayKing.black_king_list) == 1, "Peasant's Revolt has 1 black king")
+check(len(play_objects.PlayBishop.white_bishop_list) == 0, "Peasant's Revolt has no white bishops")
+check(len(play_objects.PlayRook.white_rook_list) == 0, "Peasant's Revolt has no white rooks")
+check(len(play_objects.PlayQueen.white_queen_list) == 0, "Peasant's Revolt has no white queens")
+check(len(play_objects.PlayBishop.black_bishop_list) == 0, "Peasant's Revolt has no black bishops")
+check(len(play_objects.PlayRook.black_rook_list) == 0, "Peasant's Revolt has no black rooks")
+check(len(play_objects.PlayQueen.black_queen_list) == 0, "Peasant's Revolt has no black queens")
+check(peasants_revolt_game.whoseturn == "white", "Peasant's Revolt starts with white to move")
+
+# ---------------------------------------------------------------------------
+# Test 15: Peasant's Revolt uses standard engine rules
+# ---------------------------------------------------------------------------
+print("\nTest 15: Peasant's Revolt rules compatibility")
+peasants_revolt_variant = setup_custom_game_with_turn(PEASANTS_REVOLT_POSITION, "white")
+variant_controller = main.GameController(
+    main.GridController.flipped,
+    whoseturn="white",
+    variant_key="peasants_revolt",
+)
+variant_controller.refresh_objects()
+check(variant_controller.variant_key == "peasants_revolt", "Variant key is stored on GameController")
+check(variant_controller.castling_enabled, "Peasant's Revolt keeps standard castling enabled")
+check(variant_controller.whoseturn == "white", "Variant GameController keeps white to move")
+check(
+    play_objects.Piece_Lists_Shortcut.piece_on_coord("e1") is not None
+    and play_objects.Piece_Lists_Shortcut.piece_on_coord("e8") is not None,
+    "Peasant's Revolt refreshes cleanly with both kings present"
+)
+
+# ---------------------------------------------------------------------------
+# Test 16: Charge of the Light Brigade setup
+# ---------------------------------------------------------------------------
+print("\nTest 16: Charge of the Light Brigade setup")
+light_brigade_game = setup_custom_game_with_turn(LIGHT_BRIGADE_POSITION, "white")
+check(len(play_objects.PlayPawn.white_pawn_list) == 8, "Charge of the Light Brigade has 8 white pawns")
+check(len(play_objects.PlayQueen.white_queen_list) == 3, "Charge of the Light Brigade has 3 white queens")
+check(len(play_objects.PlayKing.white_king_list) == 1, "Charge of the Light Brigade has 1 white king")
+check(len(play_objects.PlayPawn.black_pawn_list) == 8, "Charge of the Light Brigade has 8 black pawns")
+check(len(play_objects.PlayKnight.black_knight_list) == 7, "Charge of the Light Brigade has 7 black knights")
+check(len(play_objects.PlayKing.black_king_list) == 1, "Charge of the Light Brigade has 1 black king")
+check(len(play_objects.PlayBishop.white_bishop_list) == 0, "Charge of the Light Brigade has no white bishops")
+check(len(play_objects.PlayKnight.white_knight_list) == 0, "Charge of the Light Brigade has no white knights")
+check(len(play_objects.PlayRook.white_rook_list) == 0, "Charge of the Light Brigade has no white rooks")
+check(len(play_objects.PlayBishop.black_bishop_list) == 0, "Charge of the Light Brigade has no black bishops")
+check(len(play_objects.PlayRook.black_rook_list) == 0, "Charge of the Light Brigade has no black rooks")
+check(len(play_objects.PlayQueen.black_queen_list) == 0, "Charge of the Light Brigade has no black queens")
+check(light_brigade_game.whoseturn == "white", "Charge of the Light Brigade starts with white to move")
+check(play_objects.Piece_Lists_Shortcut.piece_on_coord("b1") is not None, "Charge of the Light Brigade places a white queen on b1")
+check(play_objects.Piece_Lists_Shortcut.piece_on_coord("d1") is not None, "Charge of the Light Brigade places a white queen on d1")
+check(play_objects.Piece_Lists_Shortcut.piece_on_coord("g1") is not None, "Charge of the Light Brigade places a white queen on g1")
+check(play_objects.Piece_Lists_Shortcut.piece_on_coord("a8") is not None, "Charge of the Light Brigade places a black knight on a8")
+check(play_objects.Piece_Lists_Shortcut.piece_on_coord("h8") is not None, "Charge of the Light Brigade places a black knight on h8")
+
+# ---------------------------------------------------------------------------
+# Test 17: Charge of the Light Brigade uses standard engine rules
+# ---------------------------------------------------------------------------
+print("\nTest 17: Charge of the Light Brigade rules compatibility")
+setup_custom_game_with_turn(LIGHT_BRIGADE_POSITION, "white")
+variant_controller = main.GameController(
+    main.GridController.flipped,
+    whoseturn="white",
+    variant_key="light_brigade",
+)
+variant_controller.refresh_objects()
+check(variant_controller.variant_key == "light_brigade", "Light Brigade variant key is stored on GameController")
+check(variant_controller.castling_enabled, "Charge of the Light Brigade keeps standard castling enabled")
+check(variant_controller.whoseturn == "white", "Light Brigade GameController keeps white to move")
+check(
+    play_objects.Piece_Lists_Shortcut.piece_on_coord("e1") is not None
+    and play_objects.Piece_Lists_Shortcut.piece_on_coord("e8") is not None,
+    "Charge of the Light Brigade refreshes cleanly with both kings present"
 )
 
 # ---------------------------------------------------------------------------

@@ -355,6 +355,50 @@ async def main():
             restore_default_setup_on_stop = False
             active_game_mode_key = "chaos_setup"
 
+        def loadPeasantsRevolt():
+            nonlocal game_modes_modal_open, restore_default_setup_on_stop, pending_start_whoseturn, active_game_mode_key
+            _reset_board_for_game_mode_load()
+            load_position_from_dict({
+                "white_pawn": [f"{file_name}2" for file_name in "abcdefgh"],
+                "white_bishop": [],
+                "white_knight": [],
+                "white_rook": [],
+                "white_queen": [],
+                "white_king": ["e1"],
+                "black_pawn": ["e7"],
+                "black_bishop": [],
+                "black_knight": ["b8", "d8", "g8"],
+                "black_rook": [],
+                "black_queen": [],
+                "black_king": ["e8"],
+            })
+            _apply_position_config(_build_current_orientation_config("white"))
+            game_modes_modal_open = False
+            restore_default_setup_on_stop = False
+            active_game_mode_key = "peasants_revolt"
+
+        def loadLightBrigade():
+            nonlocal game_modes_modal_open, restore_default_setup_on_stop, pending_start_whoseturn, active_game_mode_key
+            _reset_board_for_game_mode_load()
+            load_position_from_dict({
+                "white_pawn": [f"{file_name}2" for file_name in "abcdefgh"],
+                "white_bishop": [],
+                "white_knight": [],
+                "white_rook": [],
+                "white_queen": ["b1", "d1", "g1"],
+                "white_king": ["e1"],
+                "black_pawn": [f"{file_name}7" for file_name in "abcdefgh"],
+                "black_bishop": [],
+                "black_knight": ["a8", "b8", "c8", "d8", "f8", "g8", "h8"],
+                "black_rook": [],
+                "black_queen": [],
+                "black_king": ["e8"],
+            })
+            _apply_position_config(_build_current_orientation_config("white"))
+            game_modes_modal_open = False
+            restore_default_setup_on_stop = False
+            active_game_mode_key = "light_brigade"
+
         def stop_game():
             nonlocal game_controller, restore_default_setup_on_stop
             cancel_pending_cpu_move()
@@ -394,13 +438,34 @@ async def main():
         modal_panel_rect = pygame.Rect(0, 0, 0, 0)
         modal_close_rect = pygame.Rect(0, 0, 0, 0)
         game_mode_button_rects = {}
+        game_mode_section_rects = {}
         save_turn_button_rects = {}
-        game_mode_options = [
-            ("mate_in_1", "🧩", "Mate in 1", "Puzzle", "Find the forced checkmate in one move.", "chess_positions/puzzle1_whitetocheckmate.json", "white"),
-            ("mate_in_2", "🧩", "Mate in 2", "Puzzle", "Play through a position with a forced mate in two.", "chess_positions/puzzle2_whitetocheckmate.json", "white"),
-            ("pawns_only", "♟️", "Pawns Only", "Variant", "Strip the board down to kings and pawns on their standard files.", None, "white"),
-            ("random_setup", "🎲", "Random Setup", "Variant", "Generate a fresh Chess960-style back rank while keeping pawns in place.", None, "white"),
-            ("chaos_setup", "⚡", "Chaos Setup", "Variant", "Randomized armies. Standard pawn lines and no castling.", None, "white"),
+        game_mode_sections = [
+            {
+                "section_key": "puzzles",
+                "title": "Puzzles",
+                "helper_text": "Curated mate positions for fast solving.",
+                "collapsible": True,
+                "expanded": True,
+                "modes": [
+                    ("mate_in_1", "🧩", "Mate in 1", "Puzzle", "Find the forced checkmate in one move.", "chess_positions/puzzle1_whitetocheckmate.json", "white"),
+                    ("mate_in_2", "🧩", "Mate in 2", "Puzzle", "Play through a position with a forced mate in two.", "chess_positions/puzzle2_whitetocheckmate.json", "white"),
+                ],
+            },
+            {
+                "section_key": "variants",
+                "title": "Variants",
+                "helper_text": "Experimental setups for alternate openings and piece mixes.",
+                "collapsible": True,
+                "expanded": True,
+                "modes": [
+                    ("pawns_only", "♟️", "Pawns Only", "Variant", "Strip the board down to kings and pawns on their standard files.", None, "white"),
+                    ("random_setup", "🎲", "Random Setup", "Variant", "Generate a fresh Chess960-style back rank while keeping pawns in place.", None, "white"),
+                    ("chaos_setup", "⚡", "Chaos Setup", "Variant", "Randomized armies. Standard pawn lines and no castling.", None, "white"),
+                    ("peasants_revolt", "⚔️", "Peasant's Revolt", "Variant", "White fields a king with eight pawns against Black's king, three knights, and one pawn.", None, "white"),
+                    ("light_brigade", "🐎", "Charge of the Light Brigade", "Variant", "White charges with three queens and a full pawn line against Black's seven knights and pawns.", None, "white"),
+                ],
+            },
         ]
         active_game_mode_key = None
         emoji_font = None
@@ -673,6 +738,10 @@ async def main():
             pending_start_whoseturn = _normalize_starting_turn(selected_turn)
             pos_save_file(_current_position_config())
 
+        def _reset_game_mode_sections():
+            for section in game_mode_sections:
+                section["expanded"] = False
+
         def _draw_save_position_modal():
             nonlocal modal_panel_rect, modal_close_rect, save_turn_button_rects
             _dim = pygame.Surface(lis.SCREEN.get_size(), pygame.SRCALPHA)
@@ -738,7 +807,7 @@ async def main():
             lis.SCREEN.blit(panel, modal_panel_rect.topleft)
 
         def _draw_game_modes_modal():
-            nonlocal modal_panel_rect, modal_close_rect, game_mode_button_rects
+            nonlocal modal_panel_rect, modal_close_rect, game_mode_button_rects, game_mode_section_rects
 
             def _wrap_text_lines(text, font, max_width):
                 words = text.split()
@@ -763,6 +832,8 @@ async def main():
             title_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 28, bold=True)
             option_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 20, bold=True)
             detail_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 16)
+            section_title_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 18, bold=True)
+            section_helper_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 15)
             close_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 22, bold=True)
 
             def _draw_mode_icon(target_surface, mode_key, emoji_text, icon_rect):
@@ -772,6 +843,8 @@ async def main():
                     "pawns_only": ((33, 87, 72, 240), (120, 218, 186, 225)),
                     "random_setup": ((67, 69, 138, 240), (165, 180, 255, 225)),
                     "chaos_setup": ((122, 64, 28, 240), (255, 184, 125, 225)),
+                    "peasants_revolt": ((102, 56, 34, 240), (231, 194, 120, 225)),
+                    "light_brigade": ((70, 76, 118, 240), (185, 201, 255, 225)),
                 }
                 badge_fill, badge_border = style_by_mode[mode_key]
                 pygame.draw.rect(target_surface, badge_fill, icon_rect, border_radius=12)
@@ -797,6 +870,8 @@ async def main():
                     "pawns_only": "PA",
                     "random_setup": "RD",
                     "chaos_setup": "CH",
+                    "peasants_revolt": "PR",
+                    "light_brigade": "LB",
                 }
                 fallback_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 13, bold=True)
                 fallback_surface = fallback_font.render(fallback_labels[mode_key], True, (242, 247, 255))
@@ -822,16 +897,25 @@ async def main():
             description_line_height = 18
             subtitle_y = 58 + (len(subtitle_lines) * 18)
             first_y = subtitle_y + 18
-            gap = 14
+            section_gap = 16
+            card_gap = 14
+            section_header_h = 60
             button_layout = []
-            for index, (mode_key, emoji_text, label, mode_type, mode_description, _, _) in enumerate(game_mode_options):
-                description_lines = _wrap_text_lines(mode_description, detail_font, button_w - 96)
-                button_h = button_padding_top + detail_y_offset + (len(description_lines) * description_line_height) + button_padding_bottom
-                local_y = first_y + sum(
-                    button_padding_top + detail_y_offset + (len(_wrap_text_lines(prev_description, detail_font, button_w - 96)) * description_line_height) + button_padding_bottom + gap
-                    for _, _, _, _, prev_description, _, _ in game_mode_options[:index]
-                )
-                button_layout.append((mode_key, emoji_text, label, mode_type, description_lines, pygame.Rect(28, local_y, button_w, button_h)))
+            section_layout = []
+            current_y = first_y
+            for section in game_mode_sections:
+                header_rect = pygame.Rect(28, current_y, button_w, section_header_h)
+                helper_lines = _wrap_text_lines(section["helper_text"], section_helper_font, button_w - 148)
+                section_layout.append((section, helper_lines, header_rect))
+                current_y = header_rect.bottom + 10
+                if section["expanded"]:
+                    for mode_key, emoji_text, label, mode_type, mode_description, _, _ in section["modes"]:
+                        description_lines = _wrap_text_lines(mode_description, detail_font, button_w - 96)
+                        button_h = button_padding_top + detail_y_offset + (len(description_lines) * description_line_height) + button_padding_bottom
+                        local_rect = pygame.Rect(28, current_y, button_w, button_h)
+                        button_layout.append((mode_key, emoji_text, label, mode_type, description_lines, local_rect))
+                        current_y = local_rect.bottom + card_gap
+                current_y += section_gap
 
             footer_height = 0
             footer_lines = []
@@ -845,8 +929,8 @@ async def main():
                 )
                 footer_height = (len(footer_lines) * 18) + 26
 
-            content_bottom = button_layout[-1][5].bottom if button_layout else first_y
-            panel_h = max(620, content_bottom + footer_height + 28)
+            content_bottom = current_y - section_gap if section_layout else first_y
+            panel_h = max(420, content_bottom + footer_height + 28)
             panel_h = min(panel_h, lis.SCREEN.get_height() - 60)
             panel_x = (lis.SCREEN.get_width() - panel_w) // 2
             panel_y = (lis.SCREEN.get_height() - panel_h) // 2
@@ -877,6 +961,30 @@ async def main():
                 subtitle_y += 18
 
             game_mode_button_rects = {}
+            game_mode_section_rects = {}
+            for section, helper_lines, header_rect in section_layout:
+                absolute_header_rect = header_rect.move(panel_x, panel_y)
+                game_mode_section_rects[section["section_key"]] = absolute_header_rect
+                header_hovered = absolute_header_rect.collidepoint(mousepos)
+                header_bg = (20, 45, 92, 168) if header_hovered else (14, 32, 70, 130)
+                header_border = (122, 166, 222, 210) if header_hovered else (84, 122, 178, 180)
+                pygame.draw.rect(panel, header_bg, header_rect, border_radius=12)
+                pygame.draw.rect(panel, header_border, header_rect, 1, border_radius=12)
+
+                title_surf = section_title_font.render(section["title"], True, (242, 247, 255))
+                helper_color = (190, 209, 234) if section["expanded"] else (164, 184, 214)
+                helper_y = header_rect.y + 30
+                panel.blit(title_surf, (header_rect.x + 16, header_rect.y + 10))
+                for helper_line in helper_lines[:1]:
+                    helper_surf = section_helper_font.render(helper_line, True, helper_color)
+                    panel.blit(helper_surf, (header_rect.x + 16, helper_y))
+
+                if section["collapsible"]:
+                    chevron_direction = "v" if section["expanded"] else ">"
+                    chevron_surface = section_title_font.render(chevron_direction, True, (214, 229, 248))
+                    chevron_x = header_rect.right - chevron_surface.get_width() - 16
+                    panel.blit(chevron_surface, (chevron_x, header_rect.y + 9))
+
             for mode_key, emoji_text, label, mode_type, description_lines, local_rect in button_layout:
                 absolute_rect = local_rect.move(panel_x, panel_y)
                 game_mode_button_rects[mode_key] = absolute_rect
@@ -1094,16 +1202,36 @@ async def main():
                         elif not modal_panel_rect.collidepoint(mousepos):
                             game_modes_modal_open = False
                         else:
-                            for mode_key, _emoji_text, _label, _mode_type, _mode_description, json_path, whoseturn in game_mode_options:
-                                if game_mode_button_rects.get(mode_key) and game_mode_button_rects[mode_key].collidepoint(mousepos):
-                                    if mode_key == "pawns_only":
-                                        loadPawnsOnly()
-                                    elif mode_key == "random_setup":
-                                        loadRandomSetup()
-                                    elif mode_key == "chaos_setup":
-                                        loadChaosSetup()
+                            section_toggled = False
+                            for section in game_mode_sections:
+                                if (section["collapsible"]
+                                        and game_mode_section_rects.get(section["section_key"])
+                                        and game_mode_section_rects[section["section_key"]].collidepoint(mousepos)):
+                                    should_expand = not section["expanded"]
+                                    for other_section in game_mode_sections:
+                                        other_section["expanded"] = False
+                                    section["expanded"] = should_expand
+                                    section_toggled = True
+                                    break
+                            if not section_toggled:
+                                for section in game_mode_sections:
+                                    for mode_key, _emoji_text, _label, _mode_type, _mode_description, json_path, whoseturn in section["modes"]:
+                                        if game_mode_button_rects.get(mode_key) and game_mode_button_rects[mode_key].collidepoint(mousepos):
+                                            if mode_key == "pawns_only":
+                                                loadPawnsOnly()
+                                            elif mode_key == "random_setup":
+                                                loadRandomSetup()
+                                            elif mode_key == "chaos_setup":
+                                                loadChaosSetup()
+                                            elif mode_key == "peasants_revolt":
+                                                loadPeasantsRevolt()
+                                            elif mode_key == "light_brigade":
+                                                loadLightBrigade()
+                                            else:
+                                                _load_game_mode_position(mode_key, json_path, whoseturn)
+                                            break
                                     else:
-                                        _load_game_mode_position(mode_key, json_path, whoseturn)
+                                        continue
                                     break
                         continue
                     if (event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0]
@@ -1157,6 +1285,7 @@ async def main():
                             continue
                         if (SwitchModesController.GAME_MODE == SwitchModesController.EDIT_MODE
                                 and game_modes_button.rect.collidepoint(mousepos)):
+                            _reset_game_mode_sections()
                             game_modes_modal_open = True
                             pgn_games_modal_open = False
                             help_overlay_open = False
