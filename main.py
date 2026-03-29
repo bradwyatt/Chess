@@ -228,6 +228,11 @@ async def main():
             if SwitchModesController.GAME_MODE == SwitchModesController.PLAY_MODE:
                 stop_game()
 
+        def _clear_active_game_mode_if_edit_board_changed(previous_snapshot):
+            nonlocal active_game_mode_key
+            if active_game_mode_key and previous_snapshot != get_dict_rect_positions():
+                active_game_mode_key = None
+
         def _generate_random_setup_position():
             back_rank = [None] * 8
             even_files = [0, 2, 4, 6]
@@ -1304,6 +1309,7 @@ async def main():
                             for grid in board.Grid.grid_list:
                                 grid.no_highlight()
                             GridController.update_grid_occupied_detection()
+                            active_game_mode_key = None
                             continue
                     # Menu, inanimate buttons at top, and on right side of game board
                     if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] \
@@ -1472,7 +1478,12 @@ async def main():
                           initvar.X_GRID_START < mousepos[0] < board.X_GRID_END and
                           initvar.Y_GRID_START < mousepos[1] < board.Y_GRID_END):
                         # Drag piece to board (initialize placed piece)
+                        prior_edit_snapshot = None
+                        if SwitchModesController.GAME_MODE == SwitchModesController.EDIT_MODE:
+                            prior_edit_snapshot = get_dict_rect_positions()
                         start_objects.Dragging.dragging_to_placed_no_dups(mouse_coord)
+                        if prior_edit_snapshot is not None:
+                            _clear_active_game_mode_if_edit_board_changed(prior_edit_snapshot)
                         if SwitchModesController.GAME_MODE == SwitchModesController.PLAY_MODE:
                             if pending_cpu_move_at is not None:
                                 continue
@@ -1498,7 +1509,9 @@ async def main():
                     if SwitchModesController.GAME_MODE == SwitchModesController.EDIT_MODE:
                         # Right click on obj, destroy
                         if(event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[2]):
+                            prior_edit_snapshot = get_dict_rect_positions()
                             EditModeController.right_click_destroy(mousepos)
+                            _clear_active_game_mode_if_edit_board_changed(prior_edit_snapshot)
                     if event.type == pygame.MOUSEBUTTONUP: #Release Drag
                         if play_edit_switch_button.rect.collidepoint(mousepos):
                             if SwitchModesController.GAME_MODE == SwitchModesController.EDIT_MODE:
