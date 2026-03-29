@@ -31,8 +31,10 @@ class GameController():
     For example, after a white bishop finished its move, then the grids
     that are in the line of sight from the bishop have its respective variables
     """
-    def __init__(self, flipped, whoseturn="white"):
+    def __init__(self, flipped, whoseturn="white", variant_key=None):
         self.whoseturn = whoseturn
+        self.variant_key = variant_key
+        self.castling_enabled = variant_key != "chaos_setup"
         self.color_in_check = ""
         self.check_attacking_coordinates = []
         self.attacker_piece = ""

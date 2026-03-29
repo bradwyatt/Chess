@@ -12,7 +12,7 @@ Chess GUI brings the traditional chess experience to your desktop. The game adhe
 - **PGN Support**: Save and load game positions and manage Portable Game Notation (PGN) files, making it easy to review games and learn from past plays.
 - **Game Properties Management**: Track player names, ratings, and game results, enhancing the competitive aspect of chess.
 - **Board Editor**: Set up any custom position by dragging pieces from the sidebar onto the board — useful for studying endgames or specific scenarios.
-- **Game Modes Library**: Open the `Game Modes` sidebar menu in setup mode to load built-in `Mate in 1`, `Mate in 2`, `Pawns Only`, or `Random Setup` positions. The mate setups allow free play from curated positions, `Pawns Only` leaves just kings and pawns on their standard files, and Random Setup generates a Chess960-style back rank while keeping pawns on their standard files.
+- **Game Modes Library**: Open the `Game Modes` sidebar menu in setup mode to load built-in `Mate in 1`, `Mate in 2`, `Pawns Only`, `Random Setup`, or `Chaos Setup` positions. The mate setups allow free play from curated positions, `Pawns Only` leaves just kings and pawns on their standard files, `Random Setup` generates a Chess960-style back rank while keeping pawns in place, and `Chaos Setup` randomizes each side's back rank while keeping standard pawn lines and disabling castling for the variant.
 - **Board Customization**:
   - Flip Board: Reverse the board's perspective to suit player preference.
   - Reset Board: Easily reset the game to its initial state.

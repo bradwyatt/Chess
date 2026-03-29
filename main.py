@@ -117,7 +117,11 @@ async def main():
             SwitchModesController.switch_mode(SwitchModesController.PLAY_MODE, play_edit_switch_button)
             if whoseturn is None:
                 whoseturn = pending_start_whoseturn
-            game_controller = GameController(GridController.flipped, whoseturn=whoseturn)
+            game_controller = GameController(
+                GridController.flipped,
+                whoseturn=whoseturn,
+                variant_key=active_game_mode_key,
+            )
             game_controller.refresh_objects()
             if CpuController.cpu_mode and game_controller.whoseturn == CpuController.cpu_color:
                 schedule_cpu_move()
@@ -268,6 +272,49 @@ async def main():
                 "black_king": _coords_for("king", 8),
             }
 
+        def generateChaosSetup():
+            files = "abcdefgh"
+            capped_piece_counts = {
+                "queen": 2,
+                "rook": 3,
+                "bishop": 3,
+                "knight": 3,
+            }
+
+            def _generate_back_rank():
+                piece_pool = ["king"]
+                for piece_name, max_count in capped_piece_counts.items():
+                    piece_pool.extend([piece_name] * max_count)
+                chosen_pieces = ["king"]
+                chosen_pieces.extend(random.sample(piece_pool[1:], 7))
+                random.shuffle(chosen_pieces)
+                return chosen_pieces
+
+            def _coords_for(back_rank, piece_name, rank):
+                return [
+                    f"{files[index]}{rank}"
+                    for index, current_piece in enumerate(back_rank)
+                    if current_piece == piece_name
+                ]
+
+            white_back_rank = _generate_back_rank()
+            black_back_rank = _generate_back_rank()
+
+            return {
+                "white_pawn": [f"{file_name}2" for file_name in files],
+                "white_bishop": _coords_for(white_back_rank, "bishop", 1),
+                "white_knight": _coords_for(white_back_rank, "knight", 1),
+                "white_rook": _coords_for(white_back_rank, "rook", 1),
+                "white_queen": _coords_for(white_back_rank, "queen", 1),
+                "white_king": _coords_for(white_back_rank, "king", 1),
+                "black_pawn": [f"{file_name}7" for file_name in files],
+                "black_bishop": _coords_for(black_back_rank, "bishop", 8),
+                "black_knight": _coords_for(black_back_rank, "knight", 8),
+                "black_rook": _coords_for(black_back_rank, "rook", 8),
+                "black_queen": _coords_for(black_back_rank, "queen", 8),
+                "black_king": _coords_for(black_back_rank, "king", 8),
+            }
+
         def loadPawnsOnly():
             nonlocal game_modes_modal_open, restore_default_setup_on_stop, pending_start_whoseturn, active_game_mode_key
             _reset_board_for_game_mode_load()
@@ -298,6 +345,15 @@ async def main():
             game_modes_modal_open = False
             restore_default_setup_on_stop = False
             active_game_mode_key = "random_setup"
+
+        def loadChaosSetup():
+            nonlocal game_modes_modal_open, restore_default_setup_on_stop, pending_start_whoseturn, active_game_mode_key
+            _reset_board_for_game_mode_load()
+            load_position_from_dict(generateChaosSetup())
+            _apply_position_config(_build_current_orientation_config("white"))
+            game_modes_modal_open = False
+            restore_default_setup_on_stop = False
+            active_game_mode_key = "chaos_setup"
 
         def stop_game():
             nonlocal game_controller, restore_default_setup_on_stop
@@ -344,6 +400,7 @@ async def main():
             ("mate_in_2", "🧩", "Mate in 2", "Puzzle", "Play through a position with a forced mate in two.", "chess_positions/puzzle2_whitetocheckmate.json", "white"),
             ("pawns_only", "♟️", "Pawns Only", "Variant", "Strip the board down to kings and pawns on their standard files.", None, "white"),
             ("random_setup", "🎲", "Random Setup", "Variant", "Generate a fresh Chess960-style back rank while keeping pawns in place.", None, "white"),
+            ("chaos_setup", "⚡", "Chaos Setup", "Variant", "Randomized armies. Standard pawn lines and no castling.", None, "white"),
         ]
         active_game_mode_key = None
         emoji_font = None
@@ -703,17 +760,6 @@ async def main():
             _dim.fill((5, 10, 24, 185))
             lis.SCREEN.blit(_dim, (0, 0))
 
-            panel_w = 520
-            panel_h = 620
-            panel_x = (lis.SCREEN.get_width() - panel_w) // 2
-            panel_y = (lis.SCREEN.get_height() - panel_h) // 2
-            modal_panel_rect = pygame.Rect(panel_x, panel_y, panel_w, panel_h)
-            modal_close_rect = pygame.Rect(panel_x + panel_w - 52, panel_y + 14, 36, 36)
-
-            panel = pygame.Surface((panel_w, panel_h), pygame.SRCALPHA)
-            pygame.draw.rect(panel, (*_PANEL_FILL, 240), panel.get_rect(), border_radius=18)
-            pygame.draw.rect(panel, (*_PANEL_BORDER, 220), panel.get_rect(), 1, border_radius=18)
-
             title_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 28, bold=True)
             option_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 20, bold=True)
             detail_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 16)
@@ -725,6 +771,7 @@ async def main():
                     "mate_in_2": ((118, 86, 20, 245), (255, 219, 122, 235)),
                     "pawns_only": ((33, 87, 72, 240), (120, 218, 186, 225)),
                     "random_setup": ((67, 69, 138, 240), (165, 180, 255, 225)),
+                    "chaos_setup": ((122, 64, 28, 240), (255, 184, 125, 225)),
                 }
                 badge_fill, badge_border = style_by_mode[mode_key]
                 pygame.draw.rect(target_surface, badge_fill, icon_rect, border_radius=12)
@@ -749,6 +796,7 @@ async def main():
                     "mate_in_2": "P2",
                     "pawns_only": "PA",
                     "random_setup": "RD",
+                    "chaos_setup": "CH",
                 }
                 fallback_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 13, bold=True)
                 fallback_surface = fallback_font.render(fallback_labels[mode_key], True, (242, 247, 255))
@@ -759,6 +807,55 @@ async def main():
                         icon_rect.centery - fallback_surface.get_height() // 2 - 1,
                     ),
                 )
+
+            subtitle_lines = _wrap_text_lines(
+                "Load mate puzzles or quick variants, including a kings-and-pawns setup.",
+                detail_font,
+                428,
+            )
+
+            panel_w = 520
+            button_w = panel_w - 56
+            button_padding_top = 14
+            button_padding_bottom = 16
+            detail_y_offset = 40
+            description_line_height = 18
+            subtitle_y = 58 + (len(subtitle_lines) * 18)
+            first_y = subtitle_y + 18
+            gap = 14
+            button_layout = []
+            for index, (mode_key, emoji_text, label, mode_type, mode_description, _, _) in enumerate(game_mode_options):
+                description_lines = _wrap_text_lines(mode_description, detail_font, button_w - 96)
+                button_h = button_padding_top + detail_y_offset + (len(description_lines) * description_line_height) + button_padding_bottom
+                local_y = first_y + sum(
+                    button_padding_top + detail_y_offset + (len(_wrap_text_lines(prev_description, detail_font, button_w - 96)) * description_line_height) + button_padding_bottom + gap
+                    for _, _, _, _, prev_description, _, _ in game_mode_options[:index]
+                )
+                button_layout.append((mode_key, emoji_text, label, mode_type, description_lines, pygame.Rect(28, local_y, button_w, button_h)))
+
+            footer_height = 0
+            footer_lines = []
+            if active_game_mode_key in {"random_setup", "chaos_setup"}:
+                footer_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 17, bold=True)
+                mode_label = "Chaos Setup" if active_game_mode_key == "chaos_setup" else "Random Setup"
+                footer_lines = _wrap_text_lines(
+                    f"Open this menu and click {mode_label} again to regenerate.",
+                    footer_font,
+                    panel_w - 56,
+                )
+                footer_height = (len(footer_lines) * 18) + 26
+
+            content_bottom = button_layout[-1][5].bottom if button_layout else first_y
+            panel_h = max(620, content_bottom + footer_height + 28)
+            panel_h = min(panel_h, lis.SCREEN.get_height() - 60)
+            panel_x = (lis.SCREEN.get_width() - panel_w) // 2
+            panel_y = (lis.SCREEN.get_height() - panel_h) // 2
+            modal_panel_rect = pygame.Rect(panel_x, panel_y, panel_w, panel_h)
+            modal_close_rect = pygame.Rect(panel_x + panel_w - 52, panel_y + 14, 36, 36)
+
+            panel = pygame.Surface((panel_w, panel_h), pygame.SRCALPHA)
+            pygame.draw.rect(panel, (*_PANEL_FILL, 240), panel.get_rect(), border_radius=18)
+            pygame.draw.rect(panel, (*_PANEL_BORDER, 220), panel.get_rect(), 1, border_radius=18)
 
             title = title_font.render("Game Modes", True, (242, 247, 255))
             panel.blit(title, (28, 24))
@@ -773,11 +870,6 @@ async def main():
             panel.blit(close_text, (close_local_rect.centerx - close_text.get_width() // 2,
                                     close_local_rect.centery - close_text.get_height() // 2 - 1))
 
-            subtitle_lines = _wrap_text_lines(
-                "Load mate puzzles or quick variants, including a kings-and-pawns setup.",
-                detail_font,
-                panel_w - 92,
-            )
             subtitle_y = 58
             for line in subtitle_lines:
                 subtitle = detail_font.render(line, True, (188, 208, 232))
@@ -785,21 +877,7 @@ async def main():
                 subtitle_y += 18
 
             game_mode_button_rects = {}
-            button_w = panel_w - 56
-            button_padding_top = 14
-            button_padding_bottom = 16
-            detail_y_offset = 40
-            description_line_height = 18
-            first_y = subtitle_y + 18
-            gap = 14
-            for index, (mode_key, emoji_text, label, mode_type, mode_description, _, _) in enumerate(game_mode_options):
-                description_lines = _wrap_text_lines(mode_description, detail_font, button_w - 96)
-                button_h = button_padding_top + detail_y_offset + (len(description_lines) * description_line_height) + button_padding_bottom
-                local_y = first_y + sum(
-                    button_padding_top + detail_y_offset + (len(_wrap_text_lines(prev_description, detail_font, button_w - 96)) * description_line_height) + button_padding_bottom + gap
-                    for _, _, _, _, prev_description, _, _ in game_mode_options[:index]
-                )
-                local_rect = pygame.Rect(28, local_y, button_w, button_h)
+            for mode_key, emoji_text, label, mode_type, description_lines, local_rect in button_layout:
                 absolute_rect = local_rect.move(panel_x, panel_y)
                 game_mode_button_rects[mode_key] = absolute_rect
                 hovered = absolute_rect.collidepoint(mousepos)
@@ -821,13 +899,7 @@ async def main():
                     panel.blit(description_surf, (content_x, description_y))
                     description_y += description_line_height
 
-            if active_game_mode_key == "random_setup":
-                footer_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 17, bold=True)
-                footer_lines = _wrap_text_lines(
-                    "Open this menu and click Random Setup again to regenerate.",
-                    footer_font,
-                    panel_w - 56,
-                )
+            if footer_lines:
                 footer_y = panel_h - 26 - (len(footer_lines) * 18)
                 for line in footer_lines:
                     footer_text = footer_font.render(line, True, (188, 208, 232))
@@ -1028,6 +1100,8 @@ async def main():
                                         loadPawnsOnly()
                                     elif mode_key == "random_setup":
                                         loadRandomSetup()
+                                    elif mode_key == "chaos_setup":
+                                        loadChaosSetup()
                                     else:
                                         _load_game_mode_position(mode_key, json_path, whoseturn)
                                     break

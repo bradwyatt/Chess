@@ -162,8 +162,6 @@ class PlayEditSwitchButton:
         surf.blit(text_surf, (x0 + self._ICON_SIZE + icon_gap,
                               cy - text_surf.get_height() // 2))
         scale = 1.0
-        if is_start and is_hovered:
-            scale = 1.02
         if is_pressed:
             scale = 0.995 if is_start else 0.98
         _draw_scaled_surface(screen, surf, self.rect, scale)

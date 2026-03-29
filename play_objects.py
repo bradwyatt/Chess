@@ -571,6 +571,8 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
     def castle_check(self, game_controller):
         self.queen_side_castle_ability = False
         self.king_side_castle_ability = False
+        if not game_controller.castling_enabled:
+            return
         if(self.castled == False and game_controller.color_in_check != self.color):
             if self.color == "white":
                 for white_rook in PlayRook.white_rook_list:
@@ -633,7 +635,8 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
                     if grid.occupied == 0 or grid.occupied_piece_color != self.color:
                         grid.attack_count_increment(self.color, self.coordinate)
     def spaces_available(self, game_controller):
-        if((self.color == "white" and self.coordinate == 'e1') or (self.color == "black" and self.coordinate == 'e8')):
+        if(game_controller.castling_enabled and
+           ((self.color == "white" and self.coordinate == 'e1') or (self.color == "black" and self.coordinate == 'e8'))):
             self.castle_check(game_controller)
         grid_dict = board.Grid.grid_dict
         col_ordinal = ord(self.coordinate[0])
@@ -661,7 +664,7 @@ class PlayKing(ChessPiece, pygame.sprite.Sprite):
                 if coord in grid_dict:
                     check_and_highlight(grid_dict[coord])
         # Castle
-        if not self.castled and (row == 1 or row == 8):
+        if game_controller.castling_enabled and not self.castled and (row == 1 or row == 8):
             for castle_col_offset, castle_ability in ((2, self.king_side_castle_ability), (-2, self.queen_side_castle_ability)):
                 if castle_ability != 1:
                     continue
