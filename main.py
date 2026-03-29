@@ -550,10 +550,26 @@ async def main():
         _status_label_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 16, bold=True)
         _status_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 28, bold=True)
         _status_sub_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 20)
+        _game_mode_title_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 22, bold=True)
         _tooltip_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 18)
         _itch_notice_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 12, bold=False)
+        _game_mode_badge_fill = (0, 0, 0, 102)
+        _game_mode_badge_border = (255, 255, 255, 38)
+        _game_mode_badge_text = (242, 247, 255)
+        _game_mode_badge_pad_x = 16
+        _game_mode_badge_pad_y = 7
+        _game_mode_badge_bottom_margin = 4
         _label_color = (165, 195, 230)  # matches "GAME SETUP" label — consistent across panels
         _muted_text  = (150, 175, 210)
+        _game_mode_title_by_key = {
+            "mate_in_1": "Mate in 1",
+            "mate_in_2": "Mate in 2",
+            "pawns_only": "Pawns Only",
+            "random_setup": "Random Setup",
+            "chaos_setup": "Chaos Setup",
+            "peasants_revolt": "Peasant's Revolt",
+            "light_brigade": "Charge of the Light Brigade",
+        }
 
         def _fit_font(text, max_width, start_size, min_size, bold=False):
             size = start_size
@@ -637,6 +653,32 @@ async def main():
             lis.SCREEN.blit(shadow_surf, (notice_x, notice_y + 1))
             lis.SCREEN.blit(shadow_surf, (notice_x, notice_y + 2))
             lis.SCREEN.blit(notice_surf, (notice_x, notice_y))
+
+        def _draw_active_game_mode_title():
+            if not active_game_mode_key:
+                return
+
+            title_text = _game_mode_title_by_key.get(active_game_mode_key)
+            if not title_text:
+                return
+
+            title_font = _fit_font(title_text, _shared_w - (_game_mode_badge_pad_x * 2) - 24, 22, 16, bold=True)
+            title_surf = title_font.render(title_text, True, _game_mode_badge_text)
+
+            badge_w = title_surf.get_width() + (_game_mode_badge_pad_x * 2)
+            badge_h = title_surf.get_height() + (_game_mode_badge_pad_y * 2)
+            badge_x = _shared_x + (_shared_w - badge_w) // 2
+            badge_y = initvar.SCREEN_HEIGHT - badge_h - _game_mode_badge_bottom_margin
+            badge_rect = pygame.Rect(badge_x, badge_y, badge_w, badge_h)
+
+            badge_surf = pygame.Surface((badge_w, badge_h), pygame.SRCALPHA)
+            pygame.draw.rect(badge_surf, _game_mode_badge_fill, badge_surf.get_rect(), border_radius=999)
+            pygame.draw.rect(badge_surf, _game_mode_badge_border, badge_surf.get_rect(), 1, border_radius=999)
+            lis.SCREEN.blit(badge_surf, badge_rect.topleft)
+
+            title_x = badge_rect.x + (badge_rect.width - title_surf.get_width()) // 2
+            title_y = badge_rect.y + (badge_rect.height - title_surf.get_height()) // 2
+            lis.SCREEN.blit(title_surf, (title_x, title_y))
 
         def _draw_help_overlay():
             _dim = pygame.Surface(lis.SCREEN.get_size(), pygame.SRCALPHA)
@@ -911,26 +953,18 @@ async def main():
                 if section["expanded"]:
                     for mode_key, emoji_text, label, mode_type, mode_description, _, _ in section["modes"]:
                         description_lines = _wrap_text_lines(mode_description, detail_font, button_w - 96)
-                        button_h = button_padding_top + detail_y_offset + (len(description_lines) * description_line_height) + button_padding_bottom
+                        if mode_key in {"random_setup", "chaos_setup"}:
+                            description_lines.append("Click again to regenerate.")
+                        description_start_y = 40 if mode_type in {"Variant", "Puzzle"} else 58
+                        bottom_padding = 8 if mode_type in {"Variant", "Puzzle"} else button_padding_bottom
+                        button_h = button_padding_top + description_start_y + (len(description_lines) * description_line_height) + bottom_padding
                         local_rect = pygame.Rect(28, current_y, button_w, button_h)
                         button_layout.append((mode_key, emoji_text, label, mode_type, description_lines, local_rect))
                         current_y = local_rect.bottom + card_gap
                 current_y += section_gap
 
-            footer_height = 0
-            footer_lines = []
-            if active_game_mode_key in {"random_setup", "chaos_setup"}:
-                footer_font = pygame.font.SysFont(initvar.UNIVERSAL_FONT_NAME, 17, bold=True)
-                mode_label = "Chaos Setup" if active_game_mode_key == "chaos_setup" else "Random Setup"
-                footer_lines = _wrap_text_lines(
-                    f"Open this menu and click {mode_label} again to regenerate.",
-                    footer_font,
-                    panel_w - 56,
-                )
-                footer_height = (len(footer_lines) * 18) + 26
-
             content_bottom = current_y - section_gap if section_layout else first_y
-            panel_h = max(420, content_bottom + footer_height + 28)
+            panel_h = max(420, content_bottom + 28)
             panel_h = min(panel_h, lis.SCREEN.get_height() - 60)
             panel_x = (lis.SCREEN.get_width() - panel_w) // 2
             panel_y = (lis.SCREEN.get_height() - panel_h) // 2
@@ -1000,19 +1034,15 @@ async def main():
                 icon_rect = pygame.Rect(local_rect.x + 14, local_rect.y + 12, 40, 40)
                 _draw_mode_icon(panel, mode_key, emoji_text, icon_rect)
                 panel.blit(label_surf, (content_x, local_rect.y + 14))
-                panel.blit(detail_surf, (content_x, local_rect.y + 40))
-                description_y = local_rect.y + 58
+                description_y = local_rect.y + 40
+                if mode_type not in {"Variant", "Puzzle"}:
+                    panel.blit(detail_surf, (content_x, local_rect.y + 40))
+                    description_y = local_rect.y + 58
                 for line in description_lines:
                     description_surf = detail_font.render(line, True, (216, 231, 248))
                     panel.blit(description_surf, (content_x, description_y))
                     description_y += description_line_height
 
-            if footer_lines:
-                footer_y = panel_h - 26 - (len(footer_lines) * 18)
-                for line in footer_lines:
-                    footer_text = footer_font.render(line, True, (188, 208, 232))
-                    panel.blit(footer_text, (28, footer_y))
-                    footer_y += 18
             lis.SCREEN.blit(panel, modal_panel_rect.topleft)
 
         def _draw_pgn_games_modal():
@@ -1605,6 +1635,7 @@ async def main():
                 else:
                     _draw_player_identity(_black_name, GameProperties.BlackElo, "top")
                     _draw_player_identity(_white_name, GameProperties.WhiteElo, "bottom")
+                _draw_active_game_mode_title()
                 for _badge_rect, _full_name in _player_badge_hover_info:
                     if _badge_rect.collidepoint(mousepos):
                         _draw_tooltip(_full_name, mousepos)
