@@ -38,7 +38,9 @@ When a library mode is active, its title is shown beneath the board until you ch
 
 ## Demo
 
-![Desktop demo](docs/demo.gif)
+<p align="center">
+  <img src="https://github.com/bradwyatt/Chess/blob/master/Docs/demo.gif?raw=true" width="700" height="500" alt="Gameplay and editor demo" />
+</p>
 
 ## Requirements
 
